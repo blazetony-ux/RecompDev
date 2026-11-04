@@ -1,0 +1,35 @@
+# Generated binaries and compiler output (never commit)
+*.exe
+*.dll
+*.so
+*.dylib
+*.lib
+*.exp
+*.obj
+*.o
+*.pdb
+*.ilk
+*.a
+*.pyc
+__pycache__/
+.vs/
+build/
+build-*/
+CMakeFiles/
+CMakeCache.txt
+Testing/
+*.log
+# Runtime/generated evidence, databases and archives stay outside this repo
+evidence/
+cache/
+runtime/
+logs/
+*.zip
+# Validated historical SQLite fixture intentionally included in frozen original source
+# and verified against the source preservation manifest. New databases are external.
+*.sqlite-shm
+*.sqlite-wal
+# Do not track local keys or credentials
+.env
+*.key
+*.pem

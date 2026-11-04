@@ -1,0 +1,349 @@
+{
+  "schema": "recompdev-sms-seven-owner-campaign-v1",
+  "release": "0.4.0.39",
+  "created_utc": "2026-11-02T22:14:59.273685+00:00",
+  "rom_directory": "C:\\Roms\\MASTERSYSTEM",
+  "catalogue": "C:\\Projects\\RecompDev-Data\\catalogue.sqlite",
+  "frames_requested": 120,
+  "steps_requested": 2000000,
+  "max_recoveries": 6,
+  "compile_timeout": 600,
+  "hardware_capture": true,
+  "reference_parity": "NOT_TESTED",
+  "gameplay": "NOT_ESTABLISHED",
+  "games": [
+    {
+      "game": "Shinobi (USA, Europe, Brazil) (En) (Rev 1).sms",
+      "slug": "shinobi",
+      "status": "CONTINUOUS_SESSION_COMPLETE",
+      "sha256": "dac4f1dcb41193cb42a96950444a87c5f2952ea66474c59a38c07b10ac411e47",
+      "bytes": 262144,
+      "discovery": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 0.1,
+        "log": "discovery.log"
+      },
+      "preparation": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 7.5,
+        "log": "preparation.log"
+      },
+      "preparation_status": "CANDIDATES_RECOVERED_TRANSLATOR_NEEDED",
+      "candidate_count": 48,
+      "preparation_blocker": "Experimental Z80 C++ lowering exists in Native Execution; semantics, banking and parity remain incomplete",
+      "recovery": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 259.6,
+        "log": "recovery.log"
+      },
+      "blocker": "",
+      "attempts": 6,
+      "recovered_instruction_addresses": 3372,
+      "maximum_frames_observed": 120,
+      "maximum_steps_observed": 709841,
+      "attempt_statuses": [
+        "BANKED_CODE_NOT_TRANSLATED",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "BANKED_CODE_NOT_TRANSLATED",
+        "UNTRANSLATED_INITIAL_CODE",
+        "FRAME_BUDGET_REACHED"
+      ],
+      "attempt_pcs": [
+        35432,
+        56,
+        30510,
+        32768,
+        680,
+        32949
+      ]
+    },
+    {
+      "game": "Bank Panic (Europe).sms",
+      "slug": "bank-panic",
+      "status": "CONTINUOUS_SESSION_COMPLETE",
+      "sha256": "1f71d828b34afa62ffdd02a7adae69a2377bb4c3e2681172dc11f5bb9e955af5",
+      "bytes": 32768,
+      "discovery": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 0.1,
+        "log": "discovery.log"
+      },
+      "preparation": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 6.9,
+        "log": "preparation.log"
+      },
+      "preparation_status": "CANDIDATES_RECOVERED_TRANSLATOR_NEEDED",
+      "candidate_count": 50,
+      "preparation_blocker": "Experimental Z80 C++ lowering exists in Native Execution; semantics, banking and parity remain incomplete",
+      "recovery": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 70.0,
+        "log": "recovery.log"
+      },
+      "blocker": "",
+      "attempts": 4,
+      "recovered_instruction_addresses": 190,
+      "maximum_frames_observed": 120,
+      "maximum_steps_observed": 1055011,
+      "attempt_statuses": [
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "FRAME_BUDGET_REACHED"
+      ],
+      "attempt_pcs": [
+        56,
+        442,
+        1747,
+        734
+      ]
+    },
+    {
+      "game": "Alex Kidd in Miracle World (USA) (Rev-A).sms",
+      "slug": "alex-kidd",
+      "status": "RECOVERY_BLOCKED",
+      "sha256": "6667e133818e36a214c81003e543f2c4c3ab5fa018ca313e3ac222a5a6e361c5",
+      "bytes": 131072,
+      "discovery": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 0.1,
+        "log": "discovery.log"
+      },
+      "preparation": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 9.3,
+        "log": "preparation.log"
+      },
+      "preparation_status": "CANDIDATES_RECOVERED_TRANSLATOR_NEEDED",
+      "candidate_count": 34,
+      "preparation_blocker": "Experimental Z80 C++ lowering exists in Native Execution; semantics, banking and parity remain incomplete",
+      "recovery": {
+        "status": "EXIT_2",
+        "exit_code": 2,
+        "seconds": 123.7,
+        "log": "recovery.log"
+      },
+      "blocker": "RECOVERY_BUDGET_EXHAUSTED",
+      "attempts": 7,
+      "recovered_instruction_addresses": 551,
+      "maximum_frames_observed": 89,
+      "maximum_steps_observed": 733220,
+      "attempt_statuses": [
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE"
+      ],
+      "attempt_pcs": [
+        56,
+        1901,
+        2114,
+        39408,
+        40256,
+        40160,
+        40233
+      ]
+    },
+    {
+      "game": "Fantasy Zone (USA) (Rev-A).sms",
+      "slug": "fantasy-zone",
+      "status": "RECOVERY_BLOCKED",
+      "sha256": "d529aa91cc0e540c4e3afdf8d946c02cb80765d280286da0a4e2125e2c443311",
+      "bytes": 131072,
+      "discovery": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 0.1,
+        "log": "discovery.log"
+      },
+      "preparation": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 5.2,
+        "log": "preparation.log"
+      },
+      "preparation_status": "CANDIDATES_RECOVERED_TRANSLATOR_NEEDED",
+      "candidate_count": 21,
+      "preparation_blocker": "Experimental Z80 C++ lowering exists in Native Execution; semantics, banking and parity remain incomplete",
+      "recovery": {
+        "status": "EXIT_2",
+        "exit_code": 2,
+        "seconds": 113.4,
+        "log": "recovery.log"
+      },
+      "blocker": "RECOVERY_BUDGET_EXHAUSTED",
+      "attempts": 7,
+      "recovered_instruction_addresses": 882,
+      "maximum_frames_observed": 97,
+      "maximum_steps_observed": 797868,
+      "attempt_statuses": [
+        "UNTRANSLATED_INITIAL_CODE",
+        "BANKED_CODE_NOT_TRANSLATED",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "BANKED_CODE_NOT_TRANSLATED"
+      ],
+      "attempt_pcs": [
+        56,
+        40704,
+        1556,
+        2507,
+        2006,
+        2782,
+        41028
+      ]
+    },
+    {
+      "game": "R-Type (USA).sms",
+      "slug": "r-type",
+      "status": "RECOVERY_BLOCKED",
+      "sha256": "8b9b80a16bc73457e93dd855d7398876bdb9b634387472ce1c0058906fc030d1",
+      "bytes": 524288,
+      "discovery": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 0.1,
+        "log": "discovery.log"
+      },
+      "preparation": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 6.7,
+        "log": "preparation.log"
+      },
+      "preparation_status": "CANDIDATES_RECOVERED_TRANSLATOR_NEEDED",
+      "candidate_count": 225,
+      "preparation_blocker": "Experimental Z80 C++ lowering exists in Native Execution; semantics, banking and parity remain incomplete",
+      "recovery": {
+        "status": "EXIT_2",
+        "exit_code": 2,
+        "seconds": 423.1,
+        "log": "recovery.log"
+      },
+      "blocker": "RECOVERY_BUDGET_EXHAUSTED",
+      "attempts": 7,
+      "recovered_instruction_addresses": 80,
+      "maximum_frames_observed": 18,
+      "maximum_steps_observed": 105946,
+      "attempt_statuses": [
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE"
+      ],
+      "attempt_pcs": [
+        22308,
+        22325,
+        22342,
+        9797,
+        9810,
+        9840,
+        4686
+      ]
+    },
+    {
+      "game": "Sonic the Hedgehog (USA).sms",
+      "slug": "sonic-sms",
+      "status": "RECOVERY_BLOCKED",
+      "sha256": "6ad738965ece231427ee046b9905cfee470d5c01220afdd934da4673e4a2458b",
+      "bytes": 262144,
+      "discovery": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 0.1,
+        "log": "discovery.log"
+      },
+      "preparation": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 26.5,
+        "log": "preparation.log"
+      },
+      "preparation_status": "CANDIDATES_RECOVERED_TRANSLATOR_NEEDED",
+      "candidate_count": 179,
+      "preparation_blocker": "Experimental Z80 C++ lowering exists in Native Execution; semantics, banking and parity remain incomplete",
+      "recovery": {
+        "status": "EXIT_2",
+        "exit_code": 2,
+        "seconds": 218.1,
+        "log": "recovery.log"
+      },
+      "blocker": "Native application failed: ",
+      "attempts": 0,
+      "recovered_instruction_addresses": 0,
+      "maximum_frames_observed": 0,
+      "maximum_steps_observed": 0,
+      "attempt_statuses": [],
+      "attempt_pcs": []
+    },
+    {
+      "game": "Wonder Boy (USA) (Rev-A).sms",
+      "slug": "wonder-boy",
+      "status": "RECOVERY_BLOCKED",
+      "sha256": "a13fa8164a0ab2d549d9a9bb3f998907c3f64b42eab9f4fae3d666abab510fdd",
+      "bytes": 131072,
+      "discovery": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 0.1,
+        "log": "discovery.log"
+      },
+      "preparation": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 7.4,
+        "log": "preparation.log"
+      },
+      "preparation_status": "CANDIDATES_RECOVERED_TRANSLATOR_NEEDED",
+      "candidate_count": 66,
+      "preparation_blocker": "Experimental Z80 C++ lowering exists in Native Execution; semantics, banking and parity remain incomplete",
+      "recovery": {
+        "status": "EXIT_2",
+        "exit_code": 2,
+        "seconds": 260.2,
+        "log": "recovery.log"
+      },
+      "blocker": "RECOVERY_BUDGET_EXHAUSTED",
+      "attempts": 7,
+      "recovered_instruction_addresses": 431,
+      "maximum_frames_observed": 94,
+      "maximum_steps_observed": 761647,
+      "attempt_statuses": [
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE"
+      ],
+      "attempt_pcs": [
+        56,
+        4623,
+        4783,
+        28848,
+        28785,
+        28843,
+        28871
+      ]
+    }
+  ]
+}

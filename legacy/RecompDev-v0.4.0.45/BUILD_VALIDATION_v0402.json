@@ -1,0 +1,9 @@
+{
+  "schema": "recomp-build-validation-v0.4.0.2",
+  "local_tests": 79,
+  "local_tests_status": "PASS",
+  "includes": "Synthetic Master System ROM UI workflow; local only; security checks",
+  "windows_launcher": "NOT_TESTED_WINDOWS",
+  "whole_game_parity": "NOT_DEMONSTRATED",
+  "note": "Full application continuation. Separate, independent working SQLite catalogue. No original source binary mutations."
+}

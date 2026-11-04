@@ -1,0 +1,1246 @@
+{
+  "schema": "recompdev-sms-seven-owner-campaign-v1",
+  "release": "0.4.0.40",
+  "created_utc": "2026-11-03T17:54:43.394517+00:00",
+  "rom_directory": "C:\\Roms\\MASTERSYSTEM",
+  "catalogue": "C:\\Projects\\RecompDev-Data\\catalogue.sqlite",
+  "frames_requested": 600,
+  "steps_requested": 2000000,
+  "max_recoveries": 12,
+  "compile_timeout": 600,
+  "hardware_capture": true,
+  "reference_parity": "NOT_TESTED",
+  "gameplay": "NOT_ESTABLISHED",
+  "games": [
+    {
+      "game": "Shinobi (USA, Europe, Brazil) (En) (Rev 1).sms",
+      "slug": "shinobi",
+      "status": "CONTINUOUS_SESSION_COMPLETE",
+      "sha256": "dac4f1dcb41193cb42a96950444a87c5f2952ea66474c59a38c07b10ac411e47",
+      "bytes": 262144,
+      "discovery": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 0.1,
+        "log": "discovery.log"
+      },
+      "preparation": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 13.2,
+        "log": "preparation.log"
+      },
+      "preparation_status": "CANDIDATES_RECOVERED_TRANSLATOR_NEEDED",
+      "candidate_count": 48,
+      "preparation_blocker": "Experimental Z80 C++ lowering exists in Native Execution; semantics, banking and parity remain incomplete",
+      "recovery": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 252.4,
+        "log": "recovery.log"
+      },
+      "blocker": "",
+      "attempts": 7,
+      "recovered_instruction_addresses": 3379,
+      "maximum_frames_observed": 600,
+      "maximum_steps_observed": 4017333,
+      "attempt_statuses": [
+        "BANKED_CODE_NOT_TRANSLATED",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "BANKED_CODE_NOT_TRANSLATED",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "FRAME_BUDGET_REACHED"
+      ],
+      "attempt_pcs": [
+        35432,
+        56,
+        30510,
+        32768,
+        680,
+        45793,
+        3043
+      ],
+      "frame_checkpoints": [
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 0,
+          "steps_observed": 7,
+          "status": "BANKED_CODE_NOT_TRANSLATED",
+          "source_sha256": "dac4f1dcb41193cb42a96950444a87c5f2952ea66474c59a38c07b10ac411e47",
+          "session_path": "sessions\\attempt-00\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 64,
+          "steps_observed": 338468,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "dac4f1dcb41193cb42a96950444a87c5f2952ea66474c59a38c07b10ac411e47",
+          "session_path": "sessions\\attempt-01\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 64,
+          "steps_observed": 338561,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "dac4f1dcb41193cb42a96950444a87c5f2952ea66474c59a38c07b10ac411e47",
+          "session_path": "sessions\\attempt-02\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 64,
+          "steps_observed": 338604,
+          "status": "BANKED_CODE_NOT_TRANSLATED",
+          "source_sha256": "dac4f1dcb41193cb42a96950444a87c5f2952ea66474c59a38c07b10ac411e47",
+          "session_path": "sessions\\attempt-03\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 67,
+          "steps_observed": 359492,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "dac4f1dcb41193cb42a96950444a87c5f2952ea66474c59a38c07b10ac411e47",
+          "session_path": "sessions\\attempt-04\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 120,
+          "steps_observed": 709841,
+          "status": "FRAME_BUDGET_REACHED",
+          "source_sha256": "dac4f1dcb41193cb42a96950444a87c5f2952ea66474c59a38c07b10ac411e47",
+          "session_path": "sessions\\attempt-05\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 300,
+          "steps_requested": 5000000,
+          "frames_observed": 248,
+          "steps_observed": 1590229,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "dac4f1dcb41193cb42a96950444a87c5f2952ea66474c59a38c07b10ac411e47",
+          "session_path": "sessions\\attempt-05\\frame-00300\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 120,
+          "steps_observed": 709841,
+          "status": "FRAME_BUDGET_REACHED",
+          "source_sha256": "dac4f1dcb41193cb42a96950444a87c5f2952ea66474c59a38c07b10ac411e47",
+          "session_path": "sessions\\attempt-06\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 300,
+          "steps_requested": 5000000,
+          "frames_observed": 300,
+          "steps_observed": 1948253,
+          "status": "FRAME_BUDGET_REACHED",
+          "source_sha256": "dac4f1dcb41193cb42a96950444a87c5f2952ea66474c59a38c07b10ac411e47",
+          "session_path": "sessions\\attempt-06\\frame-00300\\continuous-session.json"
+        },
+        {
+          "frames_requested": 600,
+          "steps_requested": 10000000,
+          "frames_observed": 600,
+          "steps_observed": 4017333,
+          "status": "FRAME_BUDGET_REACHED",
+          "source_sha256": "dac4f1dcb41193cb42a96950444a87c5f2952ea66474c59a38c07b10ac411e47",
+          "session_path": "sessions\\attempt-06\\frame-00600\\continuous-session.json"
+        }
+      ],
+      "recovery_budget_mode": "BOUNDED_PROGRESS_AWARE"
+    },
+    {
+      "game": "Bank Panic (Europe).sms",
+      "slug": "bank-panic",
+      "status": "CONTINUOUS_SESSION_COMPLETE",
+      "sha256": "1f71d828b34afa62ffdd02a7adae69a2377bb4c3e2681172dc11f5bb9e955af5",
+      "bytes": 32768,
+      "discovery": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 0.1,
+        "log": "discovery.log"
+      },
+      "preparation": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 5.7,
+        "log": "preparation.log"
+      },
+      "preparation_status": "CANDIDATES_RECOVERED_TRANSLATOR_NEEDED",
+      "candidate_count": 50,
+      "preparation_blocker": "Experimental Z80 C++ lowering exists in Native Execution; semantics, banking and parity remain incomplete",
+      "recovery": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 85.1,
+        "log": "recovery.log"
+      },
+      "blocker": "",
+      "attempts": 6,
+      "recovered_instruction_addresses": 246,
+      "maximum_frames_observed": 600,
+      "maximum_steps_observed": 4026638,
+      "attempt_statuses": [
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "FRAME_BUDGET_REACHED"
+      ],
+      "attempt_pcs": [
+        56,
+        442,
+        1747,
+        1857,
+        253,
+        165
+      ],
+      "frame_checkpoints": [
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 99,
+          "steps_observed": 893396,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "1f71d828b34afa62ffdd02a7adae69a2377bb4c3e2681172dc11f5bb9e955af5",
+          "session_path": "sessions\\attempt-00\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 100,
+          "steps_observed": 899448,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "1f71d828b34afa62ffdd02a7adae69a2377bb4c3e2681172dc11f5bb9e955af5",
+          "session_path": "sessions\\attempt-01\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 100,
+          "steps_observed": 899480,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "1f71d828b34afa62ffdd02a7adae69a2377bb4c3e2681172dc11f5bb9e955af5",
+          "session_path": "sessions\\attempt-02\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 120,
+          "steps_observed": 1055011,
+          "status": "FRAME_BUDGET_REACHED",
+          "source_sha256": "1f71d828b34afa62ffdd02a7adae69a2377bb4c3e2681172dc11f5bb9e955af5",
+          "session_path": "sessions\\attempt-03\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 300,
+          "steps_requested": 5000000,
+          "frames_observed": 123,
+          "steps_observed": 1081851,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "1f71d828b34afa62ffdd02a7adae69a2377bb4c3e2681172dc11f5bb9e955af5",
+          "session_path": "sessions\\attempt-03\\frame-00300\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 120,
+          "steps_observed": 1055011,
+          "status": "FRAME_BUDGET_REACHED",
+          "source_sha256": "1f71d828b34afa62ffdd02a7adae69a2377bb4c3e2681172dc11f5bb9e955af5",
+          "session_path": "sessions\\attempt-04\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 300,
+          "steps_requested": 5000000,
+          "frames_observed": 123,
+          "steps_observed": 1081931,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "1f71d828b34afa62ffdd02a7adae69a2377bb4c3e2681172dc11f5bb9e955af5",
+          "session_path": "sessions\\attempt-04\\frame-00300\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 120,
+          "steps_observed": 1055011,
+          "status": "FRAME_BUDGET_REACHED",
+          "source_sha256": "1f71d828b34afa62ffdd02a7adae69a2377bb4c3e2681172dc11f5bb9e955af5",
+          "session_path": "sessions\\attempt-05\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 300,
+          "steps_requested": 5000000,
+          "frames_observed": 300,
+          "steps_observed": 2171068,
+          "status": "FRAME_BUDGET_REACHED",
+          "source_sha256": "1f71d828b34afa62ffdd02a7adae69a2377bb4c3e2681172dc11f5bb9e955af5",
+          "session_path": "sessions\\attempt-05\\frame-00300\\continuous-session.json"
+        },
+        {
+          "frames_requested": 600,
+          "steps_requested": 10000000,
+          "frames_observed": 600,
+          "steps_observed": 4026638,
+          "status": "FRAME_BUDGET_REACHED",
+          "source_sha256": "1f71d828b34afa62ffdd02a7adae69a2377bb4c3e2681172dc11f5bb9e955af5",
+          "session_path": "sessions\\attempt-05\\frame-00600\\continuous-session.json"
+        }
+      ],
+      "recovery_budget_mode": "BOUNDED_PROGRESS_AWARE"
+    },
+    {
+      "game": "Alex Kidd in Miracle World (USA) (Rev-A).sms",
+      "slug": "alex-kidd",
+      "status": "RECOVERY_BLOCKED",
+      "sha256": "6667e133818e36a214c81003e543f2c4c3ab5fa018ca313e3ac222a5a6e361c5",
+      "bytes": 131072,
+      "discovery": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 0.1,
+        "log": "discovery.log"
+      },
+      "preparation": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 5.8,
+        "log": "preparation.log"
+      },
+      "preparation_status": "CANDIDATES_RECOVERED_TRANSLATOR_NEEDED",
+      "candidate_count": 34,
+      "preparation_blocker": "Experimental Z80 C++ lowering exists in Native Execution; semantics, banking and parity remain incomplete",
+      "recovery": {
+        "status": "EXIT_2",
+        "exit_code": 2,
+        "seconds": 189.6,
+        "log": "recovery.log"
+      },
+      "blocker": "RECOVERY_BUDGET_EXHAUSTED",
+      "attempts": 13,
+      "recovered_instruction_addresses": 620,
+      "maximum_frames_observed": 212,
+      "maximum_steps_observed": 1602167,
+      "attempt_statuses": [
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE"
+      ],
+      "attempt_pcs": [
+        56,
+        1901,
+        2114,
+        39408,
+        40256,
+        40160,
+        40233,
+        40350,
+        40228,
+        2162,
+        40377,
+        2177,
+        2192
+      ],
+      "frame_checkpoints": [
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 66,
+          "steps_observed": 575677,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "6667e133818e36a214c81003e543f2c4c3ab5fa018ca313e3ac222a5a6e361c5",
+          "session_path": "sessions\\attempt-00\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 66,
+          "steps_observed": 576104,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "6667e133818e36a214c81003e543f2c4c3ab5fa018ca313e3ac222a5a6e361c5",
+          "session_path": "sessions\\attempt-01\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 88,
+          "steps_observed": 732042,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "6667e133818e36a214c81003e543f2c4c3ab5fa018ca313e3ac222a5a6e361c5",
+          "session_path": "sessions\\attempt-02\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 88,
+          "steps_observed": 732076,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "6667e133818e36a214c81003e543f2c4c3ab5fa018ca313e3ac222a5a6e361c5",
+          "session_path": "sessions\\attempt-03\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 89,
+          "steps_observed": 732964,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "6667e133818e36a214c81003e543f2c4c3ab5fa018ca313e3ac222a5a6e361c5",
+          "session_path": "sessions\\attempt-04\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 89,
+          "steps_observed": 732967,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "6667e133818e36a214c81003e543f2c4c3ab5fa018ca313e3ac222a5a6e361c5",
+          "session_path": "sessions\\attempt-05\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 89,
+          "steps_observed": 733220,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "6667e133818e36a214c81003e543f2c4c3ab5fa018ca313e3ac222a5a6e361c5",
+          "session_path": "sessions\\attempt-06\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 89,
+          "steps_observed": 733253,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "6667e133818e36a214c81003e543f2c4c3ab5fa018ca313e3ac222a5a6e361c5",
+          "session_path": "sessions\\attempt-07\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 89,
+          "steps_observed": 733291,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "6667e133818e36a214c81003e543f2c4c3ab5fa018ca313e3ac222a5a6e361c5",
+          "session_path": "sessions\\attempt-08\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 120,
+          "steps_observed": 951937,
+          "status": "FRAME_BUDGET_REACHED",
+          "source_sha256": "6667e133818e36a214c81003e543f2c4c3ab5fa018ca313e3ac222a5a6e361c5",
+          "session_path": "sessions\\attempt-09\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 300,
+          "steps_requested": 5000000,
+          "frames_observed": 148,
+          "steps_observed": 1150898,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "6667e133818e36a214c81003e543f2c4c3ab5fa018ca313e3ac222a5a6e361c5",
+          "session_path": "sessions\\attempt-09\\frame-00300\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 120,
+          "steps_observed": 951937,
+          "status": "FRAME_BUDGET_REACHED",
+          "source_sha256": "6667e133818e36a214c81003e543f2c4c3ab5fa018ca313e3ac222a5a6e361c5",
+          "session_path": "sessions\\attempt-10\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 300,
+          "steps_requested": 5000000,
+          "frames_observed": 153,
+          "steps_observed": 1187150,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "6667e133818e36a214c81003e543f2c4c3ab5fa018ca313e3ac222a5a6e361c5",
+          "session_path": "sessions\\attempt-10\\frame-00300\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 120,
+          "steps_observed": 951937,
+          "status": "FRAME_BUDGET_REACHED",
+          "source_sha256": "6667e133818e36a214c81003e543f2c4c3ab5fa018ca313e3ac222a5a6e361c5",
+          "session_path": "sessions\\attempt-11\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 300,
+          "steps_requested": 5000000,
+          "frames_observed": 180,
+          "steps_observed": 1377307,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "6667e133818e36a214c81003e543f2c4c3ab5fa018ca313e3ac222a5a6e361c5",
+          "session_path": "sessions\\attempt-11\\frame-00300\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 120,
+          "steps_observed": 951937,
+          "status": "FRAME_BUDGET_REACHED",
+          "source_sha256": "6667e133818e36a214c81003e543f2c4c3ab5fa018ca313e3ac222a5a6e361c5",
+          "session_path": "sessions\\attempt-12\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 300,
+          "steps_requested": 5000000,
+          "frames_observed": 212,
+          "steps_observed": 1602167,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "6667e133818e36a214c81003e543f2c4c3ab5fa018ca313e3ac222a5a6e361c5",
+          "session_path": "sessions\\attempt-12\\frame-00300\\continuous-session.json"
+        }
+      ],
+      "recovery_budget_mode": "BOUNDED_PROGRESS_AWARE"
+    },
+    {
+      "game": "Fantasy Zone (USA) (Rev-A).sms",
+      "slug": "fantasy-zone",
+      "status": "RECOVERY_BLOCKED",
+      "sha256": "d529aa91cc0e540c4e3afdf8d946c02cb80765d280286da0a4e2125e2c443311",
+      "bytes": 131072,
+      "discovery": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 0.1,
+        "log": "discovery.log"
+      },
+      "preparation": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 5.2,
+        "log": "preparation.log"
+      },
+      "preparation_status": "CANDIDATES_RECOVERED_TRANSLATOR_NEEDED",
+      "candidate_count": 21,
+      "preparation_blocker": "Experimental Z80 C++ lowering exists in Native Execution; semantics, banking and parity remain incomplete",
+      "recovery": {
+        "status": "EXIT_2",
+        "exit_code": 2,
+        "seconds": 218.9,
+        "log": "recovery.log"
+      },
+      "blocker": "RECOVERY_BUDGET_EXHAUSTED",
+      "attempts": 13,
+      "recovered_instruction_addresses": 954,
+      "maximum_frames_observed": 290,
+      "maximum_steps_observed": 1971049,
+      "attempt_statuses": [
+        "UNTRANSLATED_INITIAL_CODE",
+        "BANKED_CODE_NOT_TRANSLATED",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "BANKED_CODE_NOT_TRANSLATED",
+        "BANKED_CODE_NOT_TRANSLATED",
+        "BANKED_CODE_NOT_TRANSLATED",
+        "BANKED_CODE_NOT_TRANSLATED",
+        "BANKED_CODE_NOT_TRANSLATED",
+        "BANKED_CODE_NOT_TRANSLATED",
+        "BANKED_CODE_NOT_TRANSLATED"
+      ],
+      "attempt_pcs": [
+        56,
+        40704,
+        1556,
+        2507,
+        2006,
+        2782,
+        41028,
+        41827,
+        41658,
+        41734,
+        41757,
+        41729,
+        41854
+      ],
+      "frame_checkpoints": [
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 76,
+          "steps_observed": 647514,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "d529aa91cc0e540c4e3afdf8d946c02cb80765d280286da0a4e2125e2c443311",
+          "session_path": "sessions\\attempt-00\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 76,
+          "steps_observed": 647579,
+          "status": "BANKED_CODE_NOT_TRANSLATED",
+          "source_sha256": "d529aa91cc0e540c4e3afdf8d946c02cb80765d280286da0a4e2125e2c443311",
+          "session_path": "sessions\\attempt-01\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 76,
+          "steps_observed": 647846,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "d529aa91cc0e540c4e3afdf8d946c02cb80765d280286da0a4e2125e2c443311",
+          "session_path": "sessions\\attempt-02\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 76,
+          "steps_observed": 647889,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "d529aa91cc0e540c4e3afdf8d946c02cb80765d280286da0a4e2125e2c443311",
+          "session_path": "sessions\\attempt-03\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 80,
+          "steps_observed": 668486,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "d529aa91cc0e540c4e3afdf8d946c02cb80765d280286da0a4e2125e2c443311",
+          "session_path": "sessions\\attempt-04\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 97,
+          "steps_observed": 797833,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "d529aa91cc0e540c4e3afdf8d946c02cb80765d280286da0a4e2125e2c443311",
+          "session_path": "sessions\\attempt-05\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 97,
+          "steps_observed": 797868,
+          "status": "BANKED_CODE_NOT_TRANSLATED",
+          "source_sha256": "d529aa91cc0e540c4e3afdf8d946c02cb80765d280286da0a4e2125e2c443311",
+          "session_path": "sessions\\attempt-06\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 98,
+          "steps_observed": 798328,
+          "status": "BANKED_CODE_NOT_TRANSLATED",
+          "source_sha256": "d529aa91cc0e540c4e3afdf8d946c02cb80765d280286da0a4e2125e2c443311",
+          "session_path": "sessions\\attempt-07\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 98,
+          "steps_observed": 798347,
+          "status": "BANKED_CODE_NOT_TRANSLATED",
+          "source_sha256": "d529aa91cc0e540c4e3afdf8d946c02cb80765d280286da0a4e2125e2c443311",
+          "session_path": "sessions\\attempt-08\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 98,
+          "steps_observed": 798648,
+          "status": "BANKED_CODE_NOT_TRANSLATED",
+          "source_sha256": "d529aa91cc0e540c4e3afdf8d946c02cb80765d280286da0a4e2125e2c443311",
+          "session_path": "sessions\\attempt-09\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 98,
+          "steps_observed": 798681,
+          "status": "BANKED_CODE_NOT_TRANSLATED",
+          "source_sha256": "d529aa91cc0e540c4e3afdf8d946c02cb80765d280286da0a4e2125e2c443311",
+          "session_path": "sessions\\attempt-10\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 98,
+          "steps_observed": 798703,
+          "status": "BANKED_CODE_NOT_TRANSLATED",
+          "source_sha256": "d529aa91cc0e540c4e3afdf8d946c02cb80765d280286da0a4e2125e2c443311",
+          "session_path": "sessions\\attempt-11\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 120,
+          "steps_observed": 932080,
+          "status": "FRAME_BUDGET_REACHED",
+          "source_sha256": "d529aa91cc0e540c4e3afdf8d946c02cb80765d280286da0a4e2125e2c443311",
+          "session_path": "sessions\\attempt-12\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 300,
+          "steps_requested": 5000000,
+          "frames_observed": 290,
+          "steps_observed": 1971049,
+          "status": "BANKED_CODE_NOT_TRANSLATED",
+          "source_sha256": "d529aa91cc0e540c4e3afdf8d946c02cb80765d280286da0a4e2125e2c443311",
+          "session_path": "sessions\\attempt-12\\frame-00300\\continuous-session.json"
+        }
+      ],
+      "recovery_budget_mode": "BOUNDED_PROGRESS_AWARE"
+    },
+    {
+      "game": "R-Type (USA).sms",
+      "slug": "r-type",
+      "status": "CONTINUOUS_SESSION_COMPLETE",
+      "sha256": "8b9b80a16bc73457e93dd855d7398876bdb9b634387472ce1c0058906fc030d1",
+      "bytes": 524288,
+      "discovery": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 0.1,
+        "log": "discovery.log"
+      },
+      "preparation": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 8.8,
+        "log": "preparation.log"
+      },
+      "preparation_status": "CANDIDATES_RECOVERED_TRANSLATOR_NEEDED",
+      "candidate_count": 225,
+      "preparation_blocker": "Experimental Z80 C++ lowering exists in Native Execution; semantics, banking and parity remain incomplete",
+      "recovery": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 741.0,
+        "log": "recovery.log"
+      },
+      "blocker": "",
+      "attempts": 10,
+      "recovered_instruction_addresses": 289,
+      "maximum_frames_observed": 600,
+      "maximum_steps_observed": 3886014,
+      "attempt_statuses": [
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "FRAME_BUDGET_REACHED"
+      ],
+      "attempt_pcs": [
+        22308,
+        22325,
+        22342,
+        9797,
+        9810,
+        9840,
+        4686,
+        5419,
+        6441,
+        1205
+      ],
+      "frame_checkpoints": [
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 7,
+          "steps_observed": 34565,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "8b9b80a16bc73457e93dd855d7398876bdb9b634387472ce1c0058906fc030d1",
+          "session_path": "sessions\\attempt-00\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 7,
+          "steps_observed": 34582,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "8b9b80a16bc73457e93dd855d7398876bdb9b634387472ce1c0058906fc030d1",
+          "session_path": "sessions\\attempt-01\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 7,
+          "steps_observed": 34599,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "8b9b80a16bc73457e93dd855d7398876bdb9b634387472ce1c0058906fc030d1",
+          "session_path": "sessions\\attempt-02\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 17,
+          "steps_observed": 98513,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "8b9b80a16bc73457e93dd855d7398876bdb9b634387472ce1c0058906fc030d1",
+          "session_path": "sessions\\attempt-03\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 17,
+          "steps_observed": 98578,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "8b9b80a16bc73457e93dd855d7398876bdb9b634387472ce1c0058906fc030d1",
+          "session_path": "sessions\\attempt-04\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 17,
+          "steps_observed": 98611,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "8b9b80a16bc73457e93dd855d7398876bdb9b634387472ce1c0058906fc030d1",
+          "session_path": "sessions\\attempt-05\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 18,
+          "steps_observed": 105946,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "8b9b80a16bc73457e93dd855d7398876bdb9b634387472ce1c0058906fc030d1",
+          "session_path": "sessions\\attempt-06\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 19,
+          "steps_observed": 111986,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "8b9b80a16bc73457e93dd855d7398876bdb9b634387472ce1c0058906fc030d1",
+          "session_path": "sessions\\attempt-07\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 120,
+          "steps_observed": 758911,
+          "status": "FRAME_BUDGET_REACHED",
+          "source_sha256": "8b9b80a16bc73457e93dd855d7398876bdb9b634387472ce1c0058906fc030d1",
+          "session_path": "sessions\\attempt-08\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 300,
+          "steps_requested": 5000000,
+          "frames_observed": 243,
+          "steps_observed": 1559880,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "8b9b80a16bc73457e93dd855d7398876bdb9b634387472ce1c0058906fc030d1",
+          "session_path": "sessions\\attempt-08\\frame-00300\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 120,
+          "steps_observed": 758911,
+          "status": "FRAME_BUDGET_REACHED",
+          "source_sha256": "8b9b80a16bc73457e93dd855d7398876bdb9b634387472ce1c0058906fc030d1",
+          "session_path": "sessions\\attempt-09\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 300,
+          "steps_requested": 5000000,
+          "frames_observed": 300,
+          "steps_observed": 1930133,
+          "status": "FRAME_BUDGET_REACHED",
+          "source_sha256": "8b9b80a16bc73457e93dd855d7398876bdb9b634387472ce1c0058906fc030d1",
+          "session_path": "sessions\\attempt-09\\frame-00300\\continuous-session.json"
+        },
+        {
+          "frames_requested": 600,
+          "steps_requested": 10000000,
+          "frames_observed": 600,
+          "steps_observed": 3886014,
+          "status": "FRAME_BUDGET_REACHED",
+          "source_sha256": "8b9b80a16bc73457e93dd855d7398876bdb9b634387472ce1c0058906fc030d1",
+          "session_path": "sessions\\attempt-09\\frame-00600\\continuous-session.json"
+        }
+      ],
+      "recovery_budget_mode": "BOUNDED_PROGRESS_AWARE"
+    },
+    {
+      "game": "Sonic the Hedgehog (USA).sms",
+      "slug": "sonic-sms",
+      "status": "CONTINUOUS_SESSION_COMPLETE",
+      "sha256": "6ad738965ece231427ee046b9905cfee470d5c01220afdd934da4673e4a2458b",
+      "bytes": 262144,
+      "discovery": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 0.1,
+        "log": "discovery.log"
+      },
+      "preparation": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 30.8,
+        "log": "preparation.log"
+      },
+      "preparation_status": "CANDIDATES_RECOVERED_TRANSLATOR_NEEDED",
+      "candidate_count": 179,
+      "preparation_blocker": "Experimental Z80 C++ lowering exists in Native Execution; semantics, banking and parity remain incomplete",
+      "recovery": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 2459.4,
+        "log": "recovery.log"
+      },
+      "blocker": "",
+      "attempts": 12,
+      "recovered_instruction_addresses": 529,
+      "maximum_frames_observed": 600,
+      "maximum_steps_observed": 2601383,
+      "attempt_statuses": [
+        "BANKED_CODE_NOT_TRANSLATED",
+        "UNTRANSLATED_INITIAL_CODE",
+        "BANKED_CODE_NOT_TRANSLATED",
+        "UNTRANSLATED_INITIAL_CODE",
+        "BANKED_CODE_NOT_TRANSLATED",
+        "BANKED_CODE_NOT_TRANSLATED",
+        "BANKED_CODE_NOT_TRANSLATED",
+        "BANKED_CODE_NOT_TRANSLATED",
+        "BANKED_CODE_NOT_TRANSLATED",
+        "BANKED_CODE_NOT_TRANSLATED",
+        "BANKED_CODE_NOT_TRANSLATED",
+        "FRAME_BUDGET_REACHED"
+      ],
+      "attempt_pcs": [
+        16390,
+        56,
+        16384,
+        24,
+        16402,
+        17838,
+        17965,
+        17873,
+        18062,
+        17906,
+        17930,
+        800
+      ],
+      "frame_checkpoints": [
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 3,
+          "steps_observed": 12711,
+          "status": "BANKED_CODE_NOT_TRANSLATED",
+          "source_sha256": "6ad738965ece231427ee046b9905cfee470d5c01220afdd934da4673e4a2458b",
+          "session_path": "sessions\\attempt-00\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 3,
+          "steps_observed": 12750,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "6ad738965ece231427ee046b9905cfee470d5c01220afdd934da4673e4a2458b",
+          "session_path": "sessions\\attempt-01\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 3,
+          "steps_observed": 13386,
+          "status": "BANKED_CODE_NOT_TRANSLATED",
+          "source_sha256": "6ad738965ece231427ee046b9905cfee470d5c01220afdd934da4673e4a2458b",
+          "session_path": "sessions\\attempt-02\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 28,
+          "steps_observed": 197359,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "6ad738965ece231427ee046b9905cfee470d5c01220afdd934da4673e4a2458b",
+          "session_path": "sessions\\attempt-03\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 28,
+          "steps_observed": 197367,
+          "status": "BANKED_CODE_NOT_TRANSLATED",
+          "source_sha256": "6ad738965ece231427ee046b9905cfee470d5c01220afdd934da4673e4a2458b",
+          "session_path": "sessions\\attempt-04\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 28,
+          "steps_observed": 201017,
+          "status": "BANKED_CODE_NOT_TRANSLATED",
+          "source_sha256": "6ad738965ece231427ee046b9905cfee470d5c01220afdd934da4673e4a2458b",
+          "session_path": "sessions\\attempt-05\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 28,
+          "steps_observed": 201052,
+          "status": "BANKED_CODE_NOT_TRANSLATED",
+          "source_sha256": "6ad738965ece231427ee046b9905cfee470d5c01220afdd934da4673e4a2458b",
+          "session_path": "sessions\\attempt-06\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 28,
+          "steps_observed": 201073,
+          "status": "BANKED_CODE_NOT_TRANSLATED",
+          "source_sha256": "6ad738965ece231427ee046b9905cfee470d5c01220afdd934da4673e4a2458b",
+          "session_path": "sessions\\attempt-07\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 28,
+          "steps_observed": 201104,
+          "status": "BANKED_CODE_NOT_TRANSLATED",
+          "source_sha256": "6ad738965ece231427ee046b9905cfee470d5c01220afdd934da4673e4a2458b",
+          "session_path": "sessions\\attempt-08\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 28,
+          "steps_observed": 201157,
+          "status": "BANKED_CODE_NOT_TRANSLATED",
+          "source_sha256": "6ad738965ece231427ee046b9905cfee470d5c01220afdd934da4673e4a2458b",
+          "session_path": "sessions\\attempt-09\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 28,
+          "steps_observed": 201188,
+          "status": "BANKED_CODE_NOT_TRANSLATED",
+          "source_sha256": "6ad738965ece231427ee046b9905cfee470d5c01220afdd934da4673e4a2458b",
+          "session_path": "sessions\\attempt-10\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 120,
+          "steps_observed": 584818,
+          "status": "FRAME_BUDGET_REACHED",
+          "source_sha256": "6ad738965ece231427ee046b9905cfee470d5c01220afdd934da4673e4a2458b",
+          "session_path": "sessions\\attempt-11\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 300,
+          "steps_requested": 5000000,
+          "frames_observed": 300,
+          "steps_observed": 1339908,
+          "status": "FRAME_BUDGET_REACHED",
+          "source_sha256": "6ad738965ece231427ee046b9905cfee470d5c01220afdd934da4673e4a2458b",
+          "session_path": "sessions\\attempt-11\\frame-00300\\continuous-session.json"
+        },
+        {
+          "frames_requested": 600,
+          "steps_requested": 10000000,
+          "frames_observed": 600,
+          "steps_observed": 2601383,
+          "status": "FRAME_BUDGET_REACHED",
+          "source_sha256": "6ad738965ece231427ee046b9905cfee470d5c01220afdd934da4673e4a2458b",
+          "session_path": "sessions\\attempt-11\\frame-00600\\continuous-session.json"
+        }
+      ],
+      "recovery_budget_mode": "BOUNDED_PROGRESS_AWARE"
+    },
+    {
+      "game": "Wonder Boy (USA) (Rev-A).sms",
+      "slug": "wonder-boy",
+      "status": "CONTINUOUS_SESSION_COMPLETE",
+      "sha256": "a13fa8164a0ab2d549d9a9bb3f998907c3f64b42eab9f4fae3d666abab510fdd",
+      "bytes": 131072,
+      "discovery": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 0.1,
+        "log": "discovery.log"
+      },
+      "preparation": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 6.6,
+        "log": "preparation.log"
+      },
+      "preparation_status": "CANDIDATES_RECOVERED_TRANSLATOR_NEEDED",
+      "candidate_count": 66,
+      "preparation_blocker": "Experimental Z80 C++ lowering exists in Native Execution; semantics, banking and parity remain incomplete",
+      "recovery": {
+        "status": "OK",
+        "exit_code": 0,
+        "seconds": 302.7,
+        "log": "recovery.log"
+      },
+      "blocker": "",
+      "attempts": 9,
+      "recovered_instruction_addresses": 458,
+      "maximum_frames_observed": 600,
+      "maximum_steps_observed": 3784110,
+      "attempt_statuses": [
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "UNTRANSLATED_INITIAL_CODE",
+        "FRAME_BUDGET_REACHED"
+      ],
+      "attempt_pcs": [
+        56,
+        4623,
+        4783,
+        28848,
+        28785,
+        28843,
+        28871,
+        28970,
+        171
+      ],
+      "frame_checkpoints": [
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 61,
+          "steps_observed": 544475,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "a13fa8164a0ab2d549d9a9bb3f998907c3f64b42eab9f4fae3d666abab510fdd",
+          "session_path": "sessions\\attempt-00\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 61,
+          "steps_observed": 544871,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "a13fa8164a0ab2d549d9a9bb3f998907c3f64b42eab9f4fae3d666abab510fdd",
+          "session_path": "sessions\\attempt-01\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 66,
+          "steps_observed": 564612,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "a13fa8164a0ab2d549d9a9bb3f998907c3f64b42eab9f4fae3d666abab510fdd",
+          "session_path": "sessions\\attempt-02\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 94,
+          "steps_observed": 761592,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "a13fa8164a0ab2d549d9a9bb3f998907c3f64b42eab9f4fae3d666abab510fdd",
+          "session_path": "sessions\\attempt-03\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 94,
+          "steps_observed": 761606,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "a13fa8164a0ab2d549d9a9bb3f998907c3f64b42eab9f4fae3d666abab510fdd",
+          "session_path": "sessions\\attempt-04\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 94,
+          "steps_observed": 761625,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "a13fa8164a0ab2d549d9a9bb3f998907c3f64b42eab9f4fae3d666abab510fdd",
+          "session_path": "sessions\\attempt-05\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 94,
+          "steps_observed": 761647,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "a13fa8164a0ab2d549d9a9bb3f998907c3f64b42eab9f4fae3d666abab510fdd",
+          "session_path": "sessions\\attempt-06\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 120,
+          "steps_observed": 916077,
+          "status": "FRAME_BUDGET_REACHED",
+          "source_sha256": "a13fa8164a0ab2d549d9a9bb3f998907c3f64b42eab9f4fae3d666abab510fdd",
+          "session_path": "sessions\\attempt-07\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 300,
+          "steps_requested": 5000000,
+          "frames_observed": 134,
+          "steps_observed": 1000347,
+          "status": "UNTRANSLATED_INITIAL_CODE",
+          "source_sha256": "a13fa8164a0ab2d549d9a9bb3f998907c3f64b42eab9f4fae3d666abab510fdd",
+          "session_path": "sessions\\attempt-07\\frame-00300\\continuous-session.json"
+        },
+        {
+          "frames_requested": 120,
+          "steps_requested": 2000000,
+          "frames_observed": 120,
+          "steps_observed": 916077,
+          "status": "FRAME_BUDGET_REACHED",
+          "source_sha256": "a13fa8164a0ab2d549d9a9bb3f998907c3f64b42eab9f4fae3d666abab510fdd",
+          "session_path": "sessions\\attempt-08\\frame-00120\\continuous-session.json"
+        },
+        {
+          "frames_requested": 300,
+          "steps_requested": 5000000,
+          "frames_observed": 300,
+          "steps_observed": 1991556,
+          "status": "FRAME_BUDGET_REACHED",
+          "source_sha256": "a13fa8164a0ab2d549d9a9bb3f998907c3f64b42eab9f4fae3d666abab510fdd",
+          "session_path": "sessions\\attempt-08\\frame-00300\\continuous-session.json"
+        },
+        {
+          "frames_requested": 600,
+          "steps_requested": 10000000,
+          "frames_observed": 600,
+          "steps_observed": 3784110,
+          "status": "FRAME_BUDGET_REACHED",
+          "source_sha256": "a13fa8164a0ab2d549d9a9bb3f998907c3f64b42eab9f4fae3d666abab510fdd",
+          "session_path": "sessions\\attempt-08\\frame-00600\\continuous-session.json"
+        }
+      ],
+      "recovery_budget_mode": "BOUNDED_PROGRESS_AWARE"
+    }
+  ]
+}

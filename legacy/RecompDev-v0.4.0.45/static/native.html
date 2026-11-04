@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RecompDev · Native Recompilation</title><link rel="stylesheet" href="/static/style.css"></head><body>
+<div class="layout"><aside class="sidebar">
+  <div class="brand"><span class="glyph">R<span class="dot">.</span></span><div><strong>RecompDev</strong><small>RECOVERY WORKBENCH</small></div></div>
+  <div class="sidegroup">WORKSPACES</div>
+  <nav class="primary-nav" aria-label="Workbench pages">
+    <a class="nav" href="/">Catalogue</a>
+    <a class="nav active" href="/native" aria-current="page">Native Recompilation</a>
+    <a class="nav" href="/discovery">Autonomous Discovery</a>
+    <a class="nav" href="/execution">Native Execution</a>
+    <a class="nav" href="/tooling">Tool Orchestration</a>
+  </nav>
+  <p class="side-description">Separate workspaces share the same read-only local catalogue.</p>
+  <div class="grow"></div><div class="foot"><span class="status-circle"></span> Local evidence browser · Read only<p>No ROM contents are served</p></div>
+</aside><main class="main">
+<header class="top"><div><div class="eyebrow">RECOMPDEV / NATIVE</div><h1>Native Recompilation</h1><p>Follow recovered functions from candidate boundaries through C++ compilation and limited verification.</p></div><span class="readonly">READ ONLY</span></header>
+
+<section class="notice">Compiled C++ or a passing seeded smoke test is <strong>not</strong> complete original-versus-native CPU parity. The Workbench only displays recorded evidence.</section>
+<div class="toolbar native-toolbar"><label for="native-target">Game</label><select id="native-target"><option value="">All targets</option></select><label for="native-search">Find</label><input id="native-search" type="search" placeholder="Entry, status, blocker"><button id="native-refresh" type="button">Refresh</button></div>
+<section class="panel page-section" id="prepared-native-targets">
+ <div class="panel-heading"><div><h2>Prepared game targets</h2><p>Source-verified platform registrations and Ghidra function candidates. Select a game in Autonomous Discovery to prepare it.</p></div><span class="count" id="prepared-count">—</span></div>
+ <div id="prepared-results" class="table-wrap"><div class="empty">Loading native preparations…</div></div>
+ <div class="panel-heading"><div><h2>Prepared function candidates</h2><p>Metadata-only Ghidra candidates; boundaries and CPU behaviour remain unverified.</p></div><span class="count" id="prepared-functions-count">—</span></div>
+ <div id="prepared-functions" class="table-wrap"><div class="empty">Loading candidate function list…</div></div>
+</section>
+<section class="panel page-section" id="native-progress">
+<div class="panel-heading"><div><h2>Native compilation and execution by game</h2>
+<p>Source-linked latest pilot results. Compiled instruction records and executed steps are not independently verified native functions.</p></div><span class="count" id="progress-count">—</span></div>
+<div id="progress-results" class="table-wrap"><div class="empty">Loading native execution progress…</div></div>
+</section>
+<section class="panel" id="native-functions"><div class="panel-heading"><div><h2>Legacy per-function conversion attempts</h2><p>Older per-function validation jobs are separate from the native pilot summary above. An empty list does not erase the game’s native execution evidence.</p></div><span class="count" id="native-count">—</span></div><div id="native-results" class="table-wrap"><div class="empty">Loading function evidence…</div></div></section>
+<section class="panel page-section" id="native-batch"><div class="panel-heading"><div><h2>Batch conversion readiness</h2><p>Catalogue-wide bounded experiments and outstanding dependencies.</p></div><span class="count" id="batch-count">—</span></div><div id="batch-results" class="table-wrap"><div class="empty">Loading batch evidence…</div></div></section>
+
+<footer>RecompDev v0.4.0.12 · Evidence-backed recovery · No ROM contents served · Not a claim of complete game parity</footer>
+</main></div><script src="/static/native.js" defer></script></body></html>

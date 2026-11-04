@@ -1,0 +1,22 @@
+{
+  "release": "RecompDev Modular Migration v0.4.3",
+  "based_on": "RecompDev-ModularMigration-v0.4.2-AutoEvidence-Source.zip",
+  "immutability": "Legacy and v0.3 harness baseline preserved, 642 file hashes validated",
+  "new": [
+    "hardware_review.py",
+    "asset_decoders/sms.py",
+    "offline compiled controller command",
+    "video reference compare",
+    "audio/timing diagnostic",
+    "integrated post-recovery review",
+    "evidence zip inclusion",
+    "unit tests"
+  ],
+  "platform_validation": {
+    "linux": "37/37 CTest PASS on GCC",
+    "windows": "NOT_YET_TESTED"
+  },
+  "commercial_game_parity": "NOT_ESTABLISHED",
+  "real_shinobi_offline_review": "Earlier 120-frame owner capture successfully analyzed from provided evidence; no reference graphics available",
+  "full_source_free_output": "NOT_ESTABLISHED"
+}

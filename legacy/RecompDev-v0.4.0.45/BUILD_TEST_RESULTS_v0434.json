@@ -1,0 +1,12 @@
+{
+  "release": "0.4.0.34",
+  "new_platform_profile_tests": "4/4 passed",
+  "legacy_release_v0433_tests": "2/2 passed after version assertion updated",
+  "z80_timing_v0433": "2/2 passed",
+  "sms_counters_v0433": "2/2 passed",
+  "cross_isa_recovery_v0430": "7/7 passed",
+  "generic_analysis_v0432": "5/5 passed",
+  "full_suite": "incomplete; time limit reached; not claimed passing",
+  "native_executable": "not compiled in this packaging pass",
+  "new_second_system_native_backend": "not implemented"
+}

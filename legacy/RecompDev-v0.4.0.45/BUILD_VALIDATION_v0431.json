@@ -1,0 +1,37 @@
+{
+  "schema": "recomp-history-source-identity-gate-v0431",
+  "release": "0.4.0.31",
+  "status": "SOURCE_SHA256_HISTORY_JOIN_SYNTHETIC_PASS_WINDOWS_OWNER_CHECK_PENDING",
+  "prior_gate": "SYNTHETIC_SOURCE_SUPPORTED_M68K_MIPS_RECOVERY_PASS_AUTHENTIC_IMPROVEMENT_PENDING",
+  "test_status": "PASS",
+  "test_summaries": {
+    "test_unified_source_identity_v0431.py": "Ran 5 tests in 0.731s",
+    "test_unified_current_history_v0430.py": "Ran 1 test in 0.003s",
+    "test_null_backends_v0425.py": "Ran 6 tests in 19.248s",
+    "test_release_v0431.py": "Ran 3 tests in 0.005s"
+  },
+  "source_sha256": {
+    "workbench.py": "a153450dcdd0295b35f5c648595261c1f4d2fa7b241638d8e591ef028d4267f1",
+    "tests/test_unified_source_identity_v0431.py": "420d7d717daa0ce787f99bc28a61d39ea33e04f60812b2a73be29379d532ecab",
+    "Run-Workbench.ps1": "0652a86c64bb4abbcab8c545e32d8fe636a137cb829a9d042adaed7d05b73323",
+    "Verify-v0431.ps1": "2185d9409f8b74e4779fcfb491e9a98d1d50d923689b5940684bd12c63bc4ed8",
+    "tooling/gates_v0431.py": "20e53c5b70a2e501337fd88723529d23bee1456dedc96201d2d00d7b39fc9c64",
+    "static/tooling.html": "d43f43c3a2aba7dfe8c135179552cd208a041b7b507e6769ef974a2e76d011cb",
+    "tests/test_release_v0431.py": "128ad48e4c00b641282369be6134d223572dd51ff2d19297fa0cfbc87341d6c6"
+  },
+  "milestones": {
+    "GRAPH_SHA256_NATIVE_HISTORY": "SYNTHETIC_CROSS_CATALOGUE_PASS",
+    "INVALID_LEGACY_SOURCE_ID": "PER_RECORD_REJECT_WITH_DIAGNOSTIC",
+    "INTEGRATED_HISTORY_WITHOUT_DISCOVERY_ROW": "SYNTHETIC_PASS",
+    "TAMPERED_NATIVE_HOST_REPORT": "FAIL_CLOSED",
+    "OWNER_WINDOWS_API_RESPONSE": "PENDING_OWNER_CHECK",
+    "SONIC_SOURCE_SUPPORTED_M68K_RECOVERY": "OWNER_REPORTED_1777_INSTRUCTIONS_77_FUNCTION_CANDIDATES_NOT_INDEPENDENTLY_VERIFIED",
+    "RIDGE_RACER_MIPS_RECOVERY": "OWNER_REPORTED_NO_GAIN_81_BARRIERS",
+    "NONZ80_NATIVE_GAME_COMPILATION": "NOT_ESTABLISHED",
+    "INDEPENDENT_MAME_PARITY": "NOT_ESTABLISHED",
+    "SHINOBI_PLAYABLE": "NOT_ESTABLISHED"
+  },
+  "native_qualified": false,
+  "gameplay": "NOT_ESTABLISHED",
+  "game_specific_fixes": 0
+}

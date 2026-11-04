@@ -1,0 +1,98 @@
+[
+  {
+    "suite": "test_autonomous_bank_recovery_v0405.py",
+    "pass": true,
+    "summary": "Ran 13 tests in 7.796s",
+    "elapsed": 8.57
+  },
+  {
+    "suite": "test_autonomous_discovery_v040.py",
+    "pass": true,
+    "summary": "Ran 12 tests in 0.395s",
+    "elapsed": 1.14
+  },
+  {
+    "suite": "test_batch_campaign.py",
+    "pass": true,
+    "summary": "Ran 5 tests in 0.084s",
+    "elapsed": 0.8
+  },
+  {
+    "suite": "test_blockers_v032.py",
+    "pass": true,
+    "summary": "Ran 10 tests in 4.050s",
+    "elapsed": 4.73
+  },
+  {
+    "suite": "test_catalogue_workbench.py",
+    "pass": true,
+    "summary": "Ran 14 tests in 3.711s",
+    "elapsed": 4.48
+  },
+  {
+    "suite": "test_function_v031.py",
+    "pass": true,
+    "summary": "Ran 11 tests in 3.383s",
+    "elapsed": 4.08
+  },
+  {
+    "suite": "test_memory_bus_v0323.py",
+    "pass": true,
+    "summary": "Ran 10 tests in 8.211s",
+    "elapsed": 8.94
+  },
+  {
+    "suite": "test_native_execution_v0404.py",
+    "pass": true,
+    "summary": "Ran 6 tests in 4.305s",
+    "elapsed": 5.07
+  },
+  {
+    "suite": "test_native_frame_irq_v0407.py",
+    "pass": true,
+    "summary": "Ran 2 tests in 1.762s",
+    "elapsed": 2.44
+  },
+  {
+    "suite": "test_native_isolation_v0322.py",
+    "pass": true,
+    "summary": "Ran 6 tests in 1.801s",
+    "elapsed": 2.51
+  },
+  {
+    "suite": "test_native_preparation_v0403.py",
+    "pass": true,
+    "summary": "Ran 7 tests in 2.814s",
+    "elapsed": 3.52
+  },
+  {
+    "suite": "test_startup_loop_diagnostics_v0406.py",
+    "pass": true,
+    "summary": "Ran 4 tests in 2.472s",
+    "elapsed": 3.17
+  },
+  {
+    "suite": "test_universal_native_recovery_v0408.py",
+    "pass": true,
+    "summary": "Ran 7 tests in 5.606s",
+    "elapsed": 6.28
+  },
+  {
+    "suite": "test_workbench_actions_v0402.py",
+    "pass": true,
+    "summary": "Ran 5 tests in 1.954s",
+    "elapsed": 2.62
+  },
+  {
+    "suite": "test_workbench_pages_v0401.py",
+    "pass": true,
+    "summary": "Ran 6 tests in 0.750s",
+    "elapsed": 1.39
+  },
+  {
+    "suite": "test_bridge.py",
+    "pass": true,
+    "summary": "Ran 15 tests in 1.240s",
+    "elapsed": 1.86
+  }
+]

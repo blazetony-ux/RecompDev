@@ -1,0 +1,38 @@
+{
+  "schema": "recomp-release-qualification-v0437",
+  "release": "0.4.0.37",
+  "status": "COMPILED_CONTROLLED_OUTPUT_PASS_MAME_PARITY_PENDING",
+  "inherited_gates": "SYNTHETIC_COMPILED_CORRECTNESS_GATES_PASS_AUTHENTIC_GAMES_PENDING",
+  "new_tests": {
+    "test_parity_v0437.py": "Ran 6 tests in 2.386s",
+    "test_release_v0437.py": "Ran 5 tests in 0.001s"
+  },
+  "source_sha256": {
+    "hardware/image_io.hpp": "0ba1d29f8668d495fa74cd1b12732d37e8308cd5565047c54e7f3e2395847dcf",
+    "hardware/adapters/sms.hpp": "7dd460ddbfb174e4dd78169c6fa2683212fc0db47b8253666a079210a249a02e",
+    "hardware/tests/output_probe_v0437/main.cpp": "117a4761c43a55d6d9f0aeb44b6da2526f15daf2e8b8199f2ae2662decfb3536",
+    "hardware/tests/output_probe_v0437/CMakeLists.txt": "0b0a3e95d2a7be9592cade9155a113c866985334f653b490361c3150ce8335e7",
+    "nativecore/output_qualification_v0437.py": "557a56f2db7df5fc22af2230b3d02fec846e074e136472152d2d1ca57f8f6aa1",
+    "nativecore/reference_parity_v0437.py": "6d0d8cf6e90c683fba05e3284d3cd3cf7cfc86d981cd848239eb8e7181433c24",
+    "tools/Validate-Native-Outputs-v0437.py": "545674a6af12993bc3a372471fc5b4037964d8c4c1fb60750b871f8255961a85",
+    "tools/Compare-MAME-Native-v0437.py": "7db49c74f2960a783b5079557c4499a70928b9b6a58c72a8fba1d5d742adcbdb",
+    "tools/Run-Shinobi-Reference-v0437.py": "77bb8eccc07f7b5acfef4da55d8d7385c7773f40247b9fb5cb2d2ee93a1adee7",
+    "nativepilot/interactive.cpp": "6defcf6552e34f85c38172b3305fa75519db0365b412b93d01cb48b897328150",
+    "Verify-v0437.ps1": "1091e58be29fbb167cf76f75156159a49b0ed552f02387298cf6b53841352bcd",
+    "Run-Workbench.ps1": "7af3063a8006bb26dc0b5be2b62169e6c2105c25bf3f108c0dcda11762539e0a"
+  },
+  "milestones": {
+    "COMPILED_SMS_VIDEO_OUTPUT": "EXPECTED_NONBLACK_2_COLOR_PPM_MATCH",
+    "COMPILED_SMS_PSG_OUTPUT": "EXPECTED_NONZERO_PCM_WAV_MATCH",
+    "MAME_ROM_IDENTICAL_FRAME_OBSERVATION": "PROVENANCE_GUARDED_TOOL_DELIVERED_OWNER_CAPTURE_PENDING",
+    "DETERMINISTIC_STEP_ALIGNMENT": "NOT_ESTABLISHED",
+    "SHINOBI_MAME_NATIVE_PARITY": "NOT_ESTABLISHED",
+    "PLAYABLE_NATIVE_GAME": "NOT_ESTABLISHED",
+    "AUTONOMOUS_ROOT_CAUSE_REPAIR": "NOT_ESTABLISHED",
+    "WINDOWS_OWNER_VERIFICATION": "PENDING"
+  },
+  "native_qualified": false,
+  "gameplay": "NOT_ESTABLISHED",
+  "game_specific_fixes": 0,
+  "environment": "Linux CMake/G++ (Windows owner verification pending)"
+}

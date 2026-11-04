@@ -1,0 +1,112 @@
+{
+  "source_sha256": "dac4f1dcb41193cb42a96950444a87c5f2952ea66474c59a38c07b10ac411e47",
+  "reference_selected_writes": 2860,
+  "native_selected_writes": 470,
+  "reference_raw_sha256": "03ee1b4fdb847af418daf65838d52bad5bb722fe0a133141952dcedccf63ba49",
+  "pilot_report_sha256": "935234dd4809ac9d313603f6359d97e48052cd3d39bc84224912f3b944e80a30",
+  "matching_selected_io_prefix": 0,
+  "selected_io_status": "SELECTED_IO_DIVERGED",
+  "first_selected_io_difference": {
+    "bus_index": 0,
+    "reference": {
+      "kind": "PSG_WRITE",
+      "address": 127,
+      "value": 159,
+      "pc": 40460
+    },
+    "native": {
+      "kind": "PSG_WRITE",
+      "address": 127,
+      "value": 128,
+      "pc": 35502
+    },
+    "preceding": [],
+    "following": [
+      {
+        "index": 1,
+        "reference": {
+          "type": "bus",
+          "ordinal": 2,
+          "kind": "PSG_WRITE",
+          "address": 127,
+          "value": 191,
+          "pc": 40460
+        },
+        "native": {
+          "kind": "PSG_WRITE",
+          "address": 127,
+          "value": 0,
+          "pc": 35504
+        }
+      },
+      {
+        "index": 2,
+        "reference": {
+          "type": "bus",
+          "ordinal": 3,
+          "kind": "PSG_WRITE",
+          "address": 127,
+          "value": 223,
+          "pc": 40460
+        },
+        "native": {
+          "kind": "PSG_WRITE",
+          "address": 127,
+          "value": 160,
+          "pc": 35506
+        }
+      },
+      {
+        "index": 3,
+        "reference": {
+          "type": "bus",
+          "ordinal": 4,
+          "kind": "PSG_WRITE",
+          "address": 127,
+          "value": 255,
+          "pc": 40460
+        },
+        "native": {
+          "kind": "PSG_WRITE",
+          "address": 127,
+          "value": 0,
+          "pc": 35508
+        }
+      },
+      {
+        "index": 4,
+        "reference": {
+          "type": "bus",
+          "ordinal": 5,
+          "kind": "VDP_CONTROL_WRITE",
+          "address": 191,
+          "value": 38,
+          "pc": 576
+        },
+        "native": {
+          "kind": "PSG_WRITE",
+          "address": 127,
+          "value": 192,
+          "pc": 35510
+        }
+      }
+    ]
+  },
+  "same_initial_machine_state_proven": false,
+  "cpu_instruction_boundaries_aligned": false,
+  "frame_phase_aligned": false,
+  "reference_mame_boot_path": "NOT_ATTESTED",
+  "candidate_start_profile": "DIRECT_CARTRIDGE_RESET_WITH_APPROXIMATE_SMS_HARDWARE",
+  "diagnostic_priorities": [
+    "CAPTURE_AND_ATTEST_BIOS_OR_DIRECT_CARTRIDGE_BOOT_PATH",
+    "CAPTURE_COMPARABLE_INITIAL_CPU_MEMORY_MAPPER_AND_INPUT_STATE",
+    "COMPARE_FIRST_ALIGNED_IO_OR_INSTRUCTION_CHECKPOINT",
+    "ONLY_THEN_CLASSIFY_CPU_OR_HARDWARE_DEFECT"
+  ],
+  "schema": "recomp-mame-sms-startup-assessment-v0433",
+  "status": "FIRST_IO_DIFFERENCE_WITH_UNALIGNED_START",
+  "native_qualified": false,
+  "autonomous_patch_applied": false,
+  "correctness": "NOT_ESTABLISHED",
+  "evidence_scope": "SELECTED_PSG_AND_VDP_CONTROL_PORT_WRITES_ONLY"
+}

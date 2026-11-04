@@ -1,0 +1,32 @@
+{
+  "schema": "recomp-portable-native-acceptance-v0427",
+  "release": "0.4.0.27",
+  "status": "COMPILED_NULL_HOST_AND_PORTABLE_BATCH_FIXTURE_SYNTHETIC_PASS_AUTHENTIC_GATES_OPEN",
+  "prior_gate": "COMPILED_Z80_NULL_HOST_SYNTHETIC_PASS_WITH_WINDOWS_FIXES_AUTHENTIC_GATES_OPEN",
+  "test_status": "COMPILED_AND_BATCH_TESTS_PASS",
+  "test_summaries": {
+    "test_batch_campaign.py": "Ran 7 tests in 0.072s",
+    "test_null_backends_v0425.py": "Ran 6 tests in 18.485s",
+    "test_release_v0427.py": "Ran 4 tests in 0.007s"
+  },
+  "source_sha256": {
+    "tests/test_batch_campaign.py": "722c242d495f0640a407b0d2866444071aa0a33f9fe00d068c66eda09010d838",
+    "nativepilot/CMakeLists.txt": "ad4c5f5a708ec64dc047de7821c7e5687262c282ee6122707478c22a0a38af05",
+    "Run-Workbench.ps1": "1ec1f6c16cb05d3bd01576649cfda81cb7594a4303c7314fce8b600c41fdfb64",
+    "workbench.py": "c8d945e93a1eaf5fc6db7ac8e07b8f7361882c0776bdb220355e760414cb3233",
+    "static/tooling.html": "380f34858a1dfdd6df4bae8fb6823f859149c5157c754bae357faaf6a6a62de1"
+  },
+  "milestones": {
+    "WINDOWS_BATCH_BACKEND_TEST": "MOCKED_CROSS_PLATFORM_PROCESS_BOUNDARY_PASS",
+    "WINDOWS_CLI_BACKEND_AVAILABILITY": "FAIL_CLOSED_WHEN_MISSING",
+    "HEADLESS_AUTONOMOUS_COMPILED_RUN": "COMPILED_SYNTHETIC_PASS",
+    "OWNER_WINDOWS_FULL_REGRESSION": "OWNER_MACHINE_PENDING",
+    "REAL_GO_BACKEND": "EXTERNAL_OPTIONAL_NOT_BUNDLED",
+    "REAL_MAME_ALIGNMENT": "NOT_ESTABLISHED",
+    "Z80_INDEPENDENT_SEMANTIC_PARITY": "NOT_ESTABLISHED",
+    "SHINOBI_PLAYABLE": "NOT_ESTABLISHED"
+  },
+  "native_qualified": false,
+  "gameplay": "NOT_ESTABLISHED",
+  "game_specific_fixes": 0
+}

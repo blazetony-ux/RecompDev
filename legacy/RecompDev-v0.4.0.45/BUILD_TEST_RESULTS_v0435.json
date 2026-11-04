@@ -1,0 +1,46 @@
+{
+  "schema": "recompdev-local-build-test-results-v0435",
+  "build": "0.4.0.35",
+  "host": "Linux/CMake/G++ (not owner Windows)",
+  "core": {
+    "tests": 271,
+    "failures": 0,
+    "status": "PASS",
+    "seconds": 276.801
+  },
+  "bridge": {
+    "tests": 15,
+    "skipped": 1,
+    "failures": 0,
+    "status": "PASS",
+    "seconds": 3.728
+  },
+  "synthetic_continuous_recovery": {
+    "tests": 3,
+    "status": "PASS",
+    "recompiled_cpp": true,
+    "replayed_beyond_original_stop": true
+  },
+  "hardware_triage": {
+    "tests": 1,
+    "status": "PASS",
+    "root_cause": "NOT_ESTABLISHED"
+  },
+  "authentic_rom_tests": {
+    "bank_panic": "NOT_TESTED",
+    "alex_kidd": "NOT_TESTED",
+    "shinobi": "NOT_TESTED"
+  },
+  "owner_windows_verification": "PENDING",
+  "gameplay": "NOT_ESTABLISHED",
+  "mandatory_compiled_acceptance": {
+    "status": "PASS",
+    "test_summaries": {
+      "test_continuous_recovery_v0435.py": "Ran 3 tests in 13.277s",
+      "test_hardware_triage_v0435.py": "Ran 1 test in 0.003s",
+      "test_platform_profiles_v0434.py": "Ran 4 tests in 0.002s",
+      "test_release_v0435.py": "Ran 3 tests in 0.001s"
+    },
+    "prior_compiled_z80_gate": "COMPILED_Z80_OPCODE_TIMING_AND_SMS_COUNTER_POLLING_PASS_AUTHENTIC_GATES_OPEN"
+  }
+}

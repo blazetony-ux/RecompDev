@@ -1,0 +1,29 @@
+{
+  "schema": "recompdev-release-validation-v0438",
+  "release": "0.4.0.38",
+  "platform": "Linux GCC/CMake",
+  "release_gates": {
+    "inherited_compiled_acceptance": "PASS",
+    "conditional_call_ret_compiled": "PASS (2 tests; CMake)",
+    "sms_th_line_compiled": "PASS (1 test; CMake)",
+    "full_repository_suite": "PASS (308 tests)",
+    "bridge_suite": "PASS (15 tests; 1 skipped)",
+    "campaign_no_rom_smoke": "PASS",
+    "seven_commercial_games_on_owner_windows": "PENDING"
+  },
+  "shinobi_local_source_attested_checkpoint": {
+    "conditional_only_120_frames": "NONBLACK_SEGA_LOGO_REPRODUCED",
+    "nonzero_cram_bytes": 16,
+    "frames": 120,
+    "conditional_plus_th_replay": "STOPPED_AT_UNTRANSLATED_ROM_0x02A8_WITHOUT_RECOVERY",
+    "frame_count_at_stop": 67,
+    "recovery_on_combined_v0438_release": "OWNER_TEST_PENDING"
+  },
+  "owner_roms_included": false,
+  "original_game_machine_code_included": false,
+  "independent_mame_native_cpu_parity": "NOT_ESTABLISHED",
+  "authentic_other_six_roms_tested_locally": false,
+  "gameplay": "NOT_ESTABLISHED",
+  "source_specific_translation_hacks": 0,
+  "baseline_comparison": "v0436 authentic seven-game evidence by ROM SHA-256; frame progress not correctness"
+}

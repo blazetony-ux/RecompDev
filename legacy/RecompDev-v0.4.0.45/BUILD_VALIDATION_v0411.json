@@ -1,0 +1,34 @@
+{
+  "schema": "recompdev-build-v0411",
+  "date_utc": "2026-10-31",
+  "build": "0.4.0.11",
+  "parent_release": "RecompDev-v0.4.0.10-Autonomous-Recovery-Verification.zip",
+  "objective": "Bounded candidate hardware-event recording and honest external reference event-trace ingestion/comparison without game-specific patching",
+  "tests": {
+    "core_unit_tests": 135,
+    "core_failures": 0,
+    "bridge_tests": 15,
+    "bridge_failures": 0,
+    "bridge_skipped": 1,
+    "platform": "Linux container, Python unittest + g++/CMake synthetic compiled native tests"
+  },
+  "verified": [
+    "source tree extracted from user-provided v0.4.0.10 archive; additive v0.4.0.11 release",
+    "compiled synthetic native Z80 emitted ordered VDP control events, mapper changes, and interrupt evidence",
+    "bounded 4096 event records with explicit total count and truncation reporting",
+    "v1 sampled checkpoint comparisons preserved",
+    "v2 independent event format compares in strict ordinal or exact-step order; mismatches and incomplete coverage distinguishable",
+    "external JSONL importer checks ROM hash syntax, external producer label, monotonic step data, original trace digest and size limits",
+    "per-CPU and final VDP hardware-state digest checks are supported but require genuine independent expected values",
+    "new Windows launcher migrates prior v0.4.0.10 working catalogue and previously verified evidence roots",
+    "no game-title-specific source rules added to generic execution core"
+  ],
+  "not_verified": [
+    "Owner Windows / PowerShell runtime and Ghidra integration not available in this container",
+    "Real Shinobi or other commercial game CPU/VDP parity",
+    "Genuine independent reference capture has not been supplied or run here",
+    "Native 68000/MIPS execution backends, whole-game playability or frame parity"
+  ],
+  "roms_included": false,
+  "release_policy": "Do not claim completed function parity, playable native games or source independence without external evidence."
+}

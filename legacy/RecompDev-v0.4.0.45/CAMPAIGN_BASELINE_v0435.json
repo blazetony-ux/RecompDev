@@ -1,0 +1,36 @@
+{
+  "schema": "recomp-baseline-authentic-sms-v0435",
+  "evidence_zip_sha256": "c24d914d63c34daef4778454bb9acdb828f67df31b2f8e2a721d176f14570140",
+  "owner_qualification": "UNALIGNED_NO_INDEPENDENT_MAME_PARITY",
+  "source_release": "0.4.0.35",
+  "games": [
+    {
+      "slug": "fantasy-zone",
+      "status": "RECOVERY_BLOCKED",
+      "maximum_frames_observed": 76,
+      "recovered_instruction_addresses": 491,
+      "blocker": "RECOVERY_BUDGET_EXHAUSTED"
+    },
+    {
+      "slug": "r-type",
+      "status": "RECOVERY_BLOCKED",
+      "maximum_frames_observed": 111,
+      "recovered_instruction_addresses": 0,
+      "blocker": "Recovery provided no new physical instruction addresses"
+    },
+    {
+      "slug": "sonic-sms",
+      "status": "NOT_STARTED",
+      "maximum_frames_observed": 0,
+      "recovered_instruction_addresses": 0,
+      "blocker": ""
+    },
+    {
+      "slug": "wonder-boy",
+      "status": "STOPPED_WITHOUT_RECOVERABLE_CODE",
+      "maximum_frames_observed": 61,
+      "recovered_instruction_addresses": 1,
+      "blocker": "RAM_EXECUTION_NOT_TRANSLATED"
+    }
+  ]
+}

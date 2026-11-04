@@ -1,0 +1,20 @@
+{
+  "schema": "recompdev-modular-migration-validation-v1",
+  "release": "0.4.1",
+  "environment": "Linux GCC 14.2.0",
+  "default_ctest_groups": 30,
+  "default_ctest_passed": 30,
+  "default_ctest_failed": 0,
+  "default_ctest_log": "captured in development environment; no machine-specific absolute paths bundled",
+  "full_original_verify_v0445": "NOT_RUN",
+  "extended_native_recovery": "PASSED_STANDALONE; EXCLUDED_FROM_DEFAULT_AFTER_COMBINED_RUN_STALL",
+  "original_vs_modular_discovery": "PASS_ON_SYNTHETIC_SMS_FIXTURE_CANONICAL_SQLITE_ROWS",
+  "original_seven_game_campaign": "UNCHANGED_SCRIPT_INVOKED_IN_ISOLATED_SANDBOX; 7 MISSING ROMS REPORTED IN TEST; STANDALONE_TEST_PASSED_NOT_DEFAULT_CTEST",
+  "original_source_files_integrity": 581,
+  "harness_baseline_files_integrity": 61,
+  "real_owner_rom_validation": "NOT_RUN",
+  "windows_build_validation": "NOT_RUN",
+  "independent_gameplay_parity": "NOT_ESTABLISHED",
+  "source_catalogue_policy": "READ_ONLY_SNAPSHOT",
+  "owner_external_catalogues": "NOT_INCLUDED_IN_USER_ARCHIVE"
+}

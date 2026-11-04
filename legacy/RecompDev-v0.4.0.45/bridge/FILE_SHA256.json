@@ -1,0 +1,13 @@
+{
+  "NEXT_BUILD_HANDOFF.md": "85306f6ab80584b9905ae3dce9f6a4391b25de3ce403b4a0e683eb9cbb4a8d81",
+  "README.md": "2a71094661e836db3ed7f6c5d8c0b7718d74730fd44921827318423191e6177a",
+  "Run-Bridge.ps1": "2afe6d9ad3cfbe665d2147af08674d40c549c997ad206f2669b4682d108a4101",
+  "adapters/__init__.py": "09c227b15613046c7b991b63ce0338b28a33a4c1f533e2147ea847e214e86746",
+  "adapters/identity.py": "60a201d102b519f430bcf19b3f57f27817d3cba15a276f7806fa69159f26756d",
+  "adapters/registry.py": "bffaf635d0e42d12b1dd9d441e062769c5350c00bbd038bb255e39cd25a5536a",
+  "fixture-readiness.json": "92e78d70a2dd5ce0c4803b6f112b1cdb260a82cb36d35ee8d63d2e26f45947bf",
+  "name_sync.py": "da8bc4bdcaf889e9775ac2ce423619401883c92efee50d5b04be075946a74155",
+  "planner.py": "a0e790c29665185024295fd0b50c8db224de0a6bbaee5ce1ad5cd767cd99c4fc",
+  "recomp_bridge.py": "5ae086b5ca3a8a0db35b188142821ead66ce9a985624bc606d27f8634e7acf58",
+  "tests/test_bridge.py": "0d534268c49afb38770985e2afc077194b39a8a800c7c6aaa22d89675d1a3647"
+}

@@ -1,0 +1,20 @@
+{
+  "release": "RecompDev-v0.4.0.1",
+  "purpose": "Dedicated Workbench pages; no new native/asset engine",
+  "python_tests_passed": 74,
+  "bridge_tests_passed": 15,
+  "js_syntax_checked": [
+    "static/app.js",
+    "static/discovery.js",
+    "static/native.js"
+  ],
+  "http_page_route_tests_passed": [
+    "/",
+    "/native",
+    "/discovery"
+  ],
+  "sqlite_discovery_priority_test": "passed",
+  "original_sources_unchanged": true,
+  "windows_run_against_user_installation": "not yet tested",
+  "original_vs_native_full_parity": "not claimed"
+}

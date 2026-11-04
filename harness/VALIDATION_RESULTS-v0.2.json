@@ -1,0 +1,38 @@
+{
+  "schema": "recompdev-modular-harness-validation-v02",
+  "release": "PoC 0.2",
+  "gnu_cpp_linux": {
+    "ctest_passed": 18,
+    "ctest_total": 18,
+    "compiler": "GNU C++ 14.2.0"
+  },
+  "clang_cpp_linux": {
+    "ctest_passed": 18,
+    "ctest_total": 18,
+    "compiler": "Clang 17.0.0"
+  },
+  "windows_msvc": {
+    "v0_1_1_owner_ctest_passed": 12,
+    "v0_2_compiled_test": "PENDING ON OWNER WINDOWS"
+  },
+  "synthetic_fixture": {
+    "translated_native_instructions": 8,
+    "fallback_instructions": 2,
+    "bank_switch": true,
+    "alternate_machine": true,
+    "po_c_differential_pass": true
+  },
+  "negative_checks": [
+    "forged Ghidra-exported instruction hash",
+    "runtime ROM SHA mismatch",
+    "missing native-only instruction",
+    "wrong plugin kind",
+    "unsupported interpreter opcode"
+  ],
+  "limitations": [
+    "no authenticated owner game P-code export supplied",
+    "no independent reference emulator parity",
+    "no real-game gameplay",
+    "development ROM required for fallback"
+  ]
+}

@@ -1,0 +1,3 @@
+# Next build handover / 0.4.0.36
+
+Owner-side acceptance needed: `Verify-v0436.ps1` then `tools/Run-SMS-Campaign-v0436.py` (Windows, owner's verified cartridges). Upload evidence ZIP. Prioritise Shinobi trace and MAME reset-state alignment; RAM predecessor/return-stack analysis on Alex Kidd and Wonder Boy; R-Type attested-versus-emitted classification; Sonic compile diagnostics; Fantasy Zone bounded multi-recovery. Do not claim gameplay from 120 frames or assign causality from shared symptoms. Any future engine-level corrections require compiled synthetic regression and actual owner ROM evidence. Preserve CPU/machine architectural separation and game-independent source provenance.

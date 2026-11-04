@@ -1,0 +1,73 @@
+{
+  "schema": "recomp-census-v1",
+  "target_id": "psx-exe-bde353330bf4",
+  "architecture": "mips",
+  "container": "psx-exe",
+  "source_sha256": "bde353330bf4032d8c4b86a04dbcc78c95e6b2c5aa17dc15b79de613b52cf8c5",
+  "file_size": 438272,
+  "entry": 2147745796,
+  "mapped_region": {
+    "start": 2147549184,
+    "stop": 2147985408,
+    "offset": 2048
+  },
+  "decoded_seed_reachable": 8,
+  "edges": [
+    {
+      "source": 2147745796,
+      "target": 2147745800,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 2147745800,
+      "target": 2147745804,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 2147745804,
+      "target": 2147745808,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 2147745808,
+      "target": 2147745812,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 2147745812,
+      "target": 2147745816,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 2147745816,
+      "target": 2147745820,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 2147745820,
+      "target": 2147745824,
+      "kind": "fallthrough",
+      "inside_region": true
+    }
+  ],
+  "barriers": [
+    {
+      "address": 2147745824,
+      "reason": "MIPS branch/jump delay slot not yet traversed"
+    }
+  ],
+  "warnings": [
+    "PS-X EXE is a program file, not a PlayStation disc ISO reader.",
+    "MIPS branch delay slots and load delays require a verified ISA semantics plugin; seed walking halts at control transfers.",
+    "A candidate word is not necessarily an opcode; data or encoded assets may be indistinguishable statically.",
+    "Seed-based reachability is incomplete for indirect control flow, exceptions, callbacks, overlays and other entry points.",
+    "Speculative scan is a candidate inventory, not a valid instruction stream or proof of executable code.",
+    "This tool does not execute, lift, compile, recompile, emulate, or qualify native parity."
+  ]
+}

@@ -1,0 +1,1 @@
+v0.4.0.28: Windows portability of prior regression tests fixed, with source-authenticated compiler-independent Ghidra cache test and explicit SQLite handle closure. Continue autonomous recovery and authentic CPU/VDP independent parity; do not count synthetic passes as gameplay.

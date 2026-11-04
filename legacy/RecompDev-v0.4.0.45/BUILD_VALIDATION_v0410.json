@@ -1,0 +1,31 @@
+{
+  "schema": "recompdev-build-v0410",
+  "date_utc": "2026-10-31",
+  "build": "0.4.0.10",
+  "objective": "Reusable batch branch recovery, authenticated physical-ROM dependency graph, optional independent sampled parity comparison, and unified game progress in both Workbench discovery and native pages",
+  "tests": {
+    "suites": 18,
+    "recovery_ui_tests": 129,
+    "bridge_tests": 15,
+    "bridge_skipped": 1,
+    "failures": 0,
+    "method": "segmented unittest suites; PYTHONPATH=tests:. for legacy test helpers"
+  },
+  "verified": [
+    "two independent synthetic Master System fixtures follow the generic native fixed-vector recovery path",
+    "physical bank and fixed ROM addresses remain separated and original ROM hashes authenticate graph nodes",
+    "new native-progress endpoint preserves per-game native pilot evidence even when legacy conversion-v031 rows are absent",
+    "bounded Ghidra branch prefetch accepts only source-attested evidence and does not guess indirect branches",
+    "optional external reference comparison reports mismatched sampled CPU fields and does not synthesize independent reference evidence",
+    "migration includes immediate prior working catalogue and preserves older installation evidence references",
+    "all regressions and bridge suites pass under segmented runner"
+  ],
+  "not_verified": [
+    "real second commercial Master System game native execution (owner ROM not supplied)",
+    "independent Shinobi or other commercial game CPU and hardware parity",
+    "playable native Shinobi or verified frame",
+    "native 68000/MIPS execution via integrated common backend"
+  ],
+  "roms_included": false,
+  "note": "Only source metadata/catalogue and tools are distributed. All original ROMs remain user-local."
+}

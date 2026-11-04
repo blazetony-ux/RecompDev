@@ -1,0 +1,18 @@
+{
+  "version": "0.4.0.6",
+  "title": "Shinobi Startup Loop & Hardware Trace",
+  "validation_date": "2026-10-31",
+  "tests": {
+    "segmented_recovery_catalogue_ui_and_startup_loop": 109,
+    "bridge": 15
+  },
+  "verified": [
+    "Existing native execution / bank recovery / discovery / bridge suites pass individually",
+    "Synthetic source-hash-verified Z80 compiled C++ nested carry loop executes more than 250000 steps and exits",
+    "Independent byte-level Z80 subset oracle agrees with native PC, B, HL, DE, carry at sampled checkpoints",
+    "Prior bank evidence reuse tested against source-attested synthetic ROM",
+    "Execution diagnostics include bounded physical-PC hotspots, CPU checkpoints, and VDP/PSG port event counts"
+  ],
+  "environment": "Linux Python, CMake/GCC C++17 tests, Node.js static JS validation. Real Shinobi extended run requires owner's Windows computer.",
+  "caveats": "No claim that 500000-step real Shinobi run succeeds, that first frame is reached, or that full Z80/VDP/PSG/reference parity is established. Runtime aborts on missing code and uses time/step caps."
+}

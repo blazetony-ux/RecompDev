@@ -1,0 +1,35 @@
+{
+  "schema": "recompdev-build-test-results-v0437",
+  "release": "0.4.0.37",
+  "host": "Linux CMake/G++ (Windows owner verification pending)",
+  "compiled_gate": {
+    "status": "PASS",
+    "new_tests": {
+      "test_parity_v0437.py": "Ran 6 tests in 2.386s",
+      "test_release_v0437.py": "Ran 5 tests in 0.001s"
+    },
+    "inherited_compiled_gates": "PASS"
+  },
+  "core": {
+    "status": "PASS",
+    "tests": 293,
+    "seconds": 228.514,
+    "skipped": 0,
+    "failures": 0
+  },
+  "bridge": {
+    "status": "PASS",
+    "tests": 15,
+    "seconds": 1.84,
+    "skipped": 1,
+    "failures": 0
+  },
+  "native_output": {
+    "status": "PASS",
+    "video": "CONTROLLED_KNOWN_PIXEL_BYTES_MATCH",
+    "audio": "CONTROLLED_KNOWN_PCM_BYTES_MATCH"
+  },
+  "independent_mame_native_parity": "NOT_ESTABLISHED",
+  "shinobi_gameplay": "NOT_ESTABLISHED",
+  "owner_windows_acceptance": "PENDING"
+}

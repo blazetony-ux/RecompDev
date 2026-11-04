@@ -1,0 +1,58 @@
+{
+  "schema": "recompdev-release-validation-v0439",
+  "release": "0.4.0.39",
+  "qualification": "FOCUSED_ENGINEERING_RELEASE_FULL_MILESTONE_NOT_COMPLETED",
+  "local_tests": {
+    "compiled_frame_and_audio_fixture": "PASS",
+    "compiled_conditional_call_ret": "PASS",
+    "compiled_sms_th_port": "PASS",
+    "compiled_int_sright_8_16_32_64": "PASS",
+    "generated_pcode_signed_shift": "PASS",
+    "viewer_provenance_tests": "PASS",
+    "prior_release_contracts": "PASS",
+    "bridge_suite": "15 run, one skipped",
+    "sha256_manifest": "PASS",
+    "shared_catalogue_bootstrap": "5 PASS",
+    "campaign_no_rom_smoke": "PASS_WITH_EVIDENCE_ZIP",
+    "cross_game_baseline": "BUNDLED_AND_SMOKE_TESTED",
+    "corrected_focused_regressions": "PASS"
+  },
+  "limits": {
+    "full_repository_suite": "NOT_COMPLETED_WITHIN_LOCAL_LIMIT",
+    "inherited_recursive_validation": "NOT_COMPLETED_TIMEOUT",
+    "Windows_live_generated_framebuffer": "CONFIRMED_SAVED_NATIVE_FRAME_VIEWER_WITH_V0438_GENERATED_PROJECT",
+    "seven_game_campaign_v0439": "OWNER_TEST_PENDING",
+    "independent_mame_native_cpu_parity": "NOT_ESTABLISHED",
+    "master_system_gameplay": "NOT_ESTABLISHED",
+    "generic_live_host_usable_by_other_architectures": "NOT_YET_INTEGRATED"
+  },
+  "framebuffer": {
+    "contract": "BGRA8888 CPU-neutral",
+    "sms_adapter": "PRESENT",
+    "windows_window": "PRESENT_NOT_TESTED_ON_WINDOWS",
+    "host_saved_ppm": "PRESENT",
+    "native_frame_viewer_launcher": "PASS_SOURCE_CHECKS",
+    "synthetic_compiled_pixel_oracle": "PASS"
+  },
+  "r_type_unsigned_right_shift_blocker": "INT_SRIGHT_NOW_SUPPORTED_OWNER_GAME_TEST_PENDING",
+  "original_game_roms_included": false,
+  "catalogue_hotfix": {
+    "status": "SHARED_PERSISTENT_BOOTSTRAP",
+    "db_default": "../RecompDev-Data/catalogue.sqlite",
+    "initial_snapshot": "ONCE_FROM_BEST_AVAILABLE_PREVIOUS_SOURCE",
+    "legacy_catalogues_preserved": true,
+    "backup_policy": "EXPLICIT_BACKUP_BEFORE_SCHEMA_MIGRATION_AND_RECOVERY; NORMAL_DATA_BACKUPS_RECOMMENDED",
+    "verification": "5 dedicated tests passed; actual seed bootstrap and campaign no-ROM smoke passed; original sources preserved; corrected baseline and comparator bundled",
+    "packaging": "CORRECTIVE_REVISION_SAME_PUBLIC_VERSION",
+    "concurrent_first_boot": "EXCLUSIVE_LOCK",
+    "validation": "SQLITE_INTEGRITY_CHECK",
+    "windows_test_cleanup_fix": {
+      "cause": "sqlite3.Connection context manager commits or rolls back but does not close, causing Windows TemporaryDirectory cleanup to raise WinError 32",
+      "fix": "Both test-created destination SQLite connections explicitly closed with contextlib.closing",
+      "production_catalogue_change": "NONE",
+      "local_tests": "5 shared-catalogue + 18 other focused + 15 bridge (1 skipped); synthetic compiled framebuffer/audio PASS",
+      "windows_retest": "OWNER_PENDING",
+      "full_repository_suite": "NOT_RUN_FOR_THIS_CORRECTION"
+    }
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "schema": "recompdev-capability-registry-v1",
+  "gates": {
+    "G0-preserve": "PASS: source file hash verification ready",
+    "G1-map": "PASS: file-level inventory plus subsystem registry",
+    "G2-bridge": "PARTIAL: original discovery, preparation, and continuous native recovery processes now runnable through modular adapters, with isolated database and logs",
+    "G3-execute": "BLOCKED: incomplete fallback Z80 CPU / interrupts / full-game parity",
+    "G4-discover": "PARTIAL: original discovery works through modular controller; canonical evidence parity tested on supplied SMS fixture, owner real-ROM parity pending",
+    "G5-equivalence": "PARTIAL: side-by-side original/modular discovery verified on fixture; full v0445 verifier and real-game equivalence pending",
+    "G6-release": "BLOCKED: no ROM-independent game conversion or asset closure"
+  },
+  "capabilities": [
+    {
+      "name": "Z80/68000/MIPS translation",
+      "legacy_paths": [
+        "nativepilot",
+        "nativecore",
+        "multisa",
+        "native_batch.py"
+      ],
+      "new_boundary": "original build-time generator + game DLL, future ISA executors",
+      "status": "partial",
+      "qualification": "Z80 verified export sample, other ISA legacy regression preserved"
+    },
+    {
+      "name": "SMS machine and hardware",
+      "legacy_paths": [
+        "systems/mastersystem",
+        "hardware",
+        "adapters",
+        "host"
+      ],
+      "new_boundary": "rd_machine_sms DLL built against original runtime source",
+      "status": "partial",
+      "qualification": "synthetic parity only; original hardware tests retained"
+    },
+    {
+      "name": "Discovery/recovery/campaign",
+      "legacy_paths": [
+        "discovery",
+        "recovery",
+        "campaign",
+        "tooling"
+      ],
+      "new_boundary": "Original discovery.engine, nativeprep.engine and continuous-recovery-v0445.py executable through independently registered modular services; source never rewritten",
+      "status": "partial",
+      "qualification": "Original/modular discovery comparison, original native C++ pilot invoked, no real owner ROM or Ghidra prepared"
+    },
+    {
+      "name": "Ghidra and analysis tools",
+      "legacy_paths": [
+        "ghidra",
+        "bridge",
+        "tools",
+        "static"
+      ],
+      "new_boundary": "original analyses retained as external services and direct P-code export verifier",
+      "status": "partial",
+      "qualification": "no all-systems end-to-end Ghidra export demonstrated"
+    },
+    {
+      "name": "Historical evidence & catalogues",
+      "legacy_paths": [
+        "catalogue.sqlite",
+        "baselines",
+        "evidence",
+        "BUILD_*",
+        "FILE_SHA256_*"
+      ],
+      "new_boundary": "immutable original source, file hashes, read-only schema check and verified copy",
+      "status": "preserved",
+      "qualification": "owner-local external evidence not in release"
+    },
+    {
+      "name": "Mega Drive and PlayStation work",
+      "legacy_paths": [
+        "systems/megadrive",
+        "systems/psx",
+        "platform_profiles",
+        "multisa"
+      ],
+      "new_boundary": "preserved profiles and analysis artifacts, not runnable machine plugins",
+      "status": "preserved",
+      "qualification": "no complete console implementation claim"
+    },
+    {
+      "name": "Tests and governance",
+      "legacy_paths": [
+        "tests",
+        "Verify-*.ps1",
+        "NEXT_BUILD_HANDOFF*",
+        "PLATFORM_CHARTER.json"
+      ],
+      "new_boundary": "immutable legacy regressions, subset runner on disposable copy, modular suite",
+      "status": "partial",
+      "qualification": "full original test suite still required"
+    }
+  ],
+  "external_evidence": {
+    "status": "MISSING_FROM_UPLOADED_ARCHIVE",
+    "examples": [
+      "RecompDev-Data/catalogue.sqlite",
+      "RecompDev-Data/verified-coverage-v0443.sqlite"
+    ],
+    "treatment": "inventory owner-local files separately, never overwrite or claim zero-loss for unprovided evidence"
+  }
+}

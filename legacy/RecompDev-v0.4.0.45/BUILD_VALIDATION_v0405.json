@@ -1,0 +1,18 @@
+{
+  "version": "0.4.0.5",
+  "title": "Autonomous Native Recovery",
+  "validation_date": "2026-10-31",
+  "tests": {
+    "segmented_recovery_catalogue_and_ui": 105,
+    "bridge": 15
+  },
+  "native_regressions": [
+    "synthetic bank3 program executed six native startup instructions and two recovered bank instructions",
+    "physical ROM dispatch and bank context SHA-256 verification",
+    "simulated Ghidra bank6 import at PC 0x8A68, physical 0x18A68",
+    "invalid and forged bank provenance rejected; source ROM unchanged",
+    "owner supplied Shinobi P-code, all 2130 records lowerable and 2130 distinct C++ case labels pass GCC C++17 syntax check"
+  ],
+  "environment": "Linux Python tests, CMake/GCC C++17 native tests. Real Ghidra bank6 analysis and complete Shinobi execution still require first owner Windows run.",
+  "caveats": "No Shinobi bank6 runtime test, CPU state parity, accurate sprites/VDP/PSG timing, checkpoint replay, interactive game, or full cartridge native conversion."
+}

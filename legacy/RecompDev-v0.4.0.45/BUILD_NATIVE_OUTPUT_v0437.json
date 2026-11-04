@@ -1,0 +1,22 @@
+{
+  "schema": "recomp-native-output-qualification-v0437",
+  "video": {
+    "status": "PASS",
+    "actual_sha256": "573d6469496443a0246a324866e757a81d45da31d4ff79ecc5f7e5ebc0772862",
+    "expected_sha256": "573d6469496443a0246a324866e757a81d45da31d4ff79ecc5f7e5ebc0772862",
+    "distinct_rgb_colors": 2,
+    "expected_dimensions": [
+      256,
+      192
+    ]
+  },
+  "audio": {
+    "status": "PASS",
+    "actual_sha256": "2ef9f940de85b4158d59c870ae56e4f500031745418dd6f15659288c3d9089ff",
+    "expected_sha256": "2ef9f940de85b4158d59c870ae56e4f500031745418dd6f15659288c3d9089ff",
+    "nonzero_samples": 4410,
+    "expected_samples": 4410
+  },
+  "status": "PASS",
+  "scope": "Controlled synthetic SMS device/output checks only; no CPU recompilation, emulator hardware-parity or gameplay qualification."
+}

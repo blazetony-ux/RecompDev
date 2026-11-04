@@ -1,0 +1,29 @@
+{
+  "schema": "recompdev-build-test-results-v0440",
+  "release": "0.4.0.40",
+  "build_datetime_utc": "2026-11-02",
+  "verified_locally": {
+    "compiled_native_output_fixture": "PASS: exact 256x192 PPM and 4410 PCM samples",
+    "staged_recovery_fixture": "PASS: 5 tests",
+    "compiled_continuous_recovery": "PASS: 3 tests",
+    "banked_source_recovery": "PASS: 7 tests",
+    "portable_host_stack_configuration": "PASS: 2 tests (Windows linker untested)",
+    "host_native_exit_classification": "PASS: 4 tests",
+    "release_contract": "PASS: 5 tests",
+    "original_version_contracts": "PASS",
+    "synthetic_cpu_semantic_regressions": "PASS: conditional CALL/RET, INT_SRIGHT, TH-line",
+    "shared_catalogue": "PASS: 5 tests",
+    "cross_component_bridge": "PASS: 15 tests, 1 skipped",
+    "zero_rom_campaign_smoke": "PASS: 7 missing inputs classified; ZIP and comparisons produced"
+  },
+  "not_verified": {
+    "full_repository_suite": "INCOMPLETE: timed out after 200 seconds, not a pass",
+    "fresh_generated_windows_executable": "OWNER_TEST_REQUIRED",
+    "seven_game_campaign": "OWNER_TEST_REQUIRED",
+    "mame_parity": "NOT_ESTABLISHED",
+    "hardware_accuracy": "NOT_ESTABLISHED",
+    "playability": "NOT_ESTABLISHED"
+  },
+  "no_new_game_specific_rules": true,
+  "original_commercial_roms_not_distributed": true
+}

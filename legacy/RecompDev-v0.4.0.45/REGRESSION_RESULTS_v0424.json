@@ -1,0 +1,142 @@
+[
+  {
+    "suite": "test_autonomous_bank_recovery_v0405.py",
+    "returncode": 0,
+    "output": "NATIVE_PREP_STAGE=source_lookup\nNATIVE_PREP_STAGE=sha256_verify\nNATIVE_PILOT_STAGE=verify_original_rom_and_export\nNATIVE_PILOT_STAGE=generate_static_cpp attempt=0\nNATIVE_PILOT_STAGE=compile_native_cpp attempt=0\nNATIVE_PILOT_STAGE=run_compiled_cpp attempt=0\nNATIVE_BUDGET_RESULT=20;STEPS=6;PROGRESS=True;STATUS=BANKED_CODE_NOT_TRANSLATED\nNATIVE_TRACE_STEPS=6;PC=0x8000;PSG=0;VDP=0\nNATIVE_PILOT_STAGE=recover_missing_code region=mapped-rom-bank slot=2 bank=3 pc=0x8000\nNATIVE_PILOT_STAGE=generate_static_cpp attempt=1\nNATIVE_PILOT_STAGE=compile_native_cpp attempt=1\nNATIVE_PILOT_STAGE=run_compiled_cpp attempt=1\nNATIVE_BUDGET_RESULT=20;STEPS=8;PROGRESS=True;STATUS=BANKED_CODE_NOT_TRANSLATED\nNATIVE_TRACE_STEPS=8;PC=0x8005;PSG=0;VDP=0\nNATIVE_PILOT_STATUS=NATIVE_TRACE_STOPPED\nNATIVE_PILOT_REPORT=/tmp/tmplr9dugl3/recovery-run/pilot-report.json\nNATIVE_PREP_STAGE=source_lookup\nNATIVE_PREP_STAGE=sha256_verify\nNATIVE_PREP_STAGE=source_lookup\nNATIVE_PREP_STAGE=sha256_verify\nNATIVE_PREP_STAGE=source_lookup\nNATIVE_PREP_STAGE=sha256_verify\nNATIVE_PILOT_STAGE=verify_original_rom_and_export\nNATIVE_PILOT_STAGE=generate_static_cpp attempt=0\nNATIVE_PILOT_STATUS=CPP_GENERATED_NOT_COMPILED\nNATIVE_PILOT_REPORT=/tmp/tmpikz6sl30/off/pilot-report.json\nNATIVE_PREP_STAGE=source_lookup\nNATIVE_PREP_STAGE=sha256_verify\n\n----------------------------------------------------------------------\nRan 7 tests in 7.264s\n\nOK\n"
+  },
+  {
+    "suite": "test_autonomous_discovery_v040.py",
+    "returncode": 0,
+    "output": "DISCOVERY_INPUT_FILES=1\nDISCOVERY_FINGERPRINTED=1;WARNINGS=0\nDISCOVERY_TASK_SCHEDULER=RUNNING\nDISCOVERY_REPORT=/tmp/tmpgh0ha1jc/out/discovery-report.json\nDISCOVERY_SOURCES=1\nDISCOVERY_ASSETS=0\nDISCOVERY_STATUS={\"DONE\": 2, \"NEEDS_ADAPTER\": 1, \"NEEDS_CAPABILITY\": 1, \"NEEDS_EVIDENCE\": 2}\nDISCOVERY_INPUT_FILES=1\nDISCOVERY_FINGERPRINTED=1;WARNINGS=0\nDISCOVERY_TASK_SCHEDULER=RUNNING\nDISCOVERY_REPORT=/tmp/tmpgh0ha1jc/out/discovery-report.json\nDISCOVERY_SOURCES=1\nDISCOVERY_ASSETS=0\nDISCOVERY_STATUS={\"DONE\": 2, \"NEEDS_ADAPTER\": 1, \"NEEDS_CAPABILITY\": 1, \"NEEDS_EVIDENCE\": 2}\nDISCOVERY_INPUT_FILES=1\nDISCOVERY_FINGERPRINTED=1;WARNINGS=0\nDISCOVERY_TASK_SCHEDULER=RUNNING\nDISCOVERY_REPORT=/tmp/tmpp37ssjbc/out/discovery-report.json\nDISCOVERY_SOURCES=1\nDISCOVERY_ASSETS=1\nDISCOVERY_STATUS={\"DONE\": 3, \"NEEDS_ADAPTER\": 1, \"NEEDS_EVIDENCE\": 1}\nDISCOVERY_INPUT_FILES=1\nDISCOVERY_FINGERPRINTED=1;WARNINGS=0\nDISCOVERY_TASK_SCHEDULER=RUNNING\nDISCOVERY_REPORT=/tmp/tmpp37ssjbc/out/discovery-report.json\nDISCOVERY_SOURCES=2\nDISCOVERY_ASSETS=2\nDISCOVERY_STATUS={\"BLOCKED\": 1, \"DONE\": 5, \"NEEDS_ADAPTER\": 2, \"NEEDS_EVIDENCE\": 2}\nDISCOVERY_INPUT_FILES=1\nDISCOVERY_FINGERPRINTED=1;WARNINGS=0\nDISCOVERY_TASK_SCHEDULER=RUNNING\nDISCOVERY_REPORT=/tmp/tmp2domb0w9/out/discovery-report.json\nDISCOVERY_SOURCES=1\nDISCOVERY_ASSETS=1\nDISCOVERY_STATUS={\"DONE\": 3, \"NEEDS_ADAPTER\": 1, \"NEEDS_EVIDENCE\": 1}\nDISCOVERY_INPUT_FILES=1\nDISCOVERY_FINGERPRINTED=1;WARNINGS=0\nDISCOVERY_TASK_SCHEDULER=RUNNING\nDISCOVERY_REPORT=/tmp/tmp2domb0w9/out/discovery-report.json\nDISCOVERY_SOURCES=1\nDISCOVERY_ASSETS=1\nDISCOVERY_STATUS={\"DONE\": 3, \"NEEDS_ADAPTER\": 1, \"NEEDS_EVIDENCE\": 1}\nDISCOVERY_INPUT_FILES=1\nDISCOVERY_FINGERPRINTED=1;WARNINGS=0\nDISCOVERY_TASK_SCHEDULER=RUNNING\nDISCOVERY_REPORT=/tmp/tmp2onl_hug/out/discovery-report.json\nDISCOVERY_SOURCES=1\nDISCOVERY_ASSETS=0\nDISCOVERY_STATUS={\"DONE\": 2, \"NEEDS_ADAPTER\": 1, \"NEEDS_EVIDENCE\": 1}\nDISCOVERY_INPUT_FILES=1\nDISCOVERY_FINGERPRINTED=1;WARNINGS=0\nDISCOVERY_TASK_SCHEDULER=RUNNING\nDISCOVERY_REPORT=/tmp/tmp1m1nteu7/out/discovery-report.json\nDISCOVERY_SOURCES=1\nDISCOVERY_ASSETS=0\nDISCOVERY_STATUS={\"DONE\": 2, \"NEEDS_ADAPTER\": 1, \"NEEDS_EVIDENCE\": 1}\nDISCOVERY_INPUT_FILES=1\nDISCOVERY_FINGERPRINTED=1;WARNINGS=0\nDISCOVERY_TASK_SCHEDULER=RUNNING\nDISCOVERY_REPORT=/tmp/tmp9ahu3tnz/out/discovery-report.json\nDISCOVERY_SOURCES=1\nDISCOVERY_ASSETS=1\nDISCOVERY_STATUS={\"DONE\": 2, \"NEEDS_ADAPTER\": 1, \"NEEDS_EVIDENCE\": 1}\nDISCOVERY_INPUT_FILES=1\nDISCOVERY_FINGERPRINTED=1;WARNINGS=0\nDISCOVERY_TASK_SCHEDULER=RUNNING\nDISCOVERY_REPORT=/tmp/tmp4lkux19a/out/discovery-report.json\nDISCOVERY_SOURCES=1\nDISCOVERY_ASSETS=0\nDISCOVERY_STATUS={\"DONE\": 2, \"NEEDS_ADAPTER\": 1, \"NEEDS_EVIDENCE\": 1}\nDISCOVERY_INPUT_FILES=1\nDISCOVERY_FINGERPRINTED=1;WARNINGS=0\nDISCOVERY_TASK_SCHEDULER=RUNNING\nDISCOVERY_REPORT=/tmp/tmp4lkux19a/out/discovery-report.json\nDISCOVERY_SOURCES=2\nDISCOVERY_ASSETS=0\nDISCOVERY_STATUS={\"DONE\": 4, \"NEEDS_ADAPTER\": 2, \"NEEDS_EVIDENCE\": 2}\nDISCOVERY_INPUT_FILES=1\nDISCOVERY_FINGERPRINTED=1;WARNINGS=0\nDISCOVERY_TASK_SCHEDULER=RUNNING\nDISCOVERY_REPORT=/tmp/tmpeqosmam_/out/discovery-report.json\nDISCOVERY_SOURCES=1\nDISCOVERY_ASSETS=0\nDISCOVERY_STATUS={\"DONE\": 1, \"READY\": 3}\nDISCOVERY_INPUT_FILES=1\nDISCOVERY_FINGERPRINTED=1;WARNINGS=0\nDISCOVERY_TASK_SCHEDULER=RUNNING\nDISCOVERY_REPORT=/tmp/tmpeqosmam_/out/discovery-report.json\nDISCOVERY_SOURCES=1\nDISCOVERY_ASSETS=0\nDISCOVERY_STATUS={\"DONE\": 2, \"NEEDS_ADAPTER\": 1, \"NEEDS_EVIDENCE\": 1}\nDISCOVERY_INPUT_FILES=1\nDISCOVERY_FINGERPRINTED=1;WARNINGS=0\nDISCOVERY_TASK_SCHEDULER=RUNNING\nDISCOVERY_REPORT=/tmp/tmp2kbod9an/out/discovery-report.json\nDISCOVERY_SOURCES=1\nDISCOVERY_ASSETS=0\nDISCOVERY_STATUS={\"DONE\": 2, \"NEEDS_ADAPTER\": 1, \"NEEDS_EVIDENCE\": 1}\n\n----------------------------------------------------------------------\nRan 12 tests in 0.358s\n\nOK\n"
+  },
+  {
+    "suite": "test_batch_campaign.py",
+    "returncode": 0,
+    "output": "\n----------------------------------------------------------------------\nRan 5 tests in 0.069s\n\nOK\n"
+  },
+  {
+    "suite": "test_blockers_v032.py",
+    "returncode": 0,
+    "output": "AUTOPILOT_STAGE=startup;TARGET=;ENTRY=\nAUTOPILOT_STAGE=source_indexing;TARGET=;ENTRY=\nAUTOPILOT_STAGE=catalogue_query;TARGET=;ENTRY=\nAUTOPILOT_STAGE=target_analysis;TARGET=fixture;ENTRY=\nAUTOPILOT_STAGE=pipeline_begin;TARGET=;ENTRY=\nAUTOPILOT_STAGE=function_begin;TARGET=fixture;ENTRY=512\nAUTOPILOT_STAGE=pypcode_worker;TARGET=fixture;ENTRY=512\nAUTOPILOT_STAGE=codegen_and_compiler;TARGET=fixture;ENTRY=512\nAUTOPILOT_STAGE=function_recorded;TARGET=fixture;ENTRY=512\nAUTOPILOT_STAGE=unicorn_worker;TARGET=fixture;ENTRY=512\nAUTOPILOT_STAGE=writing_reports;TARGET=;ENTRY=\nAUTOPILOT_STAGE=complete;TARGET=;ENTRY=\nAUTOPILOT_STAGE=startup;TARGET=;ENTRY=\nAUTOPILOT_STAGE=source_indexing;TARGET=;ENTRY=\nAUTOPILOT_STAGE=catalogue_query;TARGET=;ENTRY=\nAUTOPILOT_STAGE=target_analysis;TARGET=fixture;ENTRY=\nAUTOPILOT_STAGE=writing_reports;TARGET=;ENTRY=\nAUTOPILOT_STAGE=complete;TARGET=;ENTRY=\n\n----------------------------------------------------------------------\nRan 10 tests in 3.891s\n\nOK\n"
+  },
+  {
+    "suite": "test_catalogue_workbench.py",
+    "returncode": 0,
+    "output": "\n----------------------------------------------------------------------\nRan 14 tests in 3.516s\n\nOK\n"
+  },
+  {
+    "suite": "test_continuous_native_v0423.py",
+    "returncode": 0,
+    "output": "\n----------------------------------------------------------------------\nRan 4 tests in 10.272s\n\nOK\n"
+  },
+  {
+    "suite": "test_dependencies_and_parity_v0410.py",
+    "returncode": 0,
+    "output": "\n----------------------------------------------------------------------\nRan 4 tests in 0.026s\n\nOK\n"
+  },
+  {
+    "suite": "test_durable_campaign_v0421.py",
+    "returncode": 0,
+    "output": "NATIVE_PREP_STAGE=source_lookup\nNATIVE_PREP_STAGE=sha256_verify\nNATIVE_PILOT_STAGE=verify_original_rom_and_export\nNATIVE_PILOT_STAGE=generate_static_cpp attempt=0\nNATIVE_PILOT_STAGE=compile_native_cpp attempt=0\nNATIVE_PILOT_STAGE=run_compiled_cpp attempt=0\nNATIVE_BUDGET_RESULT=50;STEPS=6;PROGRESS=True;STATUS=BANKED_CODE_NOT_TRANSLATED\nNATIVE_TRACE_STEPS=6;PC=0x8000;PSG=0;VDP=0\nNATIVE_PILOT_STAGE=recover_missing_code region=mapped-rom-bank slot=2 bank=3 pc=0x8000\nNATIVE_PILOT_RECOVERY_BLOCKER=GHIDRA_UNAVAILABLE: configure RECOMPDEV_GHIDRA or GHIDRA_HOME\nNATIVE_PILOT_STATUS=NATIVE_TRACE_STOPPED\nNATIVE_PILOT_REPORT=/tmp/tmpnwsmfhvz/job-a/attempt-0000/z80-native-pilot/pilot-report.json\nNATIVE_PREP_STAGE=source_lookup\nNATIVE_PREP_STAGE=sha256_verify\nNATIVE_PILOT_STAGE=verify_original_rom_and_export\nNATIVE_PILOT_STAGE=generate_static_cpp attempt=0\nNATIVE_PILOT_STAGE=compile_native_cpp attempt=0\nNATIVE_PILOT_STAGE=run_compiled_cpp attempt=0\nNATIVE_BUDGET_RESULT=50;STEPS=6;PROGRESS=True;STATUS=BANKED_CODE_NOT_TRANSLATED\nNATIVE_TRACE_STEPS=6;PC=0x8000;PSG=0;VDP=0\nNATIVE_PILOT_STAGE=recover_missing_code region=mapped-rom-bank slot=2 bank=3 pc=0x8000\nNATIVE_PILOT_RECOVERY_BLOCKER=GHIDRA_UNAVAILABLE: configure RECOMPDEV_GHIDRA or GHIDRA_HOME\nNATIVE_PILOT_STATUS=NATIVE_TRACE_STOPPED\nNATIVE_PILOT_REPORT=/tmp/tmpnwsmfhvz/job-b/attempt-0000/z80-native-pilot/pilot-report.json\n\n----------------------------------------------------------------------\nRan 11 tests in 9.308s\n\nOK\n"
+  },
+  {
+    "suite": "test_event_stream_and_adaptive_v0412.py",
+    "returncode": 0,
+    "output": "\n----------------------------------------------------------------------\nRan 4 tests in 2.451s\n\nOK\n"
+  },
+  {
+    "suite": "test_exact_instruction_recovery_v0409.py",
+    "returncode": 0,
+    "output": "\n----------------------------------------------------------------------\nRan 4 tests in 1.383s\n\nOK\n"
+  },
+  {
+    "suite": "test_external_oracle_diagnostics_v0413.py",
+    "returncode": 0,
+    "output": "\n----------------------------------------------------------------------\nRan 7 tests in 0.811s\n\nOK\n"
+  },
+  {
+    "suite": "test_function_v031.py",
+    "returncode": 0,
+    "output": "\n----------------------------------------------------------------------\nRan 11 tests in 3.184s\n\nOK\n"
+  },
+  {
+    "suite": "test_hardware_runtime_v0422.py",
+    "returncode": 0,
+    "output": "NATIVE_PREP_STAGE=source_lookup\nNATIVE_PREP_STAGE=sha256_verify\nNATIVE_PREP_STAGE=source_lookup\nNATIVE_PREP_STAGE=sha256_verify\nNATIVE_PILOT_STAGE=verify_original_rom_and_export\nNATIVE_PILOT_STAGE=generate_static_cpp attempt=0\nNATIVE_PILOT_STAGE=compile_native_cpp attempt=0\nNATIVE_PILOT_STAGE=run_compiled_cpp attempt=0\nNATIVE_BUDGET_RESULT=120;STEPS=15;PROGRESS=True;STATUS=HALT_AWAITING_INTERRUPT\nNATIVE_TRACE_STEPS=15;PC=0x001e;PSG=3;VDP=3\nNATIVE_PILOT_STATUS=NATIVE_TRACE_STOPPED\nNATIVE_PILOT_REPORT=/tmp/tmplyfrv_nn/io-pilot/pilot-report.json\nNATIVE_PREP_STAGE=source_lookup\nNATIVE_PREP_STAGE=sha256_verify\n\n----------------------------------------------------------------------\nRan 5 tests in 11.071s\n\nOK\n"
+  },
+  {
+    "suite": "test_independent_event_trace_v0411.py",
+    "returncode": 0,
+    "output": "\n----------------------------------------------------------------------\nRan 6 tests in 0.002s\n\nOK\n"
+  },
+  {
+    "suite": "test_integrated_native_v0424.py",
+    "returncode": 0,
+    "output": "NATIVE_PREP_STAGE=source_lookup\nNATIVE_PREP_STAGE=sha256_verify\nNATIVE_PILOT_STAGE=verify_original_rom_and_export\nNATIVE_PILOT_STAGE=generate_static_cpp attempt=0\nNATIVE_PILOT_STAGE=compile_native_cpp attempt=0\nNATIVE_PILOT_STAGE=run_compiled_cpp attempt=0\nNATIVE_BUDGET_RESULT=50;STEPS=6;PROGRESS=True;STATUS=BANKED_CODE_NOT_TRANSLATED\nNATIVE_TRACE_STEPS=6;PC=0x8000;PSG=0;VDP=0\nNATIVE_PILOT_STATUS=NATIVE_TRACE_STOPPED\nNATIVE_PILOT_REPORT=/tmp/tmpgfc6j8gj/jobs/1f56fd5d0ec730fd/pilot/pilot-report.json\nNATIVE_PREP_STAGE=source_lookup\nNATIVE_PREP_STAGE=sha256_verify\nNATIVE_PILOT_STAGE=verify_original_rom_and_export\nNATIVE_PILOT_STAGE=generate_static_cpp attempt=0\nNATIVE_PILOT_STAGE=compile_native_cpp attempt=0\nNATIVE_PILOT_STAGE=run_compiled_cpp attempt=0\nNATIVE_BUDGET_RESULT=50000;STEPS=50000;PROGRESS=True;STATUS=STEP_BUDGET_REACHED\nNATIVE_PILOT_STAGE=adaptive_replay next_budget=100000\nNATIVE_BUDGET_RESULT=100000;STEPS=100000;PROGRESS=True;STATUS=STEP_BUDGET_REACHED\nNATIVE_TRACE_STEPS=100000;PC=0x0019;PSG=3;VDP=42854\nNATIVE_PILOT_STATUS=NATIVE_STEP_BUDGET_REACHED\nNATIVE_PILOT_REPORT=/tmp/tmp308763ug/success/f31070e44eced13d/pilot/pilot-report.json\nNATIVE_PREP_STAGE=source_lookup\nNATIVE_PREP_STAGE=sha256_verify\n\n/usr/lib/python3.13/json/decoder.py:361: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f2bb360f790>\n  obj, end = self.scan_once(s, idx)\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n/usr/lib/python3.13/json/decoder.py:361: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f2bb360f4c0>\n  obj, end = self.scan_once(s, idx)\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n----------------------------------------------------------------------\nRan 6 tests in 8.283s\n\nOK\n"
+  },
+  {
+    "suite": "test_memory_bus_v0323.py",
+    "returncode": 0,
+    "output": "AUTOPILOT_STAGE=startup;TARGET=;ENTRY=\nAUTOPILOT_STAGE=source_indexing;TARGET=;ENTRY=\nAUTOPILOT_STAGE=catalogue_query;TARGET=;ENTRY=\nAUTOPILOT_STAGE=target_analysis;TARGET=fixture;ENTRY=\nAUTOPILOT_STAGE=pipeline_begin;TARGET=;ENTRY=\nAUTOPILOT_STAGE=function_begin;TARGET=fixture;ENTRY=512\nAUTOPILOT_STAGE=pypcode_worker;TARGET=fixture;ENTRY=512\nAUTOPILOT_STAGE=codegen_and_compiler;TARGET=fixture;ENTRY=512\nAUTOPILOT_STAGE=function_recorded;TARGET=fixture;ENTRY=512\nAUTOPILOT_STAGE=unicorn_worker;TARGET=fixture;ENTRY=512\nAUTOPILOT_STAGE=writing_reports;TARGET=;ENTRY=\nAUTOPILOT_STAGE=complete;TARGET=;ENTRY=\n\n----------------------------------------------------------------------\nRan 10 tests in 8.062s\n\nOK\n"
+  },
+  {
+    "suite": "test_native_execution_v0404.py",
+    "returncode": 0,
+    "output": "NATIVE_PREP_STAGE=source_lookup\nNATIVE_PREP_STAGE=sha256_verify\nNATIVE_PILOT_STAGE=verify_original_rom_and_export\nNATIVE_PILOT_STAGE=generate_static_cpp attempt=0\nNATIVE_PILOT_STAGE=compile_native_cpp attempt=0\nNATIVE_PILOT_STAGE=run_compiled_cpp attempt=0\nNATIVE_BUDGET_RESULT=50;STEPS=6;PROGRESS=True;STATUS=BANKED_CODE_NOT_TRANSLATED\nNATIVE_TRACE_STEPS=6;PC=0x8000;PSG=0;VDP=0\nNATIVE_PILOT_STATUS=NATIVE_TRACE_STOPPED\nNATIVE_PILOT_REPORT=/tmp/tmprkhnnmde/output/pilot-report.json\nNATIVE_PREP_STAGE=source_lookup\nNATIVE_PREP_STAGE=sha256_verify\nNATIVE_PREP_STAGE=source_lookup\nNATIVE_PREP_STAGE=sha256_verify\nNATIVE_PREP_STAGE=source_lookup\nNATIVE_PREP_STAGE=sha256_verify\nNATIVE_PREP_STAGE=source_lookup\nNATIVE_PREP_STAGE=sha256_verify\nNATIVE_PREP_STAGE=source_lookup\nNATIVE_PREP_STAGE=sha256_verify\nNATIVE_PILOT_STATUS=PILOT_BLOCKED\nNATIVE_PILOT_REPORT=/tmp/tmpeq0b7nzk/outside/pilot-report.json\nNATIVE_PILOT_STATUS=PILOT_BLOCKED\nNATIVE_PILOT_REPORT=/tmp/tmpeq0b7nzk/changed/pilot-report.json\n\n----------------------------------------------------------------------\nRan 6 tests in 8.250s\n\nOK\n"
+  },
+  {
+    "suite": "test_native_frame_irq_v0407.py",
+    "returncode": 0,
+    "output": "\n----------------------------------------------------------------------\nRan 2 tests in 3.613s\n\nOK\n"
+  },
+  {
+    "suite": "test_native_isolation_v0322.py",
+    "returncode": 0,
+    "output": "AUTOPILOT_STAGE=startup;TARGET=;ENTRY=\nAUTOPILOT_STAGE=source_indexing;TARGET=;ENTRY=\nAUTOPILOT_STAGE=catalogue_query;TARGET=;ENTRY=\nAUTOPILOT_STAGE=target_analysis;TARGET=fixture;ENTRY=\nAUTOPILOT_STAGE=writing_reports;TARGET=;ENTRY=\nAUTOPILOT_STAGE=complete;TARGET=;ENTRY=\n\n----------------------------------------------------------------------\nRan 6 tests in 1.782s\n\nOK\n"
+  },
+  {
+    "suite": "test_native_preparation_v0403.py",
+    "returncode": 0,
+    "output": "NATIVE_PREP_STAGE=source_lookup\nNATIVE_PREP_STAGE=sha256_verify\nNATIVE_PREP_STAGE=source_lookup\nNATIVE_PREP_STAGE=sha256_verify\nNATIVE_PREP_STAGE=source_lookup\nNATIVE_PREP_STAGE=sha256_verify\nNATIVE_PREP_STAGE=source_lookup\nNATIVE_PREP_STAGE=source_lookup\nNATIVE_PREP_STAGE=sha256_verify\nNATIVE_PREP_STAGE=z80_headless_analysis\nNATIVE_PREP_STAGE=source_instruction_hashes_verified\nNATIVE_PREP_STAGE=source_lookup\nNATIVE_PREP_STAGE=sha256_verify\nNATIVE_PREP_STAGE=z80_headless_analysis\nNATIVE_PREP_STAGE=source_instruction_hashes_verified\nNATIVE_PREP_STAGE=source_lookup\n\n----------------------------------------------------------------------\nRan 7 tests in 2.791s\n\nOK\n"
+  },
+  {
+    "suite": "test_native_progress_v0410.py",
+    "returncode": 0,
+    "output": "\n----------------------------------------------------------------------\nRan 3 tests in 0.067s\n\nOK\n"
+  },
+  {
+    "suite": "test_startup_loop_diagnostics_v0406.py",
+    "returncode": 0,
+    "output": "NATIVE_PREP_STAGE=source_lookup\nNATIVE_PREP_STAGE=sha256_verify\nNATIVE_PILOT_STAGE=verify_original_rom_and_export\nNATIVE_PILOT_STAGE=reuse_verified_banks count=1\nNATIVE_PILOT_STAGE=generate_static_cpp attempt=0\nNATIVE_PILOT_STAGE=compile_native_cpp attempt=0\nNATIVE_PILOT_STAGE=run_compiled_cpp attempt=0\nNATIVE_BUDGET_RESULT=20;STEPS=8;PROGRESS=True;STATUS=BANKED_CODE_NOT_TRANSLATED\nNATIVE_TRACE_STEPS=8;PC=0x8005;PSG=0;VDP=0\nNATIVE_PILOT_STATUS=NATIVE_TRACE_STOPPED\nNATIVE_PILOT_REPORT=/tmp/tmpyzdtwec9/cache-run/pilot-report.json\n\n----------------------------------------------------------------------\nRan 4 tests in 5.600s\n\nOK\n"
+  },
+  {
+    "suite": "test_tool_orchestration_v0414.py",
+    "returncode": 0,
+    "output": "\n----------------------------------------------------------------------\nRan 13 tests in 3.989s\n\nOK\n"
+  },
+  {
+    "suite": "test_unified_campaign_v0420.py",
+    "returncode": 0,
+    "output": "NATIVE_PREP_STAGE=source_lookup\nNATIVE_PREP_STAGE=sha256_verify\nNATIVE_PILOT_STAGE=verify_original_rom_and_export\nNATIVE_PILOT_STAGE=generate_static_cpp attempt=0\nNATIVE_PILOT_STAGE=compile_native_cpp attempt=0\nNATIVE_PILOT_STAGE=run_compiled_cpp attempt=0\nNATIVE_BUDGET_RESULT=50;STEPS=6;PROGRESS=True;STATUS=BANKED_CODE_NOT_TRANSLATED\nNATIVE_TRACE_STEPS=6;PC=0x8000;PSG=0;VDP=0\nNATIVE_PILOT_STAGE=recover_missing_code region=mapped-rom-bank slot=2 bank=3 pc=0x8000\nNATIVE_PILOT_RECOVERY_BLOCKER=GHIDRA_UNAVAILABLE: configure RECOMPDEV_GHIDRA or GHIDRA_HOME\nNATIVE_PILOT_STATUS=NATIVE_TRACE_STOPPED\nNATIVE_PILOT_REPORT=/tmp/tmpccp9anrg/z80-e2e/z80-native-pilot/pilot-report.json\n\n----------------------------------------------------------------------\nRan 12 tests in 3.829s\n\nOK\n"
+  },
+  {
+    "suite": "test_universal_native_recovery_v0408.py",
+    "returncode": 0,
+    "output": "NATIVE_PREP_STAGE=source_lookup\nNATIVE_PREP_STAGE=sha256_verify\nNATIVE_PILOT_STAGE=verify_original_rom_and_export\nNATIVE_PILOT_STAGE=generate_static_cpp attempt=0\nNATIVE_PILOT_STAGE=compile_native_cpp attempt=0\nNATIVE_PILOT_STAGE=run_compiled_cpp attempt=0\nNATIVE_BUDGET_RESULT=18000;STEPS=5052;PROGRESS=True;STATUS=UNTRANSLATED_INITIAL_CODE\nNATIVE_TRACE_STEPS=5052;PC=0x0038;PSG=0;VDP=2\nNATIVE_PILOT_STAGE=recover_missing_code region=fixed-rom-vector slot=0 bank=0 pc=0x0038\nNATIVE_PILOT_STAGE=generate_static_cpp attempt=1\nNATIVE_PILOT_STAGE=compile_native_cpp attempt=1\nNATIVE_PILOT_STAGE=run_compiled_cpp attempt=1\nNATIVE_BUDGET_RESULT=18000;STEPS=5060;PROGRESS=True;STATUS=HALT_AWAITING_INTERRUPT\nNATIVE_TRACE_STEPS=5060;PC=0x0113;PSG=0;VDP=2\nNATIVE_PILOT_STATUS=NATIVE_TRACE_STOPPED\nNATIVE_PILOT_REPORT=/tmp/tmpkk_yh6a1/out/pilot-report.json\nNATIVE_PREP_STAGE=source_lookup\nNATIVE_PREP_STAGE=sha256_verify\nNATIVE_PILOT_STAGE=verify_original_rom_and_export\nNATIVE_PILOT_STAGE=generate_static_cpp attempt=0\nNATIVE_PILOT_STAGE=compile_native_cpp attempt=0\nNATIVE_PILOT_STAGE=run_compiled_cpp attempt=0\nNATIVE_BUDGET_RESULT=18000;STEPS=5052;PROGRESS=True;STATUS=UNTRANSLATED_INITIAL_CODE\nNATIVE_TRACE_STEPS=5052;PC=0x0038;PSG=0;VDP=2\nNATIVE_PILOT_STAGE=recover_missing_code region=fixed-rom-vector slot=0 bank=0 pc=0x0038\nNATIVE_PILOT_STAGE=generate_static_cpp attempt=1\nNATIVE_PILOT_STAGE=compile_native_cpp attempt=1\nNATIVE_PILOT_STAGE=run_compiled_cpp attempt=1\nNATIVE_BUDGET_RESULT=18000;STEPS=5060;PROGRESS=True;STATUS=HALT_AWAITING_INTERRUPT\nNATIVE_TRACE_STEPS=5060;PC=0x0113;PSG=0;VDP=2\nNATIVE_PILOT_STATUS=NATIVE_TRACE_STOPPED\nNATIVE_PILOT_REPORT=/tmp/tmpcqg7__4g/out/pilot-report.json\nNATIVE_PREP_STAGE=source_lookup\nNATIVE_PREP_STAGE=sha256_verify\nNATIVE_PILOT_STATUS=PILOT_BLOCKED\nNATIVE_PILOT_REPORT=/tmp/tmpcm1yyhcp/attempt-m68k/pilot-report.json\nNATIVE_PREP_STAGE=source_lookup\nNATIVE_PREP_STAGE=sha256_verify\nNATIVE_PILOT_STATUS=PILOT_BLOCKED\nNATIVE_PILOT_REPORT=/tmp/tmpcm1yyhcp/attempt-mips/pilot-report.json\n\n----------------------------------------------------------------------\nRan 7 tests in 14.343s\n\nOK\n"
+  },
+  {
+    "suite": "test_workbench_actions_v0402.py",
+    "returncode": 0,
+    "output": "\n----------------------------------------------------------------------\nRan 5 tests in 2.071s\n\nOK\n"
+  },
+  {
+    "suite": "test_workbench_pages_v0401.py",
+    "returncode": 0,
+    "output": "\n----------------------------------------------------------------------\nRan 6 tests in 0.743s\n\nOK\n"
+  },
+  {
+    "suite": "bridge/tests",
+    "returncode": 0,
+    "output": "\n----------------------------------------------------------------------\nRan 15 tests in 1.531s\n\nOK (skipped=1)\n"
+  }
+]

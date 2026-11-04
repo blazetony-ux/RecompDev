@@ -1,0 +1,11 @@
+{
+  "schema": "recomp-v0321-hotfix-build-validation",
+  "catalogue_recovery_test_count": 40,
+  "catalogue_recovery_test_result": "PASS",
+  "bridge_test_count": 15,
+  "bridge_test_result": "PASS",
+  "new_diagnostics_probe": "zero-match report emitted with three authenticated-target issues",
+  "db_import": "independent backup path; no destination rename/overwrite",
+  "actual_owner_windows_run": "NOT_TESTED",
+  "whole_function_parity": "NOT_ESTABLISHED"
+}

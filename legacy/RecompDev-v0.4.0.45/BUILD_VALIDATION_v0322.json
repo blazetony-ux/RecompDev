@@ -1,0 +1,12 @@
+{
+  "schema": "recomp-v0322-native-crash-isolation-build-validation",
+  "catalogue_recovery_tests": 46,
+  "bridge_tests": 15,
+  "artificial_nonzero_exit_classification": "PASS",
+  "simulated_windows_0xC0000409_classification": "PASS",
+  "no-source-diagnostic": "PASS",
+  "synthetic_rom_compilation": "COMPILED_SEEDED_SMOKE_ONLY",
+  "native_libraries_in_build_host": "NOT_INSTALLED",
+  "windows_owner_crash_reproduction": "NOT_TESTED",
+  "whole_function_parity": "NOT_ESTABLISHED"
+}

@@ -1,0 +1,14 @@
+{
+  "schema": "recompdev-modular-migration-release-v1",
+  "release": "0.4.2",
+  "based_on": "RecompDev Modular Migration v0.4.1",
+  "immutable_source": "RecompDev v0.4.0.45 archive",
+  "original_recompdev_files_preserved": 581,
+  "original_harness_files_preserved": 61,
+  "native_controller": "compiled C++ command entry point, delegates unchanged Python production services",
+  "recovery_continuation": "bounded reset-replay rounds sharing source-reattested coverage cache",
+  "hardware_validation_scope": "non-qualifying observations and review flags only; no reference parity",
+  "default_linux_tests": 34,
+  "windows_validation": "PENDING_OWNER",
+  "source_safety": "working copy catalogue; ROM verified before and after"
+}

@@ -1,0 +1,238 @@
+{
+  "schema": "recomp-batch-readiness-v1",
+  "scope": "metadata-only readiness; no C++ generation or parity",
+  "totals": {
+    "targets": 2,
+    "candidate_functions": 6,
+    "call_sites": 5,
+    "unresolved_barriers": 2
+  },
+  "targets": [
+    {
+      "target_id": "megadrive-46160baa0636",
+      "display_name": "megadrive-46160baa0636",
+      "system": "megadrive",
+      "isa": "m68k",
+      "source_sha256": "46160baa06362c711c9f1a5017cb7371026444936c8af5e93a78996cf32ff2a6",
+      "latest_run": "megadrive-46160baa0636-458153538143",
+      "function_candidates": 5,
+      "verified_boundary_candidates": 0,
+      "call_sites": 5,
+      "unresolved_indirect_calls": 0,
+      "barriers": 1,
+      "boundary_states": {
+        "unresolved_transfer": 1,
+        "boundary_not_verified": 4
+      },
+      "catalogue_capability_rows": 0,
+      "reachable_instruction_forms": 64,
+      "top_missing_form_families": [
+        {
+          "form_key": "m68k|moveq|immediate|register",
+          "occurrences": 21
+        },
+        {
+          "form_key": "m68k|dbra|register|absolute_or_displacement",
+          "occurrences": 16
+        },
+        {
+          "form_key": "m68k|move.b|memory_or_pc_relative|memory_or_pc_relative",
+          "occurrences": 13
+        },
+        {
+          "form_key": "m68k|move.w|immediate|absolute_or_displacement",
+          "occurrences": 10
+        },
+        {
+          "form_key": "m68k|move.w|register|memory_or_pc_relative",
+          "occurrences": 9
+        },
+        {
+          "form_key": "m68k|lea.l|absolute_or_displacement|register",
+          "occurrences": 8
+        },
+        {
+          "form_key": "m68k|move.b|memory_or_pc_relative|register",
+          "occurrences": 7
+        },
+        {
+          "form_key": "m68k|move.w|memory_or_pc_relative|register",
+          "occurrences": 7
+        },
+        {
+          "form_key": "m68k|bra.b|absolute_or_displacement",
+          "occurrences": 6
+        },
+        {
+          "form_key": "m68k|move.l|register|memory_or_pc_relative",
+          "occurrences": 6
+        },
+        {
+          "form_key": "m68k|bne.b|absolute_or_displacement",
+          "occurrences": 5
+        },
+        {
+          "form_key": "m68k|bsr.w|absolute_or_displacement",
+          "occurrences": 5
+        },
+        {
+          "form_key": "m68k|nop",
+          "occurrences": 5
+        },
+        {
+          "form_key": "m68k|beq.b|absolute_or_displacement",
+          "occurrences": 4
+        },
+        {
+          "form_key": "m68k|lsr.w|immediate|register",
+          "occurrences": 4
+        },
+        {
+          "form_key": "m68k|move.b|register|absolute_or_displacement",
+          "occurrences": 4
+        },
+        {
+          "form_key": "m68k|move.b|register|register",
+          "occurrences": 4
+        },
+        {
+          "form_key": "m68k|move.l|memory_or_pc_relative|memory_or_pc_relative",
+          "occurrences": 4
+        },
+        {
+          "form_key": "m68k|rts",
+          "occurrences": 4
+        },
+        {
+          "form_key": "m68k|move.l|immediate|absolute_or_displacement",
+          "occurrences": 3
+        },
+        {
+          "form_key": "m68k|move.l|immediate|memory_or_pc_relative",
+          "occurrences": 3
+        },
+        {
+          "form_key": "m68k|move.w|immediate|memory_or_pc_relative",
+          "occurrences": 3
+        },
+        {
+          "form_key": "m68k|move.w|immediate|register",
+          "occurrences": 3
+        },
+        {
+          "form_key": "m68k|movea.l|immediate|register",
+          "occurrences": 3
+        },
+        {
+          "form_key": "m68k|addq.w|immediate|register",
+          "occurrences": 2
+        }
+      ],
+      "functions": [
+        {
+          "entry": 518,
+          "origin": "reset_or_executable_entry",
+          "confidence": "static_candidate",
+          "instruction_count": 92,
+          "boundary_state": "unresolved_transfer",
+          "readiness": "NEEDS_VERIFIED_BOUNDARY"
+        },
+        {
+          "entry": 4534,
+          "origin": "static_direct_call_target",
+          "confidence": "static_candidate",
+          "instruction_count": 9,
+          "boundary_state": "boundary_not_verified",
+          "readiness": "NEEDS_VERIFIED_BOUNDARY"
+        },
+        {
+          "entry": 4642,
+          "origin": "static_direct_call_target",
+          "confidence": "static_candidate",
+          "instruction_count": 29,
+          "boundary_state": "boundary_not_verified",
+          "readiness": "NEEDS_VERIFIED_BOUNDARY"
+        },
+        {
+          "entry": 4946,
+          "origin": "static_direct_call_target",
+          "confidence": "static_candidate",
+          "instruction_count": 14,
+          "boundary_state": "boundary_not_verified",
+          "readiness": "NEEDS_VERIFIED_BOUNDARY"
+        },
+        {
+          "entry": 6300,
+          "origin": "static_direct_call_target",
+          "confidence": "static_candidate",
+          "instruction_count": 66,
+          "boundary_state": "boundary_not_verified",
+          "readiness": "NEEDS_VERIFIED_BOUNDARY"
+        }
+      ]
+    },
+    {
+      "target_id": "psx-exe-bde353330bf4",
+      "display_name": "psx-exe-bde353330bf4",
+      "system": "psx-exe",
+      "isa": "mips",
+      "source_sha256": "bde353330bf4032d8c4b86a04dbcc78c95e6b2c5aa17dc15b79de613b52cf8c5",
+      "latest_run": "psx-exe-bde353330bf4-b6720df6435c",
+      "function_candidates": 1,
+      "verified_boundary_candidates": 0,
+      "call_sites": 0,
+      "unresolved_indirect_calls": 0,
+      "barriers": 1,
+      "boundary_states": {
+        "unresolved_transfer": 1
+      },
+      "catalogue_capability_rows": 0,
+      "reachable_instruction_forms": 6,
+      "top_missing_form_families": [
+        {
+          "form_key": "mips|addiu|register|register|unclassified",
+          "occurrences": 2
+        },
+        {
+          "form_key": "mips|lui|register|absolute_or_displacement",
+          "occurrences": 2
+        },
+        {
+          "form_key": "mips|addiu|register|register|absolute_or_displacement",
+          "occurrences": 1
+        },
+        {
+          "form_key": "mips|bnez|register|absolute_or_displacement",
+          "occurrences": 1
+        },
+        {
+          "form_key": "mips|sltu|register|register|register",
+          "occurrences": 1
+        },
+        {
+          "form_key": "mips|sw|register|memory_or_pc_relative",
+          "occurrences": 1
+        }
+      ],
+      "functions": [
+        {
+          "entry": 2147745796,
+          "origin": "reset_or_executable_entry",
+          "confidence": "static_candidate",
+          "instruction_count": 8,
+          "boundary_state": "unresolved_transfer",
+          "readiness": "NEEDS_VERIFIED_BOUNDARY"
+        }
+      ]
+    }
+  ],
+  "release_gates": [
+    "Re-open original binary and verify exact SHA-256 before fetching instructions.",
+    "Resolve complete function boundaries and ownership; report unresolved indirect calls.",
+    "Build ISA-aware typed IR with ordered guest memory effects and exception semantics.",
+    "Register exact semantic lowering capabilities supported by evidence-backed tests.",
+    "Emit C++ for complete supported units; compile in isolated build jobs.",
+    "Differentially execute against an independent reference engine with flags, memory, PC, cycles and rollback evidence.",
+    "Batch retry all affected functions; never count C++ compilation as execution parity."
+  ]
+}

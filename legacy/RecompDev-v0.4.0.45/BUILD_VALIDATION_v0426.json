@@ -1,0 +1,33 @@
+{
+  "schema": "recomp-windows-native-acceptance-v0426",
+  "release": "0.4.0.26",
+  "status": "COMPILED_Z80_NULL_HOST_SYNTHETIC_PASS_WITH_WINDOWS_FIXES_AUTHENTIC_GATES_OPEN",
+  "prior_gate": "NULL_PRESENTATION_GUEST_STATE_EQUIVALENCE_COMPILED_SYNTHETIC_PASS_AUTHENTIC_GATES_OPEN",
+  "test_status": "COMPILED_TESTS_PASS",
+  "test_summaries": {
+    "test_null_backends_v0425.py": "Ran 6 tests in 17.715s",
+    "test_release_v0426.py": "Ran 4 tests in 0.003s"
+  },
+  "source_sha256": {
+    "nativepilot/interactive.cpp": "50e67d2692ec6d3a6bc9ae539539e29ffe4b9be50b57ca2cb0ae05b3bbbf4a27",
+    "platform424/campaign.py": "367c26c0d3724d4002b691d7320afc13ecc572379f2cdb82448d57063843afe2",
+    "tests/test_null_backends_v0425.py": "ebef9b8b5eb91f7a5498ffe8bfdd284f5e870ef2271e073935b3706da26cfd06",
+    "tests/test_continuous_native_v0423.py": "cf571a3fa58f707b6bd2eeb073d83c5176b3566dea97378a2d15b630139b4edd",
+    "tests/test_startup_loop_diagnostics_v0406.py": "208052af09f9e6274530e87edf39a885102c8618a2ba60cda7637528ae4d256b",
+    "workbench.py": "6ff93151fdf42d5239b0d06c8e2e4217a3d18e0e6743bf88726b132402abf0bf",
+    "Run-Workbench.ps1": "93219b295654937b6610810e33e3d29da3092264246d475adad99c441b57cf44"
+  },
+  "milestones": {
+    "WIN32_EXECUTABLE_SELECTION": "CMAKE_PRODUCT_PATH_VALIDATED",
+    "HEADLESS_PHYSICAL_BACKEND_FAIL_CLOSED": "COMPILED_ARGUMENT_ORDER_PERMUTATIONS_PASS",
+    "SQLITE_TEMP_DB_HANDLE_CLOSURE": "EXPLICIT_CONNECTION_LIFETIME_IMPLEMENTED_WINDOWS_CHECK_PENDING",
+    "GENUINE_WINDOWS_MSVC_VERIFICATION": "OWNER_MACHINE_PENDING",
+    "GENERIC_NULL_VIDEO_AUDIO_INPUT": "COMPILED_CROSS_SYSTEM_SYNTHETIC_PASS",
+    "REAL_MAME_ALIGNMENT": "NOT_ESTABLISHED",
+    "Z80_INDEPENDENT_SEMANTIC_PARITY": "NOT_ESTABLISHED",
+    "SHINOBI_GAMEPLAY": "NOT_ESTABLISHED"
+  },
+  "native_qualified": false,
+  "gameplay": "NOT_ESTABLISHED",
+  "game_specific_fixes": 0
+}

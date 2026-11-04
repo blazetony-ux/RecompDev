@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RecompDev · Catalogue Workbench</title><link rel="stylesheet" href="/static/style.css"></head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <div class="brand"><span class="glyph">R<span class="dot">.</span></span><div><strong>RecompDev</strong><small>CATALOGUE WORKBENCH</small></div></div>
+  <div class="sidegroup">WORKSPACES</div>
+  <nav class="primary-nav" aria-label="Workbench pages">
+    <a class="nav active" href="/" aria-current="page">Catalogue</a>
+    <a class="nav" href="/native">Native Recompilation</a>
+    <a class="nav" href="/discovery">Autonomous Discovery</a>
+    <a class="nav" href="/execution">Native Execution</a>
+    <a class="nav" href="/tooling">Tool Orchestration</a>
+  </nav>
+  <p class="side-description">Explore recovery evidence in dedicated workspaces without crowding the catalogue tabs.</p>
+  <div class="grow"></div><div class="foot"><span class="status-circle"></span> Local evidence browser · Read only <p>No ROM contents are served</p></div>
+</aside>
+<main class="main">
+  <header class="top"><div><div class="eyebrow">PROGRAM DISCOVERY / EVIDENCE CATALOGUE</div><h1>Catalogue overview</h1><p>What we know, what we suspect, and what is still unresolved.</p></div><span class="readonly">READ ONLY</span></header>
+  <div id="metrics" class="metrics" aria-label="Catalogue totals"></div>
+  <section class="panel targets-panel" aria-labelledby="target-heading"><div class="panel-heading"><div><h2 id="target-heading">Registered targets</h2><p>Human-readable names with immutable internal IDs</p></div><span id="target-count" class="count"></span></div><div class="table-wrap" id="targets-list"></div></section>
+  <section class="panel targets-panel" aria-labelledby="native-history-heading"><div class="panel-heading"><div><h2 id="native-history-heading">Native execution history</h2><p>Source-hash-linked native campaigns. These are NOT static graph runs, verified functions or proven gameplay.</p></div><span class="count">Authentic evidence, separate from discovery</span></div><div class="table-wrap" id="native-history-list"></div></section>
+  <section class="explorer" aria-labelledby="explorer-heading">
+    <div class="explorer-heading"><div><h2 id="explorer-heading">Explore evidence</h2><p>Select a game to inspect its code and control-flow evidence.</p></div></div>
+    <div class="toolbar"><label for="target">Target</label><select id="target"><option value="">All targets</option></select><label for="search">Find</label><input id="search" placeholder="Address (0x...) or name" type="search"><button id="refresh" title="Reload catalogue">Refresh</button></div>
+    <div class="tabs" role="tablist" aria-label="Catalogue evidence views">
+      <button type="button" class="tab active" id="tab-functions" role="tab" aria-selected="true" aria-controls="evidence-panel" data-page="functions">Functions</button>
+      <button type="button" class="tab" id="tab-calls" role="tab" aria-selected="false" aria-controls="evidence-panel" data-page="calls" tabindex="-1">Call sites</button>
+      <button type="button" class="tab" id="tab-transfers" role="tab" aria-selected="false" aria-controls="evidence-panel" data-page="transfers" tabindex="-1">Control flow</button>
+      <button type="button" class="tab" id="tab-barriers" role="tab" aria-selected="false" aria-controls="evidence-panel" data-page="barriers" tabindex="-1">Unresolved</button>
+      <button type="button" class="tab" id="tab-forms" role="tab" aria-selected="false" aria-controls="evidence-panel" data-page="forms" tabindex="-1">Instruction forms</button>
+    </div>
+    <div class="notice">Functions and calls are <strong>static candidates</strong>. Neither runtime execution nor complete function boundaries are claimed.</div>
+    <section class="panel" id="evidence-panel" role="tabpanel" aria-labelledby="tab-functions" tabindex="0"><div class="panel-heading"><div><h2 id="paneltitle">Function candidates</h2><p id="panelsub">Not validated whole functions</p></div><span id="count" class="count"></span></div><div class="table-wrap" id="results"></div></section>
+    <section id="detail" class="detail hide" aria-live="polite"></section>
+  </section>
+  <footer>RecompDev v0.4.0.30 · Static discovery and native execution shown separately · Authentic parity not established</footer>
+</main>
+</div><script src="/static/app.js" defer></script>
+</body></html>

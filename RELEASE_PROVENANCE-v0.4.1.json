@@ -1,0 +1,31 @@
+{
+  "schema": "recompdev-modular-migration-release-v1",
+  "release": "0.4.1",
+  "source_of_truth": "uploaded RecompDev-0445.zip",
+  "harness_baseline": "uploaded RecompDev-ModularHarness-PoC-v0.3-Source.zip",
+  "original_recompdev_files_preserved": 581,
+  "original_harness_files_preserved": 61,
+  "new_operational_routes": [
+    "legacy.discovery",
+    "legacy.preparation",
+    "legacy.recovery",
+    "legacy.sms-campaign"
+  ],
+  "parity_scope": "Original vs modular discovery canonical SQLite source/region/task/asset/disc-file rows for supplied fixture",
+  "owner_real_rom_parity": "NOT_YET_TESTED",
+  "windows_ctest": "NOT_RUN",
+  "new_tests": 8,
+  "legacy_ctest_groups_preserved": 23,
+  "limitations": [
+    "Ghidra executable and game ROMs are owner-local",
+    "Full legacy v0445 verifier not run on Windows in this environment",
+    "No native gameplay qualification",
+    "External RecompDev-Data catalogues not supplied",
+    "Limited independent harness interpreter is not full Z80"
+  ],
+  "default_linux_ctest_groups": 30,
+  "default_linux_ctest_passed": 30,
+  "optional_native_recovery_test": "PASSED_AS_STANDALONE; excluded from default ctest after CI stall",
+  "source_integrity_files": 642,
+  "optional_campaign_test": "PASSED_STANDALONE; excluded from default ctest after combined-suite stall"
+}

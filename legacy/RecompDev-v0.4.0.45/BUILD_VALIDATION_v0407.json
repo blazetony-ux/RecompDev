@@ -1,0 +1,16 @@
+{
+  "schema": "recompdev-build-v0407",
+  "date_utc": "2026-10-31",
+  "build": "0.4.0.7",
+  "objective": "Native Frame & Interrupt Recovery",
+  "verified": "synthetic compiled IRQ releases C001 wait; existing native bank recovery and Workbench pilot tests; source authenticating Ghidra evidence preserved",
+  "not_verified": [
+    "Real Shinobi VBlank interrupt parity",
+    "actual title screen",
+    "interactive gameplay",
+    "cycle-accurate Z80/VDP timing",
+    "reference emulator parity"
+  ],
+  "manifest_entries": 143,
+  "archive_contents_not_include_roms": true
+}

@@ -1,0 +1,40 @@
+{
+  "schema": "recomp-native-browser-worker-gate-v0429",
+  "release": "0.4.0.29",
+  "status": "COMPILED_Z80_NULL_HOST_AND_BOUNDED_BROWSER_REGISTRATION_PASS_AUTHENTIC_GATES_OPEN",
+  "test_status": "COMPILED_AND_BROWSER_TESTS_PASS",
+  "prior_gate": "COMPILED_NULL_HOST_AND_SQLITE_PATH_CACHE_FIXTURE_PASS_AUTHENTIC_GATES_OPEN",
+  "test_summaries": {
+    "test_null_backends_v0425.py": "Ran 6 tests in 19.520s",
+    "test_native_preparation_v0403.py": "Ran 7 tests in 3.316s",
+    "test_release_v0428.py": "Ran 5 tests in 0.138s",
+    "test_release_v0429.py": "Ran 3 tests in 0.005s"
+  },
+  "source_sha256": {
+    "discovery/workbench_jobs.py": "014213cc8e2d6e91a53da909c739b9d8dd1f52654fc6051bb2b8f995b82e5ccd",
+    "workbench.py": "f25e95652cee7ca2baa5c6d12916f2ae89d7fb144c785a3cbc7a50723baa7300",
+    "recomp.py": "dec7524cc036aa447652f844002bc5f47f49de7a275143f926308a6037fb4e1a",
+    "tests/test_native_preparation_v0403.py": "1abeb66e2acf35582f2f18048d2457307a2c3686dfc5c51b34bbc4a73a31ce29",
+    "tests/test_release_v0428.py": "6de91e51730b5f533358ace668c18fa118e7d8c47dc6882760a088ec7105b507",
+    "tests/test_integrated_native_v0424.py": "483c57041aa8bb915f08e646d78bccfa1c8ba3297cee4aafd7748423b6aa7ffc",
+    "tests/test_release_v0426.py": "3b0f756b0cdf2b9653084e10089e1a6b3dbfd4c5efb5b4d498342d667a79f3bf",
+    "tests/test_release_v0427.py": "fa8e74f5fe204901beacd90e16adbce40ba62f7aaea7a42aed7f62648ea2c471",
+    "nativepilot/CMakeLists.txt": "3b7394b62e83ae5c45e91f82f7c4059fcc5fe64b93070186519139ee5cac8492",
+    "Run-Workbench.ps1": "7fff6e9dbbf4c4ac41f0e678ddac0825d66df0992c44130093fc5dccdac08573",
+    "static/tooling.html": "a078d6b7633aa31ff49022e9e05e593a4f5b3661afd4105be6b182b58f969335",
+    "Verify-v0429.ps1": "41e8ef0e71840922bd7917f0ee72cc7b3b915c4546dbb8c4b4bf54c9371872f3"
+  },
+  "milestones": {
+    "SYNTHETIC_WORKBENCH_PREP": "REGISTER_ONLY_SOURCE_VERIFIED_PASS",
+    "PRODUCTION_GHIDRA_PREPARATION": "ENABLED_BY_DEFAULT_NOT_INTEGRATION_TESTED_HERE",
+    "WORKER_LOG_LIFECYCLE": "BOUNDED_POLL_CANCEL_AND_REAP",
+    "WINDOWS_COMPILED_NULL_HOST": "COMPILED_SYNTHETIC_PASS",
+    "OWNER_WINDOWS_FULL_REGRESSION": "OWNER_MACHINE_PENDING",
+    "REAL_MAME_ALIGNMENT": "NOT_ESTABLISHED",
+    "Z80_INDEPENDENT_SEMANTIC_PARITY": "NOT_ESTABLISHED",
+    "SHINOBI_GAMEPLAY": "NOT_ESTABLISHED"
+  },
+  "native_qualified": false,
+  "gameplay": "NOT_ESTABLISHED",
+  "game_specific_fixes": 0
+}

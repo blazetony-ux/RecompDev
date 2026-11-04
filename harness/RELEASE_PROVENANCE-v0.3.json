@@ -1,0 +1,32 @@
+{
+  "schema": "recompdev-modular-harness-provenance-v0.3",
+  "upstream_input_sha256": "88ea8261774365117bea499e8375c035031100501fff6b3a761a3c6be719ea85",
+  "components": {
+    "nativepilot/generator.py": {
+      "sha256": "ab7d9fd22fe011061368fc2cb672f8d949ea4ef405edc16d1122bbe669e40b70",
+      "identical_to_v0445": true
+    },
+    "nativepilot/z80_cycles.hpp": {
+      "sha256": "eac76cec49c0cee88f8fe5eb2c2896760d883b135b32b9e1fc621efe44fd42e6",
+      "identical_to_v0445": true
+    },
+    "systems/mastersystem/runtime.cpp": {
+      "sha256": "73675902341d98bc41ebcc06dab2477f4639acdf6b963e8e070cc1b73af50a3f",
+      "identical_to_v0445": true
+    },
+    "systems/mastersystem/runtime.hpp": {
+      "sha256": "7a22a5b3209c9b70a58c0dde0683494ecc41cac71fbb66ef6a82604a7394cd60",
+      "identical_to_v0445": true
+    },
+    "discovery/store.py": {
+      "sha256": "83ce733b5e7738c1728be33a07170f9cee3ba74708ed57a3b9fac851e32ceec7",
+      "identical_to_v0445": true
+    }
+  },
+  "safety": {
+    "master_source_changed": false,
+    "commercial_rom_included": false,
+    "native_gameplay_proven": false,
+    "windows_validation_pending": true
+  }
+}

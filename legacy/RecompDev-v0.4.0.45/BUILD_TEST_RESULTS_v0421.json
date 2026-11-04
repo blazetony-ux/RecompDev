@@ -1,0 +1,189 @@
+{
+  "bridge_skipped": 1,
+  "bridge_tests": 15,
+  "core_tests": 182,
+  "failures": 0,
+  "original_game_parity": "NOT_TESTED",
+  "real_windows_toolchain": "NOT_TESTED",
+  "release": "0.4.0.21",
+  "schema": "recomp-release-test-results-v0421",
+  "source_label": "LINUX_LOCAL_SYNTHETIC_REGRESSION_NOT_OWNER_WINDOWS",
+  "suite_count": 25,
+  "suites": [
+    {
+      "returncode": 0,
+      "seconds": 10.22,
+      "skipped": null,
+      "suite": "test_autonomous_bank_recovery_v0405.py",
+      "summary": "Ran 13 tests in 9.544s"
+    },
+    {
+      "returncode": 0,
+      "seconds": 1.11,
+      "skipped": null,
+      "suite": "test_autonomous_discovery_v040.py",
+      "summary": "Ran 12 tests in 0.355s"
+    },
+    {
+      "returncode": 0,
+      "seconds": 0.86,
+      "skipped": null,
+      "suite": "test_batch_campaign.py",
+      "summary": "Ran 5 tests in 0.091s"
+    },
+    {
+      "returncode": 0,
+      "seconds": 5.03,
+      "skipped": null,
+      "suite": "test_blockers_v032.py",
+      "summary": "Ran 10 tests in 4.233s"
+    },
+    {
+      "returncode": 0,
+      "seconds": 4.63,
+      "skipped": null,
+      "suite": "test_catalogue_workbench.py",
+      "summary": "Ran 14 tests in 3.828s"
+    },
+    {
+      "returncode": 0,
+      "seconds": 0.86,
+      "skipped": null,
+      "suite": "test_dependencies_and_parity_v0410.py",
+      "summary": "Ran 4 tests in 0.022s"
+    },
+    {
+      "returncode": 0,
+      "seconds": 4.94,
+      "skipped": null,
+      "suite": "test_durable_campaign_v0421.py",
+      "summary": "Ran 11 tests in 4.183s"
+    },
+    {
+      "returncode": 0,
+      "seconds": 2.56,
+      "skipped": null,
+      "suite": "test_event_stream_and_adaptive_v0412.py",
+      "summary": "Ran 4 tests in 1.879s"
+    },
+    {
+      "returncode": 0,
+      "seconds": 2.09,
+      "skipped": null,
+      "suite": "test_exact_instruction_recovery_v0409.py",
+      "summary": "Ran 4 tests in 1.369s"
+    },
+    {
+      "returncode": 0,
+      "seconds": 1.73,
+      "skipped": null,
+      "suite": "test_external_oracle_diagnostics_v0413.py",
+      "summary": "Ran 7 tests in 0.980s"
+    },
+    {
+      "returncode": 0,
+      "seconds": 3.78,
+      "skipped": null,
+      "suite": "test_function_v031.py",
+      "summary": "Ran 11 tests in 3.124s"
+    },
+    {
+      "returncode": 0,
+      "seconds": 0.67,
+      "skipped": null,
+      "suite": "test_independent_event_trace_v0411.py",
+      "summary": "Ran 6 tests in 0.002s"
+    },
+    {
+      "returncode": 0,
+      "seconds": 8.85,
+      "skipped": null,
+      "suite": "test_memory_bus_v0323.py",
+      "summary": "Ran 10 tests in 8.150s"
+    },
+    {
+      "returncode": 0,
+      "seconds": 5.4,
+      "skipped": null,
+      "suite": "test_native_execution_v0404.py",
+      "summary": "Ran 6 tests in 4.702s"
+    },
+    {
+      "returncode": 0,
+      "seconds": 2.41,
+      "skipped": null,
+      "suite": "test_native_frame_irq_v0407.py",
+      "summary": "Ran 2 tests in 1.755s"
+    },
+    {
+      "returncode": 0,
+      "seconds": 2.61,
+      "skipped": null,
+      "suite": "test_native_isolation_v0322.py",
+      "summary": "Ran 6 tests in 1.898s"
+    },
+    {
+      "returncode": 0,
+      "seconds": 3.75,
+      "skipped": null,
+      "suite": "test_native_preparation_v0403.py",
+      "summary": "Ran 7 tests in 2.984s"
+    },
+    {
+      "returncode": 0,
+      "seconds": 0.74,
+      "skipped": null,
+      "suite": "test_native_progress_v0410.py",
+      "summary": "Ran 3 tests in 0.074s"
+    },
+    {
+      "returncode": 0,
+      "seconds": 3.33,
+      "skipped": null,
+      "suite": "test_startup_loop_diagnostics_v0406.py",
+      "summary": "Ran 4 tests in 2.675s"
+    },
+    {
+      "returncode": 0,
+      "seconds": 4.59,
+      "skipped": null,
+      "suite": "test_tool_orchestration_v0414.py",
+      "summary": "Ran 13 tests in 3.870s"
+    },
+    {
+      "returncode": 0,
+      "seconds": 2.73,
+      "skipped": null,
+      "suite": "test_unified_campaign_v0420.py",
+      "summary": "Ran 12 tests in 2.012s"
+    },
+    {
+      "returncode": 0,
+      "seconds": 7.13,
+      "skipped": null,
+      "suite": "test_universal_native_recovery_v0408.py",
+      "summary": "Ran 7 tests in 6.433s"
+    },
+    {
+      "returncode": 0,
+      "seconds": 2.91,
+      "skipped": null,
+      "suite": "test_workbench_actions_v0402.py",
+      "summary": "Ran 5 tests in 2.133s"
+    },
+    {
+      "returncode": 0,
+      "seconds": 1.46,
+      "skipped": null,
+      "suite": "test_workbench_pages_v0401.py",
+      "summary": "Ran 6 tests in 0.752s"
+    },
+    {
+      "returncode": 0,
+      "seconds": 2.07,
+      "skipped": "OK (skipped=1)",
+      "suite": "test_bridge.py",
+      "summary": "Ran 15 tests in 1.367s"
+    }
+  ]
+}

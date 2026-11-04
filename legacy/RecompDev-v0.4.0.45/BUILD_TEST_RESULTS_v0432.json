@@ -1,0 +1,261 @@
+{
+  "release": "0.4.0.32",
+  "status": "PASS_LINUX_SYNTHETIC_AND_REGRESSION_WINDOWS_PENDING",
+  "core_suites": 41,
+  "core_test_cases_including_skips": 252,
+  "core_failures": 0,
+  "bridge_passed": 14,
+  "bridge_skipped": 1,
+  "authentic_m68k_mips_native_compilation": "NOT_ESTABLISHED",
+  "game_specific_fixes": 0,
+  "owner_windows_verification": "PENDING",
+  "independent_machine_parity": "NOT_ESTABLISHED",
+  "suites": [
+    {
+      "suite": "test_autonomous_bank_recovery_v0405.py",
+      "exit_code": 0,
+      "tests_including_skips": 7,
+      "duration_seconds": 8.087
+    },
+    {
+      "suite": "test_autonomous_discovery_v040.py",
+      "exit_code": 0,
+      "tests_including_skips": 12,
+      "duration_seconds": 0.28
+    },
+    {
+      "suite": "test_batch_campaign.py",
+      "exit_code": 0,
+      "tests_including_skips": 7,
+      "duration_seconds": 0.077
+    },
+    {
+      "suite": "test_blockers_v032.py",
+      "exit_code": 0,
+      "tests_including_skips": 10,
+      "duration_seconds": 2.556
+    },
+    {
+      "suite": "test_catalogue_workbench.py",
+      "exit_code": 0,
+      "tests_including_skips": 14,
+      "duration_seconds": 3.458
+    },
+    {
+      "suite": "test_continuous_native_v0423.py",
+      "exit_code": 0,
+      "tests_including_skips": 5,
+      "duration_seconds": 11.576
+    },
+    {
+      "suite": "test_cross_isa_recovery_v0430.py",
+      "exit_code": 0,
+      "tests_including_skips": 7,
+      "duration_seconds": 0.073
+    },
+    {
+      "suite": "test_dependencies_and_parity_v0410.py",
+      "exit_code": 0,
+      "tests_including_skips": 4,
+      "duration_seconds": 0.018
+    },
+    {
+      "suite": "test_durable_campaign_v0421.py",
+      "exit_code": 0,
+      "tests_including_skips": 11,
+      "duration_seconds": 8.654
+    },
+    {
+      "suite": "test_event_stream_and_adaptive_v0412.py",
+      "exit_code": 0,
+      "tests_including_skips": 4,
+      "duration_seconds": 2.396
+    },
+    {
+      "suite": "test_exact_instruction_recovery_v0409.py",
+      "exit_code": 0,
+      "tests_including_skips": 4,
+      "duration_seconds": 1.382
+    },
+    {
+      "suite": "test_external_oracle_diagnostics_v0413.py",
+      "exit_code": 0,
+      "tests_including_skips": 7,
+      "duration_seconds": 0.922
+    },
+    {
+      "suite": "test_function_v031.py",
+      "exit_code": 0,
+      "tests_including_skips": 11,
+      "duration_seconds": 3.437
+    },
+    {
+      "suite": "test_generic_analysis_v0432.py",
+      "exit_code": 0,
+      "tests_including_skips": 5,
+      "duration_seconds": 0.003
+    },
+    {
+      "suite": "test_hardware_runtime_v0422.py",
+      "exit_code": 0,
+      "tests_including_skips": 5,
+      "duration_seconds": 14.408
+    },
+    {
+      "suite": "test_independent_event_trace_v0411.py",
+      "exit_code": 0,
+      "tests_including_skips": 6,
+      "duration_seconds": 0.002
+    },
+    {
+      "suite": "test_integrated_native_v0424.py",
+      "exit_code": 0,
+      "tests_including_skips": 6,
+      "duration_seconds": 9.775
+    },
+    {
+      "suite": "test_memory_bus_v0323.py",
+      "exit_code": 0,
+      "tests_including_skips": 10,
+      "duration_seconds": 9.245
+    },
+    {
+      "suite": "test_multisa_native_v0432.py",
+      "exit_code": 0,
+      "tests_including_skips": 6,
+      "duration_seconds": 3.304
+    },
+    {
+      "suite": "test_native_execution_v0404.py",
+      "exit_code": 0,
+      "tests_including_skips": 6,
+      "duration_seconds": 9.461
+    },
+    {
+      "suite": "test_native_frame_irq_v0407.py",
+      "exit_code": 0,
+      "tests_including_skips": 2,
+      "duration_seconds": 3.518
+    },
+    {
+      "suite": "test_native_isolation_v0322.py",
+      "exit_code": 0,
+      "tests_including_skips": 6,
+      "duration_seconds": 1.864
+    },
+    {
+      "suite": "test_native_preparation_v0403.py",
+      "exit_code": 0,
+      "tests_including_skips": 7,
+      "duration_seconds": 3.035
+    },
+    {
+      "suite": "test_native_progress_v0410.py",
+      "exit_code": 0,
+      "tests_including_skips": 3,
+      "duration_seconds": 0.073
+    },
+    {
+      "suite": "test_null_backends_v0425.py",
+      "exit_code": 0,
+      "tests_including_skips": 6,
+      "duration_seconds": 17.927
+    },
+    {
+      "suite": "test_release_v0426.py",
+      "exit_code": 0,
+      "tests_including_skips": 4,
+      "duration_seconds": 0.005
+    },
+    {
+      "suite": "test_release_v0427.py",
+      "exit_code": 0,
+      "tests_including_skips": 4,
+      "duration_seconds": 0.006
+    },
+    {
+      "suite": "test_release_v0428.py",
+      "exit_code": 0,
+      "tests_including_skips": 5,
+      "duration_seconds": 0.133
+    },
+    {
+      "suite": "test_release_v0429.py",
+      "exit_code": 0,
+      "tests_including_skips": 3,
+      "duration_seconds": 0.008
+    },
+    {
+      "suite": "test_release_v0430.py",
+      "exit_code": 0,
+      "tests_including_skips": 3,
+      "duration_seconds": 0.007
+    },
+    {
+      "suite": "test_release_v0431.py",
+      "exit_code": 0,
+      "tests_including_skips": 3,
+      "duration_seconds": 0.006
+    },
+    {
+      "suite": "test_release_v0432.py",
+      "exit_code": 0,
+      "tests_including_skips": 3,
+      "duration_seconds": 0.006
+    },
+    {
+      "suite": "test_startup_loop_diagnostics_v0406.py",
+      "exit_code": 0,
+      "tests_including_skips": 4,
+      "duration_seconds": 6.915
+    },
+    {
+      "suite": "test_tool_orchestration_v0414.py",
+      "exit_code": 0,
+      "tests_including_skips": 13,
+      "duration_seconds": 4.124
+    },
+    {
+      "suite": "test_unified_campaign_v0420.py",
+      "exit_code": 0,
+      "tests_including_skips": 12,
+      "duration_seconds": 4.193
+    },
+    {
+      "suite": "test_unified_current_history_v0430.py",
+      "exit_code": 0,
+      "tests_including_skips": 1,
+      "duration_seconds": 0.003
+    },
+    {
+      "suite": "test_unified_source_identity_v0431.py",
+      "exit_code": 0,
+      "tests_including_skips": 5,
+      "duration_seconds": 0.703
+    },
+    {
+      "suite": "test_universal_campaign_v0432.py",
+      "exit_code": 0,
+      "tests_including_skips": 3,
+      "duration_seconds": 1.402
+    },
+    {
+      "suite": "test_universal_native_recovery_v0408.py",
+      "exit_code": 0,
+      "tests_including_skips": 7,
+      "duration_seconds": 16.281
+    },
+    {
+      "suite": "test_workbench_actions_v0402.py",
+      "exit_code": 0,
+      "tests_including_skips": 5,
+      "duration_seconds": 2.281
+    },
+    {
+      "suite": "test_workbench_pages_v0401.py",
+      "exit_code": 0,
+      "tests_including_skips": 6,
+      "duration_seconds": 0.823
+    }
+  ]
+}

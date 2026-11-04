@@ -1,0 +1,69 @@
+{
+  "schema": "recomp-function-pcode-v1",
+  "language": "z80:LE:16:default",
+  "target_id": "synthetic-pcode-v02",
+  "source_sha256": "1175d98682352cf2bb78a48abb5ad8f56d3b228f313c10e2552b050ecb45b9cc",
+  "analyzer": "synthetic-pcode-shape-not-ghidra",
+  "bank_context": {
+    "slot": 2,
+    "bank": 3,
+    "base": 32768,
+    "physical_start": 49152
+  },
+  "functions": [
+    {
+      "entry": 32768,
+      "name": "SYNTHETIC_BANK3",
+      "instructions": [
+        {
+          "address": 32768,
+          "length": 2,
+          "fallthrough": 32770,
+          "mnemonic": "LD",
+          "bytes_sha256": "f0258e142b82809e828d92a068e621970e294de00a5236baffade3e6999d06d0",
+          "pcode": [
+            {
+              "op": "COPY",
+              "inputs": [
+                {
+                  "space": "const",
+                  "offset": 102,
+                  "size": 1
+                }
+              ],
+              "output": {
+                "space": "register",
+                "offset": 1,
+                "size": 1
+              }
+            }
+          ]
+        },
+        {
+          "address": 32772,
+          "length": 3,
+          "fallthrough": 32775,
+          "mnemonic": "LD",
+          "bytes_sha256": "20016699a44b668e9379963c1657295ee7b00e434ac1356a326b2701d7639e6c",
+          "pcode": [
+            {
+              "op": "COPY",
+              "inputs": [
+                {
+                  "space": "register",
+                  "offset": 1,
+                  "size": 1
+                }
+              ],
+              "output": {
+                "space": "ram",
+                "offset": 49152,
+                "size": 1
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

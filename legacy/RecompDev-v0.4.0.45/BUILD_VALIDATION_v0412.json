@@ -1,0 +1,39 @@
+{
+  "schema": "recompdev-build-v0412",
+  "build": "0.4.0.12",
+  "date_utc": "2026-10-31",
+  "parent_release": "RecompDev-v0.4.0.11-Independent-Event-Traces.zip",
+  "objective": "Game-independent progress-aware native pilot with bound/hash-verified complete event logs and optional external emulator capture adapter",
+  "tests": {
+    "core_unit_tests": 139,
+    "core_failures": 0,
+    "bridge_tests": 15,
+    "bridge_failures": 0,
+    "bridge_skipped": 1,
+    "test_note": "138 core suites counted on first segmented run; rerun new v0412 suite with one additional adapter test, count 139 total. Linux Python/C++ tests."
+  },
+  "verified": [
+    "State::record_event compiled C++ test persists 7061 ordered hardware events across 7 chunks and rejects altered SHA",
+    "full external reference stream 7100 events compared beyond 4096 preview; detects first mismatched event index and corrupted chunk",
+    "bounded adaptive budget plan and observable state heuristic tested",
+    "native pilot compiled runtime / existing synthetic Ghidra bank recovery tests passed",
+    "explicit external local executable adapter verifies ROM hash, allowlisted tool directory, and imports owner-provided JSONL; tested with a separate synthetic program",
+    "new Workbench reads new catalogue, retains prior verified evidence roots, and emits separate versioned pilot jobs"
+  ],
+  "not_verified": [
+    "authentic emulator-independent Master System ROM parity or frame correctness",
+    "owner Windows and Ghidra integration on their machine",
+    "real game sound, video or interrupts accurate",
+    "68000/MIPS native executable backends",
+    "actual independent reference capture from any commercial game"
+  ],
+  "roms_included": false,
+  "limits": {
+    "max_steps": 2000000,
+    "event_count_max": 500000,
+    "event_stream_bytes_max": 67108864,
+    "events_per_chunk": 1024,
+    "inline_preview_events": 4096
+  },
+  "release_policy": "Do not claim playable game, native parity, or autonomous semantic repairs from sampled/uncorroborated execution."
+}

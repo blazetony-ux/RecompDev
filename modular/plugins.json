@@ -1,0 +1,38 @@
+{
+  "schema": "recompdev-modular-adapters-v1",
+  "plugins": [
+    {
+      "id": "legacy.discovery",
+      "kind": "discovery",
+      "module": "discovery.engine",
+      "source": "legacy/RecompDev-v0.4.0.45/discovery/engine.py",
+      "execution": "isolated_subprocess",
+      "stage": "discovery"
+    },
+    {
+      "id": "legacy.preparation",
+      "kind": "preparation",
+      "module": "nativeprep.engine",
+      "source": "legacy/RecompDev-v0.4.0.45/nativeprep/engine.py",
+      "execution": "isolated_subprocess",
+      "stage": "preparation"
+    },
+    {
+      "id": "legacy.recovery",
+      "kind": "recovery",
+      "module": "tools/Run-Continuous-Recovery-v0445.py",
+      "source": "legacy/RecompDev-v0.4.0.45/tools/Run-Continuous-Recovery-v0445.py",
+      "execution": "isolated_subprocess",
+      "stage": "recovery"
+    },
+    {
+      "id": "legacy.sms-campaign",
+      "kind": "orchestration",
+      "module": "tools/Run-SMS-Campaign-v0445.py",
+      "source": "legacy/RecompDev-v0.4.0.45/tools/Run-SMS-Campaign-v0445.py",
+      "execution": "isolated_subprocess",
+      "stage": "campaign"
+    }
+  ],
+  "policy": "Original source is authoritative; no reduced substitute; failure is explicit; plugins can be replaced only through reviewed registrations."
+}

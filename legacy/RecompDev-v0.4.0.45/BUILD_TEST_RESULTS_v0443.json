@@ -1,0 +1,29 @@
+{
+  "schema": "recompdev-v0443-local-qualification-v1",
+  "release": "0.4.0.43",
+  "new_capabilities": {
+    "central_source_verified_coverage": "PASS synthetic cold/warm and source-tamper tests",
+    "historical_coverage_import": "PASS synthetic original recovery export",
+    "input_aware_reset_replay": "PASS inherited compiled NMI and replay regressions",
+    "psg_volume_data_register": "PASS compiled semantic fixture",
+    "psg_noise_and_tone": "PASS compiled deterministic fixture",
+    "generated_native_frame_snapshots": "PASS compiled source-attested native fixture",
+    "frame_timeline": "PASS pure Python PNG/HTML fixture",
+    "recovery_cost_profiler": "PASS synthetic report"
+  },
+  "focused_regression_selection": {
+    "groups": 24,
+    "status": "PASSED_INDIVIDUALLY_LOCALLY",
+    "note": "Individual and grouped runs passed. A combined long test invocation hit local execution limit; not reported as completed in one run."
+  },
+  "bridge": "15 passed (1 skipped)",
+  "compiled_output_fixture": "PASS (256x192 PPM and updated PCM reference)",
+  "no_rom_campaign_bootstrap": "PASS (7 ROM_NOT_FOUND statuses as designed, correctly versioned evidence ZIP)",
+  "full_repository_suite": "NOT_COMPLETED",
+  "windows_owner_acceptance": "PENDING",
+  "r_type_frame342_progress": "NOT_TESTED_WITH_THIS_BUILD",
+  "authentic_game_audio": "NOT_ESTABLISHED",
+  "independent_mame_parity": "NOT_TESTED",
+  "interactive_checkpoint_resume": "NOT_IMPLEMENTED",
+  "automatic_cpu_repair": "NOT_IMPLEMENTED"
+}

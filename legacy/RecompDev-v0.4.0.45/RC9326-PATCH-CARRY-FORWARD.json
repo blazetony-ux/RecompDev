@@ -1,0 +1,35 @@
+{
+  "schema": "recomp-patch-carry-forward-v0.3",
+  "source": "owner-uploaded-v0.1.4",
+  "note": "This is an audited source inventory, not a claim that C++ parity is complete. Do not overwrite patched Go tree.",
+  "files": [
+    {
+      "relative_path": "tools/chqdev/recomp_ir.go",
+      "sha256": "21005422985c7429bffa774898eccabc4eb47c0067c0ca5ee5a44584291c74ed"
+    },
+    {
+      "relative_path": "tools/chqdev/recomp_convert.go",
+      "sha256": "b520535134ba7e55bd34ef2e84ff5a58528e3acfefb445f659907ab8ef9c29db"
+    },
+    {
+      "relative_path": "tools/chqdev/recomp_ir_codegen.go",
+      "sha256": "15d343fae6abe1d7db73442943ba9f3448653b7275379838474b61a685c43bff"
+    },
+    {
+      "relative_path": "tools/chqdev/recomp_m68k_abs_long_test.go",
+      "sha256": "fe00cf76089b5cc7a402228246a86bf36fd15d42e0789480ef668c7d1ba10ef4"
+    },
+    {
+      "relative_path": "tools/chqdev/recomp_m68k_branch_short_test.go",
+      "sha256": "3fb8a00f9cbba797fdccf57f8414de909bf1e9a357141f505655084ee729885a"
+    },
+    {
+      "relative_path": "tools/chqdev/recomp_m68k_word_lea_test.go",
+      "sha256": "ee79ad9ebd1f1f5c4de8504f4bb4236c830317bcf0cc890f214faba73472891d"
+    },
+    {
+      "relative_path": "tools/chqdev/recomp_m68k_movem_btst_test.go",
+      "sha256": "efc6809d0e97514796859d94be8abf999920489582293a2850b2a44e325141cd"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "schema": "recomp-hardware-gate-v0422",
+  "release": "0.4.0.22",
+  "status": "SYNTHETIC_CROSS_DEVICE_AND_Z80_IO_PATH_PASS_WITH_AUTHENTIC_GATES_OPEN",
+  "prior_gate": "PASS_REUSABLE_SYNTHETIC_INTEGRATION_WITH_REAL_WORLD_GATES_OPEN",
+  "cross_system": "PASS_COMPILED_SYNTHETIC_TWO_DEVICES_AND_Z80_PORT_EVIDENCE",
+  "test_summary": "Ran 5 tests in 7.699s",
+  "code_sha256": {
+    "hardware/core.hpp": "3f860e5f8a093fcba18e7da5383dd647930590cc4e85a42d502925e42534ce4e",
+    "hardware/runtime.hpp": "afade7a8ffbdd52452800307a41f86923bf64e10041c3e7642dcfd3ea80e8421",
+    "hardware/wav.hpp": "8da96655ef974e3047862c85633abdd1f98a316a71ba75b8b5d05847276a34b4",
+    "hardware/input_replay.hpp": "181039b67e205fcf950be23860a3be6e7a35662c36aa476a76177b69eb0a2ffe",
+    "hardware/adapters/sms.hpp": "7dd460ddbfb174e4dd78169c6fa2683212fc0db47b8253666a079210a249a02e",
+    "hardware/adapters/sms_machine.hpp": "622ae743993ec56e9873b01fad4655f81f894ef433be88abfb04679a87cc0774",
+    "hardware/adapters/alternate.hpp": "4d53c296b332062d7cfcced74f75a88f188a438afd9e65387a898183e218c88e",
+    "nativepilot/generator.py": "2506452b63c6063cc1a363b83050a7849bafd2a4b1ef29fa822b8a595c259df9",
+    "systems/mastersystem/runtime.cpp": "99e583163c43cfe0ea69f5eac8ad0bbbad2c222ae5c7fdadbd56187b4e22f1e4",
+    "host/UniversalHost.cpp": "0a980a9e4ae18ed3985fe55fb2015c6b656c69ab560a00dc1c706e62b1b75dfe"
+  },
+  "milestones": {
+    "GENERIC_VIDEO_AUDIO_INPUT_CONTRACTS": "COMPILED_SYNTHETIC_PASS",
+    "GENERIC_BUS_CLOCK_AND_REPLAY": "COMPILED_SYNTHETIC_PASS",
+    "SECOND_DEVICE_PLATFORM": "FICTIONAL_NON_SMS_FIXTURE_PASS",
+    "Z80_NATIVE_IO_VIDEO_AUDIO": "SOURCE_ATTESTED_SYNTHETIC_CPP_EXECUTION_PASS",
+    "REAL_SMS_VDP_PSG_PARITY": "NOT_ESTABLISHED",
+    "CONTINUOUS_GENERATED_GAME_HOST": "NOT_IMPLEMENTED",
+    "INDEPENDENT_GAME_VIDEO_AUDIO": "NOT_TESTED",
+    "SHINOBI_PLAYABLE": "NOT_ESTABLISHED",
+    "CROSS_PLATFORM_GUI": "WIN32_DEMO_ONLY",
+    "WINDOWS_MSVC_RUN": "NOT_TESTED_ON_OWNER_MACHINE"
+  },
+  "native_qualified": false,
+  "gameplay": "NOT_ESTABLISHED",
+  "game_specific_fixes": 0
+}

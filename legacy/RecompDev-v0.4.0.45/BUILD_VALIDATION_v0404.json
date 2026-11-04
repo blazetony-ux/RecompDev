@@ -1,0 +1,16 @@
+{
+  "version": "0.4.0.4",
+  "title": "Shinobi Native Execution Pilot",
+  "validation_date": "2026-10-31",
+  "platform": "Linux C++17/GCC and Python 3.13 testing; Windows owner-run pending",
+  "regression_suite_passed": 92,
+  "bridge_suite_passed": 15,
+  "additional_verification": [
+    "real 2,126-instruction Shinobi Ghidra P-code-derived C++ syntax check",
+    "synthetic SMS ROM compiled actual C++ native execution reached bank-switch stop after 6 steps",
+    "HTTP local action CSRF and bounds tested",
+    "original ROM SHA-256/byte hashes checked",
+    "generated PNG conversion checked"
+  ],
+  "native_execution_caveat": "Not playable, not whole-game parity; no correct interrupt scheduler, full VDP or PSG synthesis; no translated banked code. DAA not lowered."
+}

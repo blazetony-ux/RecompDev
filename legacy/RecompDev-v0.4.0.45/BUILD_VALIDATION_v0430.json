@@ -1,0 +1,44 @@
+{
+  "schema": "recomp-cross-isa-recovery-gate-v0430",
+  "release": "0.4.0.30",
+  "status": "SYNTHETIC_SOURCE_SUPPORTED_M68K_MIPS_RECOVERY_PASS_AUTHENTIC_IMPROVEMENT_PENDING",
+  "prior_gate": "COMPILED_Z80_NULL_HOST_AND_BOUNDED_BROWSER_REGISTRATION_PASS_AUTHENTIC_GATES_OPEN",
+  "test_status": "PASS",
+  "test_summaries": {
+    "test_cross_isa_recovery_v0430.py": "Ran 7 tests in 0.077s",
+    "test_unified_current_history_v0430.py": "Ran 1 test in 0.003s",
+    "test_null_backends_v0425.py": "Ran 6 tests in 19.311s",
+    "test_release_v0430.py": "Ran 3 tests in 0.006s"
+  },
+  "source_sha256": {
+    "adapters/indirect.py": "4ffc948c9d34bfa5201d6187185eeb60bcc3dcec137f820265dd012b03635d4d",
+    "adapters/flow.py": "b41155d9a4d107a6bf8c1c37ef449fe76e2048d3ea6b3e53f64a8df6e9c54e01",
+    "scan_graph.py": "1e0cfa2d12ffed6037d52f2ea6b5d1100210acc3723f75e9d2d6fc6efaf49633",
+    "graph_store.py": "c67ca0cca8a64c71847336fcf23201f0eecb476e01a902d0a478dcedc1ac1a3c",
+    "discovery_benchmark.py": "06248a4603cac90fd175af153b8e9d6bebd5cb5412f17168fcb2c09308a70f84",
+    "recomp.py": "79f6b8f864d5f7a71e2cd5a4dcca12b008b7c756fa8a258638a7d7c2dc3b82fb",
+    "platform424/evidence.py": "39cceeffd4fca73fcbb05fc1081ddb7a688c31310cd3229b8c0fbc9947dd3174",
+    "workbench.py": "a0ee15d13ab67a645366642b025da41373f6c5ef2ed3911a2b6ef73212f7981e",
+    "static/app.js": "b9dd4dff20b41a767d07ca0a9f37738dff26e4669b1d664643dd5b80ccf10973",
+    "static/index.html": "5b05cd32a1415d3cbc5ad5034da0ba3a291b75b8807956da1412cada09bdc8ad",
+    "tests/test_cross_isa_recovery_v0430.py": "d96006385041ca6cc85a3af422a8d6716fbdb810fa99a9f5e56244ec4b1dda32",
+    "tests/test_unified_current_history_v0430.py": "4e5a39179c3a2a48bc552daed0190a4470f66e71b6765d821aecc16c68d3c8f2",
+    "Run-Workbench.ps1": "a1a5a9408735a1747ef76d0d1ebc58cad5a8f12d1b4272fffa119cbf9f2adb54",
+    "Verify-v0430.ps1": "73886cf872415bbfdb1aa15685cddb31f3c04cfa7e8fc8c6f92ae8e48c7319be"
+  },
+  "milestones": {
+    "M68K_LOCAL_CONSTANT_RECOVERY": "SYNTHETIC_SOURCE_DECODED_PASS",
+    "MIPS_LOCAL_CONSTANT_RECOVERY": "SYNTHETIC_SOURCE_DECODED_PASS",
+    "MIPS_AMBIGUOUS_JOIN_REJECTION": "SYNTHETIC_PASS",
+    "FRESH_SQLITE_SCAN": "SYNTHETIC_PASS",
+    "SONIC_AUTHENTIC_BEFORE_AFTER": "OWNER_ROM_BENCHMARK_PENDING",
+    "RIDGE_RACER_AUTHENTIC_BEFORE_AFTER": "OWNER_EXE_BENCHMARK_PENDING",
+    "UNIFIED_SHINOBI_CAMPAIGN_HISTORY": "AUTHENTIC_UPLOADED_JOB_REVALIDATED_DEVELOPMENT_MACHINE",
+    "NONZ80_NATIVE_GAME_COMPILATION": "NOT_ESTABLISHED",
+    "INDEPENDENT_MAME_PARITY": "NOT_ESTABLISHED",
+    "SHINOBI_PLAYABLE": "NOT_ESTABLISHED"
+  },
+  "native_qualified": false,
+  "gameplay": "NOT_ESTABLISHED",
+  "game_specific_fixes": 0
+}

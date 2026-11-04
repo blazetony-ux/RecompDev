@@ -1,0 +1,92 @@
+{
+  "schema": "recomp-platform-charter-v1",
+  "mission": "Autonomously recover, recompile, verify and run legacy machine code as portable native x86/x64 using reusable ISA and hardware adapters; original owner files remain local.",
+  "release_policy": {
+    "architecture_first": true,
+    "single_game_debugging_is_not_a_release_milestone": true,
+    "source_provenance_required": true,
+    "unverified_external_engine_claims_are_blocked": true,
+    "independent_testing_required_before_native_promotion": true,
+    "suppress_unsubstantiated_parity": true,
+    "no_invisible_semantic_repair": true,
+    "no_commercial_roms_in_distributions": true,
+    "third_party_tools_opt_in_only": true
+  },
+  "stage_definitions": {
+    "discovered": "candidate address or data region exists",
+    "analysed": "tool-derived instruction/CFG hypothesis with source provenance",
+    "translated": "generated host-language implementation exists",
+    "compiled": "host compiler built implementation",
+    "isolated_verified": "independent reference agrees on explicitly tested state and effects",
+    "native_qualified": "independent, complete, bounded contract and safe rollback gate passed",
+    "dispatched": "qualified native implementation actually executed by runtime"
+  },
+  "acceptance_milestones": [
+    {
+      "id": "M1",
+      "name": "Cross-game tool orchestration",
+      "gate": "two distinct binary SHA-256 fixtures through same non-game-specific code path"
+    },
+    {
+      "id": "M2",
+      "name": "Independent tool provenance",
+      "gate": "real owner-installed analyzers, cross-engine source-attested hypothesis reconciliation"
+    },
+    {
+      "id": "M3",
+      "name": "Multiple executable ISA backends",
+      "gate": "native execution of two different author-generated ISA programs against independent oracles"
+    },
+    {
+      "id": "M4",
+      "name": "Autonomous repair with rollback",
+      "gate": "approved shared semantic edit, holdout tests, automatic dependency retries, rollback on any failure"
+    },
+    {
+      "id": "M5",
+      "name": "Live dispatch",
+      "gate": "transactional verified runtime promotion and measured actual native commits"
+    }
+  ],
+  "implementation_note": "v0.4.0.33 adds source-opcode-driven Z80 instruction timing with unknown-timing accounting, SMS NTSC 192-line V-counter and latched H-counter model, and authenticated MAME/native startup mismatch triage. Independent CPU/MAME parity, complete SMS VDP/PSG fidelity and playable Shinobi remain unqualified.",
+  "consolidated_milestone_roadmap": [
+    {
+      "id": "V15",
+      "feature": "unified campaigns",
+      "required_gate": "same source-attested job runs discovery/analyzer/native execution/diagnostic stages on multiple original fixtures"
+    },
+    {
+      "id": "V16",
+      "feature": "reference alignment",
+      "required_gate": "same source/boot/physical bank/CPU state independently authenticated against real external engine"
+    },
+    {
+      "id": "V17",
+      "feature": "transactional semantic repair",
+      "required_gate": "approved production patch, independent holdouts, dependency retries and atomic rollback"
+    },
+    {
+      "id": "V18",
+      "feature": "hardware qualification",
+      "required_gate": "independent aligned VDP/PSG/IRQ/memory/frame tests with ordered effects"
+    },
+    {
+      "id": "V19",
+      "feature": "native application",
+      "required_gate": "real generated game code wired to window/input/audio and original-game gameplay reference"
+    },
+    {
+      "id": "V20",
+      "feature": "second ISA",
+      "required_gate": "full native instruction execution for distinct ISA under independent reference tests and portable ABI"
+    }
+  ],
+  "current_release": "0.4.0.33",
+  "post_consolidation_roadmap": [
+    {
+      "id": "V22",
+      "feature": "universal hardware/video/audio/input runtime and first native Z80 IO evidence",
+      "required_gate": "same CPU-neutral device/scheduler/output contracts compiled against SMS and independent non-SMS synthetic platform; source-attested native Z80 IO C++ emits candidate frame and audio; genuine console parity remains explicitly blocked"
+    }
+  ]
+}

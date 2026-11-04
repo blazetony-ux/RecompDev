@@ -1,0 +1,236 @@
+{
+  "release": "0.4.0.25",
+  "status": "PASS",
+  "suites": [
+    {
+      "suite": "test_autonomous_bank_recovery_v0405.py",
+      "returncode": 0,
+      "duration_seconds": 12.61,
+      "summary": "Ran 7 tests in 11.579s",
+      "skipped": "",
+      "output_tail": ""
+    },
+    {
+      "suite": "test_autonomous_discovery_v040.py",
+      "returncode": 0,
+      "duration_seconds": 1.79,
+      "summary": "Ran 12 tests in 0.623s",
+      "skipped": "",
+      "output_tail": ""
+    },
+    {
+      "suite": "test_batch_campaign.py",
+      "returncode": 0,
+      "duration_seconds": 1.18,
+      "summary": "Ran 5 tests in 0.088s",
+      "skipped": "",
+      "output_tail": ""
+    },
+    {
+      "suite": "test_blockers_v032.py",
+      "returncode": 0,
+      "duration_seconds": 8.36,
+      "summary": "Ran 10 tests in 6.629s",
+      "skipped": "",
+      "output_tail": ""
+    },
+    {
+      "suite": "test_catalogue_workbench.py",
+      "returncode": 0,
+      "duration_seconds": 5.59,
+      "summary": "Ran 14 tests in 4.724s",
+      "skipped": "",
+      "output_tail": ""
+    },
+    {
+      "suite": "test_continuous_native_v0423.py",
+      "returncode": 0,
+      "duration_seconds": 16.53,
+      "summary": "Ran 4 tests in 15.650s",
+      "skipped": "",
+      "output_tail": ""
+    },
+    {
+      "suite": "test_dependencies_and_parity_v0410.py",
+      "returncode": 0,
+      "duration_seconds": 0.86,
+      "summary": "Ran 4 tests in 0.022s",
+      "skipped": "",
+      "output_tail": ""
+    },
+    {
+      "suite": "test_durable_campaign_v0421.py",
+      "returncode": 0,
+      "duration_seconds": 12.61,
+      "summary": "Ran 11 tests in 11.742s",
+      "skipped": "",
+      "output_tail": ""
+    },
+    {
+      "suite": "test_event_stream_and_adaptive_v0412.py",
+      "returncode": 0,
+      "duration_seconds": 3.84,
+      "summary": "Ran 4 tests in 2.969s",
+      "skipped": "",
+      "output_tail": ""
+    },
+    {
+      "suite": "test_exact_instruction_recovery_v0409.py",
+      "returncode": 0,
+      "duration_seconds": 3.17,
+      "summary": "Ran 4 tests in 2.098s",
+      "skipped": "",
+      "output_tail": ""
+    },
+    {
+      "suite": "test_external_oracle_diagnostics_v0413.py",
+      "returncode": 0,
+      "duration_seconds": 2.21,
+      "summary": "Ran 7 tests in 1.237s",
+      "skipped": "",
+      "output_tail": ""
+    },
+    {
+      "suite": "test_function_v031.py",
+      "returncode": 0,
+      "duration_seconds": 5.52,
+      "summary": "Ran 11 tests in 4.572s",
+      "skipped": "",
+      "output_tail": ""
+    },
+    {
+      "suite": "test_hardware_runtime_v0422.py",
+      "returncode": 0,
+      "duration_seconds": 18.64,
+      "summary": "Ran 5 tests in 17.788s",
+      "skipped": "",
+      "output_tail": ""
+    },
+    {
+      "suite": "test_independent_event_trace_v0411.py",
+      "returncode": 0,
+      "duration_seconds": 0.85,
+      "summary": "Ran 6 tests in 0.002s",
+      "skipped": "",
+      "output_tail": ""
+    },
+    {
+      "suite": "test_integrated_native_v0424.py",
+      "returncode": 0,
+      "duration_seconds": 12.46,
+      "summary": "Ran 6 tests in 11.581s",
+      "skipped": "",
+      "output_tail": ""
+    },
+    {
+      "suite": "test_memory_bus_v0323.py",
+      "returncode": 0,
+      "duration_seconds": 12.8,
+      "summary": "Ran 10 tests in 11.908s",
+      "skipped": "",
+      "output_tail": ""
+    },
+    {
+      "suite": "test_native_execution_v0404.py",
+      "returncode": 0,
+      "duration_seconds": 15.41,
+      "summary": "Ran 6 tests in 14.510s",
+      "skipped": "",
+      "output_tail": ""
+    },
+    {
+      "suite": "test_native_frame_irq_v0407.py",
+      "returncode": 0,
+      "duration_seconds": 5.58,
+      "summary": "Ran 2 tests in 4.684s",
+      "skipped": "",
+      "output_tail": ""
+    },
+    {
+      "suite": "test_native_isolation_v0322.py",
+      "returncode": 0,
+      "duration_seconds": 4.28,
+      "summary": "Ran 6 tests in 3.384s",
+      "skipped": "",
+      "output_tail": ""
+    },
+    {
+      "suite": "test_native_preparation_v0403.py",
+      "returncode": 0,
+      "duration_seconds": 5.73,
+      "summary": "Ran 7 tests in 4.565s",
+      "skipped": "",
+      "output_tail": ""
+    },
+    {
+      "suite": "test_native_progress_v0410.py",
+      "returncode": 0,
+      "duration_seconds": 1.14,
+      "summary": "Ran 3 tests in 0.121s",
+      "skipped": "",
+      "output_tail": ""
+    },
+    {
+      "suite": "test_null_backends_v0425.py",
+      "returncode": 0,
+      "duration_seconds": 25.89,
+      "summary": "Ran 6 tests in 24.959s",
+      "skipped": "",
+      "output_tail": ""
+    },
+    {
+      "suite": "test_startup_loop_diagnostics_v0406.py",
+      "returncode": 0,
+      "duration_seconds": 9.33,
+      "summary": "Ran 4 tests in 8.427s",
+      "skipped": "",
+      "output_tail": ""
+    },
+    {
+      "suite": "test_tool_orchestration_v0414.py",
+      "returncode": 0,
+      "duration_seconds": 6.46,
+      "summary": "Ran 13 tests in 5.582s",
+      "skipped": "",
+      "output_tail": ""
+    },
+    {
+      "suite": "test_unified_campaign_v0420.py",
+      "returncode": 0,
+      "duration_seconds": 6.37,
+      "summary": "Ran 12 tests in 5.512s",
+      "skipped": "",
+      "output_tail": ""
+    },
+    {
+      "suite": "test_universal_native_recovery_v0408.py",
+      "returncode": 0,
+      "duration_seconds": 22.69,
+      "summary": "Ran 7 tests in 21.803s",
+      "skipped": "",
+      "output_tail": ""
+    },
+    {
+      "suite": "test_workbench_actions_v0402.py",
+      "returncode": 0,
+      "duration_seconds": 3.76,
+      "summary": "Ran 5 tests in 2.899s",
+      "skipped": "",
+      "output_tail": ""
+    },
+    {
+      "suite": "test_workbench_pages_v0401.py",
+      "returncode": 0,
+      "duration_seconds": 1.89,
+      "summary": "Ran 6 tests in 1.032s",
+      "skipped": "",
+      "output_tail": ""
+    },
+    {
+      "suite": "bridge/tests",
+      "returncode": 0,
+      "summary": "Ran 15 tests in 1.841s",
+      "output_tail": "----------------------------------------------------------------------\nRan 15 tests in 1.841s\n\nOK (skipped=1)\n"
+    }
+  ]
+}

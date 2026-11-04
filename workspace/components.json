@@ -1,0 +1,107 @@
+{
+  "components": {
+    "controller": {
+      "description": "Compiled command entry point invoking preserved workflow services",
+      "kind": "controller",
+      "scope": "production-entrypoint",
+      "target": "RecompDev",
+      "version": "0.4.4"
+    },
+    "legacy.discovery": {
+      "description": "Preserved discovery engine; not a native DLL",
+      "kind": "legacy-service",
+      "scope": "production-workflow",
+      "version": "0.4.0.45"
+    },
+    "legacy.preparation": {
+      "description": "Preserved Ghidra/native preparation; not a native DLL",
+      "kind": "legacy-service",
+      "scope": "production-workflow",
+      "version": "0.4.0.45"
+    },
+    "legacy.recovery": {
+      "description": "Preserved native recovery; not a native DLL",
+      "kind": "legacy-service",
+      "scope": "production-workflow",
+      "version": "0.4.0.45"
+    },
+    "legacy.sms-campaign": {
+      "description": "Preserved batch campaign; not a native DLL",
+      "kind": "legacy-service",
+      "scope": "production-workflow",
+      "version": "0.4.0.45"
+    },
+    "rd_audio_wav": {
+      "description": "DLL target with independent build and deployment; not yet a production recovery adapter",
+      "kind": "compiled-plugin",
+      "scope": "harness",
+      "target": "rd_audio_wav",
+      "version": "0.1.0"
+    },
+    "rd_cpu_z80": {
+      "description": "DLL target with independent build and deployment; not yet a production recovery adapter",
+      "kind": "compiled-plugin",
+      "scope": "harness",
+      "target": "rd_cpu_z80",
+      "version": "0.1.0"
+    },
+    "rd_discovery_jsonl": {
+      "description": "DLL target with independent build and deployment; not yet a production recovery adapter",
+      "kind": "compiled-plugin",
+      "scope": "harness",
+      "target": "rd_discovery_jsonl",
+      "version": "0.1.0"
+    },
+    "rd_display_ppm": {
+      "description": "DLL target with independent build and deployment; not yet a production recovery adapter",
+      "kind": "compiled-plugin",
+      "scope": "harness",
+      "target": "rd_display_ppm",
+      "version": "0.1.0"
+    },
+    "rd_game_fixture": {
+      "description": "DLL target with independent build and deployment; not yet a production recovery adapter",
+      "kind": "compiled-plugin",
+      "scope": "harness",
+      "target": "rd_game_fixture",
+      "version": "0.1.0"
+    },
+    "rd_game_probe": {
+      "description": "DLL target with independent build and deployment; not yet a production recovery adapter",
+      "kind": "compiled-plugin",
+      "scope": "harness",
+      "target": "rd_game_probe",
+      "version": "0.1.0"
+    },
+    "rd_game_recomp_v0445": {
+      "description": "DLL target with independent build and deployment; not yet a production recovery adapter",
+      "kind": "compiled-plugin",
+      "scope": "harness",
+      "target": "rd_game_recomp_v0445",
+      "version": "0.1.0"
+    },
+    "rd_input_fixed": {
+      "description": "DLL target with independent build and deployment; not yet a production recovery adapter",
+      "kind": "compiled-plugin",
+      "scope": "harness",
+      "target": "rd_input_fixed",
+      "version": "0.1.0"
+    },
+    "rd_machine_sms": {
+      "description": "DLL target with independent build and deployment; not yet a production recovery adapter",
+      "kind": "compiled-plugin",
+      "scope": "harness",
+      "target": "rd_machine_sms",
+      "version": "0.1.0"
+    },
+    "rd_machine_synthetic": {
+      "description": "DLL target with independent build and deployment; not yet a production recovery adapter",
+      "kind": "compiled-plugin",
+      "scope": "harness",
+      "target": "rd_machine_synthetic",
+      "version": "0.1.0"
+    }
+  },
+  "schema": "recompdev-components-v1",
+  "workspace_release": "v0.4.4"
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "recompdev-build-validation-v0403",
+  "release": "0.4.0.3",
+  "unit_and_integration_tests": 86,
+  "bridge_tests": 15,
+  "js_syntax_validation": "node --check for discovery.js and native.js",
+  "native_genuine_ghidra_windows_test": "NOT_RUN",
+  "new_features": [
+    "source hash-linked native target registration",
+    "Z80 initial 48KB Ghidra candidate extraction",
+    "native-preparation Workbench controls",
+    "persistent native candidate evidence",
+    "grouped discovery capabilities",
+    "v0.4.0.2 SQLite migration"
+  ],
+  "known_limitations": [
+    "Z80-to-C++ not implemented",
+    "Z80 bank switching not recovered",
+    "candidate function boundaries unverified",
+    "original/native parity not demonstrated"
+  ]
+}

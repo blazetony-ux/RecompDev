@@ -1,0 +1,1477 @@
+{
+  "schema": "recomp-census-v1",
+  "target_id": "megadrive-46160baa0636",
+  "architecture": "m68k",
+  "container": "megadrive",
+  "source_sha256": "46160baa06362c711c9f1a5017cb7371026444936c8af5e93a78996cf32ff2a6",
+  "file_size": 524288,
+  "entry": 518,
+  "mapped_region": {
+    "start": 512,
+    "stop": 524288,
+    "offset": 512
+  },
+  "decoded_seed_reachable": 210,
+  "edges": [
+    {
+      "source": 518,
+      "target": 524,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 524,
+      "target": 532,
+      "kind": "taken",
+      "inside_region": true
+    },
+    {
+      "source": 524,
+      "target": 526,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 532,
+      "target": 658,
+      "kind": "taken",
+      "inside_region": true
+    },
+    {
+      "source": 532,
+      "target": 534,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 526,
+      "target": 532,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 658,
+      "target": 768,
+      "kind": "direct_jump",
+      "inside_region": true
+    },
+    {
+      "source": 534,
+      "target": 538,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 768,
+      "target": 774,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 538,
+      "target": 542,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 774,
+      "target": 782,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 542,
+      "target": 546,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 782,
+      "target": 796,
+      "kind": "taken",
+      "inside_region": true
+    },
+    {
+      "source": 782,
+      "target": 784,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 546,
+      "target": 550,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 796,
+      "target": 802,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 784,
+      "target": 792,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 550,
+      "target": 554,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 802,
+      "target": 808,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 792,
+      "target": 868,
+      "kind": "taken",
+      "inside_region": true
+    },
+    {
+      "source": 792,
+      "target": 796,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 554,
+      "target": 564,
+      "kind": "taken",
+      "inside_region": true
+    },
+    {
+      "source": 554,
+      "target": 556,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 808,
+      "target": 810,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 868,
+      "target": 874,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 564,
+      "target": 566,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 556,
+      "target": 564,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 810,
+      "target": 812,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 874,
+      "target": 876,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 566,
+      "target": 568,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 812,
+      "target": 814,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 876,
+      "target": 880,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 568,
+      "target": 570,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 814,
+      "target": 816,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 880,
+      "target": 882,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 570,
+      "target": 572,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 816,
+      "target": 812,
+      "kind": "taken",
+      "inside_region": true
+    },
+    {
+      "source": 816,
+      "target": 818,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 882,
+      "target": 880,
+      "kind": "taken",
+      "inside_region": true
+    },
+    {
+      "source": 882,
+      "target": 886,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 572,
+      "target": 574,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 818,
+      "target": 824,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 886,
+      "target": 4642,
+      "kind": "direct_call",
+      "inside_region": true
+    },
+    {
+      "source": 886,
+      "target": 890,
+      "kind": "return_site",
+      "inside_region": true
+    },
+    {
+      "source": 574,
+      "target": 576,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 824,
+      "target": 826,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4642,
+      "target": 4648,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 890,
+      "target": 4946,
+      "kind": "direct_call",
+      "inside_region": true
+    },
+    {
+      "source": 890,
+      "target": 894,
+      "kind": "return_site",
+      "inside_region": true
+    },
+    {
+      "source": 576,
+      "target": 578,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 826,
+      "target": 952,
+      "kind": "taken",
+      "inside_region": true
+    },
+    {
+      "source": 826,
+      "target": 830,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4648,
+      "target": 4654,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4946,
+      "target": 4948,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 894,
+      "target": 4534,
+      "kind": "direct_call",
+      "inside_region": true
+    },
+    {
+      "source": 894,
+      "target": 898,
+      "kind": "return_site",
+      "inside_region": true
+    },
+    {
+      "source": 578,
+      "target": 580,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 952,
+      "target": 4642,
+      "kind": "direct_call",
+      "inside_region": true
+    },
+    {
+      "source": 952,
+      "target": 956,
+      "kind": "return_site",
+      "inside_region": true
+    },
+    {
+      "source": 830,
+      "target": 834,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4654,
+      "target": 4660,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4948,
+      "target": 4956,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4534,
+      "target": 4542,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 898,
+      "target": 904,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 580,
+      "target": 574,
+      "kind": "taken",
+      "inside_region": true
+    },
+    {
+      "source": 580,
+      "target": 584,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 956,
+      "target": 966,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 834,
+      "target": 836,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4660,
+      "target": 4662,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4956,
+      "target": 4964,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4542,
+      "target": 4550,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 904,
+      "target": 908,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 584,
+      "target": 586,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 966,
+      "target": 968,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 836,
+      "target": 840,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4662,
+      "target": 4664,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4964,
+      "target": 4970,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4550,
+      "target": 4542,
+      "kind": "taken",
+      "inside_region": true
+    },
+    {
+      "source": 4550,
+      "target": 4552,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 908,
+      "target": 912,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 586,
+      "target": 588,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 968,
+      "target": 976,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 840,
+      "target": 842,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4664,
+      "target": 4662,
+      "kind": "taken",
+      "inside_region": true
+    },
+    {
+      "source": 4664,
+      "target": 4668,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4970,
+      "target": 4976,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4552,
+      "target": 4554,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 588,
+      "target": 590,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 976,
+      "target": 968,
+      "kind": "taken",
+      "inside_region": true
+    },
+    {
+      "source": 976,
+      "target": 980,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 842,
+      "target": 840,
+      "kind": "taken",
+      "inside_region": true
+    },
+    {
+      "source": 842,
+      "target": 846,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4668,
+      "target": 4674,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4976,
+      "target": 6300,
+      "kind": "direct_call",
+      "inside_region": true
+    },
+    {
+      "source": 4976,
+      "target": 4980,
+      "kind": "return_site",
+      "inside_region": true
+    },
+    {
+      "source": 4554,
+      "target": 4560,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 590,
+      "target": 592,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 980,
+      "target": 980,
+      "kind": "direct_jump",
+      "inside_region": true
+    },
+    {
+      "source": 846,
+      "target": 852,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4674,
+      "target": 4678,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6300,
+      "target": 6302,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4980,
+      "target": 4988,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4560,
+      "target": 4566,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 592,
+      "target": 594,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 852,
+      "target": 856,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4678,
+      "target": 4684,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6302,
+      "target": 6306,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4988,
+      "target": 4990,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4566,
+      "target": 4572,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 594,
+      "target": 592,
+      "kind": "taken",
+      "inside_region": true
+    },
+    {
+      "source": 594,
+      "target": 596,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 856,
+      "target": 860,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4684,
+      "target": 4686,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6306,
+      "target": 6308,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4990,
+      "target": 4992,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4572,
+      "target": 4580,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 596,
+      "target": 598,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 860,
+      "target": 868,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4686,
+      "target": 4696,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6308,
+      "target": 6310,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4992,
+      "target": 4994,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 598,
+      "target": 600,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4696,
+      "target": 4700,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6310,
+      "target": 6312,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4994,
+      "target": 4996,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 600,
+      "target": 598,
+      "kind": "taken",
+      "inside_region": true
+    },
+    {
+      "source": 600,
+      "target": 604,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4700,
+      "target": 4702,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6312,
+      "target": 6314,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4996,
+      "target": 5004,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 604,
+      "target": 606,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4702,
+      "target": 4700,
+      "kind": "taken",
+      "inside_region": true
+    },
+    {
+      "source": 4702,
+      "target": 4706,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6314,
+      "target": 6316,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 5004,
+      "target": 5012,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 606,
+      "target": 608,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4706,
+      "target": 4710,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6316,
+      "target": 6330,
+      "kind": "taken",
+      "inside_region": true
+    },
+    {
+      "source": 6316,
+      "target": 6320,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 608,
+      "target": 610,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4710,
+      "target": 4714,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6330,
+      "target": 6332,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6320,
+      "target": 6324,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 610,
+      "target": 612,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4714,
+      "target": 4716,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6332,
+      "target": 6338,
+      "kind": "taken",
+      "inside_region": true
+    },
+    {
+      "source": 6332,
+      "target": 6334,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6324,
+      "target": 6326,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 612,
+      "target": 610,
+      "kind": "taken",
+      "inside_region": true
+    },
+    {
+      "source": 612,
+      "target": 616,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4716,
+      "target": 4722,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6338,
+      "target": 6340,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6334,
+      "target": 6336,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6326,
+      "target": 6328,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 616,
+      "target": 618,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4722,
+      "target": 4726,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6340,
+      "target": 6342,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6336,
+      "target": 6312,
+      "kind": "direct_jump",
+      "inside_region": true
+    },
+    {
+      "source": 6328,
+      "target": 6330,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 618,
+      "target": 620,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4726,
+      "target": 4732,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6342,
+      "target": 6344,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 620,
+      "target": 622,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4732,
+      "target": 4736,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6344,
+      "target": 6358,
+      "kind": "taken",
+      "inside_region": true
+    },
+    {
+      "source": 6344,
+      "target": 6348,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 622,
+      "target": 624,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4736,
+      "target": 4742,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6358,
+      "target": 6360,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6348,
+      "target": 6352,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 624,
+      "target": 622,
+      "kind": "taken",
+      "inside_region": true
+    },
+    {
+      "source": 624,
+      "target": 628,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4742,
+      "target": 4750,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6360,
+      "target": 6406,
+      "kind": "taken",
+      "inside_region": true
+    },
+    {
+      "source": 6360,
+      "target": 6362,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6352,
+      "target": 6354,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 628,
+      "target": 630,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4750,
+      "target": 4752,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6406,
+      "target": 6408,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6362,
+      "target": 6364,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6354,
+      "target": 6356,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 630,
+      "target": 632,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4752,
+      "target": 4756,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6408,
+      "target": 6410,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6364,
+      "target": 6378,
+      "kind": "taken",
+      "inside_region": true
+    },
+    {
+      "source": 6364,
+      "target": 6368,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6356,
+      "target": 6358,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 632,
+      "target": 634,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4756,
+      "target": 4750,
+      "kind": "taken",
+      "inside_region": true
+    },
+    {
+      "source": 4756,
+      "target": 4758,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6410,
+      "target": 6412,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6378,
+      "target": 6380,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6368,
+      "target": 6372,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 634,
+      "target": 632,
+      "kind": "taken",
+      "inside_region": true
+    },
+    {
+      "source": 634,
+      "target": 638,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4758,
+      "target": 4762,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6412,
+      "target": 6414,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6380,
+      "target": 6382,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6372,
+      "target": 6374,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 638,
+      "target": 640,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 4762,
+      "target": 4764,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6414,
+      "target": 6416,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6382,
+      "target": 6396,
+      "kind": "taken",
+      "inside_region": true
+    },
+    {
+      "source": 6382,
+      "target": 6386,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6374,
+      "target": 6376,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 640,
+      "target": 644,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6416,
+      "target": 6418,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6396,
+      "target": 6398,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6386,
+      "target": 6390,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6376,
+      "target": 6378,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 644,
+      "target": 640,
+      "kind": "taken",
+      "inside_region": true
+    },
+    {
+      "source": 644,
+      "target": 648,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6418,
+      "target": 6422,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6398,
+      "target": 6400,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6390,
+      "target": 6392,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 648,
+      "target": 650,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6422,
+      "target": 6440,
+      "kind": "taken",
+      "inside_region": true
+    },
+    {
+      "source": 6422,
+      "target": 6424,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6400,
+      "target": 6402,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6392,
+      "target": 6394,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 650,
+      "target": 654,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6440,
+      "target": 6442,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6424,
+      "target": 6426,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6402,
+      "target": 6404,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6394,
+      "target": 6396,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 654,
+      "target": 658,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6442,
+      "target": 6456,
+      "kind": "taken",
+      "inside_region": true
+    },
+    {
+      "source": 6442,
+      "target": 6444,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6426,
+      "target": 6428,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6404,
+      "target": 6428,
+      "kind": "direct_jump",
+      "inside_region": true
+    },
+    {
+      "source": 6456,
+      "target": 6458,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6444,
+      "target": 6448,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6428,
+      "target": 6432,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6448,
+      "target": 6312,
+      "kind": "taken",
+      "inside_region": true
+    },
+    {
+      "source": 6448,
+      "target": 6452,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6432,
+      "target": 6434,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6452,
+      "target": 6454,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6434,
+      "target": 6428,
+      "kind": "taken",
+      "inside_region": true
+    },
+    {
+      "source": 6434,
+      "target": 6438,
+      "kind": "fallthrough",
+      "inside_region": true
+    },
+    {
+      "source": 6454,
+      "target": 6428,
+      "kind": "direct_jump",
+      "inside_region": true
+    },
+    {
+      "source": 6438,
+      "target": 6312,
+      "kind": "direct_jump",
+      "inside_region": true
+    }
+  ],
+  "barriers": [
+    {
+      "address": 912,
+      "reason": "indirect transfer target unknown"
+    }
+  ],
+  "warnings": [
+    "Reset vector supplies a static seed, not exhaustive proof of code.",
+    "Code may be reached indirectly or from interrupts; static pass does not run hardware.",
+    "A candidate word is not necessarily an opcode; data or encoded assets may be indistinguishable statically.",
+    "Seed-based reachability is incomplete for indirect control flow, exceptions, callbacks, overlays and other entry points.",
+    "Speculative scan is a candidate inventory, not a valid instruction stream or proof of executable code.",
+    "This tool does not execute, lift, compile, recompile, emulate, or qualify native parity."
+  ]
+}

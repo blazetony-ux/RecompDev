@@ -1,0 +1,29 @@
+{
+  "poc_version": "0.1.1",
+  "build_platform": "Debian GNU/Linux 13 x86-64",
+  "compiler": "GNU C++ 14.2.0",
+  "windows_crossbuild": "NOT_AVAILABLE",
+  "build_command": "cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j4",
+  "test_command": "ctest --test-dir build --output-on-failure",
+  "tests_passed": 12,
+  "tests_total": 12,
+  "fixture_is_synthetic": true,
+  "differential_test": "PASS: internal subset native versus interpreter, not MAME or real-game parity",
+  "native_steps": 4,
+  "fallback_steps": 7,
+  "events": 13,
+  "banked_dispatch_test": "PASS: same guest PC selects different physical native blocks",
+  "plugin_substitution_test": "PASS: synthetic alternate machine library",
+  "catalogue_handoff": "PASS: new separate database with v0.4.0.45 discovery schema",
+  "open_gates": [
+    "Windows executable build and runtime validation on owner PC",
+    "Full Z80 interpreter and CPU state ABI redesign for multiple CPUs",
+    "Generated translated.cpp adapter to game DLL",
+    "Real source-asset recovery and ROM-free packaging",
+    "Independent reference emulator and hardware parity",
+    "Game-level testing"
+  ],
+  "source_archive_sha256": "88ea8261774365117bea499e8375c035031100501fff6b3a761a3c6be719ea85",
+  "validation_note": "v0.1.1 Windows SQLite cleanup patch; Linux 12/12 tests passed; patched Windows test not yet rerun on Windows.",
+  "windows_status": "User reported MSVC 19.44 build success and 11/12 CTest passes for v0.1; last test failed due to SQLite handle retained by test. v0.1.1 fix pending Windows rerun."
+}

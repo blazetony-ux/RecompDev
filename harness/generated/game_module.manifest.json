@@ -1,0 +1,86 @@
+{
+  "schema": "recompdev-modular-game-v0.2",
+  "evidence_origin": "RecompDev v0.4.0.45 nativepilot.generator.verify_export + emit_instruction",
+  "source_sha256": "1175d98682352cf2bb78a48abb5ad8f56d3b228f313c10e2552b050ecb45b9cc",
+  "source_size": 65536,
+  "target_id": "synthetic-pcode-v02",
+  "translated_instructions": 8,
+  "rejected_instructions": 0,
+  "attested_instructions": [
+    {
+      "physical": 0,
+      "pc": 0,
+      "bytes": "c30300",
+      "mnemonic": "JP",
+      "source_bytes_sha256": "f0a00795a64f7e09231179cd84e8238ecb3fc48fea4ae0fbae75ac9485014922"
+    },
+    {
+      "physical": 3,
+      "pc": 3,
+      "bytes": "3e42",
+      "mnemonic": "LD",
+      "source_bytes_sha256": "7367e259ee726167684ea5e9834170e8bc91510c4531cff26febc2dce5e50dc0"
+    },
+    {
+      "physical": 5,
+      "pc": 5,
+      "bytes": "3200c0",
+      "mnemonic": "LD",
+      "source_bytes_sha256": "20016699a44b668e9379963c1657295ee7b00e434ac1356a326b2701d7639e6c"
+    },
+    {
+      "physical": 8,
+      "pc": 8,
+      "bytes": "3e03",
+      "mnemonic": "LD",
+      "source_bytes_sha256": "854f5074eb36c8ec961ed5eb08f829780ba2e555abcc6a49f5a230a481bc690a"
+    },
+    {
+      "physical": 10,
+      "pc": 10,
+      "bytes": "32ffff",
+      "mnemonic": "LD",
+      "source_bytes_sha256": "9e104e9fa88157084c133a4f935fbb8ca1a7642c8c57e36154f9b421418ab719"
+    },
+    {
+      "physical": 13,
+      "pc": 13,
+      "bytes": "c30080",
+      "mnemonic": "JP",
+      "source_bytes_sha256": "e14e7b4053a765e662855e5149687187ebbfb97ff4b93cb30cf59c63e643eeb1"
+    },
+    {
+      "physical": 49152,
+      "pc": 32768,
+      "bytes": "3e66",
+      "mnemonic": "LD",
+      "source_bytes_sha256": "f0258e142b82809e828d92a068e621970e294de00a5236baffade3e6999d06d0"
+    },
+    {
+      "physical": 49156,
+      "pc": 32772,
+      "bytes": "3200c0",
+      "mnemonic": "LD",
+      "source_bytes_sha256": "20016699a44b668e9379963c1657295ee7b00e434ac1356a326b2701d7639e6c"
+    }
+  ],
+  "rejections": [],
+  "bank_exports": [
+    {
+      "bank_context": {
+        "slot": 2,
+        "bank": 3,
+        "base": 32768,
+        "physical_start": 49152
+      },
+      "instructions": 2,
+      "candidates": 1
+    }
+  ],
+  "limitations": [
+    "synthetic verification until owner supplies real Ghidra export",
+    "subset of Z80 register/interrupt semantics only",
+    "independent reference parity not established",
+    "full native gameplay and runtime-ROM independence not established"
+  ]
+}

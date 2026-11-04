@@ -1,0 +1,37 @@
+{
+  "schema": "recomp-continuous-native-gate-v0423",
+  "release": "0.4.0.23",
+  "status": "EXPERIMENTAL_CONTINUOUS_NATIVE_HOST_SYNTHETIC_PASS_AUTHENTIC_GATES_OPEN",
+  "prior_gate": "SYNTHETIC_CROSS_DEVICE_AND_Z80_IO_PATH_PASS_WITH_AUTHENTIC_GATES_OPEN",
+  "test_status": "NOT_RUN",
+  "test_summary": "NOT_RUN",
+  "source_sha256": {
+    "hardware/core.hpp": "d41dc1cc64b8a91da92023a20bd5295631b5c3427124d118ad803ba39b60736c",
+    "hardware/runtime.hpp": "ec5687628dd7461d24a6193b2c61e6d78e0ba0c5e5598be24359aa2bb7867949",
+    "hardware/continuous.hpp": "3eb935647047651b8a7634d963810d2fe1697fe2eba9d2a9a94aebcc2a60fe76",
+    "hardware/win32_window.hpp": "11a933348725c4bcff999fb83c66e24d303591308a455a47885c318e81d50ae0",
+    "hardware/win32_audio.hpp": "ffcf5d3f7b6e4d3122e5820f4f97dbb9280c7b94be278cf309ca1220574d0ab5",
+    "hardware/wav.hpp": "8da96655ef974e3047862c85633abdd1f98a316a71ba75b8b5d05847276a34b4",
+    "nativepilot/live_sms.hpp": "5e12b9e25a25c50c27d17685db0b0e57bd22d6fc3a4f850492b83eef76fb90cf",
+    "nativepilot/interactive.cpp": "9cf48af4d5076bf93cdb3bccd85b48eec03eb0b5f0ebcbec3b65f9a162990b1c",
+    "nativepilot/generator.py": "ea0ce1dcdf3d40c54545d7b1dd8b937fcc363ce7d0dac490b258dc33dcf45015",
+    "nativepilot/CMakeLists.txt": "0d8c57765285ab1f800cf0a3eb9fb3fc6525d2b45e1d69ad2feaa84dbea035e5",
+    "tools/Run-Continuous-Native.py": "cc07c24d92079a374a56af25da2bdb64c880ad168b2cd244d67cf3e92368c7e8"
+  },
+  "milestones": {
+    "GENERIC_CONTINUOUS_SCHEDULER": "COMPILED_CROSS_SYSTEM_SYNTHETIC_PASS",
+    "Z80_NATIVE_INTERACTIVE_GUEST": "COMPILED_HEADLESS_TWO_SOURCE_ATTESTED_SYNTHETIC_TARGETS_PASS",
+    "GENUINE_HOST_FRAME_AND_SOUND": "COMPILED_HEADLESS_PPM_PCM_WAV_PASS",
+    "DETERMINISTIC_INPUT_REPLAY": "COMPILED_TWO_Z80_FIXTURE_PASS",
+    "WINDOWED_GUI_AND_LIVE_SPEAKER": "WIN32_BACKEND_SOURCE_PRESENT_OWNER_MSVC_RUN_UNVERIFIED",
+    "REAL_MAME_NATIVE_ALIGNMENT": "NOT_ESTABLISHED",
+    "Z80_INDEPENDENT_SEMANTIC_PARITY": "NOT_ESTABLISHED",
+    "AUTOMATIC_RECOVERY_FROM_MISSING_CODE": "EXISTING_BOUNDARY_ONLY",
+    "SMS_VDP_PSG_CYCLE_AND_FRAME_PARITY": "NOT_ESTABLISHED",
+    "SHINOBI_PLAYABLE": "NOT_ESTABLISHED",
+    "M68000_NATIVE_BACKEND": "RESTRICTED_SYNTHETIC_ONLY"
+  },
+  "native_qualified": false,
+  "gameplay": "NOT_ESTABLISHED",
+  "game_specific_fixes": 0
+}

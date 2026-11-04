@@ -1,0 +1,12 @@
+$ErrorActionPreference='Stop'
+$root=Split-Path -Parent $MyInvocation.MyCommand.Path
+Push-Location $root
+try {
+  & py -3 -m unittest discover -s tests -v
+  if($LASTEXITCODE -ne 0){throw 'Catalogue/recovery tests failed'}
+  & py -3 -m unittest discover -s bridge/tests -v
+  if($LASTEXITCODE -ne 0){throw 'Bridge tests failed'}
+  & py -3 (Join-Path $root 'recomp.py') summary
+  if($LASTEXITCODE -ne 0){throw 'Catalogue summary failed'}
+  Write-Host 'V0323_TESTS=PASS; COMPLETE_FUNCTION_PARITY=NOT_ESTABLISHED'
+} finally {Pop-Location}

@@ -1,0 +1,52 @@
+{
+  "schema": "recomp-consolidated-multisa-engine-gate-v0432",
+  "release": "0.4.0.32",
+  "status": "COMPILED_RESTRICTED_M68K_MIPS_AND_UNIVERSAL_TRIAGE_SYNTHETIC_PASS",
+  "prior_gate": "SOURCE_SHA256_HISTORY_JOIN_SYNTHETIC_PASS_WINDOWS_OWNER_CHECK_PENDING",
+  "test_status": "PASS",
+  "test_summaries": {
+    "test_multisa_native_v0432.py": "Ran 6 tests in 2.906s",
+    "test_generic_analysis_v0432.py": "Ran 5 tests in 0.002s",
+    "test_universal_campaign_v0432.py": "Ran 3 tests in 1.321s",
+    "test_release_v0432.py": "Ran 3 tests in 0.006s",
+    "test_null_backends_v0425.py": "Ran 6 tests in 17.766s",
+    "test_unified_source_identity_v0431.py": "Ran 5 tests in 0.769s"
+  },
+  "source_sha256": {
+    "multisa/native.py": "bf829f1e52c2e9753b94c666ce8ee7e16a88f90343a29eb4f9e21b08515e880a",
+    "multisa/campaign.py": "4028fff9069f46cf3522eeecce8c844d94d9337cc1db13766a75bb5d04fafe32",
+    "multisa/checkpoints.py": "29417c73bcd95cbc2672558d5087e0e6bf6a2fc426cb2f6826fc1caf28aa2476",
+    "multisa/triage.py": "aad1b43fccc198b97d9ace75cfb6071623efab4e5fdbee16e999b8cc4b681e27",
+    "adapters/indirect.py": "f986042e7a38ce9e9fa769d86f2136309f6f61453417bd176582e2f4f1515ac9",
+    "graph_store.py": "67eba4d5cddecd5ac542f6ff67881837c5db63a17ac4ea814314ee85295240c9",
+    "recomp.py": "34e50933b13bae920e4f1a23e63cbc5d956b14902fb5e9451ae6e1f73f074fdb",
+    "discovery_benchmark.py": "64f53df2517382167866a47f0494c1c22a9f2a2569946543f2d19a16216a4535",
+    "tests/test_multisa_native_v0432.py": "29aea77c3cc20429d0a6fa98c8121a232d4fab614bea6760853172338a2fa98c",
+    "tests/test_generic_analysis_v0432.py": "7d79032cc0118b5d4bb2541b662f0fc455781c607751bce9f8c5d0e816f9659f",
+    "tests/test_universal_campaign_v0432.py": "7d69afacbeabab6f966e002d8481992e8371e0a373147ee94ccda3ebcf183273",
+    "Run-Workbench.ps1": "2dd615a0931d52c64139d725320f340dce92b96a02f38232a1a634afc4b8e60b",
+    "workbench.py": "7906f1e4481f0fe58f24235da84129927a0e0d410db7beb474e61e536e27ba5d",
+    "Verify-v0432.ps1": "f455fdcfbe1178912bf134be1c3b6d36c380b9625c309ebd179d726badea2031",
+    "tooling/gates_v0432.py": "ef80ff3c3c59c5225d3dc8a61bad4ae21765dd56a7a9f29a30a7d15f6c32ae2c"
+  },
+  "milestones": {
+    "M68K_NATIVE_SOURCE_TRANSLATION": "COMPILED_AUTHOR_CREATED_FIXTURES_PASS",
+    "MIPS_NATIVE_SOURCE_TRANSLATION": "COMPILED_AUTHOR_CREATED_DELAY_SLOT_FIXTURES_PASS",
+    "MIPS_MULTISTEP_REGISTER_RECOVERY": "SOURCE_ATTESTED_SYNTHETIC_PASS",
+    "GENERIC_SOURCE_ATTESTED_CAMPAIGN": "CROSS_ISA_SYNTHETIC_PASS",
+    "GENERIC_FIRST_DIVERGENCE": "SCHEMA_AND_ALIGNMENT_CONTRACT_PASS",
+    "GENERIC_BARRIER_TRIAGE": "SOURCE_HASH_AND_CATEGORIES_PASS",
+    "UNIFIED_SHINOBI_HISTORY": "PRIOR_WINDOWS_OWNER_CONFIRMED",
+    "SONIC_M68K_DISCOVERY": "OWNER_REPORTED_1777_INSTRUCTIONS_77_CANDIDATES_STATIC_ONLY",
+    "RIDGE_RACER_MIPS_DISCOVERY": "OWNER_REPORTED_14222_INSTRUCTIONS_213_CANDIDATES_NO_GAIN",
+    "AUTHENTIC_NONZ80_NATIVE_COMPILATION": "NOT_ESTABLISHED",
+    "REAL_MAME_ALIGNMENT": "NOT_ESTABLISHED",
+    "Z80_INDEPENDENT_SEMANTIC_PARITY": "NOT_ESTABLISHED",
+    "AUTONOMOUS_REPAIR": "NOT_ESTABLISHED",
+    "SONIC_RIDGE_SHINOBI_PLAYABLE": "NOT_ESTABLISHED",
+    "OWNER_WINDOWS_FULL_REGRESSION": "PENDING_OWNER_RUN"
+  },
+  "native_qualified": false,
+  "gameplay": "NOT_ESTABLISHED",
+  "game_specific_fixes": 0
+}

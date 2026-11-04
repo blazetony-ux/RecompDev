@@ -1,0 +1,26 @@
+{
+  "schema": "recompdev-v0444-local-qualification-v1",
+  "release": "0.4.0.44",
+  "purpose": "Windows SQLite connection lifecycle failure in v0443 coverage tests and recovery CLI",
+  "sqlite_lifecycle_preflight": "PASS - entire packaged Python source/tests scanned",
+  "windows_lock_emulator": "PASS - explicit close tracked for cache operations on Linux",
+  "verified_coverage_tamper_regressions": "PASS - 6 tests",
+  "new_release_and_lifecycle_regressions": "PASS - 8 tests",
+  "focused_regression_selection": {
+    "groups": 25,
+    "completed_passed": 24,
+    "not_completed": [
+      "test_generated_snapshots_v0443.py"
+    ],
+    "note": "generated compiled source-attested snapshot test did not finish within local execution time; maintained in verifier and not presented as pass"
+  },
+  "bridge_suite": "15 tests, 1 skipped",
+  "compiled_native_output_fixture": "PASS - 256x192 PPM + nonzero PCM fixture (synthetic, not commercial-game proof)",
+  "seven_game_campaign_smoke": "PASS - 7 expected ROM_NOT_FOUND on empty ROM directory; evidence package produced; no commercial ROM executed",
+  "full_repository_suite": "NOT_COMPLETED",
+  "windows_owner_acceptance": "PENDING",
+  "r_type_input_recovery_and_gameplay": "NOT_TESTED",
+  "authentic_game_audio": "NOT_ESTABLISHED",
+  "mame_parity": "NOT_ESTABLISHED",
+  "catalogue_and_coverage_db_schema": "UNCHANGED"
+}

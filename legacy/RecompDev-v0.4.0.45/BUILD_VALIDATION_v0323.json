@@ -1,0 +1,14 @@
+{
+  "schema": "recomp-v0323-megadrive-bus-build-validation",
+  "build_host": "Linux, Python3, g++",
+  "catalogue_recovery_tests": 56,
+  "bridge_tests": 15,
+  "genuine_native_compiler_fixture": "PASS",
+  "megadrive_24bit_address_and_mirrored_ram": "PASS_SYNTHETIC",
+  "vdp_psg_controller_z80_io_write_trace": "PASS_SYNTHETIC",
+  "rom_write_unmodelled_hardware_read_rejection": "PASS_SYNTHETIC",
+  "autopilot_hardware_evidence_not_parity": "PASS_SYNTHETIC",
+  "previous_owner_windows_roms_retested": "NO",
+  "original_cpu_parity": "NOT_ESTABLISHED",
+  "dependent_native_modules_on_build_host": "NOT_INSTALLED"
+}

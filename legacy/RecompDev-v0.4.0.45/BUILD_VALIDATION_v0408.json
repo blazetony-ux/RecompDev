@@ -1,0 +1,31 @@
+{
+  "schema": "recompdev-build-v0408",
+  "date_utc": "2026-10-31",
+  "build": "0.4.0.8",
+  "objective": "Universal Native Recompilation Framework: reusable fixed-vector and bank recovery, explicit CPU/system capability contracts, hardware runtime plugins, and game-independent watches",
+  "tests": {
+    "suite_count": 16,
+    "passed": 133,
+    "failed": 0,
+    "method": "segmented unittest discover on development source"
+  },
+  "verified": [
+    "two independent synthetic SMS cartridges recover vector 0x0038, generate and execute native C++",
+    "fixed-vector Ghidra command/seed verified with stub",
+    "prior physical-bank native recovery still compiles",
+    "68000 and MIPS preparation target registration, honest execution blockers",
+    "native runtime plugin separated from shared recovery",
+    "Workbench capability endpoint responds over loopback",
+    "generic RAM watchpoints recorded from runtime",
+    "previous source SHA-256 and bank-export attestation preserved"
+  ],
+  "not_verified": [
+    "real Shinobi vector 0x0038 Ghidra recovery on Windows",
+    "correct Shinobi native interrupt/reference parity",
+    "live original console graphics/gameplay",
+    "integrated m68k or MIPS native x86-64 runtime",
+    "cross-system game conversion autonomy"
+  ],
+  "runtime_scope": "Master System Z80 C++ experimental native interpreter-free dispatch, partial hardware and approximate timing; other CPU/system integration incomplete",
+  "roms_included": false
+}

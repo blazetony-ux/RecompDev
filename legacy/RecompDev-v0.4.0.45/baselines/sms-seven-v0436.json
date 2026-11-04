@@ -1,0 +1,80 @@
+{
+  "schema": "recompdev-sms-seven-baseline-v1",
+  "baseline_release": "0.4.0.36",
+  "frames_requested": 120,
+  "steps_requested": 2000000,
+  "max_recoveries": 6,
+  "games": [
+    {
+      "slug": "shinobi",
+      "game": "Shinobi (USA, Europe, Brazil) (En) (Rev 1).sms",
+      "sha256": "dac4f1dcb41193cb42a96950444a87c5f2952ea66474c59a38c07b10ac411e47",
+      "status": "CONTINUOUS_SESSION_COMPLETE",
+      "maximum_frames_observed": 120,
+      "maximum_steps_observed": 703381,
+      "recovered_instruction_addresses": 2960,
+      "blocker": ""
+    },
+    {
+      "slug": "bank-panic",
+      "game": "Bank Panic (Europe).sms",
+      "sha256": "1f71d828b34afa62ffdd02a7adae69a2377bb4c3e2681172dc11f5bb9e955af5",
+      "status": "CONTINUOUS_SESSION_COMPLETE",
+      "maximum_frames_observed": 120,
+      "maximum_steps_observed": 1017454,
+      "recovered_instruction_addresses": 1,
+      "blocker": ""
+    },
+    {
+      "slug": "alex-kidd",
+      "game": "Alex Kidd in Miracle World (USA) (Rev-A).sms",
+      "sha256": "6667e133818e36a214c81003e543f2c4c3ab5fa018ca313e3ac222a5a6e361c5",
+      "status": "STOPPED_WITHOUT_RECOVERABLE_CODE",
+      "maximum_frames_observed": 66,
+      "maximum_steps_observed": 576475,
+      "recovered_instruction_addresses": 1,
+      "blocker": "RAM_EXECUTION_NOT_TRANSLATED"
+    },
+    {
+      "slug": "fantasy-zone",
+      "game": "Fantasy Zone (USA) (Rev-A).sms",
+      "sha256": "d529aa91cc0e540c4e3afdf8d946c02cb80765d280286da0a4e2125e2c443311",
+      "status": "STOPPED_WITHOUT_RECOVERABLE_CODE",
+      "maximum_frames_observed": 76,
+      "maximum_steps_observed": 648437,
+      "recovered_instruction_addresses": 504,
+      "blocker": "RAM_EXECUTION_NOT_TRANSLATED"
+    },
+    {
+      "slug": "r-type",
+      "game": "R-Type (USA).sms",
+      "sha256": "8b9b80a16bc73457e93dd855d7398876bdb9b634387472ce1c0058906fc030d1",
+      "status": "RECOVERY_BLOCKED",
+      "maximum_frames_observed": 111,
+      "maximum_steps_observed": 619216,
+      "recovered_instruction_addresses": 0,
+      "blocker": "SOURCE_ATTESTED_BUT_NOT_EMITTED"
+    },
+    {
+      "slug": "sonic-sms",
+      "game": "Sonic the Hedgehog (USA).sms",
+      "sha256": "6ad738965ece231427ee046b9905cfee470d5c01220afdd934da4673e4a2458b",
+      "status": "RECOVERY_BLOCKED",
+      "maximum_frames_observed": 0,
+      "maximum_steps_observed": 0,
+      "recovered_instruction_addresses": 0,
+      "blocker": "Native application failed: "
+    },
+    {
+      "slug": "wonder-boy",
+      "game": "Wonder Boy (USA) (Rev-A).sms",
+      "sha256": "a13fa8164a0ab2d549d9a9bb3f998907c3f64b42eab9f4fae3d666abab510fdd",
+      "status": "STOPPED_WITHOUT_RECOVERABLE_CODE",
+      "maximum_frames_observed": 61,
+      "maximum_steps_observed": 544794,
+      "recovered_instruction_addresses": 1,
+      "blocker": "RAM_EXECUTION_NOT_TRANSLATED"
+    }
+  ],
+  "hardware_capture": true
+}

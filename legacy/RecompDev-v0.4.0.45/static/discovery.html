@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RecompDev · Autonomous Discovery</title><link rel="stylesheet" href="/static/style.css"></head><body>
+<div class="layout"><aside class="sidebar">
+  <div class="brand"><span class="glyph">R<span class="dot">.</span></span><div><strong>RecompDev</strong><small>RECOVERY WORKBENCH</small></div></div>
+  <div class="sidegroup">WORKSPACES</div>
+  <nav class="primary-nav" aria-label="Workbench pages">
+    <a class="nav" href="/">Catalogue</a>
+    <a class="nav" href="/native">Native Recompilation</a>
+    <a class="nav active" href="/discovery" aria-current="page">Autonomous Discovery</a>
+    <a class="nav" href="/execution">Native Execution</a>
+    <a class="nav" href="/tooling">Tool Orchestration</a>
+  </nav>
+  <p class="side-description">Separate workspaces share the same local catalogue. Discovery actions run only on your machine.</p>
+  <div class="grow"></div><div class="foot"><span class="status-circle"></span> Local ROM discovery<p>No ROM contents are served</p></div>
+</aside><main class="main">
+<header class="top"><div><div class="eyebrow">RECOMPDEV / DISCOVERY</div><h1>Autonomous Discovery</h1><p>Explore source coverage, extracted assets, and the persistent recovery backlog.</p></div><span class="readonly">LOCAL CONTROLS</span></header>
+
+<div class="workspace-links" aria-label="Discovery sections"><a href="#add-rom">Add &amp; scan ROMs</a><a href="#native-prepare">Native preparation</a><a href="#coverage">Source coverage</a><a href="#native-progress">Native progress</a><a href="#assets">Asset gallery</a><a href="#backlog">Task backlog</a></div>
+<section class="notice">Source coverage records structural or candidate interpretations of bytes, <strong>not</strong> decompiled game completeness. Mega Drive previews are unverified. ROM data is never served here.</section>
+<section class="panel discovery-actions" id="add-rom" aria-label="Add and scan ROMs">
+  <div class="panel-heading"><div><h2>Add ROMs and run discovery</h2><p>Browse approved folders on this computer. Select a file to register and analyse, or scan the current folder.</p></div><span class="count">Local · bounded</span></div>
+  <div class="discovery-action-body">
+    <div class="toolbar control-toolbar">
+      <label for="rom-root">ROM library</label><select id="rom-root" aria-label="ROM root"><option value="">Loading…</option></select>
+      <button type="button" id="rom-parent">Up one folder</button>
+      <span id="rom-current" class="rom-current" aria-live="polite"></span>
+    </div>
+    <div class="rom-browser" id="rom-browser" role="region" aria-label="Available ROMs and folders"><div class="empty">Loading local ROM folders…</div></div>
+    <div class="discovery-form">
+      <div class="discovery-form-options">
+        <label>Task budget <input id="scan-budget" type="number" min="1" max="500" value="150"></label>
+        <label>Max files (folder scan) <input id="scan-max-files" type="number" min="1" max="300" value="100"></label>
+        <label class="discovery-check"><input type="checkbox" id="retry-failed"> Retry previously failed tasks</label>
+      </div>
+      <div class="action-buttons"><button type="button" class="primary-action" id="scan-selected" disabled>Add selected ROM &amp; discover</button>
+        <button type="button" id="scan-folder" disabled>Discover current folder</button>
+        <button type="button" id="scan-cancel" disabled>Stop current job</button></div>
+    </div>
+    <div class="job-status" aria-live="polite"><div class="job-status-head"><strong id="job-state">Discovery engine ready</strong><small id="job-description">No jobs launched in this session</small></div>
+      <pre id="job-log" aria-label="Discovery job output" hidden></pre><p id="job-help" class="job-help">Existing sources and evidence are preserved. New jobs are recorded to the working catalogue; no original ROM is modified.</p></div>
+  </div>
+</section>
+<section class="panel page-section" id="native-prepare" aria-label="Prepare a ROM for native recompilation">
+  <div class="panel-heading"><div><h2>Prepare for Native Recompilation</h2>
+    <p>Connect an imported game to the central native catalogue; recover supported CPU function candidates.</p></div><span class="count">Source-linked · bounded</span></div>
+  <div class="discovery-action-body"><div class="toolbar panel-toolbar">
+    <label for="prepare-source">Imported game</label><select id="prepare-source"><option value="">Loading sources…</option></select>
+    <button type="button" class="primary-action" id="prepare-run" disabled>Prepare selected game</button>
+    <button type="button" id="prepare-cancel" disabled>Stop preparation</button>
+    <a href="/native">View Native Recompilation</a>
+  </div>
+  <div class="job-status" aria-live="polite"><div class="job-status-head"><strong id="prepare-state">Ready</strong>
+   <small id="prepare-status"></small></div><pre id="prepare-log" hidden></pre>
+  <p class="job-help">Z80 analysis covers only the initial 48 KB ROM window. Discovered function entries are hypotheses. Experimental Z80-to-C++ compilation is available in Native Execution. Neither syntax compilation nor step counts demonstrate CPU parity.</p></div></div>
+</section>
+<section class="metrics discovery-metrics" id="discovery-metrics" aria-label="Discovery summary"><div class="metric">Loading discovery evidence…</div></section>
+<section class="panel" id="coverage"><div class="panel-heading"><div><h2>Source coverage</h2><p>One row per original image or companion file. Exclusive byte accounting.</p></div><span class="count" id="source-count">—</span></div>
+<div class="toolbar panel-toolbar"><label for="source-filter">Source</label><select id="source-filter"><option value="">All sources</option></select><label for="source-search">Search</label><input id="source-search" type="search" placeholder="Title, filename, or format"><button type="button" id="discovery-refresh">Refresh</button></div>
+<div class="table-wrap coverage-table" id="source-results"><div class="empty">Loading source inventory…</div></div></section>
+<section class="panel page-section" id="native-progress">
+<div class="panel-heading"><div><h2>Native recompilation progress by game</h2>
+<p>Linked to the original ROM identity. These are separate measurements: structural discovery, Ghidra code candidates, compiled instruction records, native execution and independent reference parity.</p></div><span class="count" id="native-progress-count">—</span></div>
+<div id="native-progress-results" class="table-wrap"><div class="empty">Loading native execution evidence…</div></div>
+</section>
+<section class="panel page-section" id="assets"><div class="panel-heading"><div><h2>Recovered assets and candidates</h2><p>Original source offsets, structural confidence and generated PNG previews.</p></div><span class="count" id="asset-count">—</span></div>
+<div class="toolbar panel-toolbar"><label for="asset-confidence">Confidence</label><select id="asset-confidence"><option value="">All assets</option><option value="STRUCTURALLY_VALIDATED">Structurally validated</option><option value="HEURISTIC_UNVERIFIED">Unverified candidates</option></select></div>
+<div id="asset-results" class="asset-preview-grid"><div class="empty">Loading previews…</div></div></section>
+<section class="panel page-section" id="backlog"><div class="panel-heading"><div><h2>Autonomous recovery backlog</h2><p>Persistent investigation jobs, requirements and evidence. Not a continuously running background agent.</p></div><span class="count" id="task-count">—</span></div>
+<div class="toolbar panel-toolbar"><label for="task-status">Status</label><select id="task-status"><option value="">All statuses</option></select><label for="task-search">Search tasks</label><input id="task-search" type="search" placeholder="Task type or blocker"></div>
+<div class="table-wrap backlog-table" id="task-results"><div class="empty">Loading tasks…</div></div></section>
+
+<footer>RecompDev v0.4.0.12 · Owner-controlled discovery · No ROM contents served · Not a claim of complete game parity</footer>
+</main></div><script src="/static/discovery.js" defer></script></body></html>

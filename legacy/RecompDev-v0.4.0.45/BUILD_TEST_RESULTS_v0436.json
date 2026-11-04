@@ -1,0 +1,29 @@
+{
+  "schema": "recompdev-build-test-results-v0436",
+  "release": "0.4.0.36",
+  "host": "Linux CMake/G++ (Windows owner verification pending)",
+  "compiled_gate": {
+    "status": "PASS",
+    "prior_gate_status": "SYNTHETIC_COMPILED_RECOVERY_ACCEPTANCE_PASS_AUTHENTIC_ROM_GATES_OPEN",
+    "new_tests": {
+      "test_correctness_v0436.py": "Ran 6 tests in 10.723s",
+      "test_release_v0436.py": "Ran 5 tests in 0.001s"
+    }
+  },
+  "core": {
+    "status": "PASS",
+    "tests": 282,
+    "skipped": 0,
+    "failures": 0,
+    "test_modules": 52
+  },
+  "bridge": {
+    "status": "PASS",
+    "tests": 15,
+    "skipped": 1,
+    "failures": 0
+  },
+  "owner_rom_campaign": "PENDING",
+  "independent_mame_parity": "NOT_ESTABLISHED",
+  "gameplay": "NOT_ESTABLISHED"
+}

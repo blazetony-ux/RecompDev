@@ -1,0 +1,39 @@
+{
+  "schema": "recompdev-build-v0413",
+  "build": "0.4.0.13",
+  "date_utc": "2026-10-31",
+  "parent_release": "RecompDev-v0.4.0.12-Progress-Aware-Oracle-Evidence.zip",
+  "objective": "Independent emulator capture observations, first-divergence diagnostics and synthetic-job isolation without game-specific patches",
+  "tests": {
+    "core_tests_passed": 146,
+    "core_failures": 0,
+    "bridge_tests_passed": 14,
+    "bridge_tests_skipped": 1,
+    "bridge_failures": 0,
+    "python_suites": 21,
+    "method": "Segmented Python unittest runs plus separate bridge unittest run on Linux",
+    "synthetic_emulator": "Process-level CLI fixture, not real MAME"
+  },
+  "verified": [
+    "First event mismatch located beyond the legacy 4096-event inline preview using independently written synthetic hash-verified streams",
+    "Full-stream tampered chunk rejected before a diagnosis is published",
+    "Selected external PSG and VDP-control I/O effects compared in strict ordinal order with native stream SHA verification",
+    "Forged external selected-I/O reference metadata or changed raw trace rejected",
+    "MAME capture runner launches a separately supplied, allowlisted synthetic executable with exact original synthetic ROM hash and immutable output root",
+    "Temporary-catalogue native Workbench test jobs stored outside the authentic installation evidence root",
+    "Native Z80 C++ compilation and execution tests passed on Linux",
+    "Previous unit, bridge and shared recovery tests remain passing"
+  ],
+  "not_verified": [
+    "MAME Lua integration with a genuine installed MAME executable on Windows or Linux",
+    "Master System reset/region/input alignment with MAME",
+    "Real game CPU instruction or hardware parity with a genuine independent emulator",
+    "Correct framebuffer rendering, video/sound/IRQ timing or gameplay",
+    "Owner Windows MSVC/Ghidra regression after installation",
+    "Executable native 68000 or MIPS conversion backend",
+    "Automatic shared semantic patching or live native dispatch qualification"
+  ],
+  "recovery_strategy": "Manual source-attested investigation based on divergence report; no automatic patches",
+  "roms_included": false,
+  "emulators_bundled": false
+}

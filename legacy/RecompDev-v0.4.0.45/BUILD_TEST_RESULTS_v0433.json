@@ -1,0 +1,198 @@
+{
+  "release": "0.4.0.33",
+  "core_suite_count": 46,
+  "core_test_cases_reported_including_skips": 260,
+  "core_failures": 0,
+  "bridge": {
+    "passed": 14,
+    "skipped": 1,
+    "reported": 15
+  },
+  "suites": {
+    "test_autonomous_bank_recovery_v0405.py": {
+      "exit_code": 0,
+      "tests_reported": 7
+    },
+    "test_autonomous_discovery_v040.py": {
+      "exit_code": 0,
+      "tests_reported": 12
+    },
+    "test_batch_campaign.py": {
+      "exit_code": 0,
+      "tests_reported": 7
+    },
+    "test_blockers_v032.py": {
+      "exit_code": 0,
+      "tests_reported": 10
+    },
+    "test_catalogue_workbench.py": {
+      "exit_code": 0,
+      "tests_reported": 14
+    },
+    "test_continuous_native_v0423.py": {
+      "exit_code": 0,
+      "tests_reported": 5
+    },
+    "test_cross_isa_recovery_v0430.py": {
+      "exit_code": 0,
+      "tests_reported": 7
+    },
+    "test_dependencies_and_parity_v0410.py": {
+      "exit_code": 0,
+      "tests_reported": 4
+    },
+    "test_durable_campaign_v0421.py": {
+      "exit_code": 0,
+      "tests_reported": 11
+    },
+    "test_event_stream_and_adaptive_v0412.py": {
+      "exit_code": 0,
+      "tests_reported": 4
+    },
+    "test_exact_instruction_recovery_v0409.py": {
+      "exit_code": 0,
+      "tests_reported": 4
+    },
+    "test_external_oracle_diagnostics_v0413.py": {
+      "exit_code": 0,
+      "tests_reported": 7
+    },
+    "test_function_v031.py": {
+      "exit_code": 0,
+      "tests_reported": 11
+    },
+    "test_generic_analysis_v0432.py": {
+      "exit_code": 0,
+      "tests_reported": 5
+    },
+    "test_hardware_runtime_v0422.py": {
+      "exit_code": 0,
+      "tests_reported": 5
+    },
+    "test_independent_event_trace_v0411.py": {
+      "exit_code": 0,
+      "tests_reported": 6
+    },
+    "test_integrated_native_v0424.py": {
+      "exit_code": 0,
+      "tests_reported": 6
+    },
+    "test_memory_bus_v0323.py": {
+      "exit_code": 0,
+      "tests_reported": 10
+    },
+    "test_multisa_native_v0432.py": {
+      "exit_code": 0,
+      "tests_reported": 6
+    },
+    "test_native_execution_v0404.py": {
+      "exit_code": 0,
+      "tests_reported": 6
+    },
+    "test_native_frame_irq_v0407.py": {
+      "exit_code": 0,
+      "tests_reported": 2
+    },
+    "test_native_isolation_v0322.py": {
+      "exit_code": 0,
+      "tests_reported": 6
+    },
+    "test_native_preparation_v0403.py": {
+      "exit_code": 0,
+      "tests_reported": 7
+    },
+    "test_native_progress_v0410.py": {
+      "exit_code": 0,
+      "tests_reported": 3
+    },
+    "test_null_backends_v0425.py": {
+      "exit_code": 0,
+      "tests_reported": 6
+    },
+    "test_release_v0426.py": {
+      "exit_code": 0,
+      "tests_reported": 4
+    },
+    "test_release_v0427.py": {
+      "exit_code": 0,
+      "tests_reported": 4
+    },
+    "test_release_v0428.py": {
+      "exit_code": 0,
+      "tests_reported": 5
+    },
+    "test_release_v0429.py": {
+      "exit_code": 0,
+      "tests_reported": 3
+    },
+    "test_release_v0430.py": {
+      "exit_code": 0,
+      "tests_reported": 3
+    },
+    "test_release_v0431.py": {
+      "exit_code": 0,
+      "tests_reported": 3
+    },
+    "test_release_v0432.py": {
+      "exit_code": 0,
+      "tests_reported": 3
+    },
+    "test_release_v0433.py": {
+      "exit_code": 0,
+      "tests_reported": 2
+    },
+    "test_sms_counters_v0433.py": {
+      "exit_code": 0,
+      "tests_reported": 2
+    },
+    "test_sms_startup_v0433.py": {
+      "exit_code": 0,
+      "tests_reported": 1
+    },
+    "test_startup_loop_diagnostics_v0406.py": {
+      "exit_code": 0,
+      "tests_reported": 4
+    },
+    "test_tool_orchestration_v0414.py": {
+      "exit_code": 0,
+      "tests_reported": 13
+    },
+    "test_unified_campaign_v0420.py": {
+      "exit_code": 0,
+      "tests_reported": 12
+    },
+    "test_unified_current_history_v0430.py": {
+      "exit_code": 0,
+      "tests_reported": 1
+    },
+    "test_unified_source_identity_v0431.py": {
+      "exit_code": 0,
+      "tests_reported": 5
+    },
+    "test_universal_campaign_v0432.py": {
+      "exit_code": 0,
+      "tests_reported": 3
+    },
+    "test_universal_native_recovery_v0408.py": {
+      "exit_code": 0,
+      "tests_reported": 7
+    },
+    "test_workbench_actions_v0402.py": {
+      "exit_code": 0,
+      "tests_reported": 5
+    },
+    "test_workbench_pages_v0401.py": {
+      "exit_code": 0,
+      "tests_reported": 6
+    },
+    "test_z80_polling_v0433.py": {
+      "exit_code": 0,
+      "tests_reported": 1
+    },
+    "test_z80_timing_v0433.py": {
+      "exit_code": 0,
+      "tests_reported": 2
+    }
+  },
+  "note": "Linux development-machine regression; Windows MSVC owner verification pending"
+}

@@ -1,0 +1,35 @@
+{
+  "schema": "recomp-release-qualification-v0436",
+  "release": "0.4.0.36",
+  "status": "SYNTHETIC_COMPILED_CORRECTNESS_GATES_PASS_AUTHENTIC_GAMES_PENDING",
+  "prior_gate_status": "SYNTHETIC_COMPILED_RECOVERY_ACCEPTANCE_PASS_AUTHENTIC_ROM_GATES_OPEN",
+  "new_tests": {
+    "test_correctness_v0436.py": "Ran 6 tests in 10.723s",
+    "test_release_v0436.py": "Ran 5 tests in 0.001s"
+  },
+  "source_sha256": {
+    "nativecore/continuous_recovery_v0436.py": "902aef116927f8b5d52554b664a37c6471e105980755015b805e6f3f854002b7",
+    "nativecore/session_triage_v0436.py": "b558f49bd20c74bef030a1dcbc40f787286f90911fe821989c3acfcaae11c07f",
+    "tools/Run-Continuous-Recovery-v0436.py": "824b7295e4281f1e216b471d8cb1639ad03cbd808e392d92945a4e756d9f757a",
+    "tools/Run-SMS-Campaign-v0436.py": "52f72078ee485bf6959578fdcf89eefcddcb39fe630140581681721c06354cbd",
+    "nativepilot/live_sms.hpp": "01cb63d81cc5913d8913becf4a28917dcbafe1c8e3fed930cef7bc56662d2820",
+    "nativepilot/interactive.cpp": "3f17fc3560d29f51470f2acc3d8540c734c19ac692fef642054187f6d452928f",
+    "nativepilot/generator.py": "2fab9d043a49dfce46075f234deb13bea80c29e84ec9fa5ca22a4578f854289e",
+    "Verify-v0436.ps1": "9063d087e3bfc929a5e1c01528999e412155b1105231f29bd19eff84a05dc86d",
+    "Run-Workbench.ps1": "ba92044b0b6c0259e38570b8fb109a91e5dd524cea28b7ea28a1d01d15a63019"
+  },
+  "milestones": {
+    "COMPILED_LAST_256_PC_SP_IRQ_MAPPER_TRANSITIONS": "GATED",
+    "SOURCE_VERIFIED_VS_EMITTED_DISPATCH_DIAGNOSIS": "GATED",
+    "BUILD_TIMEOUT_STRUCTURED_FAILURE": "GATED",
+    "SEVEN_GAME_CAMPAIGN": "TOOL_DELIVERED_OWNER_RUN_PENDING",
+    "SHINOBI_MAME_CPU_ALIGNMENT": "NOT_ESTABLISHED",
+    "SHINOBI_PLAYABLE": "NOT_ESTABLISHED",
+    "ALEX_KIDD_RAM_CAUSALITY": "NOT_ESTABLISHED",
+    "WINDOWS_OWNER_ACCEPTANCE": "PENDING"
+  },
+  "native_qualified": false,
+  "gameplay": "NOT_ESTABLISHED",
+  "game_specific_fixes": 0,
+  "post_validation_cli_smoke": "PASS: campaign invoked from unrelated working directory with missing ROMs, produced bounded cross-game summary and evidence ZIP"
+}

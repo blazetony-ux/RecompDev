@@ -1,0 +1,13 @@
+{
+  "schema": "recomp-native-history-regression-v0431",
+  "release": "0.4.0.31",
+  "core_suites_passed": 37,
+  "core_tests_reported": 235,
+  "bridge_tests_reported": 15,
+  "bridge_skipped": 1,
+  "failed_suites": 0,
+  "full_regression_status": "PASS_LOCAL_LINUX",
+  "owner_windows_full_verification": "PENDING",
+  "true_real_shinobi_history_replayed": "EXISTING_UPLOADED_JOB_REVALIDATED_OFF_DISTRIBUTION",
+  "test_log": "full431.log (build system only, not distributed)"
+}

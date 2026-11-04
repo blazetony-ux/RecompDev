@@ -1,0 +1,47 @@
+{
+  "schema": "recomp-release-qualification-v0435",
+  "release": "0.4.0.35",
+  "status": "SYNTHETIC_COMPILED_RECOVERY_ACCEPTANCE_PASS_AUTHENTIC_ROM_GATES_OPEN",
+  "test_status": "PASS",
+  "prior_compiled_z80_gate": "COMPILED_Z80_OPCODE_TIMING_AND_SMS_COUNTER_POLLING_PASS_AUTHENTIC_GATES_OPEN",
+  "test_summaries": {
+    "test_continuous_recovery_v0435.py": "Ran 3 tests in 13.277s",
+    "test_hardware_triage_v0435.py": "Ran 1 test in 0.003s",
+    "test_platform_profiles_v0434.py": "Ran 4 tests in 0.002s",
+    "test_release_v0435.py": "Ran 3 tests in 0.001s"
+  },
+  "source_sha256": {
+    "nativecore/continuous_recovery_v0435.py": "09ee7144500794aaf088e5c1693f00e5ddfdf7b51e432391d73e08a161e0d107",
+    "nativecore/hardware_triage_v0435.py": "e193c7a8f9d7a262c085c037e43bc47209588cfe756ce639cab7f775b2fa337f",
+    "tools/Run-Continuous-Recovery-v0435.py": "851894684e12c4bc86d292b80bc977e7f038fb13204502ecd3f1a6b7ce4f48e5",
+    "tools/Diagnose-Z80-Hardware-v0435.py": "bd5aae252c36d7e33f7bb11c5c1956bbbd745a2701fc98f1d7e37b560301472b",
+    "nativepilot/interactive.cpp": "263cadc81c67e9ee54c7eb9d8b55dfcb8ee37358f12c6ac93f3966f193d16f14",
+    "nativepilot/live_sms.hpp": "f79f7bae52c73bc41597819ca4b2b80463a1f07af734749366e9c0ab0f10b5fe",
+    "tools/Run-Continuous-Native.py": "657290db0c1313959e577ac85dde023ade5c6a40e7c8d97035fd3cdbeb5412ec",
+    "Verify-v0435.ps1": "fcc4ae9f4b039f20ba7f2f6de26d8f7bd6b91b65ff8ed8deb5b2bada2b0ea464",
+    "Run-Workbench.ps1": "b3274ea9c05513678226b5f74e51314e978aef837a1cfbbea00f1d8833d143f1"
+  },
+  "milestones": {
+    "CONTINUOUS_COMPILED_REBUILD_AND_RESET_REPLAY": "SYNTHETIC_SOURCE_ATTESTED_GATE_PASS",
+    "GUEST_STOP_PC_AND_MAPPER": "COMPILED_NATIVE_HOST_GATED",
+    "BANK_PANIC_AFTER_FRAME_99": "OWNER_ROM_ACCEPTANCE_PENDING",
+    "ALEX_KIDD_AFTER_FRAME_66": "OWNER_ROM_ACCEPTANCE_PENDING",
+    "SHINOBI_MAME_INITIAL_STATE_ALIGNMENT": "NOT_ESTABLISHED",
+    "SHINOBI_EARLIEST_CAUSAL_DIVERGENCE": "NOT_ESTABLISHED",
+    "SHINOBI_HARDWARE_TRIAGE": "PROVENANCE_GUARDED_REPORT_GATED",
+    "SHINOBI_PLAYABLE": "NOT_ESTABLISHED",
+    "WINDOWS_OWNER_VERIFICATION": "OWNER_TEST_PENDING"
+  },
+  "native_qualified": false,
+  "gameplay": "NOT_ESTABLISHED",
+  "game_specific_fixes": 0,
+  "environment_validation": {
+    "compiled_v0435_gate": "PASS (includes inherited compiled Z80 acceptance)",
+    "full_core_suite": "PASS (271 tests; zero failures; Linux CMake/G++)",
+    "bridge_suite": "PASS (15 tests, one skipped)",
+    "original_rom_bank_panic": "NOT_TESTED",
+    "original_rom_alex_kidd": "NOT_TESTED",
+    "original_rom_shinobi": "NOT_TESTED",
+    "windows_full_verification": "OWNER_PENDING"
+  }
+}

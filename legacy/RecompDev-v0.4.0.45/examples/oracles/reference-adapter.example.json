@@ -1,0 +1,6 @@
+{
+  "schema": "recomp-external-oracle-adapter-v1",
+  "producer": "REPLACE WITH externally operated emulator name, version and settings",
+  "executable": "C:\\Tools\\IndependentEmulator\\emulator.exe",
+  "arguments": ["--rom", "{rom}", "--events", "{output}", "--steps", "{steps}"]
+}

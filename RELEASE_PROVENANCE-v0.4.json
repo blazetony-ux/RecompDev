@@ -1,0 +1,24 @@
+{
+  "schema": "recompdev-modular-consolidation-release-v1",
+  "release": "0.4-consolidation",
+  "source_of_truth": "uploaded RecompDev-0445.zip",
+  "harness_baseline": "uploaded RecompDev-ModularHarness-PoC-v0.3-Source.zip",
+  "original_recompdev_files_preserved": 581,
+  "original_harness_files_preserved": 61,
+  "integrated": [
+    "Original v0.4.0.45 Master System machine source built directly into DLL",
+    "Original v0.4.0.45 Ghidra Z80 P-code verifier and generator imported directly",
+    "Original discovery.store used for sidecar import and read-only service",
+    "Read-only catalog snapshots and metadata with hash and count checks",
+    "Selected unchanged v0.4.0.45 ISA tests in disposable workspace"
+  ],
+  "limitations": [
+    "Complete Z80 fallback is not implemented",
+    "Full legacy regression suite and Windows test run require local validation",
+    "The original owner-local RecompDev-Data catalogues are not in uploaded archive",
+    "No real-game native parity or ROM-free output established"
+  ],
+  "linux_ctest_groups": 23,
+  "linux_ctest_status": "PASS",
+  "windows_ctest_status": "NOT_RUN"
+}

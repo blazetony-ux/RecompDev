@@ -1,0 +1,149 @@
+{
+  "schema": "recomp-function-pcode-v1",
+  "language": "z80:LE:16:default",
+  "target_id": "synthetic-pcode-v02",
+  "source_sha256": "1175d98682352cf2bb78a48abb5ad8f56d3b228f313c10e2552b050ecb45b9cc",
+  "analyzer": "synthetic-pcode-shape-not-ghidra",
+  "functions": [
+    {
+      "entry": 0,
+      "name": "SYNTHETIC_BOOT",
+      "instructions": [
+        {
+          "address": 0,
+          "length": 3,
+          "fallthrough": 3,
+          "mnemonic": "JP",
+          "bytes_sha256": "f0a00795a64f7e09231179cd84e8238ecb3fc48fea4ae0fbae75ac9485014922",
+          "pcode": [
+            {
+              "op": "BRANCH",
+              "inputs": [
+                {
+                  "space": "ram",
+                  "offset": 3,
+                  "size": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "address": 3,
+          "length": 2,
+          "fallthrough": 5,
+          "mnemonic": "LD",
+          "bytes_sha256": "7367e259ee726167684ea5e9834170e8bc91510c4531cff26febc2dce5e50dc0",
+          "pcode": [
+            {
+              "op": "COPY",
+              "inputs": [
+                {
+                  "space": "const",
+                  "offset": 66,
+                  "size": 1
+                }
+              ],
+              "output": {
+                "space": "register",
+                "offset": 1,
+                "size": 1
+              }
+            }
+          ]
+        },
+        {
+          "address": 5,
+          "length": 3,
+          "fallthrough": 8,
+          "mnemonic": "LD",
+          "bytes_sha256": "20016699a44b668e9379963c1657295ee7b00e434ac1356a326b2701d7639e6c",
+          "pcode": [
+            {
+              "op": "COPY",
+              "inputs": [
+                {
+                  "space": "register",
+                  "offset": 1,
+                  "size": 1
+                }
+              ],
+              "output": {
+                "space": "ram",
+                "offset": 49152,
+                "size": 1
+              }
+            }
+          ]
+        },
+        {
+          "address": 8,
+          "length": 2,
+          "fallthrough": 10,
+          "mnemonic": "LD",
+          "bytes_sha256": "854f5074eb36c8ec961ed5eb08f829780ba2e555abcc6a49f5a230a481bc690a",
+          "pcode": [
+            {
+              "op": "COPY",
+              "inputs": [
+                {
+                  "space": "const",
+                  "offset": 3,
+                  "size": 1
+                }
+              ],
+              "output": {
+                "space": "register",
+                "offset": 1,
+                "size": 1
+              }
+            }
+          ]
+        },
+        {
+          "address": 10,
+          "length": 3,
+          "fallthrough": 13,
+          "mnemonic": "LD",
+          "bytes_sha256": "9e104e9fa88157084c133a4f935fbb8ca1a7642c8c57e36154f9b421418ab719",
+          "pcode": [
+            {
+              "op": "COPY",
+              "inputs": [
+                {
+                  "space": "register",
+                  "offset": 1,
+                  "size": 1
+                }
+              ],
+              "output": {
+                "space": "ram",
+                "offset": 65535,
+                "size": 1
+              }
+            }
+          ]
+        },
+        {
+          "address": 13,
+          "length": 3,
+          "fallthrough": 16,
+          "mnemonic": "JP",
+          "bytes_sha256": "e14e7b4053a765e662855e5149687187ebbfb97ff4b93cb30cf59c63e643eeb1",
+          "pcode": [
+            {
+              "op": "BRANCH",
+              "inputs": [
+                {
+                  "space": "ram",
+                  "offset": 32768,
+                  "size": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

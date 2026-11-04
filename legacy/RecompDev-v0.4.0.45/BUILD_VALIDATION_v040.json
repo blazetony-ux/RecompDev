@@ -1,0 +1,26 @@
+{
+  "schema": "recomp-build-validation-v040",
+  "build": "RecompDev-v0.4.0",
+  "tests": {
+    "recovery_catalogue_discovery": 68,
+    "bridge": 15,
+    "total": 83
+  },
+  "static_syntax": {
+    "python_compileall": "PASS",
+    "javascript_node_check": "PASS"
+  },
+  "synthetic_fixtures": {
+    "ps1_tim": "PASS",
+    "iso9660_2048": "PASS",
+    "iso9660_raw2352": "PASS",
+    "megadrive_candidate_tiles": "PASS",
+    "persistent_sqlite_queue": "PASS",
+    "function_campaign_import": "PASS",
+    "source_unchanged": "PASS",
+    "read_only_workbench_metadata": "PASS"
+  },
+  "windows_real_game_validation": "NOT_RUN_ON_BUILD_HOST",
+  "whole_function_cpu_parity": "NOT_ESTABLISHED",
+  "asset_claim": "VALIDATED_TIM_IMAGES_AND_UNVERIFIED_MD_TILE_PREVIEWS_ONLY"
+}

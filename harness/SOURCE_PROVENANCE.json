@@ -1,0 +1,21 @@
+{
+  "poc_version": "0.1.1",
+  "source_archive": "RecompDev-0445.zip",
+  "source_archive_sha256": "88ea8261774365117bea499e8375c035031100501fff6b3a761a3c6be719ea85",
+  "original_release": "0.4.0.45",
+  "original_source_mutated": false,
+  "copied_files": {
+    "discovery/__init__.py": "6e0eaffb2684a6d8cdbce9369f1602b810e02784a0160bd5f101413381d8a129",
+    "discovery/store.py": "83ce733b5e7738c1728be33a07170f9cee3ba74708ed57a3b9fac851e32ceec7",
+    "hardware/adapters/sms.hpp": "3782fc6520cf34ff3fec9b4ad058900869d8e5b716ce6bd2ded2c9d076a2f395",
+    "hardware/core.hpp": "d41dc1cc64b8a91da92023a20bd5295631b5c3427124d118ad803ba39b60736c",
+    "hardware/wav.hpp": "8da96655ef974e3047862c85633abdd1f98a316a71ba75b8b5d05847276a34b4",
+    "systems/mastersystem/counters.hpp": "d55dbccecc5912394bcb2a4b99d65bb1f86dbc3682204430ba6caece75e9b5d9",
+    "systems/mastersystem/runtime.cpp": "73675902341d98bc41ebcc06dab2477f4639acdf6b963e8e070cc1b73af50a3f",
+    "systems/mastersystem/runtime.hpp": "7a22a5b3209c9b70a58c0dde0683494ecc41cac71fbb66ef6a82604a7394cd60"
+  },
+  "native_code_origin": "handwritten from invented synthetic Z80 bytes (not existing generated game translation)",
+  "source_byte_embedded": "synthetic fixture only",
+  "commercial_game_rom_included": false,
+  "patch_scope": "tests/test_sidecar.py database closure fix; documentation only; vendored RecompDev files unchanged"
+}

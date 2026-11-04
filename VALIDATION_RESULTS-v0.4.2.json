@@ -1,0 +1,22 @@
+{
+  "schema": "recompdev-v042-validation",
+  "default_linux_ctest": {
+    "passed": 34,
+    "total": 34,
+    "compiler": "GCC",
+    "source": "ctest-full.log local build"
+  },
+  "real_native_recovery_legacy": {
+    "status": "PASSED",
+    "context": "Standalone authenticated synthetic P-code fixture, compiled native recovery, 8 seconds; no gameplay claim"
+  },
+  "compiled_exe_native_recovery": {
+    "status": "EXECUTED_BLOCKED_EXPECTED",
+    "steps": 6,
+    "stop_reason": "RECOVERY_NO_NEW_ATTESTED_CODE",
+    "source": "synthetic sample; no Ghidra game export"
+  },
+  "windows_installation": "NOT_YET_TESTED",
+  "real_owner_gameplay_parity": "NOT_ESTABLISHED",
+  "preserved_sha256_files": 642
+}

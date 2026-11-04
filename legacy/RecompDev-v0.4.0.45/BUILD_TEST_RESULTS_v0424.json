@@ -1,0 +1,10 @@
+{
+  "schema": "recomp-regression-summary-v0424",
+  "release": "0.4.0.24",
+  "core_suites": 27,
+  "core_tests": 191,
+  "bridge_tests": 15,
+  "bridge_skipped": 1,
+  "failed_suites": 0,
+  "scope": "Linux host; compiled synthetic Z80 programs; genuine owner Windows/MSVC and real-game MAME parity not validated"
+}

@@ -1,0 +1,18 @@
+{
+  "schema": "recomp-build-validation-v0.3.2",
+  "release": "RecompDev-v0.3.2",
+  "tests_catalogue_recovery": 37,
+  "tests_bridge": 15,
+  "tests_outcome": "passed in Linux container",
+  "cxx_fixture": "g++ generated C++ compiled/executed for multiply, RAM varnode and missing-I/O profiles",
+  "ghidra_on_owner_binaries": "not run; previous user results only",
+  "unicorn_original_vs_native": "not run locally; unicorn unavailable in build environment",
+  "windows_powershell_launcher": "reviewed, not executed on Windows",
+  "original_cpu_parity": "not established",
+  "notes": [
+    "source-bound previous Ghidra export reuse",
+    "WAL-aware previous SQLite backup import",
+    "PS1 delay slots still explicitly blocked",
+    "Unmapped hardware I/O remains a failure, not synthetic zero"
+  ]
+}
