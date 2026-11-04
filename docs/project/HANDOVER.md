@@ -31,3 +31,7 @@ Implement a **versioned production plugin bridge**, initially for Z80 or the tra
 ## Handover maintenance rule
 
 Record factual progress (including source paths, test names and failure outcomes) after each accepted engineering release, update the roadmap and relevant component changelogs, and keep this handover current for subsequent conversations. The updater must not invent test results or claim future validation.
+
+## 2026-11-04 — v0.4.6 phase-1 production gate
+
+A coordinated incremental release adds `production_cpu_bridge` 0.1.0 and extends `rd_cpu_z80` 0.2.0. The compiled controller remains 0.4.4, unaffected DLLs stay 0.1.0, and legacy adapters remain 0.4.0.45. Actual Z80 source-attested instructions are now passed through the selected active CPU DLL and its SHA-256 is verified before **legacy** native translation/recovery begins. A plugin rejection stops that run, while missing/older gate support is explicitly reported (strict `--cpu-plugin required` refuses it). The native translator and runtime are **not yet routed through the DLL**. New evidence includes production gate decisions and plugin hashes. Tests include a synthetic source-authenticated export, actual preserved native compilation and an alternate rejecting native library on Linux; the owner's Windows Shinobi run is outstanding. See [production pipeline](../recompilation/PRODUCTION-PIPELINE.md) and [release notes](../releases/v0.4.6.md).

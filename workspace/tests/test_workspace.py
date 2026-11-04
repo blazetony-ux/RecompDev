@@ -66,6 +66,22 @@ class TestProtectedWorkspace(unittest.TestCase):
         self.assertEqual(manager.read_state(self.source)['active']['rd_cpu_z80']['sha256'],first['sha256'])
         self.assertEqual(manager.binary_path('rd_cpu_z80',self.source).read_bytes(),b'different DLL same version')
 
+    def test_failed_activation_restores_previous_dll_and_lock(self):
+        self.fake_dll('rd_cpu_z80',b'old working candidate')
+        first=manager.install_candidate('rd_cpu_z80',self.source,validated=True)
+        lock=manager.state_file(self.source)
+        previous_lock=lock.read_bytes()
+        active=Path(manager.read_state(self.source)['active']['rd_cpu_z80']['active_path'])
+        previous_binary=active.read_bytes()
+        manager.bump('rd_cpu_z80','patch',self.source)
+        self.fake_dll('rd_cpu_z80',b'new candidate that is not active yet')
+        with patch.object(manager,'atomic_json',side_effect=RuntimeError('simulated lockfile write failure')):
+            with self.assertRaisesRegex(RuntimeError,'simulated lockfile'):
+                manager.install_candidate('rd_cpu_z80',self.source,validated=True)
+        self.assertEqual(active.read_bytes(),previous_binary)
+        self.assertEqual(lock.read_bytes(),previous_lock)
+        self.assertEqual(manager.read_state(self.source)['active']['rd_cpu_z80']['sha256'],first['sha256'])
+
     def test_invalid_release_does_not_touch_live_runtime(self):
         self.fake_dll('rd_cpu_z80',b'previous')
         manager.install_candidate('rd_cpu_z80',self.source,validated=True)

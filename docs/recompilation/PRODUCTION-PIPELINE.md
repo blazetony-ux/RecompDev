@@ -17,3 +17,11 @@ The user-provided Shinobi recovery ran three bounded rounds and ultimately repor
 ## Required plugin cutover gate
 
 The production services above currently bypass the ten C++ harness DLLs. The next migration must invoke a selected versioned CPU/translator or machine plugin on **real** source-attested instructions. Evidence must record component ID/version/hash and demonstrate an isolated swap and rollback without modifying legacy source. This gate is not passed by compiling or swapping `rd_cpu_z80.dll` in the harness alone.
+
+## Phase 1 production CPU admission bridge (workspace v0.4.6)
+
+For Z80 native recovery, `modular/controller.py` now calls `modular/cpu_production.py` after the frozen `pcode_verify` function authenticates the actual Ghidra export, and **before** dispatching to `legacy.recovery`. The module resolves `rd_cpu_z80` from the active runtime lock, checks both the selected DLL and immutable version-store SHA-256, then passes each verified physical ROM instruction to the native `rd_z80_source_gate_v1` C ABI. A rejected instruction or compromised DLL stops that run; other platforms are not silently passed to a Z80 plugin.
+
+The selected version/hash, admitted instruction count, opcode-family counts, length-check coverage and fallback status are included in `production-cpu-gate.json`, `controller-report.json` and `run-provenance.json`. This is a real swappable production **source-admission** mechanism but not a native CPU execution or translation plugin cutover: all translation and gameplay execution remain performed by the original source-authenticated native P-code pipeline. Do not describe it as full native CPU integration.
+
+Use `--cpu-plugin required` to demand a currently installed gate-enabled DLL, `auto` for a clearly labelled fallback when no compatible gate has ever been installed, or `legacy` for explicit bypass. Selected corrupt/rejecting binaries fail closed. Tests: `python -B -m unittest modular.tests.test_production_cpu -q` (native Z80 DLL must be built first); original preservation and full CTest gates still apply.

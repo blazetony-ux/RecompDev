@@ -24,3 +24,7 @@ Demonstrate that changing an independently built Z80 CPU, translator or Master S
 ## Cross-game acceptance
 
 Avoid progress measured only in Shinobi instruction counts. Validate at least two additional Master System titles with source-attested behavior, and report failures as carefully as successes. Use the shared controller and plugin APIs rather than per-game branches.
+
+## Phase-1 outcome, workspace v0.4.6
+
+Versioned CPU DLL admission of authentic Z80 bytes is now wired into the real recovery hand-off; it is source validation only. Next, migrate the native instruction translation/execution interface so a swapped component changes emitted native C++ behaviour and hardware correctness can be validated independently. Machine/VDP/PSG plugin adoption remains pending. Continue using small, reversible Git patches and never modify frozen legacy baselines.

@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from migration import controller as preservation
 from modular.plugins import legacy
-from modular import recovery_manager, hardware_review
+from modular import recovery_manager, hardware_review, cpu_production
 
 LEGACY = preservation.LEGACY
 DEFAULT_DB = LEGACY / 'catalogue.sqlite'
@@ -55,7 +55,7 @@ def prepare_workspace(out, db_source):
 def run_rom(rom, out, stage='prepare', database=None, budget=150, steps=200000,
             frames=120, recoveries=2, ghidra='', export='', capture=False,
             timeout=720, input_events='', history_roots=(),auto_continue=True,max_rounds=3,
-            reference_image=None,reference_session=None):
+            reference_image=None,reference_session=None,cpu_plugin_mode="auto"): 
     """Drive real legacy discovery -> Ghidra/native prep -> optional native recovery.
 
     All services run in standalone subprocesses; no unverified fallback rewrite.
@@ -124,28 +124,52 @@ def run_rom(rom, out, stage='prepare', database=None, budget=150, steps=200000,
                         # Identity/byte preflight uses the original v0.4.0.45 verifier.
                         evidence = preservation.pcode_verify(rom,source_export,[])
                         report['authenticated_export'] = evidence
-                        rec_dir=output/'recovery'
-                        rec_args=['--rom',rom,'--export',source_export,
-                                  '--frames',str(frames),'--steps',str(steps),
-                                  '--max-recoveries',str(recoveries),'--compile-timeout',str(max(30,min(timeout,1800))),
-                                  '--no-history-import','--coverage-cache',output/'coverage-working.sqlite']
-                        if capture: rec_args.append('--capture-hardware')
-                        if input_events: rec_args += ['--input-events',str(Path(input_events).resolve(strict=True))]
-                        for history in history_roots: rec_args += ['--history-root',str(Path(history).resolve(strict=True))]
-                        summary,services=recovery_manager.run_bounded(
-                            legacy.invoke,rec_args,rec_dir,output/'recovery-stage',
-                            auto_continue=auto_continue,max_rounds=max_rounds,
-                            timeout=timeout,capture=capture)
-                        report['services'].extend(services)
-                        report['legacy_recovery_status']=summary['last_legacy_status']
-                        report['legacy_native_steps']=summary['maximum_steps_observed']
-                        report['maximum_frames_observed']=summary['maximum_frames_observed']
-                        report['recovered_entries']=summary['recovered_entries']
-                        report['recovery_rounds']=summary['rounds_completed']
-                        report['recovery_stop_reason']=summary['stop_reason']
-                        report['hardware_diagnostics']=summary['hardware']
-                        report['recovery_report']=str(rec_dir/'continuous-recovery-report.json')
-                        report['status']='RECOVERY_REPORTED' if summary['status']=='CONTINUOUS_SESSION_COMPLETE' else 'RECOVERY_LIMITED_OR_BLOCKED'
+                        # A selected active DLL participates in the REAL production
+                        # hand-off: every source-attested instruction must be admitted
+                        # before any legacy native compilation is launched.
+                        try:
+                            if report['cpu'] != 'z80':
+                                if cpu_plugin_mode == 'required':
+                                    raise cpu_production.GateError('NO_CPU_SOURCE_GATE_REGISTERED_FOR_'+str(report['cpu']))
+                                report['production_cpu_gate'] = {
+                                    'status':'LEGACY_FALLBACK_OTHER_CPU', 'cpu':report['cpu'],
+                                    'selected_plugin':None}
+                                (output/'production-cpu-gate.json').write_text(
+                                    json.dumps(report['production_cpu_gate'],indent=2,sort_keys=True)+'\n',encoding='utf8')
+                            else:
+                                report['production_cpu_gate'] = cpu_production.admit(
+                                    rom, source_export, root=ROOT, mode=cpu_plugin_mode,
+                                    output=output/'production-cpu-gate.json')
+                        except cpu_production.GateError as gate_error:
+                            report['production_cpu_gate'] = {
+                                'status':'BLOCKED', 'reason':str(gate_error),
+                                'selected_mode':cpu_plugin_mode}
+                            report['status']='RECOVERY_BLOCKED_CPU_PLUGIN'
+                            (output/'production-cpu-gate.json').write_text(
+                                json.dumps(report['production_cpu_gate'],indent=2,sort_keys=True)+'\n',encoding='utf8')
+                        if report['status']!='RECOVERY_BLOCKED_CPU_PLUGIN':
+                            rec_dir=output/'recovery'
+                            rec_args=['--rom',rom,'--export',source_export,
+                                      '--frames',str(frames),'--steps',str(steps),
+                                      '--max-recoveries',str(recoveries),'--compile-timeout',str(max(30,min(timeout,1800))),
+                                      '--no-history-import','--coverage-cache',output/'coverage-working.sqlite']
+                            if capture: rec_args.append('--capture-hardware')
+                            if input_events: rec_args += ['--input-events',str(Path(input_events).resolve(strict=True))]
+                            for history in history_roots: rec_args += ['--history-root',str(Path(history).resolve(strict=True))]
+                            summary,services=recovery_manager.run_bounded(
+                                legacy.invoke,rec_args,rec_dir,output/'recovery-stage',
+                                auto_continue=auto_continue,max_rounds=max_rounds,
+                                timeout=timeout,capture=capture)
+                            report['services'].extend(services)
+                            report['legacy_recovery_status']=summary['last_legacy_status']
+                            report['legacy_native_steps']=summary['maximum_steps_observed']
+                            report['maximum_frames_observed']=summary['maximum_frames_observed']
+                            report['recovered_entries']=summary['recovered_entries']
+                            report['recovery_rounds']=summary['rounds_completed']
+                            report['recovery_stop_reason']=summary['stop_reason']
+                            report['hardware_diagnostics']=summary['hardware']
+                            report['recovery_report']=str(rec_dir/'continuous-recovery-report.json')
+                            report['status']='RECOVERY_REPORTED' if summary['status']=='CONTINUOUS_SESSION_COMPLETE' else 'RECOVERY_LIMITED_OR_BLOCKED'
         report['source_image_unchanged']=preservation.sha(rom)==src_sha
         report['production_catalogue_mutated']=preservation.sha(source_db)!=src_sha_db_before
         if not report['source_image_unchanged'] or report['production_catalogue_mutated']:

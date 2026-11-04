@@ -17,3 +17,7 @@ Changes release tooling only; no native binary is installed or rebuilt. Baseline
 ## Lifecycle
 
 Edit only owned source; bump **this** component if its implementation changes, append a meaningful entry to [its changelog](CHANGELOG.md), run the relevant gates, and accept through local Git. Tooling/services that are not compiled DLLs have no binary to activate. For the generic development rules see [release process](../../development/RELEASE-PROCESS.md).
+
+## Coordinated bridge migration, v0.1.1
+
+Source ownership in `workspace/manager.py` now recognises the independent `production_cpu_bridge` component, the Z80 gate C header, and the production gate regression suite. Routine plugin updates must continue to respect component boundaries; the one-time v0.4.6 patch spans components deliberately and has its own transactional source update and validation gate. All build outputs, runtime DLLs and evidence remain outside the Git checkout.

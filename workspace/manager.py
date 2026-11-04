@@ -174,7 +174,12 @@ def targeted_tests(component: str, source: Path = SOURCE):
     elif component=='rd_audio_wav':pattern='modules_load|hybrid_main_parity|inspect_generated_reports'
     elif component=='rd_display_ppm':pattern='modules_load|hybrid_main_parity|inspect_generated_reports'
     else:pattern='modules_load|hybrid_main_parity|production_pcode_hybrid_parity'
+    if component=='production_cpu_bridge':
+        cmd([sys.executable,'-B','-m','unittest','modular.tests.test_production_cpu','-q'],cwd=source)
+        return {'status':'PASSED','component':component,'pattern':'modular.tests.test_production_cpu'}
     cmd(['ctest','--test-dir',configure(source),'-C','Release','--output-on-failure','-R',pattern])
+    if component=='rd_cpu_z80':
+        cmd([sys.executable,'-B','-m','unittest','modular.tests.test_production_cpu','-q'],cwd=source)
     return {'status':'PASSED','component':component,'pattern':pattern}
 
 
@@ -235,16 +240,28 @@ def install_candidate(component: str, source: Path = SOURCE, *, validated=False)
     state=read_state(source)
     prior=state['active'].get(component)
     target=(p/file.name) if component=='controller' else (p/'active'/file.name)
-    # Stage selected binary before changing lockfile; never corrupt a live DLL.
-    atomic_copy(stored,target)
-    if prior and (prior['sha256']!=digest or prior['version']!=version):
-        history=state['history'].setdefault(component,[])
-        history.append(prior)
-    state['active'][component]={'version':version,'sha256':digest,'binary':str(stored),
-                               'active_path':str(target),'scope':spec['scope'],'git_commit':git_head(source)}
-    atomic_json(state_file(source),state)
-    if component=='controller':
-        (p/'source-root.txt').write_text(str(source.resolve())+'\n',encoding='utf8')
+    # A failed lockfile write must NEVER leave the active DLL and its recorded
+    # hash pointing at different bytes. Restore the previously approved binary.
+    try:
+        atomic_copy(stored,target)
+        if prior and (prior['sha256']!=digest or prior['version']!=version):
+            history=state['history'].setdefault(component,[])
+            history.append(prior)
+        state['active'][component]={'version':version,'sha256':digest,'binary':str(stored),
+                                   'active_path':str(target),'scope':spec['scope'],'git_commit':git_head(source)}
+        atomic_json(state_file(source),state)
+        if component=='controller':
+            (p/'source-root.txt').write_text(str(source.resolve())+'\n',encoding='utf8')
+    except Exception:
+        if prior:
+            previous_stored=Path(prior['binary'])
+            if previous_stored.is_file() and sha256(previous_stored)==prior['sha256']:
+                atomic_copy(previous_stored,target)
+            else:
+                raise RuntimeError('Activation failed and previous binary cannot be restored; lock verification required')
+        else:
+            target.unlink(missing_ok=True)
+        raise
     return {'status':'ACTIVATED','component':component,'version':version,'sha256':digest,
             'active_binary':str(target),'previous_version':prior['version'] if prior else None,
             'scope':spec['scope']}
@@ -334,8 +351,14 @@ def component_sources(component: str):
                       'modular/evidence_bundle.py','modular/hardware_review.py',
                       'modular/recovery_manager.py'},
         'workspace_governance':{'workspace/manager.py','workspace/docs_governance.py',
+                                'workspace/tests/test_docs_governance.py',
                                 'workspace/provenance.py','tools/apply_workspace_docs.py'},
         'rd_game_recomp_v0445':{'harness/generated/rd_game_recomp_v0445.cpp'},
+        'rd_cpu_z80':{'harness/plugins/cpu_z80.cpp','harness/include/rd_production_cpu_v1.h',
+                      'modular/tests/test_production_cpu.py'},
+        'production_cpu_bridge':{'modular/cpu_production.py','modular/controller.py',
+                                  'modular/cli.py','workspace/provenance.py',
+                                  'modular/tests/test_production_cpu.py'},
     }
     if component in fixed:return fixed[component]
     if not component.startswith('rd_'):return set()
@@ -423,6 +446,8 @@ def accept(component: str, source: Path = SOURCE):
         from workspace import docs_governance
         docs_governance.check(source)
         cmd([sys.executable,'-B','-m','unittest','workspace.tests.test_docs_governance','-q'],cwd=source)
+        if component=='production_cpu_bridge':
+            targeted_tests(component,source)
         from migration import controller as preservation
         report=preservation.verify()
         if report['status']!='PASS':raise ValueError('Preservation gate failed')

@@ -17,7 +17,7 @@ from migration import controller as preservation
 
 
 def fresh_evidence():
-    return Path(__import__('os').environ.get('RECOMPDEV_EVIDENCE_ROOT') or (ROOT.parent/'RecompDev-Evidence')) / 'v0.4.4' / (datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')+'-'+uuid.uuid4().hex[:8])
+    return Path(__import__('os').environ.get('RECOMPDEV_EVIDENCE_ROOT') or (ROOT.parent/'RecompDev-Evidence')) / 'v0.4.6' / (datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')+'-'+uuid.uuid4().hex[:8])
 
 
 def main(argv=None):
@@ -43,6 +43,8 @@ def main(argv=None):
     run.add_argument('--ghidra',default='')
     run.add_argument('--export',default='')
     run.add_argument('--capture-hardware',action='store_true')
+    run.add_argument('--cpu-plugin',choices=('auto','required','legacy'),default='auto',
+                     help='Z80 production instruction gate: auto selects installed DLL, required fails if missing, legacy explicitly bypasses')
     run.add_argument('--reference-image',default='',help='Opt-in aligned PNG/PPM reference screenshot')
     run.add_argument('--reference-session',default='',help='Opt-in independent reference frame-hardware JSON')
     run.add_argument('--input-events',default='')
@@ -80,7 +82,8 @@ def main(argv=None):
             report={'schema':'recompdev-plugins-v0.4.4', 'plugins':list(legacy.registry().values()),
                     'component_versions':manifest(ROOT)['components'],
                     'runtime_active':read_state(ROOT)['active'],
-                    'production_recovery_still_uses_legacy_services':True}
+                    'native_recovery_still_uses_legacy_services':True,
+                    'production_cpu_admission_plugin_enabled':True}
         elif args.command=='verify':
             report={'source_integrity':preservation.verify(),
                     'loadable_adapters':list(legacy.registry()),'status':'PASS'}
@@ -98,7 +101,8 @@ def main(argv=None):
                     export=args.export,capture=args.capture_hardware,timeout=args.timeout,
                     input_events=args.input_events,history_roots=args.history_root,
                     auto_continue=args.auto_continue,max_rounds=args.max_rounds,
-                    reference_image=args.reference_image or None,reference_session=args.reference_session or None)
+                    reference_image=args.reference_image or None,reference_session=args.reference_session or None,
+                    cpu_plugin_mode=args.cpu_plugin)
         elif args.command=='review-evidence':
             source=Path(args.evidence_dir).resolve(strict=True)
             destination=Path(args.out).resolve() if args.out else source.parent/(source.name+'-hardware-v043')

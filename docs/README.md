@@ -27,3 +27,9 @@ This is the starting point for anyone developing, debugging or handing over Reco
 Active documents cite specific paths, versions, known test conditions and explicit limitations. Historical notes remain readable but their old installation paths are not current instructions. Never treat synthetic harness tests as proof of real-ROM gameplay parity, and never treat frame-budget completion as a ROM-independent, playable output.
 
 Release notes and component changelogs live in Git with the source. Generated captures, WAVs, logs, working SQLite snapshots and user-upload ZIPs live outside Git in versioned `RecompDev-Evidence` directories.
+
+## Production plugin integration
+
+- [Phase 1 design, limitations and data flow](recompilation/PRODUCTION-PIPELINE.md)
+- [Versioned source-gate bridge](components/production_cpu_bridge/README.md)
+- [Workspace v0.4.6 release notes](releases/v0.4.6.md)

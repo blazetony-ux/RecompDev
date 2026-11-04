@@ -31,6 +31,12 @@
       "scope": "production-workflow",
       "version": "0.4.0.45"
     },
+    "production_cpu_bridge": {
+      "description": "Production Z80 source instruction admission/selection; legacy P-code generation retained",
+      "kind": "tooling",
+      "scope": "production-workflow",
+      "version": "0.1.0"
+    },
     "rd_audio_wav": {
       "description": "DLL target with independent build and deployment; not yet a production recovery adapter",
       "kind": "compiled-plugin",
@@ -39,11 +45,11 @@
       "version": "0.1.0"
     },
     "rd_cpu_z80": {
-      "description": "DLL target with independent build and deployment; not yet a production recovery adapter",
+      "description": "Versioned Z80 DLL: harness subset interpreter plus real production source-attestation admission ABI (not native execution)",
       "kind": "compiled-plugin",
       "scope": "harness",
       "target": "rd_cpu_z80",
-      "version": "0.1.0"
+      "version": "0.2.0"
     },
     "rd_discovery_jsonl": {
       "description": "DLL target with independent build and deployment; not yet a production recovery adapter",
@@ -105,9 +111,9 @@
       "description": "Local Git documentation gates, component changelogs and release policy; not a runtime DLL",
       "kind": "tooling",
       "scope": "workspace",
-      "version": "0.1.0"
+      "version": "0.1.1"
     }
   },
   "schema": "recompdev-components-v1",
-  "workspace_release": "v0.4.5"
+  "workspace_release": "v0.4.6"
 }

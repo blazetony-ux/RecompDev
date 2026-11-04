@@ -12,12 +12,13 @@ def record_provenance(output, root, report):
     state=read_state(root)
     data={
         'schema':'recompdev-run-provenance-v1',
-        'workspace_version':'v0.4.4',
+        'workspace_version':manifest(root)['workspace_release'],
         'git_commit':git_head(root),
         'component_versions':{k:v['version'] for k,v in manifest(root)['components'].items()},
         'runtime_plugins':state['active'],
         'selected_production_workflow':'legacy discovery/preparation/recovery adapter',
-        'compiled_harness_plugins_are_not_production_recovery_services':True,
+        'compiled_harness_plugins_are_not_native_recovery_executors':True,
+        'production_cpu_admission_gate':report.get('production_cpu_gate',{'status':'NOT_INVOKED'}),
         'status':report.get('status'),
         'rom_sha256':report.get('source_sha256'),
         'rom_contents_included':False,
