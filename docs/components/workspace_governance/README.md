@@ -1,0 +1,19 @@
+# workspace_governance — component contract
+
+**Status:** workspace; documented inventory 2026-11-04. The current version is authoritative in `workspace/components.json` and the component changelog.
+
+## Responsibility
+
+Git-managed documentation structure, changelog checks and release gates.
+
+## Source and interface
+
+`workspace/manager.py; workspace/docs_governance.py; tools/apply_workspace_docs.py`. **Build target:** None (service/tooling). Component kind: `tooling`. The registry in `workspace/components.json` is authoritative for version and deployment scope; C++ DLLs export the versioned `rd_get_plugin_v1` interface declared in `harness/include/rd_plugin.h`.
+
+## Qualification and known limits
+
+Changes release tooling only; no native binary is installed or rebuilt. Baseline tests: `workspace.tests.test_docs_governance; v044_workspace_contract`. These tests certify only their documented fixtures, not untested real-game CPU/graphics/audio parity.
+
+## Lifecycle
+
+Edit only owned source; bump **this** component if its implementation changes, append a meaningful entry to [its changelog](CHANGELOG.md), run the relevant gates, and accept through local Git. Tooling/services that are not compiled DLLs have no binary to activate. For the generic development rules see [release process](../../development/RELEASE-PROCESS.md).

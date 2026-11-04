@@ -1,7 +1,7 @@
 # Command wrapper for isolated, independently versioned RecompDev components.
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory=$true)][ValidateSet('paths','status','build','test','activate','rollback','accept','bump','full-build','full-test','deploy-all','release','apply-update')][string]$Action,
+    [Parameter(Mandatory=$true)][ValidateSet('paths','status','build','test','activate','rollback','accept','bump','full-build','full-test','deploy-all','release','apply-update','docs-check','docs-accept')][string]$Action,
     [string]$Component,
     [string]$Argument
 )

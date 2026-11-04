@@ -301,9 +301,12 @@ def release(tag: str, source: Path = SOURCE):
     if not re.fullmatch(r'workspace/v\d+\.\d+\.\d+(?:[-.][A-Za-z0-9.-]+)?',tag):
         raise ValueError('Release tag must be workspace/vN.N.N')
     git_clean(source)
+    from workspace import docs_governance
+    docs_governance.check(source, release=tag)
     full_tests(source)
     from migration import controller as preservation
-    preservation.verify()
+    check=preservation.verify()
+    if check['status']!='PASS':raise ValueError('Historical preservation gate failed')
     existing=subprocess.run(['git','tag','--list',tag],cwd=source,text=True,capture_output=True).stdout.strip()
     if existing:
         tagged_commit=cmd(['git','rev-list','-n','1',tag],cwd=source,output=True)
@@ -329,7 +332,9 @@ def component_sources(component: str):
         'controller':{'controller/main.cpp','controller/recompdev_python_config.h.in',
                       'modular/cli.py','modular/controller.py',
                       'modular/evidence_bundle.py','modular/hardware_review.py',
-                      'modular/recovery_manager.py','workspace/manager.py','workspace/provenance.py'},
+                      'modular/recovery_manager.py'},
+        'workspace_governance':{'workspace/manager.py','workspace/docs_governance.py',
+                                'workspace/provenance.py','tools/apply_workspace_docs.py'},
         'rd_game_recomp_v0445':{'harness/generated/rd_game_recomp_v0445.cpp'},
     }
     if component in fixed:return fixed[component]
@@ -337,11 +342,11 @@ def component_sources(component: str):
     return {'harness/plugins/'+component[3:]+'.cpp'}
 
 
-def validate_component_diff(component: str, before: dict, after: dict, changed: set):
+def validate_component_diff(component: str, before: dict, after: dict, changed: set, source: Path = SOURCE):
     if component not in before['components']:
         raise ValueError('Unknown component: '+component)
-    if before['components'][component]['kind'] not in ('compiled-plugin','controller'):
-        raise ValueError('Legacy services cannot be replaced by generic C++ plugin updates')
+    if before['components'][component]['kind'] not in ('compiled-plugin','controller','tooling'):
+        raise ValueError('Legacy production services are frozen; use a separate source migration')
     b=before['components'][component]
     a=after['components'][component]
     if not VERSION_RE.fullmatch(a['version']) or tuple(map(int,a['version'].split('.'))) <= tuple(map(int,b['version'].split('.'))):
@@ -353,11 +358,44 @@ def validate_component_diff(component: str, before: dict, after: dict, changed: 
             raise ValueError('Unrelated component version/descriptor changed: '+name)
     if set(before['components'])!=set(after['components']):
         raise ValueError('Component add/remove requires a separate core migration')
-    allowed=component_sources(component)|{'workspace/components.json'}
+    allowed=component_sources(component)|{'workspace/components.json',f'docs/components/{component}/CHANGELOG.md'}
     if changed - allowed:
         raise ValueError('Update crosses component boundary: '+repr(sorted(changed-allowed)))
     if not (changed & component_sources(component)):
         raise ValueError('No source change for component: '+component)
+    from workspace import docs_governance
+    docs_governance.validate_component_update(source,component,a['version'],changed)
+
+
+def docs_accept(source: Path = SOURCE):
+    """Commit documentation-only edits after validation; no component version bumps."""
+    if not (source/'.git').is_dir():raise ValueError('Local Git repository required')
+    status=subprocess.run(['git','status','--porcelain','--untracked-files=all'],
+                          cwd=source,text=True,capture_output=True,check=True).stdout.rstrip('\n')
+    if not status:raise ValueError('No documentation edits to accept')
+    changed=set()
+    for line in status.splitlines():
+        if len(line)<4 or line[:2].strip() not in ('M','A','??','D'):
+            raise ValueError('Unsupported source state (rename/conflict): '+line)
+        path=line[3:]
+        if not (path.startswith('docs/') or path in ('README.md','CHANGELOG.md','workspace/components.json')):
+            raise ValueError('Documentation commit touches non-documentation source: '+path)
+        changed.add(path)
+    before=json.loads(cmd(['git','show','HEAD:workspace/components.json'],cwd=source,output=True))
+    after=manifest(source)
+    if before['components']!=after['components']:
+        raise ValueError('Documentation-only commit may not alter independent component versions')
+    from workspace import docs_governance
+    result=docs_governance.check(source)
+    cmd([sys.executable,'-B','-m','unittest','workspace.tests.test_docs_governance','-q'],cwd=source)
+    from migration import controller as preservation
+    report=preservation.verify()
+    if report['status']!='PASS':raise ValueError('Historical source preservation failed')
+    cmd(['git','add','-A','--']+sorted(changed),cwd=source)
+    cmd(['git','commit','-m','docs: accept validated documentation updates'],cwd=source)
+    return {'status':'DOCS_COMMITTED','git_commit':git_head(source),
+            'changed_files':len(changed),'component_versions_changed':0,
+            'compiled_binaries_rebuilt':0,'validation':result}
 
 
 def accept(component: str, source: Path = SOURCE):
@@ -380,9 +418,23 @@ def accept(component: str, source: Path = SOURCE):
         if len(line)<4 or line[:2].strip() not in ('M','A','??'):
             raise ValueError('Unsupported source state (rename/delete/conflict): '+line)
         changed.add(line[3:])
-    validate_component_diff(component,before,after,changed)
+    validate_component_diff(component,before,after,changed,source=source)
+    if after['components'][component]['kind']=='tooling':
+        from workspace import docs_governance
+        docs_governance.check(source)
+        cmd([sys.executable,'-B','-m','unittest','workspace.tests.test_docs_governance','-q'],cwd=source)
+        from migration import controller as preservation
+        report=preservation.verify()
+        if report['status']!='PASS':raise ValueError('Preservation gate failed')
+        cmd(['git','add','--']+sorted(changed),cwd=source)
+        cmd(['git','commit','-m',f'Update {component} to {after["components"][component]["version"]} (validated tooling)'],cwd=source)
+        return {'status':'ACCEPTED_TOOLING','component':component,
+                'version':after['components'][component]['version'],
+                'git_commit':git_head(source),'compiled_binaries_rebuilt':0}
     compiled=build(component,source)
     targeted_tests(component,source)
+    from workspace import docs_governance
+    docs_governance.check(source)
     from migration import controller as preservation
     preservation.verify()
     cmd(['git','add','--']+sorted(changed),cwd=source)
@@ -443,7 +495,7 @@ def apply_update(archive: Path, source: Path = SOURCE):
         previous_manifest=json.loads(old[source/'workspace/components.json'])
         updated_manifest=json.loads(new[source/'workspace/components.json'])
         validate_component_diff(component,previous_manifest,updated_manifest,
-                                {str(target.relative_to(source)) for target in new})
+                                {str(target.relative_to(source)) for target in new},source=source)
     backup=roots(source)['archive']/'update-backups'/f'{int(time.time())}-{os.getpid()}'
     backup.mkdir(parents=True,exist_ok=False)
     for target,content in old.items():
@@ -455,8 +507,14 @@ def apply_update(archive: Path, source: Path = SOURCE):
         for target,content in new.items():
             target.parent.mkdir(parents=True,exist_ok=True)
             target.write_bytes(content)
-        result=build(component,source)
-        targeted_tests(component,source)
+        if manifest(source)['components'][component]['kind']=='tooling':
+            result={'status':'SOURCE_ONLY','component':component}
+            cmd([sys.executable,'-B','-m','unittest','workspace.tests.test_docs_governance','-q'],cwd=source)
+        else:
+            result=build(component,source)
+            targeted_tests(component,source)
+        from workspace import docs_governance
+        docs_governance.check(source)
         from migration import controller as preservation
         preservation.verify()
     except Exception:
@@ -466,6 +524,10 @@ def apply_update(archive: Path, source: Path = SOURCE):
         raise
     cmd(['git','add','--']+[str(p.relative_to(source)) for p in new],cwd=source)
     cmd(['git','commit','-m',f'Update {component} to {doc["new_version"]} (tested)'],cwd=source)
+    if manifest(source)['components'][component]['kind']=='tooling':
+        return {'status':'UPDATED_TOOLING','component':component,
+                'version':doc['new_version'],'commit':git_head(source),
+                'build':result,'backup':str(backup),'compiled_binaries_rebuilt':0}
     try:
         promoted=install_candidate(component,source,validated=True)
     except Exception as exc:
@@ -480,7 +542,7 @@ def apply_update(archive: Path, source: Path = SOURCE):
 def main(argv=None):
     parser=argparse.ArgumentParser(description=__doc__)
     sub=parser.add_subparsers(dest='action',required=True)
-    for a in ('paths','status','init','full-build','full-test','deploy-all'):
+    for a in ('paths','status','init','full-build','full-test','deploy-all','docs-check','docs-accept'):
         sub.add_parser(a)
     for a in ('build','test','activate','rollback','accept'):
         pp=sub.add_parser(a);pp.add_argument('component')
@@ -497,6 +559,10 @@ def main(argv=None):
         elif args.action=='full-build':result={'status':'BUILT','build_dir':full_build()}
         elif args.action=='full-test':result=full_tests()
         elif args.action=='deploy-all':result=deploy_all()
+        elif args.action=='docs-check':
+            from workspace import docs_governance
+            result=docs_governance.check(SOURCE)
+        elif args.action=='docs-accept':result=docs_accept()
         elif args.action=='build':result=build(args.component)
         elif args.action=='test':result=targeted_tests(args.component)
         elif args.action=='activate':result=install_candidate(args.component)

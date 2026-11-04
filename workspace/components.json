@@ -100,8 +100,14 @@
       "scope": "harness",
       "target": "rd_machine_synthetic",
       "version": "0.1.0"
+    },
+    "workspace_governance": {
+      "description": "Local Git documentation gates, component changelogs and release policy; not a runtime DLL",
+      "kind": "tooling",
+      "scope": "workspace",
+      "version": "0.1.0"
     }
   },
   "schema": "recompdev-components-v1",
-  "workspace_release": "v0.4.4"
+  "workspace_release": "v0.4.5"
 }
