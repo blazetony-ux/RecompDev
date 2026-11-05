@@ -131,6 +131,13 @@ def run_bounded(invoke, rec_args, recovery_dir, stage_dir, *, max_rounds=3,
             'report': str(report_path),
             'source_verified_cache': doc.get('coverage_cache', {}).get('mode') == 'SOURCE_REATTESTED_SQLITE',
         }
+        witness = out/'production-translation.json'
+        if witness.is_file():
+            summary['production_translation'] = json.loads(witness.read_text(encoding='utf8'))
+        else:
+            summary['production_translation'] = {
+                'status':'LEGACY_DIRECT' if service.get('translation_provider_mode')=='legacy-direct' else 'MISSING_PROVIDER_WITNESS',
+                'selected_mode':service.get('translation_provider_mode','UNKNOWN')}
         rounds.append(summary)
         print('RECOMPDEV_RECOVERY_PROGRESS '
               f'round={index+1}/{max_rounds if auto_continue else 1} '
@@ -180,6 +187,7 @@ def run_bounded(invoke, rec_args, recovery_dir, stage_dir, *, max_rounds=3,
         'maximum_frames_observed': max((x['maximum_frames_observed'] for x in rounds),default=0),
         'recovered_entries': sum(x['recovered_entries'] for x in rounds),
         'attempt_count': len(all_attempts), 'rounds': rounds,
+        'production_translation': rounds[-1]['production_translation'] if rounds else {'status':'NOT_RUN'},
         'attempts': all_attempts, 'hardware': hardware_diagnostics(all_attempts,capture,last_session),
         'gameplay': 'NOT_ESTABLISHED',
         'independent_reference_parity': 'NOT_TESTED',

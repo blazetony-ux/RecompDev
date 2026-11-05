@@ -1,6 +1,6 @@
 # RecompDev component catalogue
 
-**Status:** Current registry as of workspace v0.4.5. Every component has an independent version and its own [changelog](../development/RELEASE-PROCESS.md).
+**Status:** Current registry as of workspace v0.4.7. Every component has an independent version and its own [changelog](../development/RELEASE-PROCESS.md).
 
 | Component | Scope | Implementation |
 | --- | --- | --- |
@@ -26,3 +26,8 @@
 **Do not conflate scopes:** `harness` means the C++ modular harness, `production-workflow` means a preserved Python service adapter, `production-entrypoint` means the compiled orchestrator, and `workspace` means release/development tooling. A C++ DLL being active does not mean the native recovery adapter invokes it.
 
 The currently registered components are declared by `workspace/components.json`. Only changed component versions may advance. Hardware modules not yet present in the registry (independent VDP, PSG, 68000 or PS1 modules) must not be described as delivered.
+
+## Added in v0.4.7
+
+- [production_translation](production_translation/README.md), `production-workflow`: hash-locked selection of the complete historical generator, with per-round provenance; not a new native DLL.
+- [workbench](workbench/README.md), `developer-tool`: read-only SQLite catalogue service independent of the compiled controller.

@@ -28,3 +28,7 @@ Avoid progress measured only in Shinobi instruction counts. Validate at least tw
 ## Phase-1 outcome, workspace v0.4.6
 
 Versioned CPU DLL admission of authentic Z80 bytes is now wired into the real recovery hand-off; it is source validation only. Next, migrate the native instruction translation/execution interface so a swapped component changes emitted native C++ behaviour and hardware correctness can be validated independently. Machine/VDP/PSG plugin adoption remains pending. Continue using small, reversible Git patches and never modify frozen legacy baselines.
+
+## v0.4.7 next acceptance gate
+
+The complete old generator is now selected via a source-versioned production adapter rather than rewritten. Before claiming recovered 600-frame progress under the modular workspace, reproduce the historical Shinobi run with matching ROM hash, deterministic input, requested frame count and recovery limits, then compare stop reason, native steps, frame/PSG/VDP counters and captured images against preserved evidence. Use the read-only Workbench to inspect catalogue contents without changing the owner's database. Further hardware plugin extraction remains staged behind these regressions.

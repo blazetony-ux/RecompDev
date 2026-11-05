@@ -27,8 +27,9 @@ class DocumentationGovernanceTests(unittest.TestCase):
     def test_complete_index_and_current_inventory(self):
         report = docs_governance.check(self.source)
         self.assertEqual(report['status'], 'PASS')
-        self.assertEqual(report['workspace_release'], 'workspace/v0.4.6')
-        self.assertEqual(report['component_changelogs'], 17)
+        expected = json.loads((ROOT/'workspace/components.json').read_text())
+        self.assertEqual(report['workspace_release'], 'workspace/'+expected['workspace_release'])
+        self.assertEqual(report['component_changelogs'], len(expected['components']))
 
     def test_missing_handover_is_rejected(self):
         (self.source / 'docs/project/HANDOVER.md').unlink()
@@ -43,7 +44,7 @@ class DocumentationGovernanceTests(unittest.TestCase):
 
     def test_workspace_changelog_and_release_note_required(self):
         p = self.source / 'CHANGELOG.md'
-        p.write_text(p.read_text(encoding='utf8').replace('workspace/v0.4.6', 'workspace/v0.4.4'), encoding='utf8')
+        p.write_text(p.read_text(encoding='utf8').replace('## [workspace/'+json.loads((ROOT/'workspace/components.json').read_text())['workspace_release']+']', '## [workspace/v0.0.0]'), encoding='utf8')
         with self.assertRaisesRegex(ValueError, 'Workspace changelog'):
             docs_governance.check(self.source)
 

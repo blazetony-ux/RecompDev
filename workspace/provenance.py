@@ -19,6 +19,7 @@ def record_provenance(output, root, report):
         'selected_production_workflow':'legacy discovery/preparation/recovery adapter',
         'compiled_harness_plugins_are_not_native_recovery_executors':True,
         'production_cpu_admission_gate':report.get('production_cpu_gate',{'status':'NOT_INVOKED'}),
+        'production_translation': report.get('production_translation',{'status':'NOT_RUN'}),
         'status':report.get('status'),
         'rom_sha256':report.get('source_sha256'),
         'rom_contents_included':False,

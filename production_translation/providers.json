@@ -1,0 +1,14 @@
+{
+  "schema": "recompdev-production-translation-providers-v1",
+  "active": "preserved-pcode",
+  "providers": {
+    "preserved-pcode": {
+      "version": "0.1.0",
+      "source": "production_translation/providers/preserved_pcode.py",
+      "source_sha256": "38c5d91122a4eb0c94493d33ba38a9d9a960ff5ba89e22b399e359ff08f90e53",
+      "legacy_generator": "legacy/RecompDev-v0.4.0.45/nativepilot/generator.py",
+      "legacy_generator_sha256": "ab7d9fd22fe011061368fc2cb672f8d949ea4ef405edc16d1122bbe669e40b70",
+      "description": "Complete frozen v0.4.0.45 Z80 P-code native C++ generator, not a subset rewrite"
+    }
+  }
+}

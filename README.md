@@ -22,3 +22,9 @@ Run `& 'C:\Projects\RecompDev-Runtime\RecompDev.exe' plugin status` to view sepa
 ## Protected historical implementations
 
 Original v0.4.0.45 and modular harness v0.3 sources remain unchanged under `legacy/` and `baselines/`. The source-preservation gate verifies 581 + 61 = **642 files**. The original release ZIPs are stored externally in `RecompDev-Archive/original-archives`. Do not modify those baselines to improve documentation.
+
+## Standalone Workbench (workspace v0.4.7)
+
+The read-only SQLite catalogue browser is independent of RecompDev's compiled controller: `& "C:\Projects\RecompDev\tools\Start-Workbench.ps1"`. It opens a token-protected local page showing tables, schemas and bounded rows from `RecompDev-Data/catalogue.sqlite`, and writes logs only to the external Evidence root. See [Workbench docs](docs/components/workbench/README.md).
+
+Native recovery continues to use the full preserved v0.4.0.45 translation/recovery implementation through a hash-pinned provider; it does not downgrade to the small synthetic Z80 interpreter. See [v0.4.7 release](docs/releases/v0.4.7.md).

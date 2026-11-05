@@ -161,6 +161,7 @@ def run_rom(rom, out, stage='prepare', database=None, budget=150, steps=200000,
                                 auto_continue=auto_continue,max_rounds=max_rounds,
                                 timeout=timeout,capture=capture)
                             report['services'].extend(services)
+                            report['production_translation']=summary.get('production_translation',{'status':'NOT_RUN'})
                             report['legacy_recovery_status']=summary['last_legacy_status']
                             report['legacy_native_steps']=summary['maximum_steps_observed']
                             report['maximum_frames_observed']=summary['maximum_frames_observed']

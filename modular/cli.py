@@ -17,7 +17,8 @@ from migration import controller as preservation
 
 
 def fresh_evidence():
-    return Path(__import__('os').environ.get('RECOMPDEV_EVIDENCE_ROOT') or (ROOT.parent/'RecompDev-Evidence')) / 'v0.4.6' / (datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')+'-'+uuid.uuid4().hex[:8])
+    release = manifest(ROOT)['workspace_release']
+    return Path(__import__('os').environ.get('RECOMPDEV_EVIDENCE_ROOT') or (ROOT.parent/'RecompDev-Evidence')) / release / (datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')+'-'+uuid.uuid4().hex[:8])
 
 
 def main(argv=None):

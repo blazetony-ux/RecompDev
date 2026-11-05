@@ -35,3 +35,11 @@ Record factual progress (including source paths, test names and failure outcomes
 ## 2026-11-04 — v0.4.6 phase-1 production gate
 
 A coordinated incremental release adds `production_cpu_bridge` 0.1.0 and extends `rd_cpu_z80` 0.2.0. The compiled controller remains 0.4.4, unaffected DLLs stay 0.1.0, and legacy adapters remain 0.4.0.45. Actual Z80 source-attested instructions are now passed through the selected active CPU DLL and its SHA-256 is verified before **legacy** native translation/recovery begins. A plugin rejection stops that run, while missing/older gate support is explicitly reported (strict `--cpu-plugin required` refuses it). The native translator and runtime are **not yet routed through the DLL**. New evidence includes production gate decisions and plugin hashes. Tests include a synthetic source-authenticated export, actual preserved native compilation and an alternate rejecting native library on Linux; the owner's Windows Shinobi run is outstanding. See [production pipeline](../recompilation/PRODUCTION-PIPELINE.md) and [release notes](../releases/v0.4.6.md).
+
+## 2026-11-04 — v0.4.7 preservation and Workbench
+
+The next workspace release adds `production_translation` 0.1.0 as a hash-locked adapter to the **entire existing** native P-code generator, invoked by the original reset/replay recovery driver through a child-process boundary. This corrects the previous direction toward re-implementing a small Z80 translator. The new `production-translation.json` witness records provider version and SHA, original generator hash and actual generation calls. The original runner is still available with `RECOMPDEV_TRANSLATOR_MODE=legacy-direct`. The CPU v0.2.0 DLL remains a source-admission gate and was not rebuilt.
+
+A separate Python `workbench` 0.1.0 service browses the owner SQLite catalogue read-only on 127.0.0.1, with logs under `RecompDev-Evidence/v0.4.7`; launch via `tools/Start-Workbench.ps1`. Its purpose is browsing, not job control. The user's earlier **600-frame Shinobi observation must not be reported as a new pass**: the latest independently examined v0.4.2 evidence reaches 120 frames; reproducing an aligned 600-frame result remains an explicit next acceptance gate.
+
+See [v0.4.7 release](../releases/v0.4.7.md) and [Workbench](../components/workbench/README.md).

@@ -57,7 +57,18 @@ def invoke(plugin_id, params, run_dir, timeout=480, extra_env=None):
         raise PipelineError('Refusing service output within immutable source tree')
     entry = available[plugin_id]
     module = entry['module']
-    if plugin_id in ('legacy.recovery','legacy.sms-campaign'):
+    # The optional production translation provider runs the ENTIRE preserved
+    # original recovery runner with its generator callable injected inside an
+    # isolated child process. Explicit legacy-direct uses the original script.
+    translator_mode = os.environ.get('RECOMPDEV_TRANSLATOR_MODE','preserved-plugin')
+    if plugin_id == 'legacy.recovery' and translator_mode not in ('preserved-plugin','legacy-direct'):
+        raise PipelineError('Unknown RECOMPDEV_TRANSLATOR_MODE')
+    if plugin_id == 'legacy.recovery' and translator_mode == 'preserved-plugin':
+        shim = ROOT/'production_translation'/'run_recovery.py'
+        if not shim.is_file():
+            raise PipelineError('Production translation adapter missing; refuse implicit fallback')
+        command = [sys.executable, '-u', str(shim), *map(str,params)]
+    elif plugin_id in ('legacy.recovery','legacy.sms-campaign'):
         command = [sys.executable, '-u', str(LEGACY / module), *map(str,params)]
     else:
         command = [sys.executable, '-u', '-m', module, *map(str,params)]
@@ -101,5 +112,8 @@ def invoke(plugin_id, params, run_dir, timeout=480, extra_env=None):
               'original_source': str(ROOT / entry['source']), 'status': status,
               'return_code': rc, 'log': str(log_file),
               'no_gameplay_parity_claim': True, 'preserved_production_implementation': True}
+    if plugin_id == 'legacy.recovery':
+        record['translation_provider_mode'] = translator_mode
+        record['actual_entrypoint'] = command[2] if len(command)>2 else None
     record_file.write_text(json.dumps(record,indent=2)+'\n', encoding='utf8')
     return record

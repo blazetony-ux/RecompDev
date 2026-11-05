@@ -33,3 +33,9 @@ Release notes and component changelogs live in Git with the source. Generated ca
 - [Phase 1 design, limitations and data flow](recompilation/PRODUCTION-PIPELINE.md)
 - [Versioned source-gate bridge](components/production_cpu_bridge/README.md)
 - [Workspace v0.4.6 release notes](releases/v0.4.6.md)
+
+## Workspace v0.4.7 additions
+
+- [Production translator adapter and full legacy generator](components/production_translation/README.md) — explains the new selectable boundary and its documented limitations.
+- [Standalone Workbench read-only catalogue viewer](components/workbench/README.md) — local launch command, data permissions and browser interface.
+- [v0.4.7 release and test limits](releases/v0.4.7.md) — what is real, what has been tested and what remains unproven.

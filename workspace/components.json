@@ -37,6 +37,12 @@
       "scope": "production-workflow",
       "version": "0.1.0"
     },
+    "production_translation": {
+      "description": "Hash-locked selectable adapter to the complete preserved native P-code generator; invokes real recovery without rewriting legacy code",
+      "kind": "tooling",
+      "scope": "production-workflow",
+      "version": "0.1.0"
+    },
     "rd_audio_wav": {
       "description": "DLL target with independent build and deployment; not yet a production recovery adapter",
       "kind": "compiled-plugin",
@@ -107,6 +113,12 @@
       "target": "rd_machine_synthetic",
       "version": "0.1.0"
     },
+    "workbench": {
+      "description": "Standalone loopback-only read-only SQLite catalogue browser; no compiler or machine dependencies",
+      "kind": "tooling",
+      "scope": "developer-tool",
+      "version": "0.1.0"
+    },
     "workspace_governance": {
       "description": "Local Git documentation gates, component changelogs and release policy; not a runtime DLL",
       "kind": "tooling",
@@ -115,5 +127,5 @@
     }
   },
   "schema": "recompdev-components-v1",
-  "workspace_release": "v0.4.6"
+  "workspace_release": "v0.4.7"
 }
