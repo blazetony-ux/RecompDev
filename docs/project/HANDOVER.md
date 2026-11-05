@@ -1,6 +1,6 @@
 # RecompDev handover — source-of-truth status
 
-**Status:** Current as of 2026-11-04. This file must be updated with every accepted workspace release that changes engineering status.
+**Status:** Current as of 2026-11-05. This file must be updated with every accepted workspace release that changes engineering status.
 
 ## Where everything lives
 
@@ -49,3 +49,11 @@ See [v0.4.7 release](../releases/v0.4.7.md) and [Workbench](../components/workbe
 The separately buildable `rd_runtime_host` 0.1.0 exposes a CPU/machine-neutral native C ABI for frames, audio, buttons and lifecycle. A generated-project adapter wraps the preserved `RecompDevNativeApp` window/audio interfaces while keeping `translated.cpp` and the frozen v0.4.0.45 source unchanged. Windows window rendering and live Shinobi input remain unverified until owner testing; the portable headless ABI and synthetic compiled game path have automated tests. **The native game still loads the original ROM** and does not yet meet the ROM-independent deliverable. Do not divert engineering into Workbench expansion; priority remains validated interactive native gameplay, ROM-free packaging and hardware correctness.
 
 See [runtime_host](../components/rd_runtime_host/README.md) and [v0.4.8 release](../releases/v0.4.8.md). Other component versions must stay unchanged.
+
+## Workspace v0.4.9 — input-driven native recovery (2026-11-05)
+
+**New owner-verified facts since v0.4.8:** The current preserved native recovery reached **600 Shinobi frames** in v0.4.7, 4,017,333 reported steps, and produced a recognisable title screen. The new generic Windows runtime reproduced its final framebuffer byte-for-byte. The user pressed Enter (Master System Pause/NMI) during another run, reaching frame 894 and missing code at `0x56C7`; pressing **Z** (controller Button 1) advanced to a distinct mission/introduction screen but then stopped at frame **201** and untranslated ROM address **`0x7BE8`** after 1,259,709 reported native steps. These are *execution observations*, not independently validated game correctness, actual controllable play, sound output or ROM independence.
+
+**Next source-only component:** `input_recovery` 0.1.0 (see [component specification](../components/input_recovery/README.md)). It instruments the disposable native frontend to record logical input masks in **guest CPU cycles**, checks whether those events reproduce the original stop on the same generated guest code, and only then invokes the preserved verified-coverage recovery with the same replay. The last owner's v0.4.8 ZIP has only `elapsed_ms` transitions, so the first replay **may diverge**; if it does, the system must stop and request a fresh exact-cycle capture rather than claim `0x7BE8` has been recovered. Windows deployment of v0.4.9 remains unverified until the owner applies the patch.
+
+Run via `tools/Recover-Native-Input.ps1` using the original ROM and optionally the prior ZIP. The entire source tree and 642 original files remain protected; the controller, Z80 DLL, presentation DLL, Workbench and other unchanged components must not be rebuilt. Evidence belongs under `RecompDev-Evidence/v0.4.9/input-recovery` and `.../runtime-host`. **No live hotpatching, no ROM-free game and no guaranteed incremental *per-function* compilation** are claimed. Preserve source hash, guest stop, input replay SHA and accurate failure statuses in every handover.

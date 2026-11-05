@@ -7,6 +7,12 @@
       "target": "RecompDev",
       "version": "0.4.4"
     },
+    "input_recovery": {
+      "description": "Generic guest-cycle input capture, deterministic replay verification and bounded source-verified production native recovery; older wall-time captures are explicitly estimated",
+      "kind": "tooling",
+      "scope": "production-workflow",
+      "version": "0.1.0"
+    },
     "legacy.discovery": {
       "description": "Preserved discovery engine; not a native DLL",
       "kind": "legacy-service",
@@ -134,5 +140,5 @@
     }
   },
   "schema": "recompdev-components-v1",
-  "workspace_release": "v0.4.8"
+  "workspace_release": "v0.4.9"
 }

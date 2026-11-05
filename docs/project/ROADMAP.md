@@ -1,6 +1,6 @@
 # Current roadmap and acceptance gates
 
-**Status:** Current. Last reviewed: 2026-11-04.
+**Status:** Current. Last reviewed: 2026-11-05.
 
 ## Completed and demonstrated
 
@@ -39,3 +39,7 @@ The complete old generator is now selected via a source-versioned production ada
 2. Diagnose input-to-guest button semantics, missing code and silent audio using the preserved engine; fix in the appropriate reusable plugin.
 3. Separate original ROM data dependencies from compiled native code and source-derived assets, then test without the ROM. Do not claim ROM independence until explicitly demonstrated.
 4. Reuse this unmodified host API with a second platform-specific native execution module when available. Keep machine-specific implementation entirely outside the presentation component.
+
+## v0.4.9 input-driven native gameplay route
+
+The original 600-frame Shinobi milestone has been re-established with the preserved production translator. A native Windows window and Button 1/Z title transition were demonstrated; the guest then stopped at untranslated `0x7BE8`, frame 201. The next priority is bounded deterministic guest-cycle replay of that input and source-authenticated recovery of the missing path, then retest the generated game without rebuilding unrelated DLLs. Existing v0.4.8 wall-time input logs must be labelled estimated and the initial stop reproduced before recovery. If that fails, capture an exact guest-cycle trace using the v0.4.9 runtime frontend and retry. **Playable stage, sound correctness and ROM-free packaging remain unproven.**

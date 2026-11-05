@@ -87,6 +87,7 @@ def stage(project,cache):
         h.update(rel.as_posix().encode());h.update(bytes.fromhex(sha256(p)))
     for src in [SOURCE/'runtime_host/bridge.py',SOURCE/'runtime_host/bridge/rd_host_loader.hpp',
                 SOURCE/'runtime_host/bridge/win32_window.hpp',SOURCE/'runtime_host/bridge/win32_audio.hpp',
+                SOURCE/'runtime_host/bridge/rd_guest_input_tap.hpp',SOURCE/'runtime_host/guest_input_tap.py',
                 SOURCE/'runtime_host/include/rd_runtime_host.h']:
         h.update(bytes.fromhex(sha256(src)))
     ident=h.hexdigest()[:24]
@@ -126,11 +127,23 @@ def stage(project,cache):
                         'target_link_libraries(RecompDevNativeApp PRIVATE ${CMAKE_DL_LIBS})\n')
                 if candidate.read_text(encoding='utf8')!=expected:
                     raise ValueError('Cached native-project build recipe was changed')
-            elif sha256(candidate)!=sha256(original):
+            elif rel.as_posix()!='interactive.cpp' and sha256(candidate)!=sha256(original):
                 raise ValueError('Cached native-project source has been changed: '+str(rel))
-        for filename in ('rd_host_loader.hpp','win32_window.hpp','win32_audio.hpp'):
+            elif rel.as_posix()=='interactive.cpp':
+                from runtime_host.guest_input_tap import MARKER
+                if MARKER not in candidate.read_text(encoding='utf8'):
+                    raise ValueError('Cached input frontend lacks guest-cycle capture marker')
+        for filename in ('rd_host_loader.hpp','win32_window.hpp','win32_audio.hpp','rd_guest_input_tap.hpp'):
             if sha256(target/'hardware'/filename)!=sha256(SOURCE/'runtime_host/bridge'/filename):
                 raise ValueError('Cached runtime host bridge was changed: '+filename)
+        # Recreate instrumented frontend in-memory and verify its exact bytes.
+        from runtime_host.guest_input_tap import instrument
+        import tempfile as _tmp, shutil as _shutil
+        with tempfile.TemporaryDirectory(prefix='guest-input-integrity-') as tmp:
+            c=Path(tmp);_shutil.copy2(project/'interactive.cpp',c/'interactive.cpp')
+            instrument(c)
+            if sha256(c/'interactive.cpp')!=sha256(target/'interactive.cpp'):
+                raise ValueError('Cached native input frontend has been changed')
         if sha256(target/'hardware/rd_runtime_host.h')!=sha256(SOURCE/'runtime_host/include/rd_runtime_host.h'):
             raise ValueError('Cached runtime host ABI header changed')
     return target,ident
@@ -150,7 +163,7 @@ def host_binary(source=SOURCE):
 
 def run(args):
     roots=manager.roots(SOURCE)
-    output=roots['evidence']/'v0.4.8'/'runtime-host'
+    output=roots['evidence']/manager.manifest(SOURCE)['workspace_release']/'runtime-host'
     output.mkdir(parents=True,exist_ok=True)
     runid=datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')+'-'+uuid.uuid4().hex[:8]
     dest=output/runid;dest.mkdir(exist_ok=False)
@@ -189,15 +202,23 @@ def run(args):
         app=next((p for p in candidates if p.is_file()),None)
         if app is None:raise ValueError('Compiled native game application missing')
         prefix=dest/'native-frame'
+        replay_source=Path(args.input_events).resolve(strict=True) if args.input_events else None
+        if replay_source:
+            if replay_source.stat().st_size>1048576:raise ValueError('Input replay exceeds 1 MiB')
+            from input_recovery.replay import validate_replay
+            validate_replay(replay_source)
+            shutil.copy2(replay_source,dest/'guest-input-replay.csv')
         flag=['--video','window' if args.mode=='window' else 'capture',
               '--audio',args.audio if args.mode=='window' else 'capture',
-              '--input','live' if args.mode=='window' else 'neutral']
+              '--input','live' if args.mode=='window' else 'replay' if replay_source else 'neutral']
+        if replay_source:flag+=['--input-events',str(dest/'guest-input-replay.csv')]
         if args.snapshot_every:flag+=['--snapshot-every',str(args.snapshot_every)]
         if args.mode=='window' and args.hold_window:flag.append('--hold-window')
         cmd=[str(app),str(rom),str(prefix),str(args.frames),str(args.steps),'-',*flag]
         env=os.environ.copy();env['RECOMPDEV_RUNTIME_HOST_DLL']=str(dll)
         if args.mode=='window':
             env['RECOMPDEV_RUNTIME_HOST_INPUT_EVENTS']=str(dest/'input-events.jsonl')
+            env['RECOMPDEV_GUEST_INPUT_REPLAY']=str(dest/'guest-input-cycles.csv')
         print('RECOMPDEV_RUNTIME_HOST launching generated native game application',flush=True)
         with (dest/'native-stdout.log').open('w',encoding='utf8') as stdout, (dest/'native-stderr.log').open('w',encoding='utf8') as stderr:
             proc=subprocess.run(cmd,env=env,stdout=stdout,stderr=stderr,timeout=args.timeout)
@@ -223,7 +244,11 @@ def run(args):
                       runtime_host={'component':'rd_runtime_host','version':active['version'],
                                     'sha256':active['sha256'],'abi':'0x00010000'},
                       return_code=proc.returncode,
-                      input_mode='live' if args.mode=='window' else 'neutral',
+                      input_mode='live' if args.mode=='window' else 'replay' if replay_source else 'neutral',
+                      guest_cycle_input_capture='guest-input-cycles.csv' if args.mode=='window' and (dest/'guest-input-cycles.csv').is_file() else 'NOT_AVAILABLE',
+                      input_replay_sha256=sha256(dest/'guest-input-replay.csv') if replay_source else None,
+                      guest_stop_pc=observed.get('pc'),guest_stop_physical_offset=observed.get('physical_offset'),
+                      guest_cycles_observed=observed.get('guest_cycles'),
                       status=('NATIVE_PROCESS_FAILED' if proc.returncode else
                               'FRAME_BUDGET_REACHED' if observed.get('status')=='FRAME_BUDGET_REACHED' else
                               'STEP_BUDGET_REACHED' if observed.get('status')=='STEP_BUDGET_REACHED' else
@@ -245,6 +270,7 @@ def parse_args(argv=None):
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--rom',required=True)
     p.add_argument('--project',help='Previously recovered native-project; default newest complete project in central evidence')
+    p.add_argument('--input-events',help='Existing source-owned RECOMP_INPUT_CYCLES_V1 replay; headless mode only')
     p.add_argument('--mode',choices=['window','headless'],default='window')
     p.add_argument('--audio',choices=['speaker','null'],default='null',help='Native audio remains silent in current Shinobi evidence')
     p.add_argument('--frames',type=int,default=1800)
@@ -253,6 +279,7 @@ def parse_args(argv=None):
     p.add_argument('--timeout',type=int,default=420)
     p.add_argument('--hold-window',action='store_true')
     a=p.parse_args(argv)
+    if a.input_events and a.mode!='headless':p.error('Replay and physical/live input are mutually exclusive')
     if not 1<=a.frames<=36000 or not 1<=a.steps<=20000000 or not 0<=a.snapshot_every<=600 or not 30<=a.timeout<=900:
         p.error('Bounded runtime limits exceeded')
     return a

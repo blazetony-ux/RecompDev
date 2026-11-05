@@ -1,6 +1,6 @@
 # RecompDev component catalogue
 
-**Status:** Current registry as of workspace v0.4.8. Every component has an independent version and its own [changelog](../development/RELEASE-PROCESS.md).
+**Status:** Current registry as of workspace v0.4.9. Every component has an independent version and its own [changelog](../development/RELEASE-PROCESS.md).
 
 | Component | Scope | Implementation |
 | --- | --- | --- |
@@ -35,3 +35,7 @@ The currently registered components are declared by `workspace/components.json`.
 ## Added in v0.4.8
 
 - [rd_runtime_host](rd_runtime_host/README.md), `production-presentation`: native, machine-independent window/PCM/input host; generated source adapter stages outside Git.
+
+## Added in v0.4.9
+
+- [input_recovery](input_recovery/README.md), `production-workflow`: source-only, independently versioned guest-cycle input recorder, replay verifier and bounded source-attested recovery orchestrator. The already deployed runtime-host DLL and all existing CPU/translator components stay unchanged.

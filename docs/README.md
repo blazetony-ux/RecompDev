@@ -1,6 +1,6 @@
 # RecompDev documentation index
 
-**Status:** Current. Last reviewed: 2026-11-04.
+**Status:** Current. Last reviewed: 2026-11-05.
 
 This is the starting point for anyone developing, debugging or handing over RecompDev. Documents under the categories below are *normative* unless explicitly labelled **Historical**, **Experimental**, or **Proposed**. Consult actual source and tests whenever a document and code disagree.
 
@@ -39,3 +39,8 @@ Release notes and component changelogs live in Git with the source. Generated ca
 - [Production translator adapter and full legacy generator](components/production_translation/README.md) — explains the new selectable boundary and its documented limitations.
 - [Standalone Workbench read-only catalogue viewer](components/workbench/README.md) — local launch command, data permissions and browser interface.
 - [v0.4.7 release and test limits](releases/v0.4.7.md) — what is real, what has been tested and what remains unproven.
+
+## Workspace v0.4.9 input-driven native recovery
+
+- [Replay recording, source-authenticated recovery and bounded replay validation](components/input_recovery/README.md)
+- [v0.4.9 release scope and known limits](releases/v0.4.9.md)

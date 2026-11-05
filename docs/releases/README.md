@@ -2,6 +2,7 @@
 
 **Status:** Current release catalogue. Workspace releases identify tested source and documentation combinations, not necessarily new controller binaries.
 
+- [v0.4.9 — Input-driven native recovery](v0.4.9.md)
 - [v0.4.8 — Independent generic native runtime host](v0.4.8.md)
 - [v0.4.7 — Full production translation adapter + Workbench](v0.4.7.md)
 - [v0.4.6 — Production CPU admission bridge](v0.4.6.md)
