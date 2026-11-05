@@ -16,3 +16,5 @@ Release claims must distinguish cross-platform CI/local tests, owner Windows log
 - [v0.4.9.1 — Recovery short-build fix](v0.4.9.1.md): external build paths, history reuse and compile-failure safety.
 
 - [v0.4.9.3 — Movement correctness instrumentation](v0.4.9.3.md): guest controller readbacks, scroll/SAT diagnostics and opt-in evidence capture.
+
+- [v0.4.9.4 — Generic state observation](v0.4.9.4.md): reusable memory-region telemetry through replaceable providers.

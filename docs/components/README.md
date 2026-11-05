@@ -44,3 +44,8 @@ The currently registered components are declared by `workspace/components.json`.
 - `sms_video_integration` — source-only generated native video bridge, production-video-integration scope.
 
 `movement_trace` (`production-diagnostics`) independently versions the opt-in guest input/port read/scroll/SAT observation path. It does not alter input mapping or any compiled runtime/CPU/video DLL.
+
+## Added in v0.4.9.4
+
+- [state_observer](state_observer/README.md), `production-diagnostics`: platform-neutral read-only guest memory-region observer with provider metadata, bounded change logs and candidate correlation.
+- [movement_trace](movement_trace/README.md), `production-diagnostics`: SMS adapter for generic memory observation plus port/scroll/SAT tracing.

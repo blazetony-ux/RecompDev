@@ -81,7 +81,7 @@ def analyze(directory:Path) -> dict:
     sat_errors=[f['render_seq'] for f in frames if sat_counts.get(f['render_seq'],0)!=f['sat_entries']]
     scroll_changed=sum(1 for a,b in zip(frames,frames[1:]) if
                        (a['scroll_h_reg8'],a['scroll_v_reg9'])!=(b['scroll_h_reg8'],b['scroll_v_reg9']))
-    return {'schema':'recompdev-movement-correlation-v1','status':'TRACE_COLLECTED',
+    result={'schema':'recompdev-movement-correlation-v1','status':'TRACE_COLLECTED',
             'controller_transitions':len(controller),'guest_controller_reads_dc':dc_reads,
             'guest_controller_reads_dd':dd_reads,'frames_traced':len(frames),
             'raw_sprite_entries_traced':len(sprites),'scroll_register_change_frames':scroll_changed,
@@ -95,6 +95,14 @@ def analyze(directory:Path) -> dict:
             'trace_validity':('MAPPING_MISMATCH' if mismatches or port_mismatches or sat_errors else
                               'CONSISTENT_OBSERVED_MAPPING' if dc_reads and controller else
                               'INSUFFICIENT_CONTROLLER_READS')}
+    if (directory/'state-memory-regions.csv').is_file():
+        from state_observer.analyze import write_report as analyze_memory
+        mem=analyze_memory(directory,controller,input_clock_domain='z80_tstates')
+        result['state_memory_diagnostics']='state-memory-diagnostics.json'
+        result['state_memory_regions']=len(mem['regions'])
+        result['state_memory_status']=mem['status']
+        result['state_memory_candidate_count']=len(mem['candidate_byte_offsets'])
+    return result
 
 def write_report(directory:Path):
     result=analyze(directory)

@@ -7,6 +7,8 @@ The diagnostic recorder itself is host- and CPU-neutral.
 from pathlib import Path
 
 HEADER = Path(__file__).resolve().parent / 'bridge' / 'rd_movement_trace.hpp'
+STATE_HEADER = Path(__file__).resolve().parents[1] / 'state_observer' / 'bridge' / 'rd_state_observer.hpp'
+SMS_MEMORY_ADAPTER = Path(__file__).resolve().parent / 'bridge' / 'rd_sms_memory_adapter.hpp'
 MARKER = 'RD_MOVEMENT_TRACE_SMS_V1'
 
 
@@ -18,9 +20,11 @@ def live_sms_transform(source: str) -> str:
     include = '#include "hardware/adapters/sms.hpp"'
     if source.count(anchor) != 1 or source.count(render) != 1 or source.count(include) != 1:
         raise ValueError('Unexpected native SMS guest input/render source: instrumentation refused')
-    return (source.replace(include, include + '\n#include "hardware/rd_movement_trace.hpp" // ' + MARKER, 1)
+    return (source.replace(include, include + '\n#include "hardware/rd_movement_trace.hpp" // ' + MARKER
+                  + '\n#include "hardware/rd_sms_memory_adapter.hpp"', 1)
                   .replace(anchor, anchor + '\n  rd_movement_trace::controller(state_.tstates,in.buttons,state_.controller_a,state_.controller_b);', 1)
                   .replace(render,
+                           '  rd_sms_memory_adapter::sample(state_.tstates,state_.frames,state_);\n'
                            '  rd_movement_trace::frame(state_.tstates,state_.frames,state_.vram,state_.vdp_regs);\n' + render, 1))
 
 
@@ -44,12 +48,15 @@ def install(project: Path) -> list[str]:
     if not (project/'translated.cpp').is_file() or not (project/'generation.json').is_file():
         raise ValueError('Only complete generated native projects may be instrumented')
     changes=[]
-    target=project/'hardware/rd_movement_trace.hpp'
-    data=HEADER.read_bytes()
-    if not target.exists() or target.read_bytes()!=data:
-        target.parent.mkdir(parents=True,exist_ok=True)
-        target.write_bytes(data)
-        changes.append('hardware/rd_movement_trace.hpp')
+    for rel,header in [('hardware/rd_movement_trace.hpp',HEADER),
+                       ('hardware/rd_state_observer.hpp',STATE_HEADER),
+                       ('hardware/rd_sms_memory_adapter.hpp',SMS_MEMORY_ADAPTER)]:
+        target=project/rel
+        data=header.read_bytes()
+        if not target.exists() or target.read_bytes()!=data:
+            target.parent.mkdir(parents=True,exist_ok=True)
+            target.write_bytes(data)
+            changes.append(rel)
     for rel,func in [('live_sms.hpp',live_sms_transform),('runtime.cpp',runtime_transform)]:
         path=project/rel
         if not path.is_file():raise ValueError('Generated project missing '+rel)

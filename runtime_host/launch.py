@@ -25,7 +25,8 @@ SOURCE=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(SOURCE))
 from runtime_host.bridge import install
 from video_sms.bridge import HEADER as SMS_HEADER, BRIDGE as SMS_BRIDGE, transform as sms_video_transform
-from movement_trace.bridge import HEADER as MOVEMENT_HEADER, live_sms_transform, runtime_transform
+from movement_trace.bridge import (HEADER as MOVEMENT_HEADER, STATE_HEADER, SMS_MEMORY_ADAPTER,
+                                    live_sms_transform, runtime_transform)
 from modular.evidence_bundle import create_evidence_bundle
 from workspace import manager
 
@@ -92,7 +93,8 @@ def stage(project,cache):
                 SOURCE/'runtime_host/bridge/rd_guest_input_tap.hpp',SOURCE/'runtime_host/guest_input_tap.py',
                 SOURCE/'runtime_host/include/rd_runtime_host.h',
                 SOURCE/'video_sms/bridge.py',SMS_HEADER,SMS_BRIDGE,
-                SOURCE/'movement_trace/bridge.py',MOVEMENT_HEADER]:
+                SOURCE/'movement_trace/bridge.py',MOVEMENT_HEADER,STATE_HEADER,SMS_MEMORY_ADAPTER,
+                SOURCE/'state_observer/analyze.py']:
         h.update(bytes.fromhex(sha256(src)))
     ident=h.hexdigest()[:24]
     cache=Path(cache);cache.mkdir(parents=True,exist_ok=True)
@@ -157,8 +159,11 @@ def stage(project,cache):
             instrument(c)
             if sha256(c/'interactive.cpp')!=sha256(target/'interactive.cpp'):
                 raise ValueError('Cached native input frontend has been changed')
-        if sha256(target/'hardware/rd_movement_trace.hpp')!=sha256(MOVEMENT_HEADER):
-            raise ValueError('Cached movement trace recorder changed')
+        for name,header in [('rd_movement_trace.hpp',MOVEMENT_HEADER),
+                            ('rd_state_observer.hpp',STATE_HEADER),
+                            ('rd_sms_memory_adapter.hpp',SMS_MEMORY_ADAPTER)]:
+            if sha256(target/'hardware'/name)!=sha256(header):
+                raise ValueError('Cached guest-observer bridge changed: '+name)
         if sha256(target/'hardware/rd_sms_mode4.h')!=sha256(SMS_HEADER) or sha256(target/'hardware/rd_sms_mode4_bridge.hpp')!=sha256(SMS_BRIDGE):
             raise ValueError('Cached SMS video plugin API/adapter was changed')
         if sha256(target/'hardware/rd_runtime_host.h')!=sha256(SOURCE/'runtime_host/include/rd_runtime_host.h'):
@@ -251,6 +256,7 @@ def run(args):
         env['RECOMPDEV_SMS_VIDEO_STATS']=str(dest/'sms-sprite-stats.csv')
         if args.movement_trace:
             env['RECOMPDEV_MOVEMENT_TRACE_DIR']=str(dest)
+            env['RECOMPDEV_STATE_TRACE_DIR']=str(dest)
         if args.mode=='window':
             env['RECOMPDEV_RUNTIME_HOST_INPUT_EVENTS']=str(dest/'input-events.jsonl')
             env['RECOMPDEV_GUEST_INPUT_REPLAY']=str(dest/'guest-input-cycles.csv')
@@ -270,6 +276,9 @@ def run(args):
             report=write_report(dest)
             record['movement_diagnostics']='movement-diagnostics.json'
             record['movement_trace_validity']=report['trace_validity']
+            if 'state_memory_diagnostics' in report:
+                record['state_memory_diagnostics']=report['state_memory_diagnostics']
+                record['state_memory_status']=report['state_memory_status']
         record.update(guest_status=observed.get('status'),
                       input_event_capture='input-events.jsonl' if (dest/'input-events.jsonl').is_file() else 'NOT_AVAILABLE',
                       native_steps_observed=observed.get('native_steps'),

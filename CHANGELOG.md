@@ -1,3 +1,10 @@
+## [workspace/v0.4.9.4] — 2026-11-05
+
+- Added generic `state_observer` v0.1.0: read-only bounded, machine-described memory spans, multi-clock metadata and offline candidate-state correlation without game-specific addresses.
+- Updated `movement_trace` to v0.2.0 with a replaceable Master System 8 KiB memory adapter; generic runtime staging enables observation but doesn't alter active DLLs or translated guest code.
+- Preserved existing controller/scroll/SAT diagnostics, independent components and historical source. This is not a gameplay or movement fix; real Windows evidence remains necessary.
+- See [v0.4.9.4](docs/releases/v0.4.9.4.md).
+
 # RecompDev workspace changelog
 
 ## [workspace/v0.4.9.3] - 2026-11-05

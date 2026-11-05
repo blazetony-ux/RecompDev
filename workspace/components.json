@@ -38,10 +38,10 @@
       "version": "0.4.0.45"
     },
     "movement_trace": {
-      "description": "Source-only, opt-in native game trace of guest input delivery, SMS DC/DD port reads, VDP scroll registers and raw sprite SAT coordinates; no gameplay patches",
+      "description": "Guest movement trace plus hardware-neutral state-memory observation, with SMS-specific provider adapter; read-only frame-delta correlation, no game patches",
       "kind": "tooling",
       "scope": "production-diagnostics",
-      "version": "0.1.0"
+      "version": "0.2.0"
     },
     "production_cpu_bridge": {
       "description": "Production Z80 source instruction admission/selection; legacy P-code generation retained",
@@ -145,6 +145,12 @@
       "scope": "production-video-integration",
       "version": "0.1.0"
     },
+    "state_observer": {
+      "description": "Generic source-only read-only guest memory-region observation API with provider-described address spaces, byte orders, clock domains, bounded delta journaling and offline candidate correlation; no CPU/console/game dependency",
+      "kind": "tooling",
+      "scope": "production-diagnostics",
+      "version": "0.1.0"
+    },
     "workbench": {
       "description": "Standalone loopback-only read-only SQLite catalogue browser; no compiler or machine dependencies",
       "kind": "tooling",
@@ -159,5 +165,5 @@
     }
   },
   "schema": "recompdev-components-v1",
-  "workspace_release": "v0.4.9.3"
+  "workspace_release": "v0.4.9.4"
 }
