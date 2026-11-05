@@ -1,5 +1,11 @@
 # RecompDev workspace changelog
 
+## [workspace/v0.4.9.2] - 2026-11-05
+
+- Added replaceable production `rd_video_sms_mode4` v0.1.0 dynamic video DLL: implements sprite compositing, palette/priority and timing-boundary diagnostics behind an independent C ABI. The generic controller, runtime host DLL and translated game instructions are not changed.
+- Added `sms_video_integration` v0.1.0 staged-generated-project adapter: makes the native game load the SHA-verified active video plugin without modifying preserved legacy `hardware/adapters/sms.hpp`; collects sprite-table activity in automatic evidence. Video DLL runtime selection is independent of the CPU, input and window presentation layers.
+- Focused synthetic sprite tests and staging/native-game smoke cover the integration. **Shinobi sprites, native gameplay and hardware parity still require Windows owner validation.** Previous untranslated input path at `0x1E62` remains a separate recovery item. See [v0.4.9.2 release](docs/releases/v0.4.9.2.md).
+
 ## [workspace/v0.4.9.1] - 2026-11-05
 
 - Corrected input-driven production native builds on Windows: compile in the short external `RecompDev-Build/native` directory, preserving full toolchain logs and the previous native application interface. Only final generated-game executables are mirrored into the immutable evidence project's expected compatibility location, not the compiler intermediate tree.

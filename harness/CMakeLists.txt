@@ -231,6 +231,29 @@ set_target_properties(rd_runtime_host_smoke PROPERTIES RUNTIME_OUTPUT_DIRECTORY 
 add_test(NAME v048_runtime_host_generic_contract COMMAND $<TARGET_FILE:rd_runtime_host_smoke>)
 if(Python3_Interpreter_FOUND)
  add_test(NAME v048_runtime_host_generated_native_application COMMAND "${Python3_EXECUTABLE}"
-  "${CMAKE_SOURCE_DIR}/../runtime_host/tests/test_generated_app.py" "$<TARGET_FILE:rd_runtime_host>")
+  "${CMAKE_SOURCE_DIR}/../runtime_host/tests/test_generated_app.py" "$<TARGET_FILE:rd_runtime_host>" "$<TARGET_FILE:rd_video_sms_mode4>")
  set_tests_properties(v048_runtime_host_generated_native_application PROPERTIES ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+endif()
+
+# v0.4.9.2: independent production SMS Mode-4 *video* DLL; CPU-neutral C ABI.
+# Do not edit or link original legacy hardware source; stage a thin call boundary.
+add_library(rd_video_sms_mode4 SHARED ../video_sms/src/mode4.cpp)
+target_compile_definitions(rd_video_sms_mode4 PRIVATE RD_SMS_MODE4_BUILD)
+target_include_directories(rd_video_sms_mode4 PUBLIC ../video_sms/include)
+set_target_properties(rd_video_sms_mode4 PROPERTIES PREFIX "" OUTPUT_NAME "rd_video_sms_mode4"
+ RUNTIME_OUTPUT_DIRECTORY "${OUT_DIR}" LIBRARY_OUTPUT_DIRECTORY "${OUT_DIR}")
+if(MSVC)
+ target_compile_options(rd_video_sms_mode4 PRIVATE /W4 /EHsc)
+else()
+ target_compile_options(rd_video_sms_mode4 PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+add_executable(rd_video_sms_mode4_smoke ../video_sms/tests/smoke.cpp)
+target_include_directories(rd_video_sms_mode4_smoke PRIVATE ../video_sms/include ../legacy/RecompDev-v0.4.0.45)
+target_link_libraries(rd_video_sms_mode4_smoke PRIVATE rd_video_sms_mode4)
+set_target_properties(rd_video_sms_mode4_smoke PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${OUT_DIR}")
+add_test(NAME v0492_sms_video_sprite_priority COMMAND $<TARGET_FILE:rd_video_sms_mode4_smoke>)
+if(Python3_Interpreter_FOUND)
+ add_test(NAME v0492_sms_video_staging COMMAND "${Python3_EXECUTABLE}"
+  "${CMAKE_SOURCE_DIR}/../video_sms/tests/test_bridge.py")
+ set_tests_properties(v0492_sms_video_staging PROPERTIES ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
 endif()

@@ -30,6 +30,7 @@ with tempfile.TemporaryDirectory(prefix='recomp-native-host-generated-') as fold
     assert app, 'Source-attested native generated game failed to compile'
     env=os.environ.copy()
     env['RECOMPDEV_RUNTIME_HOST_DLL']=sys.argv[1]
+    env['RECOMPDEV_SMS_MODE4_DLL']=sys.argv[2]
     out=temp/'capture'
     p=subprocess.run([str(app),str(ROM),str(out),'2','200','-',
                       '--video','capture','--audio','capture','--input','neutral'],

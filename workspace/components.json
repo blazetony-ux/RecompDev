@@ -126,6 +126,19 @@
       "target": "rd_runtime_host",
       "version": "0.1.0"
     },
+    "rd_video_sms_mode4": {
+      "description": "Production SMS VDP Mode 4 display DLL with source-independent C ABI, sprite SAT evaluation, priority and diagnostics; dynamically loaded by staged native games",
+      "kind": "compiled-plugin",
+      "scope": "production-video",
+      "target": "rd_video_sms_mode4",
+      "version": "0.1.0"
+    },
+    "sms_video_integration": {
+      "description": "Source-only staging bridge and SHA-locked selection for the independently versioned SMS video DLL; never edits original generator, ROM or game instructions",
+      "kind": "tooling",
+      "scope": "production-video-integration",
+      "version": "0.1.0"
+    },
     "workbench": {
       "description": "Standalone loopback-only read-only SQLite catalogue browser; no compiler or machine dependencies",
       "kind": "tooling",
@@ -140,5 +153,5 @@
     }
   },
   "schema": "recompdev-components-v1",
-  "workspace_release": "v0.4.9.1"
+  "workspace_release": "v0.4.9.2"
 }

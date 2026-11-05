@@ -24,6 +24,7 @@ import uuid
 SOURCE=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(SOURCE))
 from runtime_host.bridge import install
+from video_sms.bridge import HEADER as SMS_HEADER, BRIDGE as SMS_BRIDGE, transform as sms_video_transform
 from modular.evidence_bundle import create_evidence_bundle
 from workspace import manager
 
@@ -88,7 +89,8 @@ def stage(project,cache):
     for src in [SOURCE/'runtime_host/bridge.py',SOURCE/'runtime_host/bridge/rd_host_loader.hpp',
                 SOURCE/'runtime_host/bridge/win32_window.hpp',SOURCE/'runtime_host/bridge/win32_audio.hpp',
                 SOURCE/'runtime_host/bridge/rd_guest_input_tap.hpp',SOURCE/'runtime_host/guest_input_tap.py',
-                SOURCE/'runtime_host/include/rd_runtime_host.h']:
+                SOURCE/'runtime_host/include/rd_runtime_host.h',
+                SOURCE/'video_sms/bridge.py',SMS_HEADER,SMS_BRIDGE]:
         h.update(bytes.fromhex(sha256(src)))
     ident=h.hexdigest()[:24]
     cache=Path(cache);cache.mkdir(parents=True,exist_ok=True)
@@ -127,6 +129,9 @@ def stage(project,cache):
                         'target_link_libraries(RecompDevNativeApp PRIVATE ${CMAKE_DL_LIBS})\n')
                 if candidate.read_text(encoding='utf8')!=expected:
                     raise ValueError('Cached native-project build recipe was changed')
+            elif rel.as_posix()=='hardware/adapters/sms.hpp':
+                if candidate.read_text(encoding='utf8')!=sms_video_transform(original.read_text(encoding='utf8')):
+                    raise ValueError('Cached native SMS video plugin bridge was changed')
             elif rel.as_posix()!='interactive.cpp' and sha256(candidate)!=sha256(original):
                 raise ValueError('Cached native-project source has been changed: '+str(rel))
             elif rel.as_posix()=='interactive.cpp':
@@ -144,6 +149,8 @@ def stage(project,cache):
             instrument(c)
             if sha256(c/'interactive.cpp')!=sha256(target/'interactive.cpp'):
                 raise ValueError('Cached native input frontend has been changed')
+        if sha256(target/'hardware/rd_sms_mode4.h')!=sha256(SMS_HEADER) or sha256(target/'hardware/rd_sms_mode4_bridge.hpp')!=sha256(SMS_BRIDGE):
+            raise ValueError('Cached SMS video plugin API/adapter was changed')
         if sha256(target/'hardware/rd_runtime_host.h')!=sha256(SOURCE/'runtime_host/include/rd_runtime_host.h'):
             raise ValueError('Cached runtime host ABI header changed')
     return target,ident
@@ -159,6 +166,19 @@ def host_binary(source=SOURCE):
     if not active.is_file() or sha256(active)!=state.get('sha256'):
         raise ValueError('Runtime host binary missing or fails active SHA-256 lock')
     return active,state
+
+
+def sms_video_binary(source=SOURCE):
+    """Resolve source-independent ABI-checked active SMS video plugin."""
+    roots=manager.roots(source)
+    ext='.dll' if os.name=='nt' else '.dylib' if sys.platform=='darwin' else '.so'
+    path=roots['runtime']/'active'/('rd_video_sms_mode4'+ext)
+    state=manager.read_state(source).get('active',{}).get('rd_video_sms_mode4')
+    if not state or state.get('version')!='0.1.0':
+        raise ValueError('SMS video plugin v0.1.0 not activated; install v0.4.9.2')
+    if not path.is_file() or sha256(path)!=state.get('sha256'):
+        raise ValueError('SMS video plugin missing or fails active SHA-256 lock')
+    return path,state
 
 
 def run(args):
@@ -180,6 +200,7 @@ def run(args):
         project=Path(args.project).resolve() if args.project else find_project(roots['evidence'],rom_digest)
         verify_project(project,rom)
         dll,active=host_binary()
+        video_dll,video_state=sms_video_binary()
         staged,cacheid=stage(project,roots['cache']/'runtime-host')
         build=roots['build']/'native-runtime'/cacheid
         build.mkdir(parents=True,exist_ok=True)
@@ -216,6 +237,8 @@ def run(args):
         if args.mode=='window' and args.hold_window:flag.append('--hold-window')
         cmd=[str(app),str(rom),str(prefix),str(args.frames),str(args.steps),'-',*flag]
         env=os.environ.copy();env['RECOMPDEV_RUNTIME_HOST_DLL']=str(dll)
+        env['RECOMPDEV_SMS_MODE4_DLL']=str(video_dll)
+        env['RECOMPDEV_SMS_VIDEO_STATS']=str(dest/'sms-sprite-stats.csv')
         if args.mode=='window':
             env['RECOMPDEV_RUNTIME_HOST_INPUT_EVENTS']=str(dest/'input-events.jsonl')
             env['RECOMPDEV_GUEST_INPUT_REPLAY']=str(dest/'guest-input-cycles.csv')
@@ -241,6 +264,9 @@ def run(args):
         record.update(native_game_code=str(app),native_app_sha256=sha256(app),
                       source_rom_sha256=rom_digest,staged_project=str(staged),
                       original_project=str(project),
+                      sms_video={'component':'rd_video_sms_mode4','version':video_state['version'],
+                                 'sha256':video_state['sha256'],'abi':'0x00010000',
+                                 'stats':'sms-sprite-stats.csv' if (dest/'sms-sprite-stats.csv').is_file() else 'NOT_AVAILABLE'},
                       runtime_host={'component':'rd_runtime_host','version':active['version'],
                                     'sha256':active['sha256'],'abi':'0x00010000'},
                       return_code=proc.returncode,

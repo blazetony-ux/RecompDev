@@ -45,3 +45,7 @@ The complete old generator is now selected via a source-versioned production ada
 The original 600-frame Shinobi milestone has been re-established with the preserved production translator. A native Windows window and Button 1/Z title transition were demonstrated; the guest then stopped at untranslated `0x7BE8`, frame 201. The next priority is bounded deterministic guest-cycle replay of that input and source-authenticated recovery of the missing path, then retest the generated game without rebuilding unrelated DLLs. Existing v0.4.8 wall-time input logs must be labelled estimated and the initial stop reproduced before recovery. If that fails, capture an exact guest-cycle trace using the v0.4.9 runtime frontend and retry. **Playable stage, sound correctness and ROM-free packaging remain unproven.**
 
 **v0.4.9.1 engineering fix:** Short external CMake build paths and source-verified recovery-history reuse; validate on Windows before claiming gameplay advancement.
+
+## Native video acceptance following workspace/v0.4.9.2
+
+First inspect a Windows native Shinobi run with `rd_video_sms_mode4` active. Require loaded plugin version/hash, `sms-sprite-stats.csv` SAT activity and visible character/enemy pixels before claiming real gameplay graphics. Independently recover the `0x1E62` guest code path using the existing input-recovery engine. Later qualify video accuracy against independent hardware/emulator traces, including sprite status and scanline effects; do not rewrite the generic host or original translator for video behaviour.

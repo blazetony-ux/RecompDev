@@ -39,3 +39,6 @@ The currently registered components are declared by `workspace/components.json`.
 ## Added in v0.4.9
 
 - [input_recovery](input_recovery/README.md), `production-workflow`: source-only, independently versioned guest-cycle input recorder, replay verifier and bounded source-attested recovery orchestrator. The already deployed runtime-host DLL and all existing CPU/translator components stay unchanged.
+
+- `rd_video_sms_mode4` — independently compiled Master System Mode 4 sprite/video plugin, production-video scope.
+- `sms_video_integration` — source-only generated native video bridge, production-video-integration scope.
