@@ -1,0 +1,8 @@
+{
+  "schema": "recompdev.discovery.provider-registry.v1",
+  "providers": [
+    {"role": "structure", "module": "discovery_integration.providers.structure", "id": "legacy.structure.v1"},
+    {"role": "catalogue", "module": "discovery_integration.providers.catalogue", "id": "legacy.catalogue.readonly.v1"},
+    {"role": "disc", "module": "discovery_integration.providers.disc", "id": "legacy.iso9660.sector.v1"}
+  ]
+}

@@ -61,3 +61,10 @@ The owner requires all components **decoupled and interchangeable**. Guest-state
 ## v0.4.9.5 — completed source implementation, Windows acceptance pending
 
 Controller-mediated live execution monitor via `controller_diagnostics` event ABI and separate viewer; no direct plugin dependencies, staged guest source retained byte-identically. Follow-up gates: prove two-window Windows session; recover idle title path 0xB2E1; add CPU-provider decoding metadata through plugin APIs; implement optional controller-mediated pause/step/breakpoints only after guaranteed native safe points; prove game/reference movement parity.
+
+## Workspace v0.4.9.6 — discovered capabilities and open work (2026-11-05)
+
+- Delivered source-only controller discovery audit v1 with versioned, registry-selected legacy structure / catalogue / ISO-sector adapters and conservative fresh/cached status. It cannot silently equate `DISCOVERY_COMPLETE` to new instructions/assets.
+- Preserved historical Master System, Mega Drive and PS1 implementations and 642 frozen source files; no active CPU/video/runtime DLL changed. Revalidate existing 44 CTests on owner Windows before accepting the release.
+- **Carry-forward Shinobi gate:** last interactive Right-input run ended at untranslated `0x4F9E` about frame 730 with player-observed reversed scrolling. Do not patch a game address or declare VDP scrolling broken from a wraparound R8 observation. Independently validate instruction semantics, bank/interrupt timing and video output while retaining earlier 1,800/2,400-frame observations as non-parity evidence.
+- **Next:** source-targeted scheduling/recovery, reusable IR and 68000/MIPS active plugin integration, more verified asset/container readers, multi-input synthetic and real-ROM regression campaigns. Do not confuse source detection, candidate extraction and parity.

@@ -1,11 +1,27 @@
+# RecompDev workspace changelog
+
+## [workspace/v0.4.9.6] - 2026-11-05
+
+- Introduced `discovery_integration` v0.1.0, a controller-owned read-only discovery evidence bridge using a versioned registry of interchangeable historical structural, catalogue and ISO sector providers. New reports distinguish fresh work from cached unresolved tasks; they do not claim full code extraction, translation or parity.
+- Exposed bounded, sector-aware PS-X EXE and TIM candidate validation without altering the preserved discovery implementation; candidate-byte export remains a separate explicit opt-in operation.
+- Corrected the legacy PowerShell wrapper to resolve the installed compiled controller and enforced the main changelog title, uniqueness and newest-first release order through `workspace_governance` 0.1.3.
+- Left the Shinobi native recovery, monitor, game project and all compiled plugins unchanged. The prior 44/44 Windows v0.4.9.5 regression result and observed guest stops remain the acceptance baseline; see [v0.4.9.6 release](docs/releases/v0.4.9.6.md).
+- **WindowsFix1 installer correction:** closed the synthetic catalogue test’s SQLite connection explicitly before temporary-directory cleanup (Windows file-locking regression); no production pipeline or plugin change.
+
+## [workspace/v0.4.9.5] - 2026-11-05
+
+- Added `controller_diagnostics` 0.1.0: single authenticated, CPU-independent controller event subscription service and bounded fanout.
+- Added `execution_monitor` 0.1.0: separate read-only desktop viewer and source-staged native execution event publisher; sampled PC/opcode class, SP, frame, input, and stop reports.
+- Added `runtime_host_integration` 0.1.0: `-ExecutionMonitor` and `-MonitorEvery`, event evidence, launcher orchestration; compiled controller and host DLL remain unchanged.
+- Verified `movement_trace` 0.2.1 uses the original four-argument frame recorder; separately sampled work RAM stays in the state observer. Removed an invalid fifth argument in the provisional v0.4.9.5 bridge, fixed its regression assertion and improved generated-app compiler error reporting for Windows.
+- Preserved all 642 frozen historical files and original translated game C++; Windows GUI and gameplay parity still unverified.
+
 ## [workspace/v0.4.9.4] — 2026-11-05
 
 - Added generic `state_observer` v0.1.0: read-only bounded, machine-described memory spans, multi-clock metadata and offline candidate-state correlation without game-specific addresses.
 - Updated `movement_trace` to v0.2.0 with a replaceable Master System 8 KiB memory adapter; generic runtime staging enables observation but doesn't alter active DLLs or translated guest code.
 - Preserved existing controller/scroll/SAT diagnostics, independent components and historical source. This is not a gameplay or movement fix; real Windows evidence remains necessary.
 - See [v0.4.9.4](docs/releases/v0.4.9.4.md).
-
-# RecompDev workspace changelog
 
 ## [workspace/v0.4.9.3] - 2026-11-05
 
@@ -47,6 +63,12 @@ Workspace release tags describe **validated combinations and documentation state
 - No C++ controller or DLL rebuild, no changes to frozen legacy source or owner SQLite catalogue. The full earlier Shinobi 600-frame result is a required regression target, not yet established as parity under this release.
 - See [v0.4.7 details](docs/releases/v0.4.7.md).
 
+## [workspace/v0.4.6] - 2026-11-04
+
+- Integrated an independently versioned Z80 source-instruction admission DLL with the actual preservation-backed native recovery workflow. The selected plugin's version, hash and decisions are captured in external run evidence; invalid or rejecting plugins stop recovery before compilation.
+- Added a source-only `production_cpu_bridge` component v0.1.0, updated `rd_cpu_z80` to v0.2.0 and versioned workspace governance to v0.1.1. No other compiled DLL or controller version is changed.
+- Preserved the original legacy native generator and execution engine; this is source-admission integration, **not** native Z80 translation/execution parity. Added explicit legacy compatibility and strict-required modes.
+
 ## [workspace/v0.4.5] — 2026-11-04
 
 ### Added
@@ -75,17 +97,3 @@ See [v0.4.5 detailed release notes](docs/releases/v0.4.5.md).
 - The ten C++ DLLs remained harness-scoped; production discovery/Ghidra/recovery remained implemented by the preserved legacy service adapters.
 
 See [v0.4.4 migration notes](docs/history/v0.4.4/WORKSPACE-v0.4.4.md). Earlier source reports appear under [historical release material](docs/history/README.md).
-
-## [workspace/v0.4.6] - 2026-11-04
-
-- Integrated an independently versioned Z80 source-instruction admission DLL with the actual preservation-backed native recovery workflow. The selected plugin's version, hash and decisions are captured in external run evidence; invalid or rejecting plugins stop recovery before compilation.
-- Added a source-only `production_cpu_bridge` component v0.1.0, updated `rd_cpu_z80` to v0.2.0 and versioned workspace governance to v0.1.1. No other compiled DLL or controller version is changed.
-- Preserved the original legacy native generator and execution engine; this is source-admission integration, **not** native Z80 translation/execution parity. Added explicit legacy compatibility and strict-required modes.
-
-## [workspace/v0.4.9.5] - 2026-11-05
-
-- Added `controller_diagnostics` 0.1.0: single authenticated, CPU-independent controller event subscription service and bounded fanout.
-- Added `execution_monitor` 0.1.0: separate read-only desktop viewer and source-staged native execution event publisher; sampled PC/opcode class, SP, frame, input, and stop reports.
-- Added `runtime_host_integration` 0.1.0: `-ExecutionMonitor` and `-MonitorEvery`, event evidence, launcher orchestration; compiled controller and host DLL remain unchanged.
-- Verified `movement_trace` 0.2.1 uses the original four-argument frame recorder; separately sampled work RAM stays in the state observer. Removed an invalid fifth argument in the provisional v0.4.9.5 bridge, fixed its regression assertion and improved generated-app compiler error reporting for Windows.
-- Preserved all 642 frozen historical files and original translated game C++; Windows GUI and gameplay parity still unverified.

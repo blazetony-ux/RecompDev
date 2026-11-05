@@ -16,6 +16,7 @@ sys.path.insert(0,str(ROOT))
 from migration import controller as preservation
 from modular.plugins import legacy
 from modular import recovery_manager, hardware_review, cpu_production
+from discovery_integration import bridge as discovery_audit_bridge
 
 LEGACY = preservation.LEGACY
 DEFAULT_DB = LEGACY / 'catalogue.sqlite'
@@ -91,6 +92,19 @@ def run_rom(rom, out, stage='prepare', database=None, budget=150, steps=200000,
         discovery_dir=output/'discovery'
         result=step('legacy.discovery', ['--db',working,'--source',rom,'--output',discovery_dir,
                                          '--budget',str(budget),'--max-files','1'], 'discovery-stage',timeout)
+        if result['return_code'] == 0 and (discovery_dir/'discovery-report.json').is_file():
+            # Controller-owned, read-only provider bridge. Never route a monitor
+            # or a CPU plugin directly to the preserved discovery implementation.
+            try:
+                report['discovery_audit'] = discovery_audit_bridge.audit(
+                    rom, working, discovery_dir/'discovery-report.json',
+                    output/'discovery-integration', legacy_root=LEGACY)
+            except (OSError, ValueError, RuntimeError, KeyError) as audit_error:
+                # Audit failures are explicit and cannot silently fabricate
+                # completion, but never change the established legacy execution path.
+                report['discovery_audit'] = {
+                    'status': 'BLOCKED',
+                    'reason': f'{type(audit_error).__name__}: {audit_error}'[:400]}
         if result['return_code'] != 0:
             report['status']='DISCOVERY_FAILED'
         elif not (discovery_dir/'discovery-report.json').is_file():

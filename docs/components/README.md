@@ -55,3 +55,7 @@ The currently registered components are declared by `workspace/components.json`.
 - [controller_diagnostics](controller_diagnostics/README.md), `controller-diagnostics`: single typed local event subscription service.
 - [execution_monitor](execution_monitor/README.md), `developer-debugger`: independent subscriber GUI and native telemetry producer.
 - [runtime_host_integration](runtime_host_integration/README.md), `production-host-integration`: source-only wiring and evidence, not a new compiled host DLL.
+
+## Added in v0.4.9.6
+
+- [discovery_integration](discovery_integration/README.md), `production-workflow`: controller-managed, independently versioned read-only discovery audit, historical source-scoped task inventory, raw-sector disc file inspection and validated candidate mapping. Does not change existing native game runtime or add CPU translators.

@@ -1,5 +1,12 @@
 # workspace_governance — independent changelog
 
+## [0.1.3] - 2026-11-05
+
+- **Changed:** Enforce a single document title, unique workspace release headings and newest-first ordering; normalised the historical workspace changelog without editing prior release descriptions.
+- **Validation:** New negative tests cover missing/misplaced title, out-of-order versions and duplicates, plus existing full documentation governance and regression checks.
+- **Compatibility:** No compiled controller or runtime plugins change. Preserved historical sources and source-to-ROM validation remain unaffected.
+
+
 ## [0.1.2] - 2026-11-05
 
 - **Changed:** Recognise optional fourth numeric segments in workspace patch-release tags (e.g. `workspace/v0.4.9.1`) without changing independently versioned component semantics, source preservation policy, or Git release requirements.

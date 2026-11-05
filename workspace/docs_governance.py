@@ -73,6 +73,24 @@ def validate_component_update(source: Path, name: str, version: str,
     check_entry(entry, name)
 
 
+WORKSPACE_HEADER_RE = re.compile(r'^## \[workspace/(v\d+\.\d+\.\d+(?:\.\d+)?)\][^\n]*$',re.M)
+
+
+def check_workspace_changelog(log: str, current_release: str) -> None:
+    if not log.startswith('# RecompDev workspace changelog\n'):
+        raise ValueError('Main changelog must begin with its document title')
+    if log.count('# RecompDev workspace changelog') != 1:
+        raise ValueError('Duplicate workspace changelog title')
+    hits = WORKSPACE_HEADER_RE.findall(log)
+    if not hits or 'workspace/' + hits[0] != current_release:
+        raise ValueError('Workspace changelog current release must be the first entry')
+    if len(hits) != len(set(hits)):
+        raise ValueError('Duplicate workspace release headings')
+    versions = [tuple(int(piece) for piece in v[1:].split('.')) for v in hits]
+    if versions != sorted(versions,reverse=True):
+        raise ValueError('Workspace changelog release entries must be newest-first')
+
+
 def check(source: Path = SOURCE, *, release: str | None = None) -> dict:
     """Check authoritatively maintained docs without modifying any files."""
     source = Path(source).resolve()
@@ -113,8 +131,7 @@ def check(source: Path = SOURCE, *, release: str | None = None) -> dict:
         if (source / p).stat().st_size < 110:
             raise ValueError('Document too short to be useful: ' + p)
     log = (source / 'CHANGELOG.md').read_text(encoding='utf8')
-    if f'## [{current_release}]' not in log:
-        raise ValueError('Workspace changelog lacks release entry: ' + current_release)
+    check_workspace_changelog(log, current_release)
     for name, spec in components.items():
         readme = (source / f'docs/components/{name}/README.md').read_text(encoding='utf8')
         if spec['scope'] not in readme or 'workspace/components.json' not in readme:

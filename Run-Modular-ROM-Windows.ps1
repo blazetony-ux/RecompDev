@@ -1,4 +1,4 @@
-# v0.4.2 compatibility wrapper; prefer invoking RecompDev.exe directly.
+# v0.4.9.6 compatibility wrapper; resolve the separately deployed compiled controller.
 [CmdletBinding()]
 param(
   [Parameter(Mandatory=$true)][string]$Rom,
@@ -18,5 +18,7 @@ if($Output){$argsList+=@('--out',$Output)}
 if($Ghidra){$argsList+=@('--ghidra',$Ghidra)}
 if($Export){$argsList+=@('--export',$Export)}
 if($CaptureHardware){$argsList+='--capture-hardware'}
-& (Join-Path $root 'RecompDev.exe') @argsList
+$compiled=Join-Path (Split-Path -Parent $root) 'RecompDev-Runtime\RecompDev.exe'
+if(-not (Test-Path -LiteralPath $compiled -PathType Leaf)){throw "Compiled controller not installed: $compiled"}
+& $compiled @argsList
 if($LASTEXITCODE -ne 0) { throw "Modular workflow completed with a blocker/failure; inspect controller-report.json. Exit code: $LASTEXITCODE" }

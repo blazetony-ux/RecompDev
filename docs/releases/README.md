@@ -11,6 +11,9 @@
 - [Historical source provenance](provenance/README.md)
 - [Historical validation reports](validation/README.md)
 
+- [v0.4.9.6 — Universal discovery integration and continuity](v0.4.9.6.md): provider-based read-only discovery/cached-work audit.
+- [v0.4.9.5 — Controller Live Execution Monitor](v0.4.9.5.md): Windows-verified compiled tests and source-only monitor integration.
+
 Release claims must distinguish cross-platform CI/local tests, owner Windows logs, and gaps requiring real-ROM parity. Compiled component changelogs are indexed under [components](../components/README.md). Runtime logs and evidence ZIPs belong outside the Git source checkout.
 
 - [v0.4.9.1 — Recovery short-build fix](v0.4.9.1.md): external build paths, history reuse and compile-failure safety.
