@@ -103,8 +103,8 @@ def check(source: Path = SOURCE, *, release: str | None = None) -> dict:
     if release is not None and release != 'workspace/' + manifest['workspace_release']:
         raise ValueError('Release tag disagrees with workspace_release in components.json')
     version = current_release.removeprefix('workspace/')
-    if not re.fullmatch(r'v\d+\.\d+\.\d+', version):
-        raise ValueError('Workspace release version must be vN.N.N')
+    if not re.fullmatch(r'v\d+\.\d+\.\d+(?:\.\d+)?', version):
+        raise ValueError('Workspace release version must be vN.N.N or a four-part patch release')
     required.append(f'docs/releases/{version}.md')
     missing = [p for p in required if not (source / p).is_file()]
     if missing:

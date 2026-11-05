@@ -8,10 +8,10 @@
       "version": "0.4.4"
     },
     "input_recovery": {
-      "description": "Generic guest-cycle input capture, deterministic replay verification and bounded source-verified production native recovery; older wall-time captures are explicitly estimated",
+      "description": "Generic guest-cycle input capture and source-verified replay recovery; short-path native builds, strict compile-failure suppression, replay history re-use",
       "kind": "tooling",
       "scope": "production-workflow",
-      "version": "0.1.0"
+      "version": "0.1.1"
     },
     "legacy.discovery": {
       "description": "Preserved discovery engine; not a native DLL",
@@ -44,10 +44,10 @@
       "version": "0.1.0"
     },
     "production_translation": {
-      "description": "Hash-locked selectable adapter to the complete preserved native P-code generator; invokes real recovery without rewriting legacy code",
+      "description": "Hash-locked full original P-code translator; external short-path native compiler and source-attested history import",
       "kind": "tooling",
       "scope": "production-workflow",
-      "version": "0.1.0"
+      "version": "0.1.1"
     },
     "rd_audio_wav": {
       "description": "DLL target with independent build and deployment; not yet a production recovery adapter",
@@ -136,9 +136,9 @@
       "description": "Local Git documentation gates, component changelogs and release policy; not a runtime DLL",
       "kind": "tooling",
       "scope": "workspace",
-      "version": "0.1.1"
+      "version": "0.1.2"
     }
   },
   "schema": "recompdev-components-v1",
-  "workspace_release": "v0.4.9"
+  "workspace_release": "v0.4.9.1"
 }

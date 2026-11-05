@@ -12,3 +12,5 @@
 - [Historical validation reports](validation/README.md)
 
 Release claims must distinguish cross-platform CI/local tests, owner Windows logs, and gaps requiring real-ROM parity. Compiled component changelogs are indexed under [components](../components/README.md). Runtime logs and evidence ZIPs belong outside the Git source checkout.
+
+- [v0.4.9.1 — Recovery short-build fix](v0.4.9.1.md): external build paths, history reuse and compile-failure safety.

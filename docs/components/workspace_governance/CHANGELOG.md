@@ -1,5 +1,10 @@
 # workspace_governance — independent changelog
 
+## [0.1.2] - 2026-11-05
+
+- **Changed:** Recognise optional fourth numeric segments in workspace patch-release tags (e.g. `workspace/v0.4.9.1`) without changing independently versioned component semantics, source preservation policy, or Git release requirements.
+- **Validation:** Documentation validation tests for both three-part releases and patch release tags, enforced component changelog headings, verified links, and unchanged frozen source baselines.
+- **Compatibility:** No compiled binaries, plugin ABI, active DLL versions, original source, ROM or owner catalogue changes. Existing release tags and three-part versions remain valid.
 This file records only changes to `workspace_governance`. Component versioning is independent of workspace release tags.
 
 ## [0.1.0] - 2026-11-04

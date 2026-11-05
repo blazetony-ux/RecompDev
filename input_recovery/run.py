@@ -109,6 +109,35 @@ def reproduce(previous:dict,observed:dict)->dict:
     return result
 
 
+def copy_native_build_logs(recovery_dir: Path, destination: Path) -> list[str]:
+    """Include CMake diagnostics in the upload ZIP, not the compiler build tree.
+
+    Generated native-project folders are intentionally omitted by the generic
+    ZIP packager. Copy only small named text logs from the verified project.
+    """
+    copied = []
+    for project in sorted((recovery_dir / 'recovery').glob('round-*/native-project')):
+        if project.is_symlink():
+            continue
+        for name in ('configure.log', 'build.log', 'external-native-build.json'):
+            original = project / 'compiler-evidence' / name
+            if not original.is_file() or original.is_symlink() or original.stat().st_size > 4 * 1024 * 1024:
+                continue
+            target = destination / project.parent.name / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(original, target)
+            copied.append(str(target))
+    return copied
+
+
+def recovery_build_failed(controller: dict) -> bool:
+    """Never launch a partial native project after a failed CMake build."""
+    if controller.get('legacy_recovery_status') in ('BUILD_FAILED', 'BUILD_TIMEOUT'):
+        return True
+    # A controller failure can precede a legacy structured status.
+    return controller.get('recovery_stop_reason') in ('LEGACY_REPORT_MISSING', 'LEGACY_SERVICE_EXIT_1')
+
+
 def select_project(run_dir:Path)->Path|None:
     candidates=list((run_dir/'recovery').glob('round-*/native-project'))
     valid=[p for p in candidates if (p/'translated.cpp').is_file() and (p/'generation.json').is_file()]
@@ -176,18 +205,47 @@ def run(args)->int:
                      '--history-root',str(original_run),'--out',str(recovery_out)]
             if export:command+=['--export',str(export)]
             report['recovery_execution']=execute(command,out/'recovery-command.log',args.timeout+60)
+            report['compiler_diagnostics']=copy_native_build_logs(recovery_out,out/'compiler-logs')
             controller_report=recovery_out/'controller-report.json'
             if not controller_report.is_file():
                 raise RuntimeError('Production recovery produced no structured report; consult recovery-command.log')
             rec=json.loads(controller_report.read_text(encoding='utf8'))
+            if report['recovery_execution']['timeout']:
+                raise RuntimeError('Production recovery timed out; postflight not started')
             report['recovery_status']=rec.get('status')
             report['recovery_stop_reason']=rec.get('recovery_stop_reason')
             report['recovery_report']=str(controller_report)
             report['new_recovered_entries']=rec.get('recovered_entries')
             report['recovery_frames']=rec.get('maximum_frames_observed')
-            fresh=select_project(recovery_out)
-            baseline=int(info.get('prior_frames') or 0)
+            report['recovery_history'] = None
+            summary = recovery_out / 'recovery' / 'continuous-recovery-report.json'
+            if summary.is_file():
+                summary_data=json.loads(summary.read_text(encoding='utf8'))
+                report['recovery_history'] = []
+                for summary_round in summary_data.get('rounds', []):
+                    try:
+                        round_json = Path(summary_round['report'])
+                        round_dir = recovery_out / 'recovery' / ('round-%02d' % summary_round['index'])
+                        if not round_json.is_file() or not round_json.resolve().is_relative_to(round_dir.resolve()):
+                            continue
+                        round_data=json.loads(round_json.read_text(encoding='utf8'))
+                        report['recovery_history'].append({
+                            'round':summary_round['index'],
+                            'coverage_cache':round_data.get('coverage_cache'),
+                            'status':round_data.get('status')})
+                    except (OSError,KeyError,ValueError,TypeError):
+                        continue
             report['post_recovery_frame_advance_confirmed']=False
+            if recovery_build_failed(rec):
+                # No execution of stale/incomplete generated projects. Previous
+                # preflight success remains recorded as the verified baseline.
+                report['status']='RECOVERY_BUILD_FAILED'
+                report['post_recovery_skipped_reason']='NATIVE_COMPILATION_FAILED'
+                report['gameplay_parity']='NOT_ESTABLISHED'
+                fresh=None
+            else:
+                fresh=select_project(recovery_out)
+            baseline=int(info.get('prior_frames') or 0)
             if fresh:
                 # Only game-code app objects are rebuilt. Old controller/DLLs
                 # and archived source-verified native projects stay unchanged.
@@ -208,7 +266,9 @@ def run(args)->int:
                         report['post_recovery_frame_advance_confirmed']=int(post.get('frames_observed') or 0)>baseline
                     except (OSError,ValueError,RuntimeError,TypeError) as post_error:
                         report['post_recovery_validation_error']=str(post_error)
-            if report['post_recovery_frame_advance_confirmed']:
+            if report['status']=='RECOVERY_BUILD_FAILED':
+                pass
+            elif report['post_recovery_frame_advance_confirmed']:
                 report['status']='SOURCE_VERIFIED_RECOVERY_ADVANCED'
             else:
                 report['status']='RECOVERY_ATTEMPTED_NO_CONFIRMED_ADVANCE'

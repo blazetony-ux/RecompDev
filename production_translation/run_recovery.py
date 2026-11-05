@@ -18,20 +18,31 @@ LEGACY=SOURCE/'legacy'/'RecompDev-v0.4.0.45'
 sys.path.insert(0,str(SOURCE))
 sys.path.insert(0,str(LEGACY))
 from production_translation.provider import select_provider, ProviderError
+from production_translation.native_build import build_native_project
 
 def main():
     args=sys.argv[1:]
     if '--output-dir' not in args or args.index('--output-dir')+1>=len(args):
         raise SystemExit('Missing recovery --output-dir')
     destination=Path(args[args.index('--output-dir')+1]).resolve()
+    # The explicit --history-root supplied by input recovery is source-verified
+    # against the ROM on ingestion. The old unconditional --no-history-import
+    # suppressed this hand-off, forcing recompilation from the initial export.
+    history_requested = '--history-root' in args
+    enable_history = history_requested and '--no-history-import' in args
+    if enable_history:
+        args.remove('--no-history-import')
     generate,ident=select_provider()
     import nativecore.continuous_recovery_v0436 as original
     original_generate=original.generate_project
+    original_build=original._build
     observations={'schema':'recompdev-production-translation-v1',
                   'status':'ACTIVE','selected_provider':ident,
                   'generator_calls':0,'maximum_translated_instructions':0,
                   'legacy_recovery_engine':'nativecore.continuous_recovery_v0436.run',
-                  'fallback_used':False,'gameplay_parity':'NOT_ESTABLISHED'}
+                  'fallback_used':False,'gameplay_parity':'NOT_ESTABLISHED',
+                  'native_build_layout':'EXTERNAL_SHORT_DIRECTORY',
+                  'history_import_enabled':enable_history}
     def wrapped(doc,rom,out,overlays=()):
         result=generate(doc,rom,out,overlays)
         observations['generator_calls']+=1
@@ -39,6 +50,7 @@ def main():
             observations['maximum_translated_instructions'],int(result.get('translated_instructions',0)))
         return result
     original.generate_project=wrapped
+    original._build=lambda project,timeout=480: build_native_project(project,timeout=timeout)
     old_argv=sys.argv
     sys.argv=[str(LEGACY/'tools/Run-Continuous-Recovery-v0445.py'),*args]
     try:
@@ -53,6 +65,7 @@ def main():
     finally:
         sys.argv=old_argv
         original.generate_project=original_generate
+        original._build=original_build
         # Even a recovery budget stop gets a provider witness in upload evidence.
         destination.mkdir(parents=True,exist_ok=True)
         output=destination/'production-translation.json'

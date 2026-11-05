@@ -12,7 +12,7 @@ import zipfile
 ROOT=Path(__file__).resolve().parents[2]
 sys.path[:0]=[str(ROOT),str(ROOT/'legacy/RecompDev-v0.4.0.45')]
 from input_recovery.replay import HEADER,create_replay,validate_replay
-from input_recovery.run import reproduce,select_project,matching_native_report
+from input_recovery.run import reproduce,select_project,matching_native_report,recovery_build_failed,copy_native_build_logs
 from runtime_host.bridge import install
 from runtime_host.launch import stage
 from nativepilot.generator import generate_project
@@ -122,9 +122,28 @@ class InputRecoveryTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'Cached native input frontend has been changed'):
             stage(project,self.root/'cache')
 
+    def test_compiler_failure_logs_are_in_uploadable_evidence(self):
+        run_dir=self.root/'recovery-run'
+        diagnostics=run_dir/'recovery/round-00/native-project/compiler-evidence'
+        diagnostics.mkdir(parents=True)
+        (diagnostics/'configure.log').write_text('MSB6003: representative failure detail\n')
+        (diagnostics/'external-native-build.json').write_text('''{"status":"BUILD_FAILED"}''')
+        (diagnostics/'irrelevant.exe').write_bytes(b'no native binaries in upload')
+        result=copy_native_build_logs(run_dir,self.root/'compiler-logs')
+        self.assertEqual(len(result),2)
+        self.assertTrue((self.root/'compiler-logs/round-00/configure.log').exists())
+        self.assertFalse((self.root/'compiler-logs/round-00/irrelevant.exe').exists())
+
+    def test_native_build_failure_never_launches_post_recovery(self):
+        self.assertTrue(recovery_build_failed({'legacy_recovery_status':'BUILD_FAILED'}))
+        self.assertTrue(recovery_build_failed({'legacy_recovery_status':'BUILD_TIMEOUT'}))
+        self.assertFalse(recovery_build_failed({'legacy_recovery_status':'RECOVERY_BLOCKED',
+                                                'recovery_stop_reason':'RECOVERY_BUDGET_EXHAUSTED'}))
+        self.assertFalse(recovery_build_failed({'legacy_recovery_status':'CONTINUOUS_SESSION_COMPLETE'}))
+
     def test_workspace_uses_independent_input_recovery_component(self):
         registry=json.loads((ROOT/'workspace/components.json').read_text())
-        self.assertEqual(registry['components']['input_recovery']['version'],'0.1.0')
+        self.assertEqual(registry['components']['input_recovery']['version'],'0.1.1')
         self.assertEqual(registry['components']['rd_runtime_host']['version'],'0.1.0')
         self.assertEqual(registry['components']['controller']['version'],'0.4.4')
 
