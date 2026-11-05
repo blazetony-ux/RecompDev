@@ -113,6 +113,13 @@
       "target": "rd_machine_synthetic",
       "version": "0.1.0"
     },
+    "rd_runtime_host": {
+      "description": "Independently compiled generic BGRA framebuffer, PCM16 audio and button-input presentation host; Windows window/speaker, portable headless ABI; no CPU/machine coupling",
+      "kind": "compiled-plugin",
+      "scope": "production-presentation",
+      "target": "rd_runtime_host",
+      "version": "0.1.0"
+    },
     "workbench": {
       "description": "Standalone loopback-only read-only SQLite catalogue browser; no compiler or machine dependencies",
       "kind": "tooling",
@@ -127,5 +134,5 @@
     }
   },
   "schema": "recompdev-components-v1",
-  "workspace_release": "v0.4.7"
+  "workspace_release": "v0.4.8"
 }

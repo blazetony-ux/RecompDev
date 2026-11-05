@@ -159,7 +159,13 @@ target_include_directories(RecompDev PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 set_target_properties(RecompDev PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${OUT_DIR}")
 # Build-tree executables also locate the source via an external text pointer.
 # Production deployment writes its own pointer in RecompDev-Runtime.
-file(GENERATE OUTPUT "${OUT_DIR}/$<CONFIG>/source-root.txt" CONTENT "${CMAKE_SOURCE_DIR}/..\n")
+# Multi-config Windows builds place the executable under bin/Release; Linux single-
+# config executables are directly under bin. Both must resolve the same source.
+if(CMAKE_CONFIGURATION_TYPES)
+ file(GENERATE OUTPUT "${OUT_DIR}/$<CONFIG>/source-root.txt" CONTENT "${CMAKE_SOURCE_DIR}/..\n")
+else()
+ file(GENERATE OUTPUT "${OUT_DIR}/source-root.txt" CONTENT "${CMAKE_SOURCE_DIR}/..\n")
+endif()
 if(MSVC)
  target_compile_options(RecompDev PRIVATE /W4 /EHsc)
 else()
@@ -201,4 +207,30 @@ if(Python3_Interpreter_FOUND)
     "${CMAKE_SOURCE_DIR}/../workspace/tests/test_workspace.py"
     "$<TARGET_FILE:RecompDev>")
  set_tests_properties(v044_workspace_contract PROPERTIES ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+endif()
+
+# v0.4.8: individually buildable CPU/machine-neutral presentation host.
+# Reuse the verified legacy OS adapters as source, without editing frozen files.
+add_library(rd_runtime_host SHARED ../runtime_host/src/host.cpp)
+target_compile_definitions(rd_runtime_host PRIVATE RD_RUNTIME_HOST_BUILD)
+target_include_directories(rd_runtime_host PRIVATE ../runtime_host/include ../legacy/RecompDev-v0.4.0.45)
+set_target_properties(rd_runtime_host PROPERTIES PREFIX "" OUTPUT_NAME "rd_runtime_host"
+ RUNTIME_OUTPUT_DIRECTORY "${OUT_DIR}" LIBRARY_OUTPUT_DIRECTORY "${OUT_DIR}")
+if(WIN32)
+ target_link_libraries(rd_runtime_host PRIVATE user32 gdi32 winmm)
+endif()
+if(MSVC)
+ target_compile_options(rd_runtime_host PRIVATE /W4 /EHsc)
+else()
+ target_compile_options(rd_runtime_host PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+add_executable(rd_runtime_host_smoke ../runtime_host/tests/smoke.cpp)
+target_include_directories(rd_runtime_host_smoke PRIVATE ../runtime_host/include)
+target_link_libraries(rd_runtime_host_smoke PRIVATE rd_runtime_host)
+set_target_properties(rd_runtime_host_smoke PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${OUT_DIR}")
+add_test(NAME v048_runtime_host_generic_contract COMMAND $<TARGET_FILE:rd_runtime_host_smoke>)
+if(Python3_Interpreter_FOUND)
+ add_test(NAME v048_runtime_host_generated_native_application COMMAND "${Python3_EXECUTABLE}"
+  "${CMAKE_SOURCE_DIR}/../runtime_host/tests/test_generated_app.py" "$<TARGET_FILE:rd_runtime_host>")
+ set_tests_properties(v048_runtime_host_generated_native_application PROPERTIES ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
 endif()

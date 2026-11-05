@@ -32,3 +32,10 @@ Versioned CPU DLL admission of authentic Z80 bytes is now wired into the real re
 ## v0.4.7 next acceptance gate
 
 The complete old generator is now selected via a source-versioned production adapter rather than rewritten. Before claiming recovered 600-frame progress under the modular workspace, reproduce the historical Shinobi run with matching ROM hash, deterministic input, requested frame count and recovery limits, then compare stop reason, native steps, frame/PSG/VDP counters and captured images against preserved evidence. Use the read-only Workbench to inspect catalogue contents without changing the owner's database. Further hardware plugin extraction remains staged behind these regressions.
+
+## Native game follow-through after v0.4.8
+
+1. Verify generic host window/input on the previously compiled source-authenticated 600-frame Shinobi native project; inspect its automatic evidence ZIP, without assuming that Start reaches gameplay.
+2. Diagnose input-to-guest button semantics, missing code and silent audio using the preserved engine; fix in the appropriate reusable plugin.
+3. Separate original ROM data dependencies from compiled native code and source-derived assets, then test without the ROM. Do not claim ROM independence until explicitly demonstrated.
+4. Reuse this unmodified host API with a second platform-specific native execution module when available. Keep machine-specific implementation entirely outside the presentation component.

@@ -1,6 +1,6 @@
 # RecompDev component catalogue
 
-**Status:** Current registry as of workspace v0.4.7. Every component has an independent version and its own [changelog](../development/RELEASE-PROCESS.md).
+**Status:** Current registry as of workspace v0.4.8. Every component has an independent version and its own [changelog](../development/RELEASE-PROCESS.md).
 
 | Component | Scope | Implementation |
 | --- | --- | --- |
@@ -27,7 +27,11 @@
 
 The currently registered components are declared by `workspace/components.json`. Only changed component versions may advance. Hardware modules not yet present in the registry (independent VDP, PSG, 68000 or PS1 modules) must not be described as delivered.
 
-## Added in v0.4.7
+## Added in v0.4.8
 
 - [production_translation](production_translation/README.md), `production-workflow`: hash-locked selection of the complete historical generator, with per-round provenance; not a new native DLL.
 - [workbench](workbench/README.md), `developer-tool`: read-only SQLite catalogue service independent of the compiled controller.
+
+## Added in v0.4.8
+
+- [rd_runtime_host](rd_runtime_host/README.md), `production-presentation`: native, machine-independent window/PCM/input host; generated source adapter stages outside Git.

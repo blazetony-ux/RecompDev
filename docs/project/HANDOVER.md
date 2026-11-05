@@ -43,3 +43,9 @@ The next workspace release adds `production_translation` 0.1.0 as a hash-locked 
 A separate Python `workbench` 0.1.0 service browses the owner SQLite catalogue read-only on 127.0.0.1, with logs under `RecompDev-Evidence/v0.4.7`; launch via `tools/Start-Workbench.ps1`. Its purpose is browsing, not job control. The user's earlier **600-frame Shinobi observation must not be reported as a new pass**: the latest independently examined v0.4.2 evidence reaches 120 frames; reproducing an aligned 600-frame result remains an explicit next acceptance gate.
 
 See [v0.4.7 release](../releases/v0.4.7.md) and [Workbench](../components/workbench/README.md).
+
+## Workspace v0.4.8: generic host integration (2026-11-05)
+
+The separately buildable `rd_runtime_host` 0.1.0 exposes a CPU/machine-neutral native C ABI for frames, audio, buttons and lifecycle. A generated-project adapter wraps the preserved `RecompDevNativeApp` window/audio interfaces while keeping `translated.cpp` and the frozen v0.4.0.45 source unchanged. Windows window rendering and live Shinobi input remain unverified until owner testing; the portable headless ABI and synthetic compiled game path have automated tests. **The native game still loads the original ROM** and does not yet meet the ROM-independent deliverable. Do not divert engineering into Workbench expansion; priority remains validated interactive native gameplay, ROM-free packaging and hardware correctness.
+
+See [runtime_host](../components/rd_runtime_host/README.md) and [v0.4.8 release](../releases/v0.4.8.md). Other component versions must stay unchanged.
