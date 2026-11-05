@@ -7,6 +7,18 @@
       "target": "RecompDev",
       "version": "0.4.4"
     },
+    "controller_diagnostics": {
+      "description": "Single authenticated controller-owned local diagnostics event protocol, bounded subscriptions and history; orchestrated by runtime launcher, no compiled controller binary changes",
+      "kind": "tooling",
+      "scope": "controller-diagnostics",
+      "version": "0.1.0"
+    },
+    "execution_monitor": {
+      "description": "Separate read-only Tk desktop monitor subscribing only to controller diagnostic interface, with native source-only instruction publisher and evidence recording",
+      "kind": "tooling",
+      "scope": "developer-debugger",
+      "version": "0.1.0"
+    },
     "input_recovery": {
       "description": "Generic guest-cycle input capture and source-verified replay recovery; short-path native builds, strict compile-failure suppression, replay history re-use",
       "kind": "tooling",
@@ -38,10 +50,10 @@
       "version": "0.4.0.45"
     },
     "movement_trace": {
-      "description": "Guest movement trace plus hardware-neutral state-memory observation, with SMS-specific provider adapter; read-only frame-delta correlation, no game patches",
+      "description": "Guest movement trace plus hardware-neutral state-memory observation, with SMS-specific provider adapter; read-only frame-delta correlation, no game patches; preserve four-argument movement frame recorder and independent RAM state sampling",
       "kind": "tooling",
       "scope": "production-diagnostics",
-      "version": "0.2.0"
+      "version": "0.2.1"
     },
     "production_cpu_bridge": {
       "description": "Production Z80 source instruction admission/selection; legacy P-code generation retained",
@@ -139,6 +151,12 @@
       "target": "rd_video_sms_mode4",
       "version": "0.1.0"
     },
+    "runtime_host_integration": {
+      "description": "Generated native-project monitor staging, controller service launch and evidence integration; does not change compiled host DLL",
+      "kind": "tooling",
+      "scope": "production-host-integration",
+      "version": "0.1.0"
+    },
     "sms_video_integration": {
       "description": "Source-only staging bridge and SHA-locked selection for the independently versioned SMS video DLL; never edits original generator, ROM or game instructions",
       "kind": "tooling",
@@ -165,5 +183,5 @@
     }
   },
   "schema": "recompdev-components-v1",
-  "workspace_release": "v0.4.9.4"
+  "workspace_release": "v0.4.9.5"
 }

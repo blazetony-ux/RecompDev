@@ -57,3 +57,7 @@ Shinobi's apparent mid-session movement reversal is an unresolved accuracy issue
 ## v0.4.9.4 diagnostic provider contract (2026-11-05)
 
 The owner requires all components **decoupled and interchangeable**. Guest-state telemetry uses a generic independently versioned `state_observer` memory-region interface; it must never contain Master System `State::ram`, Z80 instructions or Shinobi RAM address assumptions. `movement_trace` 0.2.0 owns the first SMS-only 8 KiB provider; Mega Drive and PS1 would each supply their own provider without rewriting the common recorder. Correlation only compares inputs and memory changes when the provider's cycle domain matches. Current 2400-frame Shinobi evidence shows correct guest controller reads but intermittent unresponsive movement; memory diagnostics do not fix it, and actual Windows evidence and independent emulator comparison remain necessary. Historical translator and active DLLs are unchanged. See `docs/releases/v0.4.9.4.md` and `docs/components/state_observer/README.md`.
+
+## v0.4.9.5 — completed source implementation, Windows acceptance pending
+
+Controller-mediated live execution monitor via `controller_diagnostics` event ABI and separate viewer; no direct plugin dependencies, staged guest source retained byte-identically. Follow-up gates: prove two-window Windows session; recover idle title path 0xB2E1; add CPU-provider decoding metadata through plugin APIs; implement optional controller-mediated pause/step/breakpoints only after guaranteed native safe points; prove game/reference movement parity.

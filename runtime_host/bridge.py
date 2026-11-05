@@ -9,6 +9,7 @@ from pathlib import Path
 from runtime_host.guest_input_tap import instrument
 from video_sms.bridge import install as install_sms_video
 from movement_trace.bridge import install as install_movement_trace
+from execution_monitor.bridge import install as install_execution_monitor
 
 ROOT=Path(__file__).resolve().parents[1]
 BRIDGE=ROOT/'runtime_host'/'bridge'
@@ -34,6 +35,7 @@ def install(project:Path)->dict:
     if line not in raw:cmake.write_text(raw.rstrip()+'\n\n# Generic runtime host: dynamic presentation adapter only.\n'+line,encoding='utf8');touched.append('CMakeLists.txt')
     touched.extend(install_sms_video(project))
     touched.extend(install_movement_trace(project))
+    touched.extend(install_execution_monitor(project))
     tap=instrument(project)
     if tap['status']=='INSTRUMENTED':touched.append('interactive.cpp')
     after=hashlib.sha256((project/'translated.cpp').read_bytes()).hexdigest()

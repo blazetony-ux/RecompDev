@@ -81,3 +81,11 @@ See [v0.4.4 migration notes](docs/history/v0.4.4/WORKSPACE-v0.4.4.md). Earlier s
 - Integrated an independently versioned Z80 source-instruction admission DLL with the actual preservation-backed native recovery workflow. The selected plugin's version, hash and decisions are captured in external run evidence; invalid or rejecting plugins stop recovery before compilation.
 - Added a source-only `production_cpu_bridge` component v0.1.0, updated `rd_cpu_z80` to v0.2.0 and versioned workspace governance to v0.1.1. No other compiled DLL or controller version is changed.
 - Preserved the original legacy native generator and execution engine; this is source-admission integration, **not** native Z80 translation/execution parity. Added explicit legacy compatibility and strict-required modes.
+
+## [workspace/v0.4.9.5] - 2026-11-05
+
+- Added `controller_diagnostics` 0.1.0: single authenticated, CPU-independent controller event subscription service and bounded fanout.
+- Added `execution_monitor` 0.1.0: separate read-only desktop viewer and source-staged native execution event publisher; sampled PC/opcode class, SP, frame, input, and stop reports.
+- Added `runtime_host_integration` 0.1.0: `-ExecutionMonitor` and `-MonitorEvery`, event evidence, launcher orchestration; compiled controller and host DLL remain unchanged.
+- Verified `movement_trace` 0.2.1 uses the original four-argument frame recorder; separately sampled work RAM stays in the state observer. Removed an invalid fifth argument in the provisional v0.4.9.5 bridge, fixed its regression assertion and improved generated-app compiler error reporting for Windows.
+- Preserved all 642 frozen historical files and original translated game C++; Windows GUI and gameplay parity still unverified.

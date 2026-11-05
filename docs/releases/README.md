@@ -18,3 +18,5 @@ Release claims must distinguish cross-platform CI/local tests, owner Windows log
 - [v0.4.9.3 — Movement correctness instrumentation](v0.4.9.3.md): guest controller readbacks, scroll/SAT diagnostics and opt-in evidence capture.
 
 - [v0.4.9.4 — Generic state observation](v0.4.9.4.md): reusable memory-region telemetry through replaceable providers.
+
+- [v0.4.9.5 — Controller live execution monitor](v0.4.9.5.md): one controller event interface, independent live GUI, bounded instruction samples.

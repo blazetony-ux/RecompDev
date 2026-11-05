@@ -11,6 +11,15 @@ ROOT=Path(__file__).resolve().parents[2]
 sys.path[:0]=[str(ROOT),str(ROOT/'legacy/RecompDev-v0.4.0.45')]
 from nativepilot.generator import generate_project
 from runtime_host.bridge import install
+
+def checked_native_build(command, *, timeout):
+    result = subprocess.run(command, capture_output=True, text=True, timeout=timeout)
+    if result.returncode:
+        raise RuntimeError('NATIVE_BUILD_FAILED exit=' + str(result.returncode)
+                           + ' command=' + repr(command)
+                           + '\n=== COMPILER STDOUT ===\n' + result.stdout[-16000:]
+                           + '\n=== COMPILER STDERR ===\n' + result.stderr[-16000:])
+    return result
 ROM=ROOT/'harness/examples/recomp-pcode/synthetic.sms'
 DOC=json.loads((ROOT/'harness/examples/recomp-pcode/function-export.json').read_text())
 
@@ -24,8 +33,8 @@ with tempfile.TemporaryDirectory(prefix='recomp-native-host-generated-') as fold
     assert install(project)['files_changed']==[]
     conf=['cmake','-S',str(project),'-B',str(build),'-DCMAKE_BUILD_TYPE=Release']
     if os.name=='nt':conf+=['-A','x64']
-    subprocess.run(conf,capture_output=True,text=True,check=True,timeout=120)
-    subprocess.run(['cmake','--build',str(build),'--config','Release','--target','RecompDevNativeApp','--parallel','2'],capture_output=True,text=True,check=True,timeout=180)
+    checked_native_build(conf,timeout=120)
+    checked_native_build(['cmake','--build',str(build),'--config','Release','--target','RecompDevNativeApp','--parallel','2'],timeout=180)
     app=next((p for p in [build/'Release/RecompDevNativeApp.exe',build/'RecompDevNativeApp.exe',build/'RecompDevNativeApp'] if p.is_file()),None)
     assert app, 'Source-attested native generated game failed to compile'
     env=os.environ.copy()

@@ -20,6 +20,7 @@ import subprocess
 import sys
 import tempfile
 import uuid
+import time
 
 SOURCE=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(SOURCE))
@@ -27,6 +28,7 @@ from runtime_host.bridge import install
 from video_sms.bridge import HEADER as SMS_HEADER, BRIDGE as SMS_BRIDGE, transform as sms_video_transform
 from movement_trace.bridge import (HEADER as MOVEMENT_HEADER, STATE_HEADER, SMS_MEMORY_ADAPTER,
                                     live_sms_transform, runtime_transform)
+from execution_monitor.bridge import HEADER as EXECUTION_HEADER, live_transform as execution_live_transform
 from modular.evidence_bundle import create_evidence_bundle
 from workspace import manager
 
@@ -94,6 +96,7 @@ def stage(project,cache):
                 SOURCE/'runtime_host/include/rd_runtime_host.h',
                 SOURCE/'video_sms/bridge.py',SMS_HEADER,SMS_BRIDGE,
                 SOURCE/'movement_trace/bridge.py',MOVEMENT_HEADER,STATE_HEADER,SMS_MEMORY_ADAPTER,
+                SOURCE/'execution_monitor/bridge.py',EXECUTION_HEADER,
                 SOURCE/'state_observer/analyze.py']:
         h.update(bytes.fromhex(sha256(src)))
     ident=h.hexdigest()[:24]
@@ -134,7 +137,7 @@ def stage(project,cache):
                 if candidate.read_text(encoding='utf8')!=expected:
                     raise ValueError('Cached native-project build recipe was changed')
             elif rel.as_posix()=='live_sms.hpp':
-                if candidate.read_text(encoding='utf8')!=live_sms_transform(original.read_text(encoding='utf8')):
+                if candidate.read_text(encoding='utf8')!=execution_live_transform(live_sms_transform(original.read_text(encoding='utf8'))):
                     raise ValueError('Cached native guest-input diagnostics changed')
             elif rel.as_posix()=='runtime.cpp':
                 if candidate.read_text(encoding='utf8')!=runtime_transform(original.read_text(encoding='utf8')):
@@ -196,6 +199,89 @@ def sms_video_binary(source=SOURCE):
     return path,state
 
 
+
+def launch_monitor(broker, evidence_dir):
+    """Start independent read-only viewer; all data comes via controller ABI."""
+    python = Path(sys.executable)
+    if os.name == 'nt':
+        windowed = python.with_name('pythonw.exe')
+        if windowed.is_file():
+            python = windowed
+    cmd = [str(python), '-B', '-m', 'execution_monitor.viewer', '--port', str(broker.port), '--token', broker.token]
+    outfile = (Path(evidence_dir)/'execution-monitor-viewer.log').open('w', encoding='utf8')
+    try:
+        flags = getattr(subprocess, 'CREATE_NO_WINDOW', 0) if os.name == 'nt' else 0
+        proc = subprocess.Popen(cmd, cwd=str(SOURCE), stdout=outfile, stderr=subprocess.STDOUT,
+                                creationflags=flags)
+        return proc, outfile
+    except BaseException:
+        outfile.close()
+        raise
+
+
+def run_with_monitor(cmd, env, dest, timeout, sample_every):
+    """Controller owns the fanout; the monitor sees only its subscription endpoint."""
+    from controller.diagnostics import ControllerDiagnostics
+    from execution_monitor.stream import NativeEventReader
+    with ControllerDiagnostics() as broker:
+        broker.publish({'type': 'session', 'status': 'Starting native game', 'sample_every': sample_every})
+        viewer, logfile = launch_monitor(broker, dest)
+        events = Path(dest)/'controller-execution-events.jsonl'
+        env['RECOMPDEV_CONTROLLER_DIAGNOSTIC_EVENTS'] = str(events)
+        env['RECOMPDEV_MONITOR_SAMPLE_EVERY'] = str(sample_every)
+        reader = NativeEventReader(events, broker.publish)
+        proc = None
+        try:
+            with (Path(dest)/'native-stdout.log').open('w',encoding='utf8') as stdout, \
+                 (Path(dest)/'native-stderr.log').open('w',encoding='utf8') as stderr:
+                proc = subprocess.Popen(cmd, env=env, stdout=stdout, stderr=stderr)
+                started = time.monotonic()
+                while proc.poll() is None:
+                    reader.poll()
+                    if time.monotonic()-started > timeout:
+                        proc.kill()
+                        proc.wait()
+                        raise subprocess.TimeoutExpired(cmd, timeout)
+                    time.sleep(0.035)
+                for _ in range(2000):
+                    if not reader.poll():
+                        break
+            # Preserve the exact guest stop reason before the controller stream closes.
+            # This is read from the existing structured native report, not guessed from
+            # the process exit code (native execution can stop with exit code zero).
+            guest_result = None
+            for line in (Path(dest)/'native-stdout.log').read_text(encoding='utf8',errors='replace').splitlines():
+                if line.startswith('NATIVE_APP_RESULT='):
+                    try:
+                        guest_result = json.loads(line.partition('=')[2])
+                    except json.JSONDecodeError:
+                        pass
+                    break
+            if isinstance(guest_result,dict):
+                broker.publish({'type': 'stop',
+                                'status': str(guest_result.get('status', 'UNKNOWN')),
+                                'pc': guest_result.get('pc', 0),
+                                'frame': guest_result.get('frames', 0),
+                                'steps': guest_result.get('native_steps', 0)})
+            else:
+                broker.publish({'type':'notice','message':'Native game produced no structured guest result'})
+            # Viewer stays open with last events after the controller closes.
+
+            time.sleep(0.15)
+            return proc.returncode, {'events_forwarded': reader.delivered,
+                                     'events_rejected': reader.rejected,
+                                     'controller_schema': 'recompdev.controller.diagnostics.v1',
+                                     'viewer_started': viewer.poll() is None,
+                                     'sample_every': sample_every,
+                                     'events_file': events.name,
+                                     'viewer_log': 'execution-monitor-viewer.log'}
+        finally:
+            logfile.close()
+            if proc is not None and proc.poll() is None:
+                proc.kill()
+                proc.wait()
+
+
 def run(args):
     roots=manager.roots(SOURCE)
     output=roots['evidence']/manager.manifest(SOURCE)['workspace_release']/'runtime-host'
@@ -204,7 +290,8 @@ def run(args):
     dest=output/runid;dest.mkdir(exist_ok=False)
     rom_digest=None
     record={'schema':'recompdev-generic-native-host-v0.1.0',
-            'mode':args.mode,'movement_trace_requested':args.movement_trace,'frames_requested':args.frames,'steps_requested':args.steps,
+            'mode':args.mode,'movement_trace_requested':args.movement_trace,
+            'execution_monitor_requested':args.execution_monitor,'frames_requested':args.frames,'steps_requested':args.steps,
             'original_rom_required_at_runtime':True,
             'system_independent_host':True,
             'actual_gameplay_parity':'NOT_ESTABLISHED','status':'NOT_STARTED'}
@@ -261,8 +348,14 @@ def run(args):
             env['RECOMPDEV_RUNTIME_HOST_INPUT_EVENTS']=str(dest/'input-events.jsonl')
             env['RECOMPDEV_GUEST_INPUT_REPLAY']=str(dest/'guest-input-cycles.csv')
         print('RECOMPDEV_RUNTIME_HOST launching generated native game application',flush=True)
-        with (dest/'native-stdout.log').open('w',encoding='utf8') as stdout, (dest/'native-stderr.log').open('w',encoding='utf8') as stderr:
-            proc=subprocess.run(cmd,env=env,stdout=stdout,stderr=stderr,timeout=args.timeout)
+        monitor_report=None
+        if args.execution_monitor:
+            return_code, monitor_report = run_with_monitor(cmd, env, dest, args.timeout, args.monitor_every)
+            record['execution_monitor'] = monitor_report
+        else:
+            with (dest/'native-stdout.log').open('w',encoding='utf8') as stdout, (dest/'native-stderr.log').open('w',encoding='utf8') as stderr:
+                proc=subprocess.run(cmd,env=env,stdout=stdout,stderr=stderr,timeout=args.timeout)
+            return_code = proc.returncode
         # The process exit code alone does not establish guest execution success.
         # Extract the preserved native host's bounded structured result.
         observed=None
@@ -295,13 +388,13 @@ def run(args):
                                  'stats':'sms-sprite-stats.csv' if (dest/'sms-sprite-stats.csv').is_file() else 'NOT_AVAILABLE'},
                       runtime_host={'component':'rd_runtime_host','version':active['version'],
                                     'sha256':active['sha256'],'abi':'0x00010000'},
-                      return_code=proc.returncode,
+                      return_code=return_code,
                       input_mode='live' if args.mode=='window' else 'replay' if replay_source else 'neutral',
                       guest_cycle_input_capture='guest-input-cycles.csv' if args.mode=='window' and (dest/'guest-input-cycles.csv').is_file() else 'NOT_AVAILABLE',
                       input_replay_sha256=sha256(dest/'guest-input-replay.csv') if replay_source else None,
                       guest_stop_pc=observed.get('pc'),guest_stop_physical_offset=observed.get('physical_offset'),
                       guest_cycles_observed=observed.get('guest_cycles'),
-                      status=('NATIVE_PROCESS_FAILED' if proc.returncode else
+                      status=('NATIVE_PROCESS_FAILED' if return_code else
                               'FRAME_BUDGET_REACHED' if observed.get('status')=='FRAME_BUDGET_REACHED' else
                               'STEP_BUDGET_REACHED' if observed.get('status')=='STEP_BUDGET_REACHED' else
                               'GUEST_EXECUTION_STOPPED'))
@@ -330,10 +423,12 @@ def parse_args(argv=None):
     p.add_argument('--snapshot-every',type=int,default=120)
     p.add_argument('--timeout',type=int,default=420)
     p.add_argument('--hold-window',action='store_true')
+    p.add_argument('--execution-monitor',action='store_true',help='Open separate read-only controller diagnostics window')
+    p.add_argument('--monitor-every',type=int,default=256,help='Emit sampled instruction event every N guest steps, 1..65536')
     p.add_argument('--movement-trace',action='store_true',help='Capture guest controller-port reads and VDP/sprite-position diagnostics')
     a=p.parse_args(argv)
     if a.input_events and a.mode!='headless':p.error('Replay and physical/live input are mutually exclusive')
-    if not 1<=a.frames<=36000 or not 1<=a.steps<=20000000 or not 0<=a.snapshot_every<=600 or not 30<=a.timeout<=900:
+    if not 1<=a.frames<=36000 or not 1<=a.steps<=20000000 or not 0<=a.snapshot_every<=600 or not 30<=a.timeout<=900 or not 1<=a.monitor_every<=65536:
         p.error('Bounded runtime limits exceeded')
     return a
 

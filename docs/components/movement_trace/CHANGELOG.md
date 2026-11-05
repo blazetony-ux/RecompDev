@@ -1,3 +1,9 @@
+## [0.2.1] - 2026-11-05
+
+- **Changed:** Verified the established four-argument movement frame recorder interface (cycles, frame, VRAM, VDP registers) and kept RAM sampling in the independent state-memory adapter. Rejected a provisional v0.4.9.5 call that incorrectly passed RAM to the movement recorder; no recorder ABI change or game-specific logic.
+- **Validation:** Compiled generated native-game smoke, strict source-staging regression, unchanged guest translation SHA.
+- **Compatibility:** No changes to the compiled CPU, host or video DLLs; future machine-specific adapters remain independent from the common controller diagnostics API.
+
 # movement_trace — independent component history
 
 ## [0.2.0] - 2026-11-05

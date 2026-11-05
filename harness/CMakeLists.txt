@@ -257,3 +257,13 @@ if(Python3_Interpreter_FOUND)
   "${CMAKE_SOURCE_DIR}/../video_sms/tests/test_bridge.py")
  set_tests_properties(v0492_sms_video_staging PROPERTIES ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
 endif()
+
+# v0.4.9.5: controller-only monitor ABI and compiled guest event provider.
+if(Python3_EXECUTABLE)
+ add_test(NAME v0495_controller_monitor_protocol COMMAND "${Python3_EXECUTABLE}"
+  -m unittest discover -s "${CMAKE_SOURCE_DIR}/../execution_monitor/tests" -p test_monitor.py -q)
+ set_tests_properties(v0495_controller_monitor_protocol PROPERTIES WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/.." ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+ add_test(NAME v0495_monitor_native_guest_event COMMAND "${Python3_EXECUTABLE}"
+  "${CMAKE_SOURCE_DIR}/../execution_monitor/tests/test_native_events.py" $<TARGET_FILE:rd_runtime_host> $<TARGET_FILE:rd_video_sms_mode4>)
+ set_tests_properties(v0495_monitor_native_guest_event PROPERTIES ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+endif()

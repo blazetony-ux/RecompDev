@@ -49,3 +49,9 @@ The currently registered components are declared by `workspace/components.json`.
 
 - [state_observer](state_observer/README.md), `production-diagnostics`: platform-neutral read-only guest memory-region observer with provider metadata, bounded change logs and candidate correlation.
 - [movement_trace](movement_trace/README.md), `production-diagnostics`: SMS adapter for generic memory observation plus port/scroll/SAT tracing.
+
+## Added in v0.4.9.5
+
+- [controller_diagnostics](controller_diagnostics/README.md), `controller-diagnostics`: single typed local event subscription service.
+- [execution_monitor](execution_monitor/README.md), `developer-debugger`: independent subscriber GUI and native telemetry producer.
+- [runtime_host_integration](runtime_host_integration/README.md), `production-host-integration`: source-only wiring and evidence, not a new compiled host DLL.
