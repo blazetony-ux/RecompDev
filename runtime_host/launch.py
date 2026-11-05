@@ -25,6 +25,7 @@ SOURCE=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(SOURCE))
 from runtime_host.bridge import install
 from video_sms.bridge import HEADER as SMS_HEADER, BRIDGE as SMS_BRIDGE, transform as sms_video_transform
+from movement_trace.bridge import HEADER as MOVEMENT_HEADER, live_sms_transform, runtime_transform
 from modular.evidence_bundle import create_evidence_bundle
 from workspace import manager
 
@@ -90,7 +91,8 @@ def stage(project,cache):
                 SOURCE/'runtime_host/bridge/win32_window.hpp',SOURCE/'runtime_host/bridge/win32_audio.hpp',
                 SOURCE/'runtime_host/bridge/rd_guest_input_tap.hpp',SOURCE/'runtime_host/guest_input_tap.py',
                 SOURCE/'runtime_host/include/rd_runtime_host.h',
-                SOURCE/'video_sms/bridge.py',SMS_HEADER,SMS_BRIDGE]:
+                SOURCE/'video_sms/bridge.py',SMS_HEADER,SMS_BRIDGE,
+                SOURCE/'movement_trace/bridge.py',MOVEMENT_HEADER]:
         h.update(bytes.fromhex(sha256(src)))
     ident=h.hexdigest()[:24]
     cache=Path(cache);cache.mkdir(parents=True,exist_ok=True)
@@ -129,6 +131,12 @@ def stage(project,cache):
                         'target_link_libraries(RecompDevNativeApp PRIVATE ${CMAKE_DL_LIBS})\n')
                 if candidate.read_text(encoding='utf8')!=expected:
                     raise ValueError('Cached native-project build recipe was changed')
+            elif rel.as_posix()=='live_sms.hpp':
+                if candidate.read_text(encoding='utf8')!=live_sms_transform(original.read_text(encoding='utf8')):
+                    raise ValueError('Cached native guest-input diagnostics changed')
+            elif rel.as_posix()=='runtime.cpp':
+                if candidate.read_text(encoding='utf8')!=runtime_transform(original.read_text(encoding='utf8')):
+                    raise ValueError('Cached native controller-port diagnostics changed')
             elif rel.as_posix()=='hardware/adapters/sms.hpp':
                 if candidate.read_text(encoding='utf8')!=sms_video_transform(original.read_text(encoding='utf8')):
                     raise ValueError('Cached native SMS video plugin bridge was changed')
@@ -149,6 +157,8 @@ def stage(project,cache):
             instrument(c)
             if sha256(c/'interactive.cpp')!=sha256(target/'interactive.cpp'):
                 raise ValueError('Cached native input frontend has been changed')
+        if sha256(target/'hardware/rd_movement_trace.hpp')!=sha256(MOVEMENT_HEADER):
+            raise ValueError('Cached movement trace recorder changed')
         if sha256(target/'hardware/rd_sms_mode4.h')!=sha256(SMS_HEADER) or sha256(target/'hardware/rd_sms_mode4_bridge.hpp')!=sha256(SMS_BRIDGE):
             raise ValueError('Cached SMS video plugin API/adapter was changed')
         if sha256(target/'hardware/rd_runtime_host.h')!=sha256(SOURCE/'runtime_host/include/rd_runtime_host.h'):
@@ -189,7 +199,7 @@ def run(args):
     dest=output/runid;dest.mkdir(exist_ok=False)
     rom_digest=None
     record={'schema':'recompdev-generic-native-host-v0.1.0',
-            'mode':args.mode,'frames_requested':args.frames,'steps_requested':args.steps,
+            'mode':args.mode,'movement_trace_requested':args.movement_trace,'frames_requested':args.frames,'steps_requested':args.steps,
             'original_rom_required_at_runtime':True,
             'system_independent_host':True,
             'actual_gameplay_parity':'NOT_ESTABLISHED','status':'NOT_STARTED'}
@@ -239,6 +249,8 @@ def run(args):
         env=os.environ.copy();env['RECOMPDEV_RUNTIME_HOST_DLL']=str(dll)
         env['RECOMPDEV_SMS_MODE4_DLL']=str(video_dll)
         env['RECOMPDEV_SMS_VIDEO_STATS']=str(dest/'sms-sprite-stats.csv')
+        if args.movement_trace:
+            env['RECOMPDEV_MOVEMENT_TRACE_DIR']=str(dest)
         if args.mode=='window':
             env['RECOMPDEV_RUNTIME_HOST_INPUT_EVENTS']=str(dest/'input-events.jsonl')
             env['RECOMPDEV_GUEST_INPUT_REPLAY']=str(dest/'guest-input-cycles.csv')
@@ -253,6 +265,11 @@ def run(args):
                 observed=json.loads(line.partition('=')[2]);break
         if not isinstance(observed,dict):
             raise ValueError('Native application produced no structured guest result; inspect logs')
+        if args.movement_trace:
+            from movement_trace.analyze import write_report
+            report=write_report(dest)
+            record['movement_diagnostics']='movement-diagnostics.json'
+            record['movement_trace_validity']=report['trace_validity']
         record.update(guest_status=observed.get('status'),
                       input_event_capture='input-events.jsonl' if (dest/'input-events.jsonl').is_file() else 'NOT_AVAILABLE',
                       native_steps_observed=observed.get('native_steps'),
@@ -304,6 +321,7 @@ def parse_args(argv=None):
     p.add_argument('--snapshot-every',type=int,default=120)
     p.add_argument('--timeout',type=int,default=420)
     p.add_argument('--hold-window',action='store_true')
+    p.add_argument('--movement-trace',action='store_true',help='Capture guest controller-port reads and VDP/sprite-position diagnostics')
     a=p.parse_args(argv)
     if a.input_events and a.mode!='headless':p.error('Replay and physical/live input are mutually exclusive')
     if not 1<=a.frames<=36000 or not 1<=a.steps<=20000000 or not 0<=a.snapshot_every<=600 or not 30<=a.timeout<=900:

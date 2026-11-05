@@ -8,6 +8,7 @@ import hashlib
 from pathlib import Path
 from runtime_host.guest_input_tap import instrument
 from video_sms.bridge import install as install_sms_video
+from movement_trace.bridge import install as install_movement_trace
 
 ROOT=Path(__file__).resolve().parents[1]
 BRIDGE=ROOT/'runtime_host'/'bridge'
@@ -32,6 +33,7 @@ def install(project:Path)->dict:
     line='target_link_libraries(RecompDevNativeApp PRIVATE ${CMAKE_DL_LIBS})\n'
     if line not in raw:cmake.write_text(raw.rstrip()+'\n\n# Generic runtime host: dynamic presentation adapter only.\n'+line,encoding='utf8');touched.append('CMakeLists.txt')
     touched.extend(install_sms_video(project))
+    touched.extend(install_movement_trace(project))
     tap=instrument(project)
     if tap['status']=='INSTRUMENTED':touched.append('interactive.cpp')
     after=hashlib.sha256((project/'translated.cpp').read_bytes()).hexdigest()

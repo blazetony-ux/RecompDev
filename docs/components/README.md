@@ -42,3 +42,5 @@ The currently registered components are declared by `workspace/components.json`.
 
 - `rd_video_sms_mode4` — independently compiled Master System Mode 4 sprite/video plugin, production-video scope.
 - `sms_video_integration` — source-only generated native video bridge, production-video-integration scope.
+
+`movement_trace` (`production-diagnostics`) independently versions the opt-in guest input/port read/scroll/SAT observation path. It does not alter input mapping or any compiled runtime/CPU/video DLL.

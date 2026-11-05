@@ -1,5 +1,11 @@
 # RecompDev workspace changelog
 
+## [workspace/v0.4.9.3] - 2026-11-05
+
+- Added `movement_trace` v0.1.0 as a source-only, opt-in diagnostic component; correlated logical player input, actual guest SMS controller readbacks, VDP scroll registers and raw SAT sprite positions using guest-cycle/frame timestamps. It does not change the keyboard mapping or claim to identify the player sprite.
+- Integrated the tracer into external native-project staging and the automatic runtime-host evidence ZIP; `Run-Native-Game.ps1 -MovementTrace` enables it. All active DLLs, protected legacy code, generated translated instructions and the Workbench remain unchanged.
+- Tests include staged native compilation and captured trace, strict source-integrity and negative controller mapping cases. **The existing Shinobi movement-direction anomaly and untranslated `0x1E09` are not claimed fixed.** See [v0.4.9.3 release](docs/releases/v0.4.9.3.md).
+
 ## [workspace/v0.4.9.2] - 2026-11-05
 
 - Added replaceable production `rd_video_sms_mode4` v0.1.0 dynamic video DLL: implements sprite compositing, palette/priority and timing-boundary diagnostics behind an independent C ABI. The generic controller, runtime host DLL and translated game instructions are not changed.

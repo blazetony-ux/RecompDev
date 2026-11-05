@@ -31,6 +31,7 @@ with tempfile.TemporaryDirectory(prefix='recomp-native-host-generated-') as fold
     env=os.environ.copy()
     env['RECOMPDEV_RUNTIME_HOST_DLL']=sys.argv[1]
     env['RECOMPDEV_SMS_MODE4_DLL']=sys.argv[2]
+    env['RECOMPDEV_MOVEMENT_TRACE_DIR']=str(temp)
     out=temp/'capture'
     p=subprocess.run([str(app),str(ROM),str(out),'2','200','-',
                       '--video','capture','--audio','capture','--input','neutral'],
@@ -41,5 +42,8 @@ with tempfile.TemporaryDirectory(prefix='recomp-native-host-generated-') as fold
     result=json.loads(marker.split('=',1)[1])
     assert result['native_steps']==6 and result['status']=='BANKED_CODE_NOT_TRANSLATED',result
     assert result['hardware_parity']=='NOT_TESTED'
+    from movement_trace.analyze import analyze
+    trace=analyze(temp)
+    assert trace['controller_transitions']>=1 and trace['trace_validity']=='INSUFFICIENT_CONTROLLER_READS',trace
     assert hashlib.sha256((project/'translated.cpp').read_bytes()).hexdigest()==original
     print('GENERATED_NATIVE_APP_HOST_BRIDGE_PASS; verified translated C++ unchanged; expected stop at missing bank code')

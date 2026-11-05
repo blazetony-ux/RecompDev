@@ -49,3 +49,7 @@ The original 600-frame Shinobi milestone has been re-established with the preser
 ## Native video acceptance following workspace/v0.4.9.2
 
 First inspect a Windows native Shinobi run with `rd_video_sms_mode4` active. Require loaded plugin version/hash, `sms-sprite-stats.csv` SAT activity and visible character/enemy pixels before claiming real gameplay graphics. Independently recover the `0x1E62` guest code path using the existing input-recovery engine. Later qualify video accuracy against independent hardware/emulator traces, including sprite status and scanline effects; do not rewrite the generic host or original translator for video behaviour.
+
+## Movement observability milestone — v0.4.9.3
+
+Shinobi's apparent mid-session movement reversal is an unresolved accuracy issue, separate from the `0x1E09` untranslated-code stop. The immediate milestone is a controlled Left/Right guest-cycle trace proving whether the observed input differs at the host, console I/O, guest state, or display layer. The new `movement_trace` component records real guest DC/DD reads and per-frame raw SAT/scroll values; this enables a diagnosis but is deliberately not a speculative controls fix. Later milestones: reference emulator comparison of hardware timing/sprite priority, controller accuracy across consoles, sustained gameplay coverage, audio playback and ROM-independent output.
