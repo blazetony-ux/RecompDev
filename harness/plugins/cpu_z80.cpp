@@ -72,3 +72,38 @@ extern "C" RD_EXPORT int rd_z80_source_gate_v1(const uint8_t *bytes,
     if(expected && expected!=length) return -1;
     return expected ? 1 : 2;
 }
+
+#include "rd_native_discovery_v1.h"
+// Conservative independent *source* decoder, not an executing CPU/translator.
+// Never invent index-prefix lengths, dynamic branch destinations or bank state.
+extern "C" RD_EXPORT int rd_z80_decode_source_v1(const RD_SourceV1*s,
+    uint64_t physical,uint16_t pc,RD_Z80DecodeV1*r){
+ if(!s||!r||s->abi_version!=RD_NATIVE_DISCOVERY_ABI||s->struct_size!=sizeof(*s)||!s->read||r->struct_size!=sizeof(*r))return -2;
+ *r={};r->abi_version=RD_NATIVE_DISCOVERY_ABI;r->struct_size=sizeof(*r);r->pc=pc;
+ uint8_t bytes[4]{};
+ if(physical>=s->byte_size||!s->read(s->ctx,physical,bytes,1))return -1;
+ uint8_t op=bytes[0];r->opcode=op;
+ if(op==0xdd||op==0xfd||op==0xed)return 2; // fail closed on semantics/length uncertainty
+ uint32_t length=1;
+ if(op==0xcb)length=2;
+ else if(op==0x01||op==0x11||op==0x21||op==0x31||op==0x22||op==0x2a||op==0x32||op==0x3a||op==0xc3||op==0xcd||(op&0xc7)==0xc2||(op&0xc7)==0xc4)length=3;
+ else if((op&0xc7)==0x06||op==0x10||op==0x18||op==0x20||op==0x28||op==0x30||op==0x38||op==0xd3||op==0xdb||(op&0xc7)==0xc6)length=2;
+ if(physical+length>s->byte_size || unsigned(pc)+length>0x10000u)return -1;
+ if(!s->read(s->ctx,physical,bytes,length))return -1;
+ RD_Z80SourceGateResultV1 gate{};gate.struct_size=sizeof(gate);
+ if(rd_z80_source_gate_v1(bytes,length,uint32_t(physical),&gate)!=1)return 2;
+ r->length=length;r->flow=RD_FLOW_FALL;
+ if(op==0x76){r->flow=RD_FLOW_STOP;}
+ else if(op==0xc9){r->flow=RD_FLOW_RETURN;}
+ else if((op&0xc7)==0xc0){r->flow=RD_FLOW_INDIRECT;}
+ else if(op==0xe9){r->flow=RD_FLOW_INDIRECT;}
+ else if(op==0xc3||op==0xcd||(op&0xc7)==0xc2||(op&0xc7)==0xc4){
+  r->target=uint16_t(bytes[1]|uint16_t(bytes[2])<<8);
+  r->conditional=(op!=0xc3&&op!=0xcd);
+  r->flow=op==0xcd||(op&0xc7)==0xc4?RD_FLOW_CALL:r->conditional?RD_FLOW_COND:RD_FLOW_JUMP;
+ }else if(op==0x10||op==0x18||op==0x20||op==0x28||op==0x30||op==0x38){
+  r->target=uint16_t(pc+length+int8_t(bytes[1]));
+  r->conditional=op!=0x18;r->flow=r->conditional?RD_FLOW_COND:RD_FLOW_JUMP;
+ }else if((op&0xc7)==0xc7){r->target=uint16_t(op&0x38);r->flow=RD_FLOW_CALL;}
+ r->status=1;return 1;
+}

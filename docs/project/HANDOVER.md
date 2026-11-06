@@ -1,3 +1,5 @@
+**AUTHORITATIVE BUILD GATE:** Read [DEVELOPMENT-CONTRACT.md](DEVELOPMENT-CONTRACT.md) and the exact approved [v0.4.9.7 pre-build report](PREBUILD-v0.4.9.7.md) before writing code; changes to scope require explicit owner approval. Core orchestration must move from Python wrappers to native `RecompDev.exe` and DLLs, while preserving the Shinobi baseline described below.
+
 # RecompDev handover — source-of-truth status
 
 **Status:** Current as of 2026-11-05. This file must be updated with every accepted workspace release that changes engineering status.
@@ -83,3 +85,23 @@ The owner successfully installed **v0.4.9.5 WindowsFix3 (44/44 C++ CTest on Wind
 Universal discovery evidence from SMS Sonic, MD Sonic and PS1 Ridge Racer confirmed that earlier `DISCOVERY_COMPLETE` results could execute **zero new tasks**, using an existing history catalogue; historical MEGA DRIVE/PS1 analysis and extraction capabilities survive in `legacy/`. The new `discovery_integration` bridge makes this distinction explicit, read-only, using independently replaceable legacy structure/catalogue/ISO providers selected from a versioned registry. Its first acceptance concerns **provenance and truthful discovery reporting**, not CPU translation or game completion. Controller alone routes communication; active Z80, SMS video/audio, runtime and monitor execution are untouched.
 
 Next engineering priorities: cross-ISA discovery task attribution and scheduling by authenticated source; reusable executable extraction and static IR adapter contracts; active 68000/MIPS plugin qualification; independently validated native-vs-reference hardware behaviour. Maintain the Shinobi monitor, recovery, input and scroll diagnostics as regression gates when touching native execution.
+
+## v0.4.9.7 CANDIDATE (not Windows-accepted)
+
+Native `RecompDev` controller 0.4.5 now contains a direct structural discovery path using DLL providers `rd_format_sms`, `rd_format_md`, `rd_format_ps1`, plus Z80 decode extension in `rd_cpu_z80` 0.3.0 and conservative ROM offset mapping in `rd_machine_sms` 0.2.0. Its `--stage discover` does NOT launch Python. Historical pipeline is available explicitly as `--stage legacy-discover`, and preparation/recovery remain transitional Python routes. Source hashing is full-file streaming SHA-256; event recorder ABI is unchanged.
+
+**Not finished:** Master System real-ROM P-code translation/build acceptance, independent gameplay semantics, owner Windows CTest, DLL deployment. Do **not** call v0.4.9.7 installed. Shinobi prior successes and defects persist unchanged, including reported reversed scrolling and untranslated `0x4F9E`. A controlled promotion requires every gate in the approved pre-build report.
+
+## v0.4.9.8 — permanent release infrastructure candidate (2026-11-05)
+
+The owner confirmed that **v0.4.9.7 was never installed**. The only validated Windows source baseline is `workspace/v0.4.9.6`, Git `7243e62851684477764117398b48ee335673eac2`. v0.4.9.8 incorporates the same uninstalled native discovery candidate plus the owner-directed **one permanent Git-managed `Install-RecompDev-Release.ps1`** and per-release source ZIP protocol. The one-time Downloads bootstrap is necessary because the root script is not in v0.4.9.6. The package is candidate-only until the real Master System ROM/P-code/native-build acceptance succeeds and the full Windows regression suite passes. Do not tag or deploy it early. See [v0.4.9.8 pre-build amendment](PREBUILD-v0.4.9.8.md), [development contract](DEVELOPMENT-CONTRACT.md), and [release process](../development/RELEASE-PROCESS.md).
+
+The compiled controller 0.4.5 and new format DLLs are **candidate only**. Existing v0.4.9.6 runtime, live monitor, deterministic input replay and source-verified Shinobi recovery remain the validated baseline. Shinobi Right-input scrolling anomaly and untranslated stop `0x4F9E` around frame 730 remain unresolved. Future work must improve universal discovery/translation through native EXE/DLL interfaces, without game-specific fixes or new Python/PowerShell runtime orchestration.
+
+## 2026-11-06 — installable v0.4.9.8 scope following owner Windows validation
+
+The owner is still on `workspace/v0.4.9.6`, Git `7243e62851684477764117398b48ee335673eac2`, because v0.4.9.7 was never installed and v0.4.9.8 initially ran in **Validate mode only**. The owner-provided Windows log confirms **45/45 CTests**, workspace 21/21, discovery 10/10, release protocol 6/6, documentation PASS and the original 642/642 frozen files identical. Native `RecompDev.exe` and v0.4.9.8 DLLs compiled with Visual Studio Build Tools. The user explicitly demanded a real installable ZIP, Git commit and tag *before any further development*.
+
+The revised v0.4.9.8 package is **installable for its proven native discovery scope only**. It adds format SMS/MD/PS1 DLLs, conservative Z80 and SMS extensions, direct native controller discovery and the one permanent project-root Git-managed installer. First installation begins using the ZIP-matched bootstrap from Downloads. `-Mode Install` must create a Git commit and `workspace/v0.4.9.8` tag, verified external bundle, updated canonical runtime lockfile and active binaries; **do not claim installed before a successful owner Install log**. The controller key in that lockfile is `controller`, not `RecompDev`.
+
+**First next engineering milestone AFTER successful installation:** connect source-verified code from a real Master System ROM through the full preserved P-code translation provider into compiled native C++ using modular controller/plugin interfaces; retain all Shinobi monitor/replay evidence and unresolved scrolling / `0x4F9E` stop. Not delivered by the discovery release; no gameplay parity or ROM-free runtime is claimed.

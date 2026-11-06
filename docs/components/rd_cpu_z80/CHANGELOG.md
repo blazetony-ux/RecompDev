@@ -1,5 +1,11 @@
 # rd_cpu_z80 — independent changelog
 
+## [0.3.0] - 2026-11-05
+
+- **Changed:** Conservative source-byte-verified Z80 decode, including explicit unsupported prefix and indirect control-flow gaps.
+- **Validation:** Linux CMake/CTest native discovery contract and existing harness regressions; full Windows and real-ROM translation/build remain acceptance gates.
+- **Compatibility:** New `rd_z80_decode_source_v1` extension, retaining original interpreter and production gate ABI.
+
 This file records only changes to `rd_cpu_z80`. Component versioning is independent of workspace release tags.
 
 ## [0.1.0] - 2026-11-04

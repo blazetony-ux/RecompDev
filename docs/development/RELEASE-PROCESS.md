@@ -1,36 +1,44 @@
-# Git release process and documentation gates
+# RecompDev — permanent Git-managed release process (protocol v1)
 
-**Status:** Current for v0.4.5 governance tooling. Last reviewed: 2026-11-04.
+**Effective design:** v0.4.9.8 installable native-discovery release; owner Install-mode result pending. **Validated local owner baseline:** workspace/v0.4.9.6 (`7243e62851684477764117398b48ee335673eac2`). The v0.4.9.7 candidate was **never installed**.
 
-## Component releases versus workspace snapshots
+## One permanent script, one source ZIP per future build
 
-Each component owns its version and `docs/components/<id>/CHANGELOG.md`. Increment **only the component whose implementation or contract changes**. A workspace tag `workspace/vA.B.C` records a validated combination of components and documentation; it does not force changing any DLL or controller version. Immutable binary hashes are enforced by the runtime store.
+The sole source release entry point is `C:\Projects\RecompDev\Install-RecompDev-Release.ps1`, versioned as `release_installer` in `workspace/components.json`, with [component documentation](../components/release_installer/README.md). Do not issue new `Apply-...ps1` or `Validate-...ps1` installers per release. Existing named scripts remain historical reference and are not the future distribution method. One optional game-launch wrapper may remain.
 
-## Acceptance checks (automated)
+Each new package is named `RecompDev-vX.Y.Z.zip` and contains only `release-manifest.json` plus `files/<source-relative-path>` for every changed file. The manifest pins expected Git HEAD and baseline release tag, old/new per-file SHA-256, changed native binary targets/versions, commit message, promotion status and mandatory test names. It does **not** contain commercial game files, external catalogues, binaries, `legacy/` or `baselines/` modifications.
 
-1. Allow only the named component source boundary, its `workspace/components.json` version increase and its own changelog file. Never stage unrelated untracked files or secrets.
-2. Require `## [new.version] - YYYY-MM-DD` in the **changed** component changelog, followed by meaningful `Changed`, `Validation`, and `Compatibility` information. Generic words such as 'updated plugin' are insufficient.
-3. Compile only the selected CMake target; run relevant regression gates and unchanged historical-source preservation checks.
-4. Git-commit approved source and docs together **only after** those checks succeed; then activate the independently versioned binary, retaining the previous binary for rollback.
-5. A workspace release also checks [documentation standards](DOCUMENTATION-STANDARDS.md), the release note `docs/releases/vA.B.C.md`, matching `CHANGELOG.md`, a clean working tree and the full existing CTest suite. Create tag and external Git bundle only afterward.
+A user-visible one-line command must provide an **independent SHA-256 of the complete ZIP** via `-ExpectedSha256`; the installer must verify that value before trusting the manifest or extracting anything. Hashes *inside* a ZIP alone are insufficient to authenticate its provenance.
 
-The documentation gate is implemented in `workspace/docs_governance.py`, called by `workspace/manager.py`. The existing compiled controller forwards these new source-only commands without a rebuild:
+## One-time bootstrap only (v0.4.9.8)
+
+The installed v0.4.9.6 has no Git-managed root installer. On the first attempt only, download the permanent installer alongside the ZIP and execute **the matching Downloads copy** in `Install` mode (after the full Windows Validate-mode pass):
 
 ```powershell
-& 'C:\Projects\RecompDev-Runtime\RecompDev.exe' plugin docs-check
-& 'C:\Projects\RecompDev-Runtime\RecompDev.exe' plugin docs-accept
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$env:USERPROFILE\Downloads\Install-RecompDev-Release.ps1" -Package "$env:USERPROFILE\Downloads\RecompDev-v0.4.9.8.zip" -ExpectedSha256 "<independently-provided-64-hex-zip-hash>" -Mode Install
 ```
 
-`docs-check` validates the knowledge base without compiling; `docs-accept` Git-commits a **documentation-only** change after tests, with no component version bump. When governance tooling code itself changes, bump and accept only `workspace_governance`; its acceptance runs Python/documentation tests without building a C++ DLL.
+The independent ZIP SHA-256 and a byte-for-byte match between the downloaded bootstrap and the ZIP-embedded script are checked first. In `-Mode Install`, only a successful end-to-end transaction copies the source into the Git checkout, commits the permanent installer, creates the tag and activates the binaries. Failure before or after that point must not be called installed. `-Mode Validate` never changes source, Git tags or active binaries.
 
-## Documentation-only releases
+## Standard command after the root installer is Git-managed
 
-A documentation-only workspace update is allowed. It updates **only** docs and the separately versioned `workspace_governance` tooling if necessary, tests those tools and existing binaries, commits the approved changes and tags the workspace. It does **not** redeploy or increment the controller, CPU or hardware DLL versions. The v0.4.5 migration includes a single-file source update that checks original hashes, takes an external backup, validates, and restores files if a pre-commit step fails.
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "C:\Projects\RecompDev\Install-RecompDev-Release.ps1" -Package "$env:USERPROFILE\Downloads\RecompDev-vX.Y.Z.zip" -ExpectedSha256 "<independently-provided-64-hex-zip-hash>" -Mode Install
+```
 
-## Failure states and rollback
+`-ExecutionPolicy Bypass` changes only that PowerShell process; it is not antivirus, application-control or organisational policy bypass. Do not modify machine-wide policy.
 
-If a targeted build/test/docs gate fails, no new binary should be activated and no release tag created. Source edits from manual development remain visible for correction; packaged updates should restore their old source files. A commit that passes tests but fails activation is explicit `COMMITTED_NOT_ACTIVATED`, never a false success. A Git revert/checkout is distinct from runtime plugin rollback.
+## Transaction and safety requirements
 
-## Evidence and release metadata
+1. Verify independent package SHA-256, safe nonduplicated ZIP paths, manifest file hashes and source content. Refuse protected historical paths and unexpected binary files.
+2. Verify clean Git checkout and **exact baseline commit**. Match old SHA-256 against raw `git cat-file blob HEAD:path` bytes, not line-ending-dependent worktree copies or ZIP extraction. Verify tag matches HEAD.
+3. Stage Git archive and changed source outside the checkout; run docs governance, affected Python tests, original 642-file preservation, full CMake build and `ctest --test-dir ... -C Release` in external paths. Record actual built EXE/DLL hashes.
+4. `-Mode Validate` stops without modifying Git source, tags, active DLLs or original ROMs. A candidate with unmet approved requirements stays **BLOCKED** even if tests pass.
+5. `-Mode Install` is permitted only for a promotion-eligible manifest and successful mandatory acceptance. Apply exactly the manifest-declared files; Git add/commit/tag; create/verify external Git bundle; activate versioned EXE/DLL binaries with SHA-256 lockfile; preserve previous active binaries for rollback. No failed release may be reported `INSTALLED`.
+6. Report actual build/test results, source and compiled version changes, bundle location and rollback status. Do not conceal missing Windows tests or claim native gameplay parity.
 
-Keep human-readable notes in `docs/releases/` and relevant component changelogs. Build/test logs and upload ZIPs go to external `RecompDev-Evidence` roots. A release note must say *what was actually tested*, on which platform, and which limitations remain. Historical snapshots are not retroactively rewritten as proven gameplay parity.
+The installer must remain stable across releases and be changed only through a separately approved, versioned, regression-tested amendment. Native discovery, translation, runtime and monitoring remain responsibilities of `RecompDev.exe` and DLL plugins, **not** an expanding collection of PowerShell/Python wrappers.
+
+## v0.4.9.8 first owner installation
+
+Owner Windows 2026-11-06 `Validate` passed 45/45 CTests, docs, Python tests, and 642 original-file hashes, but left Git at v0.4.9.6 by design. The owner subsequently approved promoting the implemented discovery-only scope as an installable release. The previously approved real-ROM P-code-to-native-build demonstration remains an explicit follow-up engineering milestone. The v0.4.9.8 installable package uses `promotion_eligible=true`, requires named existing acceptance tests and reruns the full suites before touching the live checkout; it does not waive integrity or parity claims. The first actual `Install` run must be independently verified by checking `git log -1`, `git tag --points-at HEAD`, clean `git status`, and active component hashes.

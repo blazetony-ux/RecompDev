@@ -1,5 +1,23 @@
 # RecompDev workspace changelog
 
+## [workspace/v0.4.9.8] - 2026-11-06
+
+- **Installable native-discovery release; owner installation pending:** Repackages all uninstalled v0.4.9.7 native controller (0.4.5) and format/CPU/machine DLL source changes on verified owner v0.4.9.6 baseline. No claim that v0.4.9.7 was installed or that newly discovered Master System code has passed the full preserved P-code translator and native compilation gate.
+- Introduces one permanent Git-managed `Install-RecompDev-Release.ps1` v1.0.0 to consume independently SHA-256-pinned source ZIPs, validate committed Git blob bytes, stage/compile/test externally, and conditionally commit, tag, back up and activate binaries only after acceptance. First candidate run uses a one-time matching Downloads bootstrap; future accepted releases reuse the root script.
+- Documents permanent release process, owner-approved prebuild amendment, scoped protections, native discovery continuity and unresolved Shinobi input/scroll and untranslated-code issues. No frozen historical file or active runtime is replaced by candidate validation; Install mode alone can activate binaries after all checks.
+
+- Windows owner Validate-mode on 2026-11-06 passed 45/45 CTests, 21/21 workspace tests, 10/10 discovery tests, 6/6 installer source checks, documentation governance, and 642/642 frozen-source verification. Native discovery components compiled with MSVC.
+- **Owner-directed release-scope amendment:** promote only implemented native discovery and Git-controlled release infrastructure. The outstanding real-ROM -> preserved P-code -> native game build remains the next engineering milestone, not a v0.4.9.8 installation acceptance gate. Install mode must create a commit, tag, bundle and active-binary lockfile before reporting success; earlier Validate runs did not.
+- Release installer follows canonical runtime component IDs (`controller`, not executable basename) and verifies Git tag, clean checkout and locked activated DLL hashes after installation.
+
+## [workspace/v0.4.9.7] - 2026-11-05
+
+- **CANDIDATE / NOT INSTALLED:** Compiled controller `0.4.5` now executes structural `--stage discover` via native DLL provider ABI; no Python discovery subprocess. Previous historical discovery remains explicitly available as `--stage legacy-discover`.
+- Added compiled `rd_format_sms`, `rd_format_md` and `rd_format_ps1` v0.1.0; extended Z80 and SMS compiled plugins with conservative source decode and static bank-mapping interfaces, keeping previous interpreter/bus ABI.
+- Added full-file streaming source SHA-256, per-plugin SHA-256, source-byte-attested Z80 instruction/basic-block candidates, unresolved dynamic/banked branch reporting and synthetic cross-platform CTest coverage.
+- Enforced the owner-approved [development contract](docs/project/DEVELOPMENT-CONTRACT.md) and preserved its [pre-build report](docs/project/PREBUILD-v0.4.9.7.md). No game-specific modifications or changes to the Shinobi runtime, its earlier monitor/recovery evidence, or 642 protected files.
+- **BLOCKED acceptance:** At least one newly identified block from a real Master System ROM must still be source-verified through preserved Ghidra P-code lowering and native compilation; owner Windows tests and deployment hashes also remain unverified. This implementation must not be promoted as an installed release until those requirements pass.
+
 ## [workspace/v0.4.9.6] - 2026-11-05
 
 - Introduced `discovery_integration` v0.1.0, a controller-owned read-only discovery evidence bridge using a versioned registry of interchangeable historical structural, catalogue and ISO sector providers. New reports distinguish fresh work from cached unresolved tasks; they do not claim full code extraction, translation or parity.

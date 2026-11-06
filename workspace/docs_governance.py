@@ -105,6 +105,7 @@ def check(source: Path = SOURCE, *, release: str | None = None) -> dict:
         'docs/architecture/DATA-FLOW.md',
         'docs/architecture/decisions/README.md',
         'docs/project/PROJECT-VISION.md', 'docs/project/HANDOVER.md',
+        'docs/project/DEVELOPMENT-CONTRACT.md', 'docs/project/PREBUILD-v0.4.9.7.md',
         'docs/project/ROADMAP.md', 'docs/development/WORKSPACE.md',
         'docs/development/RELEASE-PROCESS.md',
         'docs/development/DOCUMENTATION-STANDARDS.md',
@@ -127,9 +128,29 @@ def check(source: Path = SOURCE, *, release: str | None = None) -> dict:
     missing = [p for p in required if not (source / p).is_file()]
     if missing:
         raise ValueError('Missing authoritative documents: ' + ', '.join(missing))
+    if version >= 'v0.4.9.8':
+        installer=source/'Install-RecompDev-Release.ps1'
+        if not installer.is_file() or installer.stat().st_size < 2000:
+            raise ValueError('Permanent root release installer missing or incomplete')
+        process=(source/'docs/development/RELEASE-PROCESS.md').read_text(encoding='utf8')
+        if not all(x in process for x in ('-ExpectedSha256', '-Mode Validate', '-Mode Install', 'Git-managed')):
+            raise ValueError('Permanent installer release process is not fully documented')
     for p in required:
         if (source / p).stat().st_size < 110:
             raise ValueError('Document too short to be useful: ' + p)
+    # A release cannot silently lose the owner's native-first/approval contract.
+    contract=(source/'docs/project/DEVELOPMENT-CONTRACT.md').read_text(encoding='utf8')
+    if not all(x.lower() in contract.lower() for x in ('mandatory approval', 'RecompDev.exe', 'Shinobi', 'DLL')):
+        raise ValueError('Binding development contract is incomplete')
+    handover=(source/'docs/project/HANDOVER.md').read_text(encoding='utf8')
+    if 'DEVELOPMENT-CONTRACT.md' not in handover or 'PREBUILD-v0.4.9.7.md' not in handover:
+        raise ValueError('Handover must reference owner-approved development contract and report')
+    prebuild=(source/'docs/project/PREBUILD-v0.4.9.7.md').read_text(encoding='utf8')
+    if 'approval' not in prebuild.lower() or 'SHINOBI' not in prebuild.upper():
+        raise ValueError('Pre-build report missing approval rules or Shinobi continuity')
+    release_doc=(source/f'docs/releases/{version}.md').read_text(encoding='utf8')
+    if version >= 'v0.4.9.7' and not all(x in release_doc for x in ('DEVELOPMENT-CONTRACT.md', 'PREBUILD-v0.4.9.7.md', 'BLOCKED')):
+        raise ValueError('Release compliance must acknowledge approved scope and remaining acceptance blockers')
     log = (source / 'CHANGELOG.md').read_text(encoding='utf8')
     check_workspace_changelog(log, current_release)
     for name, spec in components.items():

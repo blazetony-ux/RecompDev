@@ -1,4 +1,5 @@
-// RecompDev v0.4.4: compiled CLI/controller entry point.
+#include "native_discovery.hpp"
+// RecompDev v0.4.5: native discovery controller with explicit legacy fallback.
 // The preserved Python analysis/recovery services are deliberately retained.
 // No shell invocation: all forwarded arguments remain literal even with spaces.
 #include <filesystem>
@@ -126,7 +127,7 @@ static fs::path project_root(fs::path exe){
     throw std::runtime_error("RecompDev source checkout not found; runtime needs source-root.txt");
 }
 static void usage(){
-    std::cout<<"RecompDev v0.4.4 native controller (legacy services retained)\n"
+    std::cout<<"RecompDev v0.4.5 native controller (legacy services retained)\n"
       "Usage: RecompDev.exe --rom FILE --stage discover|prepare|recover [options]\n"
       "  --steps N --frames N --max-recoveries N --timeout N --capture-hardware\n"
       "  --auto-continue --max-rounds N (continue source-verified recovery in bounded batches)\n"
@@ -134,7 +135,7 @@ static void usage(){
       "  --analyze-evidence DIR [--out DIR] [--reference-image PNG] [--reference-session JSON]\n"
       "  --plugins | --verify | --status | --help\n"
       "  plugin build|test|activate|rollback|bump|status|release [args]\n"
-      "The compiled controller invokes unchanged RecompDev v0.4.0.45 Python services.\n";
+      "Native --stage discover loads native format/CPU/machine DLLs; use --stage legacy-discover for historical Python pipeline.\n";
 }
 #ifdef _WIN32
 int wmain(int argc,wchar_t** argv)
@@ -158,20 +159,45 @@ int main(int argc,char** argv)
 #endif
           )){usage();return 0;}
 #ifdef _WIN32
-        if(equals(argv[1],L"--version")){std::cout<<"RecompDev 0.4.4\n";return 0;}
+        if(equals(argv[1],L"--version")){std::cout<<"RecompDev 0.4.5\n";return 0;}
         if(equals(argv[1],L"plugin"))op="plugin-manager";
         if(equals(argv[1],L"--plugins"))op="plugins";
         if(equals(argv[1],L"--verify"))op="verify";
         if(equals(argv[1],L"--status"))op="status";
         if(equals(argv[1],L"--analyze-evidence"))op="review-evidence";
 #else
-        if(equals(argv[1],"--version")){std::cout<<"RecompDev 0.4.4\n";return 0;}
+        if(equals(argv[1],"--version")){std::cout<<"RecompDev 0.4.5\n";return 0;}
         if(equals(argv[1],"plugin"))op="plugin-manager";
         if(equals(argv[1],"--plugins"))op="plugins";
         if(equals(argv[1],"--verify"))op="verify";
         if(equals(argv[1],"--status"))op="status";
         if(equals(argv[1],"--analyze-evidence"))op="review-evidence";
 #endif
+        // Detect native discovery before resolving the Python checkout. The native
+        // path requires only the binary and independently deployed DLL providers.
+        bool native_discover=false,legacy_discover=false;
+        for(int i=1;i+1<argc;++i){
+#ifdef _WIN32
+          if(equals(argv[i],L"--stage")){native_discover=equals(argv[i+1],L"discover");legacy_discover=equals(argv[i+1],L"legacy-discover");}
+#else
+          if(equals(argv[i],"--stage")){native_discover=equals(argv[i+1],"discover");legacy_discover=equals(argv[i+1],"legacy-discover");}
+#endif
+        }
+        if(native_discover){
+           std::vector<std::string> args;
+#ifdef _WIN32
+           for(int i=1;i<argc;++i){
+              int n=WideCharToMultiByte(CP_UTF8,WC_ERR_INVALID_CHARS,argv[i],-1,nullptr,0,nullptr,nullptr);
+              if(!n)throw std::runtime_error("ARGUMENT_UTF8_CONVERSION_FAILED");
+              std::string u(size_t(n), '\0');
+              if(!WideCharToMultiByte(CP_UTF8,WC_ERR_INVALID_CHARS,argv[i],-1,u.data(),n,nullptr,nullptr))throw std::runtime_error("ARGUMENT_UTF8_CONVERSION_FAILED");
+              u.pop_back();args.push_back(std::move(u));
+           }
+#else
+           for(int i=1;i<argc;++i)args.emplace_back(argv[i]);
+#endif
+           return rd_native_discover(args,self_path());
+        }
         fs::path root=project_root(self_path());
 #ifdef _WIN32
         std::vector<std::wstring> forwarded;
@@ -180,7 +206,7 @@ int main(int argc,char** argv)
             for(int i=2;i<argc;++i)forwarded.emplace_back(argv[i]);
         }else{
             forwarded={(root/L"modular"/L"cli.py").wstring(),std::wstring(op.begin(),op.end())};
-            if(op=="run-rom")for(int i=1;i<argc;++i)forwarded.emplace_back(argv[i]);
+            if(op=="run-rom")for(int i=1;i<argc;++i){if(legacy_discover&&i>1&&equals(argv[i-1],L"--stage"))forwarded.emplace_back(L"discover");else forwarded.emplace_back(argv[i]);}
             if(op=="review-evidence") {for(int i=1;i<argc;++i) {if(i==1) forwarded.emplace_back(L"--evidence-dir"); else forwarded.emplace_back(argv[i]);}}
         }
 #else
@@ -190,7 +216,7 @@ int main(int argc,char** argv)
             for(int i=2;i<argc;++i)forwarded.emplace_back(argv[i]);
         }else{
             forwarded={(root/"modular"/"cli.py").string(),op};
-            if(op=="run-rom")for(int i=1;i<argc;++i)forwarded.emplace_back(argv[i]);
+            if(op=="run-rom")for(int i=1;i<argc;++i){if(legacy_discover&&i>1&&equals(argv[i-1],"--stage"))forwarded.emplace_back("discover");else forwarded.emplace_back(argv[i]);}
             if(op=="review-evidence") {for(int i=1;i<argc;++i) {if(i==1) forwarded.emplace_back("--evidence-dir"); else forwarded.emplace_back(argv[i]);}}
         }
 #endif

@@ -1,3 +1,7 @@
+**Permanent release installer:** `Install-RecompDev-Release.ps1` is Git-managed after first accepted promotion; see [single ZIP release procedure](docs/development/RELEASE-PROCESS.md) and [v0.4.9.8 installable release](docs/releases/v0.4.9.8.md).
+
+**Mandatory development policy:** [Native-first development contract](docs/project/DEVELOPMENT-CONTRACT.md) and [approved v0.4.9.7 pre-build scope](docs/project/PREBUILD-v0.4.9.7.md). Every future build requires owner approval of a report before implementation.
+
 # RecompDev
 
 **Status:** Active development — native-recompilation toolchain, not gameplay-qualified.

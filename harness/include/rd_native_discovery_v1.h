@@ -1,0 +1,50 @@
+#ifndef RD_NATIVE_DISCOVERY_V1_H
+#define RD_NATIVE_DISCOVERY_V1_H
+#include "rd_plugin.h"
+#include <stdint.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
+/* Independent v1 C ABI for native source discovery; do not conflate with
+   RD_DiscoveryApi (JSONL runtime-event recorder). No allocations cross DLLs. */
+#define RD_NATIVE_DISCOVERY_ABI 0x00010000u
+#define RD_FORMAT_KIND 8u
+#define RD_NATIVE_SOURCE_UNMAPPED 0xffffffffffffffffull
+enum { RD_INSPECT_NO_MATCH=0,RD_INSPECT_MATCH=1,RD_INSPECT_BLOCKED=2 };
+enum { RD_PLATFORM_UNKNOWN=0,RD_PLATFORM_SMS=1,RD_PLATFORM_MD=2,RD_PLATFORM_PS1=3 };
+enum { RD_CPU_UNKNOWN=0,RD_CPU_Z80_FAMILY=1,RD_CPU_M68000=2,RD_CPU_MIPS_R3000A=3 };
+typedef struct RD_SourceV1 {
+ uint32_t abi_version,struct_size;
+ void *ctx;
+ uint64_t byte_size;
+ /* Returns 1 exactly when count bytes are read, 0 for out-of-range or I/O. */
+ int (*read)(void *ctx,uint64_t offset,uint8_t *bytes,uint32_t count);
+} RD_SourceV1;
+typedef struct RD_FormatResultV1 {
+ uint32_t abi_version,struct_size;
+ uint32_t status,platform,cpu;
+ uint64_t entry,executable_offset,executable_size;
+ uint32_t sector_size,file_count;
+ char evidence[160];
+} RD_FormatResultV1;
+typedef struct RD_FormatApiV1 {
+ uint32_t abi_version,struct_size;
+ int (*inspect)(const RD_SourceV1*,RD_FormatResultV1*);
+} RD_FormatApiV1;
+/* New optional Z80 discovery extension; independent of subset interpreter ABI. */
+enum { RD_FLOW_FALL=0,RD_FLOW_JUMP=1,RD_FLOW_COND=2,RD_FLOW_CALL=3,
+       RD_FLOW_RETURN=4,RD_FLOW_INDIRECT=5,RD_FLOW_STOP=6 };
+typedef struct RD_Z80DecodeV1 {
+ uint32_t abi_version,struct_size;
+ uint32_t status,length,flow;
+ uint16_t pc,target;
+ uint8_t opcode,conditional;
+ uint8_t reserved[2];
+} RD_Z80DecodeV1;
+typedef int (*RD_Z80DecodeFnV1)(const RD_SourceV1*,uint64_t physical,uint16_t pc,RD_Z80DecodeV1*);
+/* 1=unambiguously mapped, 0=bank context required, -1=outside ROM/RAM. */
+typedef int (*RD_SmsResolveFnV1)(uint16_t guest,uint64_t source_size,uint64_t *physical);
+#ifdef __cplusplus
+}
+#endif
+#endif

@@ -68,3 +68,15 @@ const RD_MachineApi API={create,destroy,bus,set_input,stats,frame_bgra,audio_pcm
 const RD_Plugin PLUGIN={RD_ABI_VERSION,sizeof(RD_Plugin),RD_MACHINE,sizeof(API),"RecompDev 0.4.0.45 SMS machine adapter",&API};
 }
 extern "C" RD_EXPORT const RD_Plugin *rd_get_plugin_v1(void){return &PLUGIN;}
+
+#include "rd_native_discovery_v1.h"
+// No assumed bank context: the first 1KiB reset/interrupt page is pinned to ROM
+// bank 0; all other cartridge windows require mapper-state evidence.
+extern "C" RD_EXPORT int rd_sms_resolve_source_v1(uint16_t guest,uint64_t size,uint64_t*physical){
+ if(!physical)return -1;
+ *physical=RD_NATIVE_SOURCE_UNMAPPED;
+ if(guest>=0xc000)return -1;
+ if(guest>=0x0400)return 0;
+ if(uint64_t(guest)>=size)return -1;
+ *physical=guest;return 1;
+}

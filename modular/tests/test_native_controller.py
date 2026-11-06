@@ -4,7 +4,7 @@ from pathlib import Path
 exe=Path(sys.argv[1]).resolve(strict=True)
 root=Path(sys.argv[2]).resolve(strict=True)
 version=subprocess.run([str(exe),'--version'],text=True,capture_output=True,timeout=20)
-assert version.returncode==0 and '0.4.4' in version.stdout,version
+assert version.returncode==0 and '0.4.5' in version.stdout,version
 registry=subprocess.run([str(exe),'--plugins'],text=True,capture_output=True,timeout=30)
 assert registry.returncode==0 and 'legacy.discovery' in registry.stdout,registry.stderr
 sample=root/'harness/examples/recomp-pcode/synthetic.sms'
@@ -14,7 +14,7 @@ with tempfile.TemporaryDirectory(prefix='RecompDev v042 spaces ') as temp:
     rom=folder/'source with spaces.sms'
     shutil.copyfile(sample,rom)
     out=folder/'some evidence output'
-    cmd=[str(exe),'--rom',str(rom),'--stage','discover','--catalogue',str(db),
+    cmd=[str(exe),'--rom',str(rom),'--stage','legacy-discover','--catalogue',str(db),
          '--out',str(out),'--budget','5','--timeout','120',
          '--max-rounds','2','--no-auto-continue']
     process=subprocess.run(cmd,capture_output=True,text=True,timeout=120)

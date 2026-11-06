@@ -1,3 +1,5 @@
+- [v0.4.9.8 — Combined native discovery + permanent release protocol CANDIDATE (BLOCKED)](v0.4.9.8.md): v0.4.9.7 never installed; source-only archive and stable installer.
+- [v0.4.9.7 — Native discovery DLL candidate, acceptance blocked](v0.4.9.7.md)
 # Workspace release notes and provenance
 
 **Status:** Current release catalogue. Workspace releases identify tested source and documentation combinations, not necessarily new controller binaries.

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.17)
-project(RecompDevModularConsolidation VERSION 0.4.4 LANGUAGES CXX)
+project(RecompDevModularConsolidation VERSION 0.4.5 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -266,4 +266,20 @@ if(Python3_EXECUTABLE)
  add_test(NAME v0495_monitor_native_guest_event COMMAND "${Python3_EXECUTABLE}"
   "${CMAKE_SOURCE_DIR}/../execution_monitor/tests/test_native_events.py" $<TARGET_FILE:rd_runtime_host> $<TARGET_FILE:rd_video_sms_mode4>)
  set_tests_properties(v0495_monitor_native_guest_event PROPERTIES ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+endif()
+
+# v0.4.9.7: Independent native structural discovery providers and an explicit
+# compiled-controller path. ABI existing runtime plugin family remains stable.
+poc_module(rd_format_sms format_sms.cpp)
+poc_module(rd_format_md format_md.cpp)
+poc_module(rd_format_ps1 format_ps1.cpp)
+target_sources(RecompDev PRIVATE ../controller/native_discovery.cpp)
+target_include_directories(RecompDev PRIVATE include ../controller)
+if(CMAKE_DL_LIBS)
+ target_link_libraries(RecompDev PRIVATE ${CMAKE_DL_LIBS})
+endif()
+if(Python3_Interpreter_FOUND)
+ add_test(NAME v0497_native_discovery_contract COMMAND "${Python3_EXECUTABLE}"
+    "${CMAKE_SOURCE_DIR}/tests/test_native_discovery.py" "$<TARGET_FILE:RecompDev>" "$<TARGET_FILE_DIR:RecompDev>")
+ set_tests_properties(v0497_native_discovery_contract PROPERTIES ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
 endif()

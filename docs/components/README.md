@@ -59,3 +59,15 @@ The currently registered components are declared by `workspace/components.json`.
 ## Added in v0.4.9.6
 
 - [discovery_integration](discovery_integration/README.md), `production-workflow`: controller-managed, independently versioned read-only discovery audit, historical source-scoped task inventory, raw-sector disc file inspection and validated candidate mapping. Does not change existing native game runtime or add CPU translators.
+
+## v0.4.9.7 candidate native discovery plugins
+
+- [rd_format_sms](rd_format_sms/README.md) — SMS header and Z80 family.
+- [rd_format_md](rd_format_md/README.md) — Sega 68000 cartridge structure and reset vector.
+- [rd_format_ps1](rd_format_ps1/README.md) — PS-X EXE/ISO9660 2048/2352 raw sectors.
+
+These are compiled DLL providers loaded by the native controller, not Python discovery wrappers. v0.4.9.7 remains unaccepted until real-source translation/build and owner Windows tests pass.
+
+## Release infrastructure (v0.4.9.8 candidate)
+
+- [release_installer](release_installer/README.md), scope `workspace`: one permanent Git-managed root installer for verified source ZIPs, compilation, tests, Git control, and safe conditional activation. This is not a production runtime plugin or per-release launcher.

@@ -68,3 +68,15 @@ Controller-mediated live execution monitor via `controller_diagnostics` event AB
 - Preserved historical Master System, Mega Drive and PS1 implementations and 642 frozen source files; no active CPU/video/runtime DLL changed. Revalidate existing 44 CTests on owner Windows before accepting the release.
 - **Carry-forward Shinobi gate:** last interactive Right-input run ended at untranslated `0x4F9E` about frame 730 with player-observed reversed scrolling. Do not patch a game address or declare VDP scrolling broken from a wraparound R8 observation. Independently validate instruction semantics, bank/interrupt timing and video output while retaining earlier 1,800/2,400-frame observations as non-parity evidence.
 - **Next:** source-targeted scheduling/recovery, reusable IR and 68000/MIPS active plugin integration, more verified asset/container readers, multi-input synthetic and real-ROM regression campaigns. Do not confuse source detection, candidate extraction and parity.
+
+## v0.4.9.7 candidate — native-first architectural and discovery milestone
+
+Approved scope and hard acceptance gates: [pre-build report](PREBUILD-v0.4.9.7.md), [development contract](DEVELOPMENT-CONTRACT.md). Native C++ `RecompDev` discovers format and source Z80 blocks through DLLs. Before installing/promoting, still require real Master System source-attested P-code translation and compilation, owner Windows regression results, and Shinobi smoke/continuity evidence. All incomplete items remain BLOCKED rather than being renamed as success. Next accepted build should integrate actual CPU-to-native backend invocation and controller recovery, not another script-based audit.
+
+## v0.4.9.8 candidate — release protocol consolidation
+
+The permanent Git-controlled `Install-RecompDev-Release.ps1` with externally SHA-256-pinned source ZIPs replaces per-release installers. Owner Windows validation, 45 CTests and the real SMS ROM -> preserved P-code -> native C++ acceptance are still required before promotion. This protocol amendment is release infrastructure, not a new game-facing feature. Preserve the earlier native discovery candidate and the Shinobi monitor, recovery and unresolved parity limitations. See [prebuild amendment](PREBUILD-v0.4.9.8.md).
+
+## Owner-requested v0.4.9.8 installation gate (2026-11-06)
+
+The Windows owner has passed 45/45 native CTests, docs/Python checks and original 642/642 frozen histories in `Validate` mode. As explicitly requested, v0.4.9.8 is re-scoped as an **installable native-discovery milestone** (controller + SMS/MD/PS1 format plugins + conservative Z80 and SMS extensions + permanent Git-managed release script). The next activity is to exercise `Install` end to end and verify actual Git commit, `workspace/v0.4.9.8` tag, verified bundle and active binary SHA lockfile. Only then begin the real-ROM source block -> full preserved P-code -> native C++ build integration as the next milestone. Re-scoping release acceptance is not a claim that native translation is implemented.

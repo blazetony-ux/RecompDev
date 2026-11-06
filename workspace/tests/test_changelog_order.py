@@ -7,7 +7,7 @@ ROOT=Path(__file__).resolve().parents[2]
 
 class ChangelogOrderTests(unittest.TestCase):
     def test_current_main_changelog_passes(self):
-        check_workspace_changelog((ROOT/'CHANGELOG.md').read_text(encoding='utf8'),'workspace/v0.4.9.6')
+        check_workspace_changelog((ROOT/'CHANGELOG.md').read_text(encoding='utf8'),'workspace/v0.4.9.8')
 
     def test_title_must_be_first(self):
         with self.assertRaisesRegex(ValueError,'begin'):

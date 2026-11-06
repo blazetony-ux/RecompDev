@@ -1,5 +1,17 @@
 # workspace_governance — independent changelog
 
+## [0.1.5] - 2026-11-05
+
+- **Changed:** Mandate root release-installer presence and documented permanent ZIP protocol in workspace v0.4.9.8 and later; retain approved native-development contract and correct newest-first workspace changelog verification.
+- **Validation:** Documentation-governance regression fixtures include the permanent installer; added missing-installer negative test and cross-release source-only validation with frozen-history protection.
+- **Compatibility:** Release policy enforcement only, no running game modification, executable replacement or new CPU semantics. Existing v0.4.9.6 compiled runtime remains untouched by candidate validation.
+
+## [0.1.4] - 2026-11-05
+
+- **Changed:** Mandatory binding development contract, approved pre-build report and handover/release acknowledgement.
+- **Validation:** Linux CMake/CTest native discovery contract and existing harness regressions; full Windows and real-ROM translation/build remain acceptance gates.
+- **Compatibility:** New policy omissions automatically fail documentation governance; no ROM or binary modifications.
+
 ## [0.1.3] - 2026-11-05
 
 - **Changed:** Enforce a single document title, unique workspace release headings and newest-first ordering; normalised the historical workspace changelog without editing prior release descriptions.

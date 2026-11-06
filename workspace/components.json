@@ -1,11 +1,11 @@
 {
   "components": {
     "controller": {
-      "description": "Compiled command entry point invoking preserved workflow services",
+      "description": "Compiled native discovery controller with DLL provider selection, source attestation and explicit legacy workflow fallback",
       "kind": "controller",
       "scope": "production-entrypoint",
       "target": "RecompDev",
-      "version": "0.4.4"
+      "version": "0.4.5"
     },
     "controller_diagnostics": {
       "description": "Single authenticated controller-owned local diagnostics event protocol, bounded subscriptions and history; orchestrated by runtime launcher, no compiled controller binary changes",
@@ -81,11 +81,11 @@
       "version": "0.1.0"
     },
     "rd_cpu_z80": {
-      "description": "Versioned Z80 DLL: harness subset interpreter plus real production source-attestation admission ABI (not native execution)",
+      "description": "Native Z80 conservative source discovery extension alongside existing interpreter and production admission gate; no new native execution semantics",
       "kind": "compiled-plugin",
       "scope": "harness",
       "target": "rd_cpu_z80",
-      "version": "0.2.0"
+      "version": "0.3.0"
     },
     "rd_discovery_jsonl": {
       "description": "DLL target with independent build and deployment; not yet a production recovery adapter",
@@ -99,6 +99,27 @@
       "kind": "compiled-plugin",
       "scope": "harness",
       "target": "rd_display_ppm",
+      "version": "0.1.0"
+    },
+    "rd_format_md": {
+      "description": "Sega Mega Drive cartridge header and reset-vector structural verification",
+      "kind": "compiled-plugin",
+      "scope": "harness",
+      "target": "rd_format_md",
+      "version": "0.1.0"
+    },
+    "rd_format_ps1": {
+      "description": "PS-X EXE plus sector-aware ISO9660 2048/2352 executable-candidate inspection",
+      "kind": "compiled-plugin",
+      "scope": "harness",
+      "target": "rd_format_ps1",
+      "version": "0.1.0"
+    },
+    "rd_format_sms": {
+      "description": "TMR SEGA cartridge structural detection behind native format ABI",
+      "kind": "compiled-plugin",
+      "scope": "harness",
+      "target": "rd_format_sms",
       "version": "0.1.0"
     },
     "rd_game_fixture": {
@@ -130,11 +151,11 @@
       "version": "0.1.0"
     },
     "rd_machine_sms": {
-      "description": "DLL target with independent build and deployment; not yet a production recovery adapter",
+      "description": "Native SMS physical-source resolver with conservative unresolved bank context alongside unchanged bus API",
       "kind": "compiled-plugin",
       "scope": "harness",
       "target": "rd_machine_sms",
-      "version": "0.1.0"
+      "version": "0.2.0"
     },
     "rd_machine_synthetic": {
       "description": "DLL target with independent build and deployment; not yet a production recovery adapter",
@@ -156,6 +177,12 @@
       "scope": "production-video",
       "target": "rd_video_sms_mode4",
       "version": "0.1.0"
+    },
+    "release_installer": {
+      "description": "Permanent Git-managed, hash-pinned, transactional source ZIP installer; no runtime orchestration",
+      "kind": "tooling",
+      "scope": "workspace",
+      "version": "1.0.0"
     },
     "runtime_host_integration": {
       "description": "Generated native-project monitor staging, controller service launch and evidence integration; does not change compiled host DLL",
@@ -182,12 +209,12 @@
       "version": "0.1.0"
     },
     "workspace_governance": {
-      "description": "Local Git documentation gates, component changelogs and release policy; not a runtime DLL",
+      "description": "Mandatory pre-build approval contract and release compliance document governance",
       "kind": "tooling",
       "scope": "workspace",
-      "version": "0.1.3"
+      "version": "0.1.5"
     }
   },
   "schema": "recompdev-components-v1",
-  "workspace_release": "v0.4.9.6"
+  "workspace_release": "v0.4.9.8"
 }

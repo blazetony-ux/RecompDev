@@ -68,7 +68,7 @@ class TestEvidenceBundle(unittest.TestCase):
             rom=tmp/'toy.sms'
             shutil.copyfile(ROOT/'harness/examples/recomp-pcode/synthetic.sms',rom)
             db=ROOT/'legacy/RecompDev-v0.4.0.45/catalogue.sqlite'
-            proc=subprocess.run([str(exe),'--rom',str(rom),'--stage','discover',
+            proc=subprocess.run([str(exe),'--rom',str(rom),'--stage','legacy-discover',
                  '--catalogue',str(db),'--out',str(out),'--budget','5','--timeout','120'],
                  text=True,capture_output=True,timeout=120)
             self.assertEqual(proc.returncode,0,(proc.stderr[-1000:],proc.stdout[-1000:]))

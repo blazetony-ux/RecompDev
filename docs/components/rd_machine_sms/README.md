@@ -17,3 +17,7 @@ No independently validated video/PSG/IRQ gameplay parity; production engine has 
 ## Lifecycle
 
 Edit only owned source; bump **this** component if its implementation changes, append a meaningful entry to [its changelog](CHANGELOG.md), run the relevant gates, and accept through local Git. Tooling/services that are not compiled DLLs have no binary to activate. For the generic development rules see [release process](../../development/RELEASE-PROCESS.md).
+
+## v0.4.9.7 candidate interface (0.2.0)
+
+Conservative static-ROM reset/interrupt source mapping with dynamic/banked addresses remaining unresolved. The authoritative registry is `workspace/components.json`; use the ABI declarations in `harness/include/rd_native_discovery_v1.h`. New `rd_sms_resolve_source_v1` extension; runtime bus ABI remains unchanged. No Shinobi-specific logic is introduced; independently measured gameplay parity remains unverified.
