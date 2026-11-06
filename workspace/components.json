@@ -1,11 +1,11 @@
 {
   "components": {
     "controller": {
-      "description": "Compiled native discovery controller with DLL provider selection, source attestation and explicit legacy workflow fallback",
+      "description": "Compiled controller now executes the preserved, authenticated native P-code game DLL via the shared compiled native harness runner; retains native discovery and transitional Python source-generation/recovery.",
       "kind": "controller",
       "scope": "production-entrypoint",
       "target": "RecompDev",
-      "version": "0.4.5"
+      "version": "0.4.6"
     },
     "controller_diagnostics": {
       "description": "Single authenticated controller-owned local diagnostics event protocol, bounded subscriptions and history; orchestrated by runtime launcher, no compiled controller binary changes",
@@ -81,11 +81,11 @@
       "version": "0.1.0"
     },
     "rd_cpu_z80": {
-      "description": "Native Z80 conservative source discovery extension alongside existing interpreter and production admission gate; no new native execution semantics",
+      "description": "Native Z80 source decoder with CB, documented ED and DD/FD indexed source lengths; conservative source-only register effects for bank-control evidence. Fixture interpreter remains limited.",
       "kind": "compiled-plugin",
       "scope": "harness",
       "target": "rd_cpu_z80",
-      "version": "0.3.0"
+      "version": "0.4.0"
     },
     "rd_discovery_jsonl": {
       "description": "DLL target with independent build and deployment; not yet a production recovery adapter",
@@ -151,11 +151,11 @@
       "version": "0.1.0"
     },
     "rd_machine_sms": {
-      "description": "Native SMS physical-source resolver with conservative unresolved bank context alongside unchanged bus API",
+      "description": "Native context-qualified initial Sega 8-bit mapper bank layout, source resolution and write tracking under the existing unchanged SMS bus ABI.",
       "kind": "compiled-plugin",
       "scope": "harness",
       "target": "rd_machine_sms",
-      "version": "0.2.0"
+      "version": "0.3.0"
     },
     "rd_machine_synthetic": {
       "description": "DLL target with independent build and deployment; not yet a production recovery adapter",
@@ -212,9 +212,9 @@
       "description": "Mandatory pre-build approval contract and release compliance document governance",
       "kind": "tooling",
       "scope": "workspace",
-      "version": "0.1.5"
+      "version": "0.1.6"
     }
   },
   "schema": "recompdev-components-v1",
-  "workspace_release": "v0.4.9.8"
+  "workspace_release": "v0.4.9.9"
 }

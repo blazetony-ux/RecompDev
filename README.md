@@ -36,3 +36,9 @@ Native recovery continues to use the full preserved v0.4.0.45 translation/recove
 ### Generic native runtime host (v0.4.8)
 
 `rd_runtime_host` is an independently built presentation DLL for CPU-neutral framebuffers, PCM audio and button events. After activating the host, use `tools/Run-Native-Game.ps1 -Rom <local-ROM>` to stage and run the latest matching previously generated native project. See [runtime host instructions](docs/components/rd_runtime_host/README.md). The native game currently still requires its original ROM; gameplay and independent hardware parity remain unverified.
+
+## v0.4.9.9 native execution integration
+
+The Git-managed native controller now offers `--stage native-execute --rom FILE --game rd_GAME_MODULE --steps N --out EVIDENCE_PREFIX` and directly loads the source-attested original P-code game DLL through a shared compiled C++ runner, not a Python subprocess. The existing C++ `RecompDevHarness` remains a test executable. Both use interchangeable ABI-checked machine, CPU, game, event, input, audio and display plugins. Do not use a synthetic fixture DLL with a different ROM; the source SHA-256 check will reject it.
+
+CPU discovery additionally handles documented Z80 ED/indexed source forms and carries source-qualified SMS mapper state. **This does not yet port the original Python Ghidra/P-code generator or establish real-ROM gameplay parity.** Consult [the current release record](docs/releases/v0.4.9.9.md) and [owner scope/acceptance](docs/project/PREBUILD-v0.4.9.9.md). The same root Git-managed `Install-RecompDev-Release.ps1` is reused unchanged for the next ZIP.

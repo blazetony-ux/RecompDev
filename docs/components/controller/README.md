@@ -21,3 +21,7 @@ Edit only owned source; bump **this** component if its implementation changes, a
 ## v0.4.9.7 candidate interface (0.4.5)
 
 Native C++ `--stage discover` plugin loading and report generation; legacy discovery available via an explicit compatibility stage. The authoritative registry is `workspace/components.json`; use the ABI declarations in `harness/include/rd_native_discovery_v1.h`. Changed native controller and added a strict, versioned format discovery ABI; existing Python prepare/recover workflow remains transitional. No Shinobi-specific logic is introduced; independently measured gameplay parity remains unverified.
+
+## v0.4.6 native migration (workspace/v0.4.9.9)
+
+Shared compiled native game runner moved into controller; executes preserved P-code game DLL with strict full-source identity and no Python execution for native-execute. Existing prepare/recover remain transitional. See [the release](../../releases/v0.4.9.9.md) for what still uses Python and for test limitations. No title-specific workarounds or production gameplay-parity claim.

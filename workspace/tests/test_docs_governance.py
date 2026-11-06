@@ -56,14 +56,14 @@ class DocumentationGovernanceTests(unittest.TestCase):
 
     def test_component_version_and_dated_changelog_required(self):
         p = self.source / 'docs/components/rd_cpu_z80/CHANGELOG.md'
-        p.write_text(p.read_text(encoding='utf8').replace('## [0.3.0] -', '## [0.9.0] -'), encoding='utf8')
+        p.write_text(p.read_text(encoding='utf8').replace('## ['+json.loads((ROOT/'workspace/components.json').read_text())['components']['rd_cpu_z80']['version']+'] -', '## [0.9.0] -'), encoding='utf8')
         with self.assertRaisesRegex(ValueError, 'Missing dated changelog'):
             docs_governance.check(self.source)
 
     def test_unrelated_component_version_change_rejected(self):
         before = json.loads((self.source / 'workspace/components.json').read_text())
         after = copy.deepcopy(before)
-        after['components']['rd_cpu_z80']['version'] = '0.3.1'
+        after['components']['rd_cpu_z80']['version'] = '0.4.1'
         after['components']['rd_audio_wav']['version'] = '0.1.1'
         changes = {'workspace/components.json', 'harness/plugins/cpu_z80.cpp',
                    'docs/components/rd_cpu_z80/CHANGELOG.md'}
@@ -73,7 +73,7 @@ class DocumentationGovernanceTests(unittest.TestCase):
     def test_plugin_accept_must_change_its_own_changelog(self):
         before = json.loads((self.source / 'workspace/components.json').read_text())
         after = copy.deepcopy(before)
-        after['components']['rd_cpu_z80']['version'] = '0.3.1'
+        after['components']['rd_cpu_z80']['version'] = '0.4.1'
         changes = {'workspace/components.json', 'harness/plugins/cpu_z80.cpp'}
         with self.assertRaisesRegex(ValueError, 'required component changelog'):
             manager.validate_component_diff('rd_cpu_z80', before, after, changes, source=self.source)
@@ -81,9 +81,9 @@ class DocumentationGovernanceTests(unittest.TestCase):
     def test_plugin_accept_with_meaningful_entry_is_permitted(self):
         before = json.loads((self.source / 'workspace/components.json').read_text())
         after = copy.deepcopy(before)
-        after['components']['rd_cpu_z80']['version'] = '0.3.1'
+        after['components']['rd_cpu_z80']['version'] = '0.4.1'
         p = self.source / 'docs/components/rd_cpu_z80/CHANGELOG.md'
-        p.write_text(p.read_text(encoding='utf8') + '''\n## [0.3.1] - 2026-11-04\n\n- **Changed:** Correct the documented synthetic Z80 decoder boundary and update test coverage for an explicit unsupported-opcode outcome.\n- **Validation:** Targeted unsupported_opcode_rejected, hybrid_main_parity and native_only_single_block regression gates passed.\n- **Compatibility:** No public ABI change; production native recovery continues to use the preserved legacy recovery engine, not this DLL.\n''', encoding='utf8')
+        p.write_text(p.read_text(encoding='utf8') + '''\n## [0.4.1] - 2026-11-06\n\n- **Changed:** Correct the documented synthetic Z80 decoder boundary and update test coverage for an explicit unsupported-opcode outcome.\n- **Validation:** Targeted unsupported_opcode_rejected, hybrid_main_parity and native_only_single_block regression gates passed.\n- **Compatibility:** No public ABI change; production native recovery continues to use the preserved legacy recovery engine, not this DLL.\n''', encoding='utf8')
         changes = {'workspace/components.json', 'harness/plugins/cpu_z80.cpp',
                    'docs/components/rd_cpu_z80/CHANGELOG.md'}
         manager.validate_component_diff('rd_cpu_z80', before, after, changes, source=self.source)

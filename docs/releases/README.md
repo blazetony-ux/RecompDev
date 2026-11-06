@@ -1,3 +1,4 @@
+- [v0.4.9.9 — Native controller executes preserved P-code DLL, mapper/Z80 extensions (Windows unverified)](v0.4.9.9.md)
 - [v0.4.9.8 — Combined native discovery + permanent release protocol CANDIDATE (BLOCKED)](v0.4.9.8.md): v0.4.9.7 never installed; source-only archive and stable installer.
 - [v0.4.9.7 — Native discovery DLL candidate, acceptance blocked](v0.4.9.7.md)
 # Workspace release notes and provenance

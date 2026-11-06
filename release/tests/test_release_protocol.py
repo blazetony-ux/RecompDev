@@ -67,7 +67,7 @@ class ReleaseProtocolTests(unittest.TestCase):
 
     def test_installer_registered_without_runtime_plugin_claim(self):
         doc=json.loads((ROOT/'workspace/components.json').read_text())
-        self.assertEqual(doc['workspace_release'], 'v0.4.9.8')
+        self.assertEqual(doc['workspace_release'], 'v0.4.9.9')
         self.assertEqual(doc['components']['release_installer']['scope'],'workspace')
         self.assertEqual(doc['components']['release_installer']['version'],'1.0.0')
 

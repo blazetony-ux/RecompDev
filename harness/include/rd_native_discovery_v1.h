@@ -44,6 +44,34 @@ typedef struct RD_Z80DecodeV1 {
 typedef int (*RD_Z80DecodeFnV1)(const RD_SourceV1*,uint64_t physical,uint16_t pc,RD_Z80DecodeV1*);
 /* 1=unambiguously mapped, 0=bank context required, -1=outside ROM/RAM. */
 typedef int (*RD_SmsResolveFnV1)(uint16_t guest,uint64_t source_size,uint64_t *physical);
+/* Optional source-exact mapping snapshot: bank numbers and the control
+   register are modelled by the SMS plugin, not the controller. Unknown
+   registers MUST remain unknown across a path join or unverified call. */
+typedef struct RD_SmsSourceMapV1 {
+ uint32_t abi_version,struct_size;
+ uint8_t mapper[4],known_mask;
+ uint8_t reserved[3];
+} RD_SmsSourceMapV1;
+typedef int (*RD_SmsMapInitialFnV1)(RD_SmsSourceMapV1*);
+typedef int (*RD_SmsMapResolveFnV1)(const RD_SmsSourceMapV1*,uint16_t guest,uint64_t source_size,uint64_t*physical);
+typedef int (*RD_SmsMapWriteFnV1)(RD_SmsSourceMapV1*,uint16_t dest,uint8_t value,int value_known);
+/* Abstract constant propagation is CPU owned; this is not a CPU emulator. */
+typedef struct RD_Z80AbstractV1 {
+ uint32_t abi_version,struct_size;
+ uint8_t known_a,a,known_sp,reserved;
+ uint16_t sp;
+ uint8_t reserved2[2];
+} RD_Z80AbstractV1;
+enum { RD_Z80_EFFECT_NO_WRITE=0,RD_Z80_EFFECT_ABSOLUTE=1,RD_Z80_EFFECT_UNRESOLVED=2 };
+typedef struct RD_Z80EffectV1 {
+ uint32_t abi_version,struct_size;
+ uint32_t write_kind;
+ uint16_t absolute;
+ uint8_t value_known,value;
+ uint8_t reserved[2];
+} RD_Z80EffectV1;
+typedef int (*RD_Z80AbstractFnV1)(const uint8_t*,uint32_t,RD_Z80AbstractV1*,RD_Z80EffectV1*);
+
 #ifdef __cplusplus
 }
 #endif

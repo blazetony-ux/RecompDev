@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.17)
-project(RecompDevModularConsolidation VERSION 0.4.5 LANGUAGES CXX)
+project(RecompDevModularConsolidation VERSION 0.4.6 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -20,6 +20,7 @@ target_sources(rd_machine_sms PRIVATE ../legacy/RecompDev-v0.4.0.45/systems/mast
 target_include_directories(rd_machine_sms PRIVATE "${CMAKE_SOURCE_DIR}/../legacy/RecompDev-v0.4.0.45")
 poc_module(rd_machine_synthetic machine_synthetic.cpp)
 poc_module(rd_cpu_z80 cpu_z80.cpp)
+target_include_directories(rd_cpu_z80 PRIVATE "${CMAKE_SOURCE_DIR}/../legacy/RecompDev-v0.4.0.45")
 poc_module(rd_game_fixture game_fixture.cpp)
 poc_module(rd_game_probe game_probe.cpp)
 # Generated owner code is independent of the shipped synthetic regression game.
@@ -31,7 +32,16 @@ poc_module(rd_discovery_jsonl discovery_jsonl.cpp)
 poc_module(rd_display_ppm display_ppm.cpp)
 poc_module(rd_audio_wav audio_wav.cpp)
 poc_module(rd_input_fixed input_fixed.cpp)
+# The existing validated native P-code game-execution harness is now a shared
+# compiled orchestration module used by both the test harness and controller.
+# It still loads CPU/machine/game/audio/video/input DLLs through rd_plugin.h.
+add_library(rd_native_game_runner STATIC src/runner.cpp)
+target_include_directories(rd_native_game_runner PUBLIC include)
+if(CMAKE_DL_LIBS)
+ target_link_libraries(rd_native_game_runner PUBLIC ${CMAKE_DL_LIBS})
+endif()
 add_executable(RecompDevHarness src/main.cpp)
+target_link_libraries(RecompDevHarness PRIVATE rd_native_game_runner)
 target_include_directories(RecompDevHarness PRIVATE include)
 set_target_properties(RecompDevHarness PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${OUT_DIR}")
 if(CMAKE_DL_LIBS)
@@ -151,7 +161,9 @@ endif()
 
 # v0.4.2 compiled top-level controller; unlike the standalone test harness it
 # owns the real ROM workflow entry point and delegates legacy services safely.
-add_executable(RecompDev ../controller/main.cpp)
+add_executable(RecompDev ../controller/main.cpp ../controller/native_execute.cpp)
+target_include_directories(RecompDev PRIVATE include)
+target_link_libraries(RecompDev PRIVATE rd_native_game_runner)
 # Resolve exactly the Python interpreter used by the tests, not an ambiguous py.exe shim.
 configure_file("${CMAKE_SOURCE_DIR}/../controller/recompdev_python_config.h.in"
                "${CMAKE_CURRENT_BINARY_DIR}/recompdev_python_config.h" @ONLY)
@@ -282,4 +294,15 @@ if(Python3_Interpreter_FOUND)
  add_test(NAME v0497_native_discovery_contract COMMAND "${Python3_EXECUTABLE}"
     "${CMAKE_SOURCE_DIR}/tests/test_native_discovery.py" "$<TARGET_FILE:RecompDev>" "$<TARGET_FILE_DIR:RecompDev>")
  set_tests_properties(v0497_native_discovery_contract PROPERTIES ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+endif()
+
+# v0.4.9.9: direct compiled controller -> preserved generated P-code game DLL,
+# source-authenticated native execution, ED/indexed decode and bank-qualified flow.
+if(Python3_Interpreter_FOUND)
+ add_test(NAME v0499_controller_native_pcode_and_banked_source COMMAND "${Python3_EXECUTABLE}"
+  "${CMAKE_SOURCE_DIR}/tests/test_controller_native_port.py"
+  "$<TARGET_FILE:RecompDev>" "$<TARGET_FILE_DIR:RecompDev>"
+  "${CMAKE_SOURCE_DIR}/examples/recomp-pcode/synthetic.sms")
+ set_tests_properties(v0499_controller_native_pcode_and_banked_source PROPERTIES
+  ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
 endif()

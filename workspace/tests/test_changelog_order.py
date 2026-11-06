@@ -1,5 +1,6 @@
 """Main changelog immutable history and ordering regressions."""
 from pathlib import Path
+import json
 import unittest
 from workspace.docs_governance import check_workspace_changelog
 
@@ -7,7 +8,7 @@ ROOT=Path(__file__).resolve().parents[2]
 
 class ChangelogOrderTests(unittest.TestCase):
     def test_current_main_changelog_passes(self):
-        check_workspace_changelog((ROOT/'CHANGELOG.md').read_text(encoding='utf8'),'workspace/v0.4.9.8')
+        check_workspace_changelog((ROOT/'CHANGELOG.md').read_text(encoding='utf8'), 'workspace/' + json.loads((ROOT/'workspace/components.json').read_text(encoding='utf8'))['workspace_release'])
 
     def test_title_must_be_first(self):
         with self.assertRaisesRegex(ValueError,'begin'):

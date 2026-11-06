@@ -4,7 +4,7 @@ from pathlib import Path
 exe=Path(sys.argv[1]).resolve(strict=True)
 root=Path(sys.argv[2]).resolve(strict=True)
 version=subprocess.run([str(exe),'--version'],text=True,capture_output=True,timeout=20)
-assert version.returncode==0 and '0.4.5' in version.stdout,version
+assert version.returncode==0 and '0.4.6' in version.stdout,version
 registry=subprocess.run([str(exe),'--plugins'],text=True,capture_output=True,timeout=30)
 assert registry.returncode==0 and 'legacy.discovery' in registry.stdout,registry.stderr
 sample=root/'harness/examples/recomp-pcode/synthetic.sms'

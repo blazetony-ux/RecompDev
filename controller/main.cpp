@@ -1,5 +1,6 @@
 #include "native_discovery.hpp"
-// RecompDev v0.4.5: native discovery controller with explicit legacy fallback.
+#include "native_execute.hpp"
+// RecompDev v0.4.6: native P-code game execution and discovery controller with explicit legacy fallback.
 // The preserved Python analysis/recovery services are deliberately retained.
 // No shell invocation: all forwarded arguments remain literal even with spaces.
 #include <filesystem>
@@ -127,7 +128,7 @@ static fs::path project_root(fs::path exe){
     throw std::runtime_error("RecompDev source checkout not found; runtime needs source-root.txt");
 }
 static void usage(){
-    std::cout<<"RecompDev v0.4.5 native controller (legacy services retained)\n"
+    std::cout<<"RecompDev v0.4.6 native controller (DLL execution + discovery, legacy translation retained)\n"
       "Usage: RecompDev.exe --rom FILE --stage discover|prepare|recover [options]\n"
       "  --steps N --frames N --max-recoveries N --timeout N --capture-hardware\n"
       "  --auto-continue --max-rounds N (continue source-verified recovery in bounded batches)\n"
@@ -135,6 +136,7 @@ static void usage(){
       "  --analyze-evidence DIR [--out DIR] [--reference-image PNG] [--reference-session JSON]\n"
       "  --plugins | --verify | --status | --help\n"
       "  plugin build|test|activate|rollback|bump|status|release [args]\n"
+      "Native --stage native-execute requires --rom FILE --game rd_NAME --out PREFIX; source identity is verified.\n"
       "Native --stage discover loads native format/CPU/machine DLLs; use --stage legacy-discover for historical Python pipeline.\n";
 }
 #ifdef _WIN32
@@ -159,14 +161,14 @@ int main(int argc,char** argv)
 #endif
           )){usage();return 0;}
 #ifdef _WIN32
-        if(equals(argv[1],L"--version")){std::cout<<"RecompDev 0.4.5\n";return 0;}
+        if(equals(argv[1],L"--version")){std::cout<<"RecompDev 0.4.6\n";return 0;}
         if(equals(argv[1],L"plugin"))op="plugin-manager";
         if(equals(argv[1],L"--plugins"))op="plugins";
         if(equals(argv[1],L"--verify"))op="verify";
         if(equals(argv[1],L"--status"))op="status";
         if(equals(argv[1],L"--analyze-evidence"))op="review-evidence";
 #else
-        if(equals(argv[1],"--version")){std::cout<<"RecompDev 0.4.5\n";return 0;}
+        if(equals(argv[1],"--version")){std::cout<<"RecompDev 0.4.6\n";return 0;}
         if(equals(argv[1],"plugin"))op="plugin-manager";
         if(equals(argv[1],"--plugins"))op="plugins";
         if(equals(argv[1],"--verify"))op="verify";
@@ -175,15 +177,15 @@ int main(int argc,char** argv)
 #endif
         // Detect native discovery before resolving the Python checkout. The native
         // path requires only the binary and independently deployed DLL providers.
-        bool native_discover=false,legacy_discover=false;
+        bool native_discover=false,native_execute=false,legacy_discover=false;
         for(int i=1;i+1<argc;++i){
 #ifdef _WIN32
-          if(equals(argv[i],L"--stage")){native_discover=equals(argv[i+1],L"discover");legacy_discover=equals(argv[i+1],L"legacy-discover");}
+          if(equals(argv[i],L"--stage")){native_discover=equals(argv[i+1],L"discover");native_execute=equals(argv[i+1],L"native-execute");legacy_discover=equals(argv[i+1],L"legacy-discover");}
 #else
-          if(equals(argv[i],"--stage")){native_discover=equals(argv[i+1],"discover");legacy_discover=equals(argv[i+1],"legacy-discover");}
+          if(equals(argv[i],"--stage")){native_discover=equals(argv[i+1],"discover");native_execute=equals(argv[i+1],"native-execute");legacy_discover=equals(argv[i+1],"legacy-discover");}
 #endif
         }
-        if(native_discover){
+        if(native_discover||native_execute){
            std::vector<std::string> args;
 #ifdef _WIN32
            for(int i=1;i<argc;++i){
@@ -196,7 +198,7 @@ int main(int argc,char** argv)
 #else
            for(int i=1;i<argc;++i)args.emplace_back(argv[i]);
 #endif
-           return rd_native_discover(args,self_path());
+           return native_execute?rd_native_execute(args,self_path()):rd_native_discover(args,self_path());
         }
         fs::path root=project_root(self_path());
 #ifdef _WIN32

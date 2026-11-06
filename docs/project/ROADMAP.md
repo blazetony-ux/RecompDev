@@ -1,3 +1,8 @@
+## 2026-11-06 — native existing-functionality migration
+
+- **Implemented in v0.4.9.9 source candidate:** controller directly executes existing hash-verified P-code game DLL through shared native harness runner; Z80 source decoder now recognises documented prefixed opcodes; original SMS mapper state is used via hardware DLL. Linux acceptance does not establish Shinobi gameplay parity.
+- **Next mandatory port, not complete:** native translation backend that accepts source-verified Ghidra P-code exports from multiple machines, replacing transitional Python generator; source-evidence-preserving runtime recovery and full Z80 state/interrupt semantics. Windows multi-ROM acceptance is pending. Do not substitute further reporting infrastructure for working executable paths.
+
 # Current roadmap and acceptance gates
 
 **Status:** Current. Last reviewed: 2026-11-05.

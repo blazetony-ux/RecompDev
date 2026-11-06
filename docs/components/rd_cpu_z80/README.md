@@ -25,3 +25,7 @@ Alongside the unchanged harness interpreter, this DLL now exports `rd_z80_source
 ## v0.4.9.7 candidate interface (0.3.0)
 
 Conservative source-byte-verified Z80 decode, including explicit unsupported prefix and indirect control-flow gaps. The authoritative registry is `workspace/components.json`; use the ABI declarations in `harness/include/rd_native_discovery_v1.h`. New `rd_z80_decode_source_v1` extension, retaining original interpreter and production gate ABI. No Shinobi-specific logic is introduced; independently measured gameplay parity remains unverified.
+
+## v0.4.0 native migration (workspace/v0.4.9.9)
+
+Source-only Z80 length/control-flow decode expanded to documented ED/CB, DD/FD indexed forms; exports conservative A/SP and memory-write abstractions, while old synthetic fixture interpreter is unchanged. See [the release](../../releases/v0.4.9.9.md) for what still uses Python and for test limitations. No title-specific workarounds or production gameplay-parity claim.

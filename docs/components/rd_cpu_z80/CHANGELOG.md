@@ -1,5 +1,11 @@
 # rd_cpu_z80 — independent changelog
 
+## [0.4.0] - 2026-11-06
+
+- **Changed:** Source-only Z80 length/control-flow decode expanded to documented ED/CB, DD/FD indexed forms; exports conservative A/SP and memory-write abstractions, while old synthetic fixture interpreter is unchanged.
+- **Validation:** Linux C++ compilation and compiled native controller/P-code and generic banked-flow regression, along with existing workspace tests. Full Windows owner validation, real-ROM translation and semantic parity are not yet demonstrated.
+- **Compatibility:** C plugin descriptor ABI and existing runtime bus ABI remain unchanged. New optional symbol extensions are loaded by the compiled controller; original history is untouched and all missing/ambiguous execution cases fail closed.
+
 ## [0.3.0] - 2026-11-05
 
 - **Changed:** Conservative source-byte-verified Z80 decode, including explicit unsupported prefix and indirect control-flow gaps.

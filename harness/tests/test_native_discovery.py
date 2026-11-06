@@ -92,7 +92,7 @@ with tempfile.TemporaryDirectory(prefix='RecompDev native 0497 spaced ') as temp
             repeat=run(path,root/'repeat')
             assert result['blocks']==repeat['blocks']
             assert 'EVIDENCE_EXISTS_REFUSING_OVERWRITE' in run(path,out,positive=False)
-            corrupted=bytearray(data);corrupted[0]=0xdd
+            corrupted=bytearray(data);corrupted[:2]=bytes([0xed,0xff])  # unsupported ED form must fail closed
             bad=root/'changed.sms';bad.write_bytes(corrupted)
             revised=run(bad,root/'revised')
             assert revised['source_sha256']!=result['source_sha256']

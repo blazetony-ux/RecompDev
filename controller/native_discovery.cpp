@@ -121,32 +121,78 @@ std::string streamhash(const fs::path&p){std::ifstream f(p,std::ios::binary);if(
 }
 const char*platform(uint32_t p){switch(p){case RD_PLATFORM_SMS:return "sms";case RD_PLATFORM_MD:return "megadrive";case RD_PLATFORM_PS1:return "ps1";default:return "unknown";}}
 const char*cpu(uint32_t p){switch(p){case RD_CPU_Z80_FAMILY:return "z80";case RD_CPU_M68000:return "m68000";case RD_CPU_MIPS_R3000A:return "mips-r3000a";default:return "unverified";}}
-struct Block{uint16_t pc;uint64_t phys;uint32_t len,flow;uint16_t target;std::string sha;};
+struct Block{uint16_t pc;uint64_t phys;uint32_t len,flow;uint16_t target;std::string sha;uint32_t known_banks=0;};
 struct Gap{uint16_t pc;std::string reason;};
 struct Discovery{
  std::vector<Block> blocks;std::vector<Gap> gaps;uint32_t edges=0;
 };
 Discovery walk(const RD_SourceV1*s,const Plugin&cpu_plugin,const Plugin&mapper,uint32_t max_items){
  auto decode=cpu_plugin.symbol<RD_Z80DecodeFnV1>("rd_z80_decode_source_v1");
- auto map=mapper.symbol<RD_SmsResolveFnV1>("rd_sms_resolve_source_v1");
- Discovery out;std::vector<uint16_t> todo{0};std::set<uint16_t> seen;
+ auto init=mapper.symbol<RD_SmsMapInitialFnV1>("rd_sms_map_initial_v1");
+ auto map=mapper.symbol<RD_SmsMapResolveFnV1>("rd_sms_map_resolve_v1");
+ auto write=mapper.symbol<RD_SmsMapWriteFnV1>("rd_sms_map_write_v1");
+ auto effects=cpu_plugin.symbol<RD_Z80AbstractFnV1>("rd_z80_abstract_a_v1");
+ struct Work{uint16_t pc;RD_SmsSourceMapV1 mapping;RD_Z80AbstractV1 a;};
+ RD_SmsSourceMapV1 initial{};initial.struct_size=sizeof(initial);
+ if(init(&initial)!=1)throw std::runtime_error("SMS_INITIAL_MAPPER_FAILED");
+ RD_Z80AbstractV1 initial_a{};initial_a.abi_version=RD_NATIVE_DISCOVERY_ABI;initial_a.struct_size=sizeof(initial_a);
+ Discovery out;std::vector<Work> todo{{0,initial,initial_a}};
+ // Context key includes physical bank identity, not only guest PC; two distinct
+ // ROM banks may map the same CPU address and must never be merged.
+ std::set<std::string> seen;
  while(!todo.empty()&&seen.size()<max_items){
-  uint16_t pc=todo.back();todo.pop_back();if(!seen.insert(pc).second)continue;
-  uint64_t phys=RD_NATIVE_SOURCE_UNMAPPED;int mapped=map(pc,s->byte_size,&phys);
-  if(mapped!=1){out.gaps.push_back({pc,mapped==0?"BANK_CONTEXT_UNRESOLVED":"NO_ROM_MAPPING"});continue;}
+  Work w=todo.back();todo.pop_back();
+  std::string key;
+  key.append(reinterpret_cast<const char*>(&w.pc),sizeof(w.pc));
+  key.push_back(char(w.mapping.known_mask));
+  for(auto bank:w.mapping.mapper)key.push_back(char(bank));
+  key.push_back(char(w.a.known_a));key.push_back(char(w.a.known_a?w.a.a:0));
+  key.push_back(char(w.a.known_sp));
+  if(w.a.known_sp){key.push_back(char(w.a.sp));key.push_back(char(w.a.sp>>8));}
+  if(!seen.insert(key).second)continue;
+  uint64_t phys=RD_NATIVE_SOURCE_UNMAPPED;
+  int mapped=map(&w.mapping,w.pc,s->byte_size,&phys);
+  if(mapped!=1){out.gaps.push_back({w.pc,mapped==0?"BANK_CONTEXT_UNRESOLVED":"NO_ROM_MAPPING"});continue;}
   RD_Z80DecodeV1 decoded{};decoded.struct_size=sizeof(decoded);
-  int r=decode(s,phys,pc,&decoded);
-  if(r!=1){out.gaps.push_back({pc,r==2?"INSTRUCTION_LENGTH_OR_FLOW_UNVERIFIED":"INVALID_SOURCE_INSTRUCTION"});continue;}
-  if(!decoded.length||decoded.length>4||decoded.pc!=pc){out.gaps.push_back({pc,"PLUGIN_DECODE_CONTRACT_FAILED"});continue;}
-  uint8_t b[4]{};if(!s->read(s->ctx,phys,b,decoded.length)){out.gaps.push_back({pc,"SOURCE_READ_FAILED"});continue;}
-  out.blocks.push_back({pc,phys,decoded.length,decoded.flow,decoded.target,rdhash::sha256(b,decoded.length)});
-  bool fall=decoded.flow==RD_FLOW_FALL||decoded.flow==RD_FLOW_COND||decoded.flow==RD_FLOW_CALL;
-  bool branch=decoded.flow==RD_FLOW_COND||decoded.flow==RD_FLOW_JUMP||decoded.flow==RD_FLOW_CALL;
-  if(fall && uint32_t(pc)+decoded.length<0x10000u){todo.push_back(uint16_t(pc+decoded.length));++out.edges;}
-  if(branch){todo.push_back(decoded.target);++out.edges;}
-  if(decoded.flow==RD_FLOW_INDIRECT)out.gaps.push_back({pc,"DYNAMIC_TARGET_REQUIRES_RUNTIME_EVIDENCE"});
+  int result=decode(s,phys,w.pc,&decoded);
+  if(result!=1){out.gaps.push_back({w.pc,result==2?"INSTRUCTION_LENGTH_OR_FLOW_UNVERIFIED":"INVALID_SOURCE_INSTRUCTION"});continue;}
+  if(!decoded.length||decoded.length>16||decoded.pc!=w.pc){out.gaps.push_back({w.pc,"PLUGIN_DECODE_CONTRACT_FAILED"});continue;}
+  std::array<uint8_t,16>b{};
+  if(!s->read(s->ctx,phys,b.data(),decoded.length)){out.gaps.push_back({w.pc,"SOURCE_READ_FAILED"});continue;}
+  out.blocks.push_back({w.pc,phys,decoded.length,decoded.flow,decoded.target,
+   rdhash::sha256(b.data(),decoded.length),w.mapping.known_mask});
+  RD_Z80EffectV1 effect{};effect.struct_size=sizeof(effect);
+  if(effects(b.data(),decoded.length,&w.a,&effect)!=1||
+     effect.abi_version!=RD_NATIVE_DISCOVERY_ABI){
+   out.gaps.push_back({w.pc,"CPU_ABSTRACT_EFFECT_UNAVAILABLE"});continue;
+  }
+  if(effect.write_kind==RD_Z80_EFFECT_ABSOLUTE){
+   if(write(&w.mapping,effect.absolute,effect.value,effect.value_known)!=0 &&
+      effect.absolute>=0xfffc)out.gaps.push_back({w.pc,"MAPPER_WRITE_TRACKED"});
+  }else if(effect.write_kind==RD_Z80_EFFECT_UNRESOLVED){
+   // The Z80 plugin has not attested an exact write target. A conservative
+   // mapper join is required; never claim a bank survived an unknown write.
+   if(effect.absolute==0xffff){w.mapping.known_mask=0;}
+   else if(effect.absolute>=0xfffb){w.mapping.known_mask &=uint8_t(~0x0f);}
+  }
+  const bool fall=decoded.flow==RD_FLOW_FALL||decoded.flow==RD_FLOW_COND||
+                 decoded.flow==RD_FLOW_CALL||
+                 (decoded.flow==RD_FLOW_INDIRECT&&decoded.conditional);
+  const bool branch=decoded.flow==RD_FLOW_COND||decoded.flow==RD_FLOW_JUMP||decoded.flow==RD_FLOW_CALL;
+  if(fall&&uint32_t(w.pc)+decoded.length<0x10000u){
+   Work after=w;after.pc=uint16_t(w.pc+decoded.length);
+   if(decoded.flow==RD_FLOW_CALL){
+    // A return-site is only a potential CFG successor; the call may modify
+    // any bank or A, so future mapping is deliberately unknown.
+    after.mapping.known_mask=0;after.a.known_a=0;after.a.known_sp=0;
+   }
+   todo.push_back(after);++out.edges;
+  }
+  if(branch){w.pc=decoded.target;todo.push_back(w);++out.edges;}
+  if(decoded.flow==RD_FLOW_INDIRECT)
+   out.gaps.push_back({w.pc,"DYNAMIC_TARGET_REQUIRES_RUNTIME_EVIDENCE"});
  }
- if(!todo.empty())out.gaps.push_back({todo.back(),"DISCOVERY_BUDGET_EXHAUSTED"});
+ if(!todo.empty())out.gaps.push_back({todo.back().pc,"DISCOVERY_BUDGET_EXHAUSTED"});
  return out;
 }
 } // namespace
@@ -209,8 +255,8 @@ int rd_native_discover(const std::vector<std::string>&args,const fs::path&exe_pa
  std::string srcsha=streamhash(rom);
  if(srcsha!=source_identity_before)throw std::runtime_error("SOURCE_CHANGED_DURING_DISCOVERY");
  f<<"{\n  \"schema\": \"recompdev.native.discovery.v1\",\n"
-  <<"  \"workspace_release\": \"v0.4.9.7-candidate\",\n"
-  <<"  \"controller_version\": \"0.4.5\",\n"
+  <<"  \"workspace_release\": \"v0.4.9.9\",\n"
+  <<"  \"controller_version\": \"0.4.6\",\n"
   <<"  \"source\": "<<json(rom.u8string())<<",\n"
   <<"  \"source_size\": "<<src.size<<",\n"
   <<"  \"source_sha256\": "<<json(srcsha)<<",\n"
@@ -234,7 +280,7 @@ int rd_native_discover(const std::vector<std::string>&args,const fs::path&exe_pa
   <<"  \"plugins\": [\n";
  std::vector<const Plugin*>active;for(const auto&p:plugins)active.push_back(p.get());if(cpu_plugin)active.push_back(cpu_plugin.get());if(mapper)active.push_back(mapper.get());
  for(size_t i=0;i<active.size();++i){auto&p=*active[i];f<<"    {\"name\": "<<json(p.path.filename().string())<<", \"description\": "<<json(p.d->name)<<", \"sha256\": "<<json(filehash(p.path,16*1024*1024))<<"}"<<(i+1<active.size()?",":"")<<"\n";}f<<"  ],\n  \"blocks\": [\n";
- for(size_t i=0;i<disc.blocks.size();++i){auto&b=disc.blocks[i];f<<"    {\"pc\": "<<b.pc<<", \"physical\": "<<b.phys<<", \"length\": "<<b.len<<", \"flow\": "<<b.flow<<", \"target\": "<<b.target<<", \"source_bytes_sha256\": "<<json(b.sha)<<"}"<<(i+1<disc.blocks.size()?",":"")<<"\n";}
+ for(size_t i=0;i<disc.blocks.size();++i){auto&b=disc.blocks[i];f<<"    {\"pc\": "<<b.pc<<", \"physical\": "<<b.phys<<", \"length\": "<<b.len<<", \"flow\": "<<b.flow<<", \"target\": "<<b.target<<", \"source_bytes_sha256\": "<<json(b.sha)<<", \"mapper_known_mask\": "<<b.known_banks<<"}"<<(i+1<disc.blocks.size()?",":"")<<"\n";}
  f<<"  ],\n  \"gaps\": [\n";
  for(size_t i=0;i<disc.gaps.size();++i){auto&b=disc.gaps[i];f<<"    {\"pc\": "<<b.pc<<", \"reason\": "<<json(b.reason)<<"}"<<(i+1<disc.gaps.size()?",":"")<<"\n";}
  f<<"  ]\n}\n";f.close();if(!f)throw std::runtime_error("EVIDENCE_WRITE_FAILED");

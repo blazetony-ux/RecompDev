@@ -1,5 +1,11 @@
 # controller — independent changelog
 
+## [0.4.6] - 2026-11-06
+
+- **Changed:** Shared compiled native game runner moved into controller; executes preserved P-code game DLL with strict full-source identity and no Python execution for native-execute. Existing prepare/recover remain transitional.
+- **Validation:** Linux C++ compilation and compiled native controller/P-code and generic banked-flow regression, along with existing workspace tests. Full Windows owner validation, real-ROM translation and semantic parity are not yet demonstrated.
+- **Compatibility:** C plugin descriptor ABI and existing runtime bus ABI remain unchanged. New optional symbol extensions are loaded by the compiled controller; original history is untouched and all missing/ambiguous execution cases fail closed.
+
 ## [0.4.5] - 2026-11-05
 
 - **Changed:** Native C++ `--stage discover` plugin loading and report generation; legacy discovery available via an explicit compatibility stage.

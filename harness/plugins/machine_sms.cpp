@@ -1,4 +1,5 @@
 #include "rd_plugin.h"
+#include "rd_native_discovery_v1.h"
 #include "systems/mastersystem/runtime.hpp"
 #include "hardware/adapters/sms.hpp"
 #include <algorithm>
@@ -79,4 +80,37 @@ extern "C" RD_EXPORT int rd_sms_resolve_source_v1(uint16_t guest,uint64_t size,u
  if(guest>=0x0400)return 0;
  if(uint64_t(guest)>=size)return -1;
  *physical=guest;return 1;
+}
+
+// Source-only mapper ABI, based on the untouched original runtime's
+// mapper={{0,0,1,2}} and State::rom_offset. No hardcoded game ROM data.
+extern "C" RD_EXPORT int rd_sms_map_initial_v1(RD_SmsSourceMapV1*ctx){
+ if(!ctx||ctx->struct_size!=sizeof(*ctx))return -1;
+ *ctx={};ctx->abi_version=RD_NATIVE_DISCOVERY_ABI;ctx->struct_size=sizeof(*ctx);
+ ctx->mapper[0]=0;ctx->mapper[1]=0;ctx->mapper[2]=1;ctx->mapper[3]=2;
+ ctx->known_mask=0x0f;return 1;
+}
+extern "C" RD_EXPORT int rd_sms_map_resolve_v1(const RD_SmsSourceMapV1*ctx,
+ uint16_t addr,uint64_t rom_size,uint64_t*physical){
+ if(!ctx||ctx->abi_version!=RD_NATIVE_DISCOVERY_ABI||ctx->struct_size!=sizeof(*ctx)||!physical)return -1;
+ *physical=RD_NATIVE_SOURCE_UNMAPPED;
+ if(addr>=0xc000||rom_size==0)return -1;
+ if(addr<0x0400){if(addr>=rom_size)return -1;*physical=addr;return 1;}
+ const unsigned slot=addr<0x4000?1:addr<0x8000?2:3;
+ // Mapper control bit3 maps RAM into the upper slot. No invented bank.
+ if(slot==3){if(!(ctx->known_mask&1))return 0;if(ctx->mapper[0]&8)return -1;}
+ if(!(ctx->known_mask&(1u<<slot)))return 0;
+ const uint64_t banks=(rom_size+0x3fff)/0x4000;
+ const uint64_t off=(uint64_t(ctx->mapper[slot])%banks)*0x4000+(addr&0x3fff);
+ if(off>=rom_size)return -1;
+ *physical=off;return 1;
+}
+extern "C" RD_EXPORT int rd_sms_map_write_v1(RD_SmsSourceMapV1*ctx,
+ uint16_t dest,uint8_t value,int value_known){
+ if(!ctx||ctx->abi_version!=RD_NATIVE_DISCOVERY_ABI||ctx->struct_size!=sizeof(*ctx))return -1;
+ if(dest<0xfffc)return 0;
+ const unsigned i=dest-0xfffc;
+ if(value_known){ctx->mapper[i]=value;ctx->known_mask|=uint8_t(1u<<i);}
+ else{ctx->known_mask &=uint8_t(~(1u<<i));}
+ return 1;
 }

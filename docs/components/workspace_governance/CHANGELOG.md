@@ -1,5 +1,11 @@
 # workspace_governance — independent changelog
 
+## [0.1.6] - 2026-11-06
+
+- **Changed:** Keep documentation and release acceptance tests aligned with the actual current component versions, rather than hardcoded versions from previous releases.
+- **Validation:** Workspace version/changelog, source-diff and release-protocol tests; negative tests continue to reject absent changelogs and unrelated component changes.
+- **Compatibility:** Test/governance-only update. Permanent Git-managed PowerShell installer is unchanged.
+
 ## [0.1.5] - 2026-11-05
 
 - **Changed:** Mandate root release-installer presence and documented permanent ZIP protocol in workspace v0.4.9.8 and later; retain approved native-development contract and correct newest-first workspace changelog verification.

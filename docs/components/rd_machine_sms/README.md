@@ -21,3 +21,7 @@ Edit only owned source; bump **this** component if its implementation changes, a
 ## v0.4.9.7 candidate interface (0.2.0)
 
 Conservative static-ROM reset/interrupt source mapping with dynamic/banked addresses remaining unresolved. The authoritative registry is `workspace/components.json`; use the ABI declarations in `harness/include/rd_native_discovery_v1.h`. New `rd_sms_resolve_source_v1` extension; runtime bus ABI remains unchanged. No Shinobi-specific logic is introduced; independently measured gameplay parity remains unverified.
+
+## v0.3.0 native migration (workspace/v0.4.9.9)
+
+Original SMS initial mapper and register-write effects now model context-qualified ROM physical offsets, retaining existing bus and source resolver compatibility. See [the release](../../releases/v0.4.9.9.md) for what still uses Python and for test limitations. No title-specific workarounds or production gameplay-parity claim.

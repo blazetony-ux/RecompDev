@@ -1,5 +1,12 @@
 # RecompDev workspace changelog
 
+## [workspace/v0.4.9.9] - 2026-11-06
+
+- **Ported existing native execution orchestration** from the previously verified harness into compiled `RecompDev.exe` 0.4.6. The controller uses a shared compiled game-runner module to load existing P-code-generated game, machine, CPU, discovery, display, audio and input DLLs. New stage `native-execute` refuses source mismatches and runs without Python.
+- `rd_cpu_z80` 0.4.0 now structurally recognises documented ED, CB, DD/FD and indexed bytes; `rd_machine_sms` 0.3.0 uses immutable legacy initial mapper values plus source-qualified writes to resolve distinct physical ROM banks. Generic synthetic test exercises `ED 56`, bank 6 and a banked call.
+- Updated the workspace-governance regression fixtures to follow current component versions instead of stale v0.4.9.8 expectations; `workspace_governance` v0.1.6.
+- **NOT a completed port:** original P-code generator / Ghidra recovery remains Python-hosted; real Shinobi recompile or playability not proven. No changes to frozen original sources, existing Shinobi video/input/monitor or the permanent release process. Owner Windows tests pending. See [v0.4.9.9](docs/releases/v0.4.9.9.md) and [scope record](docs/project/PREBUILD-v0.4.9.9.md).
+
 ## [workspace/v0.4.9.8] - 2026-11-06
 
 - **Installable native-discovery release; owner installation pending:** Repackages all uninstalled v0.4.9.7 native controller (0.4.5) and format/CPU/machine DLL source changes on verified owner v0.4.9.6 baseline. No claim that v0.4.9.7 was installed or that newly discovered Master System code has passed the full preserved P-code translator and native compilation gate.
