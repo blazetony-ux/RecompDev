@@ -90,7 +90,9 @@ struct Options{
     std::string rom,job,logging="info",ghidra,rizin,plugin_dir,import_history,workspace,evidence_root;
     std::vector<std::string> roots;
     int max_cycles=8,rounds=4,target_frames=1800,timeout=600,step_budget=20000000;
-    bool have_cycles=false;
+    int preview_frames=1200,preview_steps=12000000,preview_every=128,preview_cycle=0;
+    std::string preview_video="window",preview_input="live";
+    bool preview_viewer=true,preview_hold=false,have_cycles=false;
 };
 int number(const std::string&name,const std::string&s,int lo,int hi){
     if(s.empty()||!std::all_of(s.begin(),s.end(),[](char c){return c>='0'&&c<='9';}))throw Error("INVALID_"+name);
@@ -100,7 +102,10 @@ int number(const std::string&name,const std::string&s,int lo,int hi){
 Options parse(const std::vector<std::string>&argv){
     Options opt;
     for(size_t i=1;i<argv.size();i++){
-        auto key=argv[i];if(i+1>=argv.size())throw Error("MISSING_VALUE_"+key);
+        auto key=argv[i];
+        if(key=="--no-viewer"){opt.preview_viewer=false;continue;}
+        if(key=="--hold-window"){opt.preview_hold=true;continue;}
+        if(i+1>=argv.size())throw Error("MISSING_VALUE_"+key);
         auto val=argv[++i];
         if(key=="--rom")opt.rom=val;
         else if(key=="--job")opt.job=safe_job_id(val);
@@ -117,9 +122,19 @@ Options parse(const std::vector<std::string>&argv){
         else if(key=="--target-frames")opt.target_frames=number("TARGET_FRAMES",val,1,36000);
         else if(key=="--timeout")opt.timeout=number("TIMEOUT",val,30,7200);
         else if(key=="--step-budget")opt.step_budget=number("STEP_BUDGET",val,1,20000000);
+        else if(key=="--frames")opt.preview_frames=number("PREVIEW_FRAMES",val,1,36000);
+        else if(key=="--steps")opt.preview_steps=number("PREVIEW_STEPS",val,1,20000000);
+        else if(key=="--monitor-every")opt.preview_every=number("MONITOR_EVERY",val,1,65536);
+        else if(key=="--cycle")opt.preview_cycle=number("PREVIEW_CYCLE",val,1,16);
+        else if(key=="--video")opt.preview_video=val;
+        else if(key=="--input")opt.preview_input=val;
         else throw Error("UNKNOWN_JOB_OPTION_"+key);
     }
     if(opt.logging!="debug"&&opt.logging!="info"&&opt.logging!="warning"&&opt.logging!="error")throw Error("INVALID_LOGGING_LEVEL");
+    if(opt.preview_video!="window"&&opt.preview_video!="capture")throw Error("INVALID_PREVIEW_VIDEO");
+    if(opt.preview_input!="live"&&opt.preview_input!="neutral")throw Error("INVALID_PREVIEW_INPUT");
+    if(opt.preview_input=="live"&&opt.preview_video!="window")throw Error("LIVE_PREVIEW_REQUIRES_WINDOW");
+    if(opt.preview_hold&&opt.preview_video!="window")throw Error("HOLD_PREVIEW_REQUIRES_WINDOW");
     return opt;
 }
 std::string config_json(const Options&o){
@@ -136,11 +151,11 @@ Options load_config(const fs::path&h){
     return opt;
 }
 bool within(const fs::path& p,const fs::path& root){auto i=p.begin(),j=root.begin();for(;j!=root.end();++i,++j)if(i==p.end()||*i!=*j)return false;return true;}
-// Evidence lives under <configured-root>/v0.4.9.18, independently of old job locations.
+// Evidence lives under <configured-root>/v0.4.9.19, independently of old job locations.
 // The prior --workspace value is recognised but never rewritten automatically.
 // A version-like trailing directory is treated as an older release workspace,
-// allowing existing owner configuration to transparently select v0.4.9.18.
-constexpr const char* kEvidenceVersion = "v0.4.9.18";
+// allowing existing owner configuration to transparently select v0.4.9.19.
+constexpr const char* kEvidenceVersion = "v0.4.9.19";
 bool is_version_folder(const std::string& name){
     if(name.size()<6||name[0]!='v')return false;
     int dots=0;
@@ -350,6 +365,9 @@ int rd_native_job(const std::vector<std::string>& args,const fs::path&source,con
         auto opt=parse(parsed);auto h=home();
         if(h==source||within(h,source))throw Error("JOB_HOME_CANNOT_BE_INSIDE_SOURCE");
         const auto& op=args.front();
+        if(op!="preview"&&(opt.preview_frames!=1200||opt.preview_steps!=12000000||opt.preview_every!=128||
+           opt.preview_cycle!=0||opt.preview_video!="window"||opt.preview_input!="live"||!opt.preview_viewer||opt.preview_hold))
+            throw Error("PREVIEW_OPTIONS_ONLY_FOR_PREVIEW");
         if(op=="configure"){
             if(!opt.job.empty()||!opt.rom.empty()||opt.have_cycles||!opt.import_history.empty()||(!opt.workspace.empty()&&!opt.evidence_root.empty()))throw Error("CONFIG_OPTION_NOT_SUPPORTED");
             if((opt.ghidra.empty()||opt.rizin.empty())&&fs::is_regular_file(h/"config.json")){
@@ -416,6 +434,27 @@ int rd_native_job(const std::vector<std::string>& args,const fs::path&source,con
             j.max_cycles=opt.max_cycles;j.rounds=opt.rounds;j.target_frames=opt.target_frames;j.timeout=opt.timeout;j.step_budget=opt.step_budget;
             atomic_write(dir/"job.json",save_doc(j));atomic_write(h/"last-job.txt",id+"\n");
             return execute(j,jobs,workspace(h,source)/"diagnostics",exe,bridge,opt.logging);
+        }
+        if(op=="preview"){
+            if(!opt.rom.empty()||!opt.ghidra.empty()||!opt.rizin.empty()||!opt.roots.empty()||
+               !opt.plugin_dir.empty()||!opt.import_history.empty()||!opt.workspace.empty()||!opt.evidence_root.empty()||
+               opt.have_cycles||opt.rounds!=4||opt.target_frames!=1800||opt.step_budget!=20000000)
+                throw Error("INVALID_PREVIEW_OPTIONS");
+            auto id=opt.job.empty()?last_id(h):opt.job;
+            auto jobs=locate_jobs(workspace(h,source),h,id);
+            Job j=load_job(jobs,id);
+            if(hash_rom(full(j.rom))!=j.sha)throw Error("PREVIEW_ROM_IDENTITY_MISMATCH");
+            // Preview is completely independent of recovery's immutable sessions.
+            // Only the CPU-neutral controller-approved events are streamed to the viewer.
+            std::vector<std::string> command={"--stage","job-preview","--job-dir",(jobs/id).u8string(),
+                "--source-root",source.u8string(),"--out-dir",(workspace(h,source)/"preview").u8string(),
+                "--diagnostics-dir",(workspace(h,source)/"diagnostics").u8string(),
+                "--frames",std::to_string(opt.preview_frames),"--steps",std::to_string(opt.preview_steps),
+                "--sample-every",std::to_string(opt.preview_every),"--cycle",std::to_string(opt.preview_cycle),
+                "--video",opt.preview_video,"--input",opt.preview_input,"--timeout",std::to_string(opt.timeout)};
+            if(!opt.preview_viewer)command.push_back("--no-viewer");
+            if(opt.preview_hold)command.push_back("--hold-window");
+            return bridge(command);
         }
         if(op=="resume"||op=="status"||op=="inspect"||diagnostics){
             if(!opt.rom.empty()||!opt.ghidra.empty()||!opt.rizin.empty()||!opt.roots.empty()||!opt.plugin_dir.empty()||!opt.import_history.empty()||!opt.workspace.empty()||!opt.evidence_root.empty()||opt.rounds!=4||opt.target_frames!=1800||opt.timeout!=600||opt.step_budget!=20000000)throw Error("INVALID_JOB_COMMAND_OPTIONS");

@@ -84,3 +84,7 @@ The independent maintained `rd_sms_native_runtime` machine-state DLL is register
 ## v0.4.9.13 direct analysis provider
 
 - [analysis_integration](analysis_integration/README.md) `0.2.0`: active RecompDev-owned Rizin CLI/provenance/ANSI-aware JSON adapter; Ghidra/reconciliation still temporarily depend on historic Python. No new compiled DLL is claimed.
+
+### v0.4.9.19 preview integration
+
+The versioned `execution_monitor` remains an independent CPU-neutral viewer subscriber; new compiled-controller `preview` dispatch and a temporary Python adapter stage source-attested generated game applications. Monitor, CPU, hardware and host display cannot be merged into one title-specific implementation. See [execution monitor](execution_monitor/README.md) and [controller](controller/README.md).

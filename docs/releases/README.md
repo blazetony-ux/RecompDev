@@ -40,3 +40,7 @@ Release claims must distinguish cross-platform CI/local tests, owner Windows log
 ## v0.4.9.18
 
 [Evidence root, translation coverage deltas and source-attested analyzer reuse](v0.4.9.18.md). Source-only candidate based on v0.4.9.17 main; 1,800-frame gameplay qualification remains pending.
+
+## v0.4.9.19
+
+[Compiled controller preview and live instruction/keypress stop diagnostics](v0.4.9.19.md). Current main v0.4.9.18 baseline, native smoke validation only; Windows GUI and 1,800-frame parity still blocked.

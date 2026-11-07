@@ -50,3 +50,7 @@ A source ZIP may be explicitly labelled `release_track=infrastructure-source` an
 ## v0.4.9.18 current-main source checkpoint rule
 
 After v0.4.9.17 was promoted directly to Git `main` and published to GitHub (without a `dev/v0.4.9.17` branch), `Validate` may create the next dev checkpoint with `development_checkpoint.parent_branch=main` only when `parent_commit` matches the manifest's exact `baseline_commit` and the installer has already verified that same HEAD and release tag. This is exclusively for the `infrastructure-source` track. The source-only runtime-immunity gate, rollback and full Windows acceptance remain unchanged. `Install` promotes Git source locally only and does not push to GitHub.
+
+## v0.4.9.19 preview infrastructure source track
+
+The current owner-pushed `main` baseline is the v0.4.9.18 source commit `37f1ab36f1299219a7beb6c49d0b620c6d587687`. A v0.4.9.19 source release uses `-Mode Validate` to compile Windows MSVC, test the preview and all existing gates, then checkpoint `dev/v0.4.9.19` without moving `main`. `-Mode Install` independently reruns all gates, promotes **source only**, creates a rollback bundle, preserves production DLLs and does not push GitHub. Preview is a disposable developer app, never gameplay-qualified runtime activation. The owner must confirm game and monitor windows and exercise a Z-button input stop; 1,800-frame Shinobi gameplay and ROM-independent hardware parity remain outstanding.

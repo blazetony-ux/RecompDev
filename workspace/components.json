@@ -7,11 +7,11 @@
       "version": "0.3.2"
     },
     "controller": {
-      "description": "Compiled controller job manager with versioned evidence root, backward-compatible legacy job lookup, secure current-release diagnostics routing and source-attested recovery priority scheduling.",
+      "description": "Compiled controller job manager with v0.4.9.19 versioned evidence and source-attested read-only preview dispatch; recovery and preview are isolated. Generic diagnostic viewer subscribes to controller events, not CPU or game memory.",
       "kind": "controller",
       "scope": "production-entrypoint",
       "target": "RecompDev",
-      "version": "0.4.14"
+      "version": "0.4.15"
     },
     "controller_diagnostics": {
       "description": "Single authenticated controller-owned local diagnostics event protocol, bounded subscriptions and history; orchestrated by runtime launcher, no compiled controller binary changes",
@@ -26,10 +26,10 @@
       "version": "0.1.0"
     },
     "execution_monitor": {
-      "description": "Separate read-only Tk desktop monitor subscribing only to controller diagnostic interface, with native source-only instruction publisher and evidence recording",
+      "description": "Current compiled-controller preview adapter: authentic generated native game copied/instrumented and built in isolated evidence directory; independent CPU-neutral read-only instruction window, sampled input/stop telemetry and ROM-free diagnostic ZIP.",
       "kind": "tooling",
       "scope": "developer-debugger",
-      "version": "0.1.0"
+      "version": "0.2.0"
     },
     "input_recovery": {
       "description": "Generic guest-cycle input capture and source-verified replay recovery; short-path native builds, strict compile-failure suppression, replay history re-use",
@@ -236,5 +236,5 @@
     }
   },
   "schema": "recompdev-components-v1",
-  "workspace_release": "v0.4.9.18"
+  "workspace_release": "v0.4.9.19"
 }

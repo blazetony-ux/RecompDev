@@ -170,7 +170,7 @@
       "status": "partial"
     },
     {
-      "acceptance_test": "PENDING end-to-end operator UI test",
+      "acceptance_test": "v04919_controller_preview_native; PENDING owner Windows two-window input acceptance and unified Workbench controls",
       "exit_criteria": "Reintegrate authorised task controls, previews, cancel, ZIP downloads",
       "legacy_paths": [
         "legacy/RecompDev-v0.4.0.45/workbench.py",
@@ -179,9 +179,9 @@
       ],
       "migration_state": "adapter",
       "name": "Operator Workbench and monitor",
-      "new_boundary": "controller diagnostics event API and future operator UI",
-      "owner": "controller diagnostics event API and future operator UI",
-      "qualification": "Read-only workbench and monitor exist, native job controls not unified",
+      "new_boundary": "controller.native_job + execution_monitor.job_preview + controller.diagnostics + replaceable game presentation host",
+      "owner": "controller + execution_monitor; hardware/provider-specific adapters independently replaceable",
+      "qualification": "Current compiled controller now dispatches source-attested native previews and sampled input/stop monitor; full operator Workbench, multi-ISA runtime UI and real Windows keypress qualification remain pending",
       "status": "partial"
     },
     {

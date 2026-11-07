@@ -130,7 +130,7 @@ static fs::path project_root(fs::path exe){
     throw std::runtime_error("RecompDev source checkout not found; runtime needs source-root.txt");
 }
 static void usage(){
-    std::cout<<"RecompDev v0.4.9.18 native controller (compiled job lifecycle + plugin discovery)\n"
+    std::cout<<"RecompDev v0.4.9.19 native controller (compiled job lifecycle + plugin discovery)\n"
       "Usage: RecompDev.exe --rom FILE --stage discover|prepare|recover [options]\n"
       "  --steps N --frames N --max-recoveries N --timeout N --capture-hardware\n"
       "  --auto-continue --max-rounds N (continue source-verified recovery in bounded batches)\n"
@@ -141,6 +141,8 @@ static void usage(){
       "  configure --ghidra PATH --rizin PATH [--evidence-root DIR] [--workspace LEGACY_DIR] [--allow-tool-root DIR]\n"
       "  resume [--job ID] [--max-cycles N]; status [--job ID]; inspect [--job ID]\n"
       "  diagnostics export [--job ID] (redacted upload-ready ZIP; no ROM)\n"
+      "  preview [--job ID] [--cycle N] [--frames N] [--steps N] [--monitor-every N]\n"
+      "    [--video window|capture] [--input live|neutral] [--no-viewer] [--hold-window]\n"
       "  plugin build|test|activate|rollback|bump|status|release [args]\n"
       "Native --stage native-execute requires --rom FILE --game rd_NAME --out PREFIX; source identity is verified.\n"
       "Native --stage native-orchestrate: --rom ROM --out DIR --plugin-dir DLLS [--ghidra HEADLESS --rizin EXE --allow-tool-root DIR | --export JSON] [--history-root DIR] [--max-rounds N] [--target-frames N].\n"
@@ -169,14 +171,14 @@ int main(int argc,char** argv)
 #endif
           )){usage();return 0;}
 #ifdef _WIN32
-        if(equals(argv[1],L"--version")){std::cout<<"RecompDev 0.4.9.18\n";return 0;}
+        if(equals(argv[1],L"--version")){std::cout<<"RecompDev 0.4.9.19\n";return 0;}
         if(equals(argv[1],L"plugin"))op="plugin-manager";
         if(equals(argv[1],L"--plugins"))op="plugins";
         if(equals(argv[1],L"--verify"))op="verify";
         if(equals(argv[1],L"--status"))op="status";
         if(equals(argv[1],L"--analyze-evidence"))op="review-evidence";
 #else
-        if(equals(argv[1],"--version")){std::cout<<"RecompDev 0.4.9.18\n";return 0;}
+        if(equals(argv[1],"--version")){std::cout<<"RecompDev 0.4.9.19\n";return 0;}
         if(equals(argv[1],"plugin"))op="plugin-manager";
         if(equals(argv[1],"--plugins"))op="plugins";
         if(equals(argv[1],"--verify"))op="verify";
@@ -210,9 +212,9 @@ int main(int argc,char** argv)
         }
         fs::path root=project_root(self_path());
 #ifdef _WIN32
-        const bool native_job=equals(argv[1],L"run")||equals(argv[1],L"resume")||equals(argv[1],L"status")||equals(argv[1],L"inspect")||equals(argv[1],L"configure")||equals(argv[1],L"diagnostics");
+        const bool native_job=equals(argv[1],L"run")||equals(argv[1],L"resume")||equals(argv[1],L"status")||equals(argv[1],L"inspect")||equals(argv[1],L"configure")||equals(argv[1],L"diagnostics")||equals(argv[1],L"preview");
 #else
-        const bool native_job=equals(argv[1],"run")||equals(argv[1],"resume")||equals(argv[1],"status")||equals(argv[1],"inspect")||equals(argv[1],"configure")||equals(argv[1],"diagnostics");
+        const bool native_job=equals(argv[1],"run")||equals(argv[1],"resume")||equals(argv[1],"status")||equals(argv[1],"inspect")||equals(argv[1],"configure")||equals(argv[1],"diagnostics")||equals(argv[1],"preview");
 #endif
         if(native_job){
            std::vector<std::string> job_args;
@@ -225,7 +227,8 @@ int main(int argc,char** argv)
               v.pop_back();job_args.push_back(std::move(v));
            }
            auto invoke=[&](const std::vector<std::string>&cmd)->int{
-              std::vector<std::wstring> forwarded={(cmd.size()>1 && cmd[0]=="--stage" && cmd[1]=="job-diagnostics" ? (root/L"workspace"/L"diagnostics_export.py") : (root/L"analysis_integration"/L"cli.py")).wstring()};
+              std::vector<std::wstring> forwarded={(cmd.size()>1 && cmd[0]=="--stage" && cmd[1]=="job-diagnostics" ? (root/L"workspace"/L"diagnostics_export.py") :
+                 cmd.size()>1 && cmd[0]=="--stage" && cmd[1]=="job-preview" ? (root/L"execution_monitor"/L"job_preview.py") : (root/L"analysis_integration"/L"cli.py")).wstring()};
               for(auto&str:cmd){
                   int n=MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,str.c_str(),-1,nullptr,0);
                   if(n<=0)throw std::runtime_error("PROVIDER_ARGUMENT_UTF8_INVALID");
@@ -233,16 +236,17 @@ int main(int argc,char** argv)
                   if(!MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,str.c_str(),-1,w.data(),n))throw std::runtime_error("PROVIDER_ARGUMENT_UTF8_INVALID");
                   w.pop_back();forwarded.push_back(std::move(w));
               }
-              if(!(cmd.size()>1 && cmd[1]=="job-diagnostics")){forwarded.emplace_back(L"--controller-exe");forwarded.emplace_back(self_path().wstring());
+              if(!(cmd.size()>1 && (cmd[1]=="job-diagnostics"||cmd[1]=="job-preview"))){forwarded.emplace_back(L"--controller-exe");forwarded.emplace_back(self_path().wstring());
               forwarded.emplace_back(L"--source-root");forwarded.emplace_back(root.wstring());}
               return spawn(root,forwarded);
            };
 #else
            for(int i=1;i<argc;++i)job_args.emplace_back(argv[i]);
            auto invoke=[&](const std::vector<std::string>&cmd)->int{
-              std::vector<std::string> forwarded={(cmd.size()>1 && cmd[0]=="--stage" && cmd[1]=="job-diagnostics" ? (root/"workspace"/"diagnostics_export.py") : (root/"analysis_integration"/"cli.py")).string()};
+              std::vector<std::string> forwarded={(cmd.size()>1 && cmd[0]=="--stage" && cmd[1]=="job-diagnostics" ? (root/"workspace"/"diagnostics_export.py") :
+                 cmd.size()>1 && cmd[0]=="--stage" && cmd[1]=="job-preview" ? (root/"execution_monitor"/"job_preview.py") : (root/"analysis_integration"/"cli.py")).string()};
               forwarded.insert(forwarded.end(),cmd.begin(),cmd.end());
-              if(!(cmd.size()>1 && cmd[1]=="job-diagnostics")){forwarded.emplace_back("--controller-exe");forwarded.emplace_back(self_path().string());
+              if(!(cmd.size()>1 && (cmd[1]=="job-diagnostics"||cmd[1]=="job-preview"))){forwarded.emplace_back("--controller-exe");forwarded.emplace_back(self_path().string());
               forwarded.emplace_back("--source-root");forwarded.emplace_back(root.string());}
               return spawn(root,forwarded);
            };

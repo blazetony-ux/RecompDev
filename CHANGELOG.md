@@ -1,5 +1,11 @@
 # RecompDev workspace changelog
 
+## [workspace/v0.4.9.19] — 2026-11-07
+
+- **Implemented:** Separate controller-owned native preview and sampled instruction/keyboard/guest-stop telemetry, rebuilding only a source-attested copy of the previously generated game; independent game/monitor windows and ROM-free diagnostic ZIP beneath the release evidence root. Preview is not recovery or gameplay qualification.
+- **Validated locally:** Current C++ controller, native instrumented synthetic execution, controller diagnostics broker, source immutability and privacy/manifest tests; owner Windows full CTest and real Shinobi keypress still required. Preserved original 642 legacy/baseline source files.
+- **Governance:** Source-only `infrastructure-source` track; main baseline v0.4.9.18. Existing GPU/CPU/tool plugin boundary remains independent. 936 observed Shinobi frames, not 1,800 parity.
+
 ## [workspace/v0.4.9.18] - 2026-11-07
 
 - **Infrastructure source:** All new controller jobs and diagnostic ZIPs use `<evidence-root>/v0.4.9.18/`; current owner configuration `--workspace C:\Projects\RecompDev-Evidence\v0.4.9.17` resolves to the parent evidence root. Existing AppData or previous version folders remain readable without moving, modifying or deleting the originals. `--evidence-root` is the preferred explicit configuration.

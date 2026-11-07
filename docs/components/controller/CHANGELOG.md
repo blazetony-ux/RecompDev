@@ -1,5 +1,11 @@
 # controller — independent changelog
 
+## [0.4.15] - 2026-11-07
+
+- **Changed:** Compiled `RecompDev.exe preview [--job ID]` now resolves old and current source-attested recovery jobs, validates original ROM SHA and dispatches a separate bounded native preview service. New versioned evidence root `v0.4.9.19` captures sessions/diagnostics; preview cannot mutate recovery jobs or active runtime DLLs.
+- **Validation:** New C++ compiled job contract exercises correct `job-preview` dispatch, evidence routing, backend bounds, unchanged `job.json`; external native synthetic smoke proves compiled instrumentation, structured guest-stop and SHA-256 diagnostic ZIP. Full owner Windows GUI and Z-key behaviour remain unqualified.
+- **Compatibility:** Existing `run/resume/status/inspect/diagnostics export` contracts, source identity, provider DLL ABIs, v0.4.9.18 historical jobs and original frozen 642 files remain unchanged; prior AppData config only stores pointers and settings.
+
 ## [0.4.14] - 2026-11-07
 
 - **Changed:** Configured evidence root is independent of historic job location; `v0.4.9.18/jobs` and `v0.4.9.18/diagnostics` are release-scoped. Supports prior version folders and AppData lookup; `configure --evidence-root` overrides legacy `--workspace` while existing owner v0.4.9.17 workspace automatically resolves to parent root.

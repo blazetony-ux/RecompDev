@@ -19,15 +19,20 @@ def live_transform(source: str) -> str:
     transition='  history_[written_%history_.size()]=t;++written_;'
     rendering='  return recomp::hw::sms::render_mode4(state_.vram,state_.cram,state_.vdp_regs,state_.tstates,state_.frames);'
     input_anchor='  state_.apply_host_input(in.buttons);'
-    for label, anchor in [('include',include),('transition',transition),('render',rendering),('input',input_anchor)]:
+    # The legacy runtime-host staging bridge uses inline rendering; the
+    # compiled translation pipeline uses a replaceable Mode 4 DLL and returns
+    # the backend-produced frame. Support both without touching guest code.
+    current_render = '  return output;'
+    render_anchor = rendering if source.count(rendering)==1 else current_render
+    for label, anchor in [('include',include),('transition',transition),('render',render_anchor),('input',input_anchor)]:
         if source.count(anchor)!=1:
             raise ValueError('Unexpected native machine source '+label+' anchor; no instrumentation applied')
     source=source.replace(include,include+'\n#include "hardware/rd_execution_events.hpp" // '+MARKER,1)
     source=source.replace(transition,
         '  rd_execution_events::transition("z80",t.step,t.cycles,state_.frames,t.before,t.after,t.sp_before,t.physical,\n'
         '    t.physical<state_.rom.size()?state_.rom[t.physical]:0,t.opcode_class,kind);\n'+transition,1)
-    source=source.replace(rendering,
-        '  rd_execution_events::frame(state_.frames,state_.tstates,state_.steps);\n'+rendering,1)
+    source=source.replace(render_anchor,
+        '  rd_execution_events::frame(state_.frames,state_.tstates,state_.steps);\n'+render_anchor,1)
     source=source.replace(input_anchor,
         '  rd_execution_events::input(state_.tstates,in.buttons);\n'+input_anchor,1)
     return source

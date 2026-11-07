@@ -53,12 +53,28 @@ int main(int argc,char**argv){
   require(go({"run","--rom",rom.string(),"--max-cycles","3","--rounds-per-cycle","2","--target-frames","100","--logging","warning"},source,exe,bridge)==0,"autonomous native scheduling failed");
   require(invocations==3,"expected three controller-scheduled calls");
   auto job_id=read(home/"last-job.txt");while(!job_id.empty()&&(job_id.back()=='\n'||job_id.back()=='\r'))job_id.pop_back();
-  auto job_dir=(tmp/"workspace"/"v0.4.9.18"/"jobs")/job_id;auto job=read(job_dir/"job.json");
+  auto job_dir=(tmp/"workspace"/"v0.4.9.19"/"jobs")/job_id;auto job=read(job_dir/"job.json");
   require(job.find("TARGET_REACHED_PARITY_UNVERIFIED")!=std::string::npos,"not parity-unverified");
   require(job.find("\"cycle\":3")!=std::string::npos,"third cycle not committed");
   require(read(job_dir/"events.jsonl").find("AUTO_RESUME")!=std::string::npos,"missing controller automatic resume events");
   require(go({"status","--job",job_id},source,exe,unexpected)==0,"status failed");
   require(go({"inspect","--job",job_id,"--logging","debug"},source,exe,unexpected)==0,"inspect failed");
+  int previews=0;
+  auto preview_bridge=[&](const std::vector<std::string>&args)->int{
+     ++previews;
+     auto val=[&](const std::string&key)->std::string{for(size_t i=0;i+1<args.size();++i)if(args[i]==key)return args[i+1];return "";};
+     require(val("--stage")=="job-preview","wrong preview provider selected");
+     require(val("--job-dir")==job_dir.string(),"preview must use immutable existing job");
+     require(val("--out-dir")==((tmp/"workspace"/"v0.4.9.19")/"preview").string(),"preview output outside evidence root");
+     require(val("--diagnostics-dir")==((tmp/"workspace"/"v0.4.9.19")/"diagnostics").string(),"preview diagnostic root wrong");
+     require(val("--sample-every")=="64","preview sampling option lost");
+     require(val("--video")=="capture"&&val("--input")=="neutral","preview backend option lost");
+     return 0;
+  };
+  require(go({"preview","--job",job_id,"--video","capture","--input","neutral","--monitor-every","64","--no-viewer"},source,exe,preview_bridge)==0,"preview dispatch failed");
+  require(previews==1,"preview provider invoked wrong number of times");
+  require(go({"preview","--job",job_id,"--video","capture","--input","live"},source,exe,unexpected)==2,"live input without window accepted");
+  require(read(job_dir/"job.json")==job,"preview mutated recovery job state");
   require(go({"resume","--job",job_id},source,exe,unexpected)==2,"complete job should reject further runs");
   require(go({"run","--rom",rom.string(),"--logging","trace"},source,exe,unexpected)==2,"unknown logging level accepted");
   require(go({"run","--rom",rom.string(),"--max-cycles","0"},source,exe,unexpected)==2,"invalid bounds accepted");
@@ -102,7 +118,7 @@ int main(int argc,char**argv){
   require(go({"run","--rom",rom.string(),"--max-cycles","5"},source,exe,stagnant)==2,"stagnation should block");
   require(stale_calls==3,"stagnation was not measured against all-time high watermark");
   auto stagnant_id=read(home/"last-job.txt");while(!stagnant_id.empty()&&(stagnant_id.back()=='\n'||stagnant_id.back()=='\r'))stagnant_id.pop_back();
-  require(read((tmp/"workspace"/"v0.4.9.18"/"jobs")/stagnant_id/"job.json").find("BLOCKED_STAGNATION")!=std::string::npos,"stagnation status not persisted");
+  require(read((tmp/"workspace"/"v0.4.9.19"/"jobs")/stagnant_id/"job.json").find("BLOCKED_STAGNATION")!=std::string::npos,"stagnation status not persisted");
   fs::remove_all(tmp);
   std::cout<<"PASS: compiled controller job scheduling, logging, immutable sessions and identity gates\n";
   return 0;

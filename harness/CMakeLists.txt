@@ -465,3 +465,11 @@ if(Python3_Interpreter_FOUND)
   discover -s "${CMAKE_SOURCE_DIR}/../workspace/tests" -p test_v04918_coverage.py -q)
  set_tests_properties(v04918_coverage_diagnostics PROPERTIES TIMEOUT 30)
 endif()
+
+# v0.4.9.19: current compiled job preview dispatch and actual source-attested
+# instrumented native game; monitor is read-only and ZIPs exclude ROM source.
+if(Python3_EXECUTABLE)
+ add_test(NAME v04919_controller_preview_native COMMAND "${Python3_EXECUTABLE}"
+  -m unittest discover -s "${CMAKE_SOURCE_DIR}/../execution_monitor/tests" -p test_v04919_job_preview.py -q)
+ set_tests_properties(v04919_controller_preview_native PROPERTIES WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/.." ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+endif()

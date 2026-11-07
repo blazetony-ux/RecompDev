@@ -51,6 +51,7 @@ class Publisher final {
    if(begin()){
     out_<<"{\"type\":\"stop\",\"status\":\""<<kind
         <<"\",\"cpu\":\""<<cpu<<"\",\"pc\":"<<next_pc
+        <<",\"physical_offset\":"<<physical<<",\"frame\":"<<frame
         <<",\"guest_cycles\":"<<cycle<<",\"steps\":"<<step<<"}\n";
     out_.flush();
    }
