@@ -1,3 +1,7 @@
+## v0.4.9.16 — single-ZIP development checkpoint
+
+`release_installer` 1.1.0 supports one SHA-256-pinned release ZIP with a package-internal installer. `Validate` now creates a `dev` checkpoint using an isolated Git index **only after** full tests, preserving the clean main checkout and active binaries. Use the package-pinned installer to enable the new feature while main still contains the v0.4.9.9 root installer. Windows PowerShell gate pending; no auto-push to GitHub. See [release](../../releases/v0.4.9.16.md).
+
 # release_installer — permanent source-release transaction
 
 **Component:** `release_installer` 1.0.0. **Scope:** `workspace`. Independent registration: `workspace/components.json`.
@@ -11,3 +15,7 @@ It verifies the independently supplied ZIP SHA-256 before extraction, checks man
 **First-time bootstrap:** a not-yet-installed checkout has no root installer. Execute the matching separately supplied `Install-RecompDev-Release.ps1` from Downloads exactly once, pinning the package SHA-256 via the command. A successfully promoted release includes and commits this exact script to the root; later releases use the root copy. Merely validating an unfinished candidate cannot install the bootstrap script or make a tag.
 
 No commercial ROMs, compilation outputs or evidence databases are included in release ZIPs. Windows PowerShell 5.1 remains a required acceptance target. See [release-process standard](../../development/RELEASE-PROCESS.md) and [development contract](../../project/DEVELOPMENT-CONTRACT.md).
+
+## Source-only infrastructure promotion
+
+From workspace v0.4.9.17, manifest `release_track=infrastructure-source` with `promotion_scope=git-main-only-no-runtime` can update Git main and tag after full testing through the permanent Git-managed installer `-Mode Install`. The active compiled controller binary, plugin DLLs and runtime lockfile remain untouched. Full native-game qualification remains a separate acceptance track.

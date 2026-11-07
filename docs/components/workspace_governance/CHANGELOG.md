@@ -1,5 +1,17 @@
 # workspace_governance — independent changelog
 
+## [0.1.8] - 2026-11-07
+
+- **Changed:** New mandatory migration-completeness register with 14 audited subsystem capabilities, explicit owner, current boundary, maintained/preserved status, acceptance test and exit criteria. The `infrastructure-source` track is documented independently of gameplay parity; a read-only SQLite table/count/hash inventory supports future safe owner catalogue integration.
+- **Validation:** New migration registry and SQLite read-only tests, updated documentation consistency and separate source-promotion acceptance. Each subsystem remains unqualified until differential and real ROM parity evidence exists.
+- **Compatibility:** Source governance and read-only inventory only; the legacy database and all 642 historical source/baseline files remain immutable, with no owner-local data or original ROM packaged.
+
+## [0.1.7] - 2026-11-06
+
+- **Changed:** Fixed release-gate version thresholds so workspace v0.4.9.10 and later still require the Git-managed permanent installer, its documented commands, owner development contract and explicitly blocked-functional-gate release note. The old lexicographic comparison mistakenly treated v0.4.9.10 as earlier than v0.4.9.8; now uses numeric version components.
+- **Validation:** All documentation governance negative-path tests, workspace component version tests, and standalone release-protocol checks; source-only validator adds no new Windows installer script and retains the frozen-source protection.
+- **Compatibility:** Governance and fixture expectation changes only. The installed Windows permanent release installer, compiled runtime plugin ABI, active source, original ROM files and prior Git tags remain unchanged.
+
 ## [0.1.6] - 2026-11-06
 
 - **Changed:** Keep documentation and release acceptance tests aligned with the actual current component versions, rather than hardcoded versions from previous releases.

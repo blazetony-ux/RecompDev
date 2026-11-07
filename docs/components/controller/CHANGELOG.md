@@ -1,5 +1,50 @@
 # controller — independent changelog
 
+## [0.4.13] - 2026-11-07
+
+- **Changed:** The compiled controller accepts `configure --workspace ABSOLUTE`, defaults new large jobs to the sibling `RecompDev-Work` root rather than AppData, keeps configuration/last-job metadata in AppData, and can still inspect or resume older AppData-based jobs without migrating or deleting them. It invokes a bounded, redacting upload ZIP exporter automatically when native recovery terminates and via `diagnostics export --job ID`.
+- **Validation:** Existing three-session native controller tests and real compiled CLI smoke, plus new sanitized ZIP adversarial tests covering preserved original files, checksums, path/secret redaction and exclusion of ROM files. Owner Windows MSVC full CTest and authentic tool acceptance still pending.
+- **Compatibility:** The bundled packager is a maintained Python analysis/workflow adapter dispatched by compiled controller; not yet an independently loadable C++ diagnostic-provider ABI. No SMS/Z80 or P-code DLL ABI changes, original job folders remain immutable, and no game semantic qualification is claimed.
+
+## [0.4.12] - 2026-11-07
+
+- **Changed:** Persistent native controller `run --import-history PREVIOUS_RUN` starts from a source-matched historical analysis report, then carries verified evidence forward between automatic sessions. Global best frame/emitted high-watermarks and repeated PC/mapper execution-frontier detection prevent misleading adjacent-round progress resets.
+- **Validation:** Compiled multi-cycle job contract now rejects forged external source identity, proves the verified initial history path is forwarded to the batch analyzer and detects three-round stagnation against global best. Windows real-tool acceptance is still outstanding.
+- **Compatibility:** Native plugin C ABIs, structured logging, original hardware-neutral job lifecycle and source checks remain unchanged. The imported game reports are authenticated by the Python Ghidra/Rizin compatibility provider, not a compiled native analysis ABI.
+
+## [0.4.11] - 2026-11-07
+
+- **Changed:** Compiled C++ controller gains `run`, `resume`, `status`, `inspect` and `configure`; an external user-state job registry with source SHA-256 identity, immutable numbered recovery sessions, bounded automatic cross-session scheduling, stagnation detection and native controller JSONL severity logs (`--logging debug|info|warning|error`). The previous single-batch Python analysis adapter remains temporary; no changes to CPU/machine/translation DLL ABI.
+- **Validation:** Native C++ GCC build and synthetic compiled job-manager contract and real executable CLI-dispatch tests cover three automatic sessions, source mutation rejection, path/option bounds, strict terminal state and logging records. Authentic Windows MSVC and second real ROM are outstanding; the owner v0.4.9.14 native Shinobi resume reached 894 frames but parity is not established.
+- **Compatibility:** Legacy `--stage native-orchestrate`, `--stage discover`, `--stage native-translate`, C plugin descriptors, source-attestation gates and 642 frozen historical files remain unmodified. The new scheduler does not claim to be an independent compiled Ghidra/Rizin provider ABI or general M68K/MIPS recompilation. Promotion blocked until all acceptance conditions pass.
+
+## [0.4.10] - 2026-11-07
+
+- **Changed:** Added compiled `native-orchestrate` entry point, external Ghidra/Rizin provider request forwarding and source-checked Rizin boundary-seed import into the compiled discovery and translation paths. Bounded automatic recovery is a controller-owned workflow via a temporary isolated Python adapter, not a CPU or machine plugin function.
+- **Validation:** Linux native build and a new two-source synthetic integration CTest pass, including deliberately fake external analysis tools, generated C++ build, source mismatch rejection and tool-root authorization; owner Windows real-tool and 1,800-frame test remain blocked.
+- **Compatibility:** Existing discover, native-execute and native-translate stages remain; Ghidra P-code remains authoritative and Rizin is non-executable evidence. Installed runtime and original histories are never mutated. Remaining compiled controller Z80/SMS specialisation must be removed in a later provider-ABI milestone.
+
+
+## [0.4.9] - 2026-11-07
+
+- **2026-11-07 candidate continuation:** Native discovery now preserves an optional 16-bit `sp` from a genuine bounded `PILOT_RESULT` recovery report; the CPU plugin—not the controller—proves stack writes cannot alter SMS ROM-bank registers. Missing SP remains unknown. Existing `--runtime-gap-report` and DLL API are unchanged; the larger `NATIVE_APP_RESULT` schema is not accepted as a native-pilot report.
+- **Changed:** The controller now passes the authoritative active source root into generated native CMake projects so regenerated Master System games link maintained `runtime_sms`, video Mode-4 and generic presentation DLLs. No historic `runtime.cpp` or `interactive.cpp` is copied or compiled from frozen source into a new game.
+- **Validation:** Linux native controller and synthetic P-code generated executable rebuild and run successfully against the original historical CPU-state reference; the new native runtime ABI and static production-dependency boundary tests pass. Owner Windows DLL linking and Shinobi frame parity remain unverified.
+- **Deployment:** Uses the Windows DLL-load-directory search flags so indirect `rd_sms_native_runtime` and `rd_video_sms_mode4` dependencies are resolved from `RecompDev-Runtime\active`. The installed-layout regression now stages these transitive DLLs and explicitly rejects missing/wrong plugins.
+- **Compatibility:** Existing `--stage native-translate` and `--stage native-execute` parameters and source hash admission are preserved. The historical Python Ghidra/recovery providers are not newly ported by this update; permanent Git installer and original source history remain unchanged.
+
+## [0.4.8] - 2026-11-06
+
+- **Changed:** Native controller now consumes bounded `PILOT_RESULT` untranslated-code reports as recovery seeds; verifies mapper PC-to-physical ROM offset with `rd_machine_sms.dll`, dispatches the verified bytes to the Z80 discovery DLL, and optionally feeds the resulting source-attested instructions back to the native P-code translation DLL. Multiple reports are supported without game-specific hardcoding. Corrects discovery's version metadata and default evidence root has no extra `workspace` segment.
+- **Validation:** Source-only synthetic recovery admits CB BIT/RES and conditional RET, rejects forged physical address / ROM size / status; on the actual owner Shinobi ROM, compiled Linux pilot advanced past startup and serviced IM1 interrupt, reaching 338,531 native instructions and 64 frames. Not full runtime parity, graphics or input acceptance.
+- **Compatibility:** Existing plugin ABI, preserved runtime and frozen sources unchanged. Explicit runtime evidence remains optional; automatic multi-round native recovery is not yet integrated.
+
+## [0.4.7] - 2026-11-06
+
+- **Changed:** New compiled `--stage native-translate` directly loads ABI-checked `rd_translation_pcode` C++ DLL, authenticates original source and immutable Ghidra instruction export bytes, orchestrates CMake builds and outputs the full historical nativepilot application or an independent game DLL. Optional historical bank export collection is source-id-verified; no title-specific decoder rules or Python generator subprocess.
+- **Validation:** Native C++ compilation, differential full-runtime generated-output execution versus the unmodified historical generator, source mismatch rejection, synthetic banked-recovery export import and independently built game DLL/controller execution passed in available Linux tests. Owner Windows real-ROM Shinobi parity is still unproven.
+- **Compatibility:** Existing controller discover/native-execute and preserved Python Ghidra recovery stages remain available; no existing CPU/machine/game descriptor interfaces or frozen original source changed. New translation plugin has an independent versioned C interface and does not claim automated analysis or recovery.
+
 ## [0.4.6] - 2026-11-06
 
 - **Changed:** Shared compiled native game runner moved into controller; executes preserved P-code game DLL with strict full-source identity and no Python execution for native-execute. Existing prepare/recover remain transitional.

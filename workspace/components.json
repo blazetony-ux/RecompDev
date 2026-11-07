@@ -1,11 +1,17 @@
 {
   "components": {
+    "analysis_integration": {
+      "description": "Maintained Ghidra/Rizin source-attested providers with cumulative, immutable, independently reverified recovery-history ledger across controller sessions; temporary Python analysis bridge remains.",
+      "kind": "tooling",
+      "scope": "production-workflow",
+      "version": "0.3.1"
+    },
     "controller": {
-      "description": "Compiled controller now executes the preserved, authenticated native P-code game DLL via the shared compiled native harness runner; retains native discovery and transitional Python source-generation/recovery.",
+      "description": "Compiled controller-managed configurable workspaces, legacy AppData job lookup and automatic bounded redacted diagnostic ZIP orchestration, preserving source-attested native job recovery.",
       "kind": "controller",
       "scope": "production-entrypoint",
       "target": "RecompDev",
-      "version": "0.4.6"
+      "version": "0.4.13"
     },
     "controller_diagnostics": {
       "description": "Single authenticated controller-owned local diagnostics event protocol, bounded subscriptions and history; orchestrated by runtime launcher, no compiled controller binary changes",
@@ -81,11 +87,11 @@
       "version": "0.1.0"
     },
     "rd_cpu_z80": {
-      "description": "Native Z80 source decoder with CB, documented ED and DD/FD indexed source lengths; conservative source-only register effects for bank-control evidence. Fixture interpreter remains limited.",
+      "description": "Independent source-verified Z80 native generator for LDI/LDD/LDIR/LDDR, block I/O, indexed and CB/conditional control flow; conservative mapper-aware abstract state with limited synthetic interpreter.",
       "kind": "compiled-plugin",
       "scope": "harness",
       "target": "rd_cpu_z80",
-      "version": "0.4.0"
+      "version": "0.5.1"
     },
     "rd_discovery_jsonl": {
       "description": "DLL target with independent build and deployment; not yet a production recovery adapter",
@@ -151,11 +157,11 @@
       "version": "0.1.0"
     },
     "rd_machine_sms": {
-      "description": "Native context-qualified initial Sega 8-bit mapper bank layout, source resolution and write tracking under the existing unchanged SMS bus ABI.",
+      "description": "Compiled SMS hardware plugin links separately built active SMS state and Mode-4 video DLLs; no frozen-source compilation, preserves bank-mapping and source-verification ABI.",
       "kind": "compiled-plugin",
       "scope": "harness",
       "target": "rd_machine_sms",
-      "version": "0.3.0"
+      "version": "0.4.0"
     },
     "rd_machine_synthetic": {
       "description": "DLL target with independent build and deployment; not yet a production recovery adapter",
@@ -165,11 +171,25 @@
       "version": "0.1.0"
     },
     "rd_runtime_host": {
-      "description": "Independently compiled generic BGRA framebuffer, PCM16 audio and button-input presentation host; Windows window/speaker, portable headless ABI; no CPU/machine coupling",
+      "description": "Independent generic BGRA/PCM/buttons host now directly linked and invoked from freshly generated full-native applications (not just a staged old-project adapter); source now includes maintained SMS hardware contracts.",
       "kind": "compiled-plugin",
       "scope": "production-presentation",
       "target": "rd_runtime_host",
-      "version": "0.1.0"
+      "version": "0.1.1"
+    },
+    "rd_sms_native_runtime": {
+      "description": "Maintained independent SMS native runtime and generated continuous native application now report observed halted PC, SP, mapper, ROM size for source-verified automatic recovery; C++ ABI remains same-compiler only.",
+      "kind": "compiled-plugin",
+      "scope": "production-machine-runtime",
+      "target": "rd_sms_native_runtime",
+      "version": "0.1.1"
+    },
+    "rd_translation_pcode": {
+      "description": "Compiled P-code lowering emits native projects linking active SMS runtime, video and host DLLs instead of embedding frozen runtime.cpp/interactive.cpp; source-byte verification, incremental partitions and provenance preserved.",
+      "kind": "compiled-plugin",
+      "scope": "production-translation",
+      "target": "rd_translation_pcode",
+      "version": "0.3.0"
     },
     "rd_video_sms_mode4": {
       "description": "Production SMS VDP Mode 4 display DLL with source-independent C ABI, sprite SAT evaluation, priority and diagnostics; dynamically loaded by staged native games",
@@ -179,10 +199,10 @@
       "version": "0.1.0"
     },
     "release_installer": {
-      "description": "Permanent Git-managed, hash-pinned, transactional source ZIP installer; no runtime orchestration",
+      "description": "One-ZIP Git-managed transactional installer with explicit infrastructure-source-only main promotion, separate unqualified runtime activation and unchanged gameplay acceptance gates.",
       "kind": "tooling",
       "scope": "workspace",
-      "version": "1.0.0"
+      "version": "1.2.0"
     },
     "runtime_host_integration": {
       "description": "Generated native-project monitor staging, controller service launch and evidence integration; does not change compiled host DLL",
@@ -209,12 +229,12 @@
       "version": "0.1.0"
     },
     "workspace_governance": {
-      "description": "Mandatory pre-build approval contract and release compliance document governance",
+      "description": "Mandatory legacy capability ownership register, protected diagnostic export and separate infrastructure/gameplay release tracks.",
       "kind": "tooling",
       "scope": "workspace",
-      "version": "0.1.6"
+      "version": "0.1.8"
     }
   },
   "schema": "recompdev-components-v1",
-  "workspace_release": "v0.4.9.9"
+  "workspace_release": "v0.4.9.17"
 }

@@ -1,10 +1,11 @@
 # RecompDev component catalogue
 
-**Status:** Current registry as of workspace v0.4.9. Every component has an independent version and its own [changelog](../development/RELEASE-PROCESS.md).
+**Status:** Current registry as of workspace v0.4.9.16. Every component has an independent version and its own [changelog](../development/RELEASE-PROCESS.md).
 
 | Component | Scope | Implementation |
 | --- | --- | --- |
-| [controller](controller/README.md) | `production-entrypoint` | Compiled command entry point; runs workspace manager commands and preserved Python orchestration. |
+| [analysis_integration](analysis_integration/README.md) | `production-workflow` | Controller-owned, approved Ghidra/Rizin analysis adapters and bounded native retry orchestration. |
+| [controller](controller/README.md) | `production-entrypoint` | Compiled source-attested job manager, bounded native recovery scheduling, JSONL logging and retained temporary per-batch analysis provider. |
 | [legacy.discovery](legacy.discovery/README.md) | `production-workflow` | Original discovery.engine analysis via the preserved Python adapter. |
 | [legacy.preparation](legacy.preparation/README.md) | `production-workflow` | Original Ghidra/native preparation and authenticated function recovery. |
 | [legacy.recovery](legacy.recovery/README.md) | `production-workflow` | Original reset/replay, verified-code discovery and native C++ compilation service. |
@@ -71,3 +72,15 @@ These are compiled DLL providers loaded by the native controller, not Python dis
 ## Release infrastructure (v0.4.9.8 candidate)
 
 - [release_installer](release_installer/README.md), scope `workspace`: one permanent Git-managed root installer for verified source ZIPs, compilation, tests, Git control, and safe conditional activation. This is not a production runtime plugin or per-release launcher.
+
+## Added in v0.4.9.10
+
+- [rd_translation_pcode](rd_translation_pcode/README.md), scope `production-translation`: independent compiled P-code translation DLL, authenticated ROM/Ghidra IR to freshly generated full preserved nativepilot application or controller-executable game DLL. Actual real Shinobi 1,800-frame equivalence has **not** yet been qualified, and historical automatic recovery remains transitional.
+
+## Native SMS cutover candidate (2026-11-07)
+
+The independent maintained `rd_sms_native_runtime` machine-state DLL is registered in `workspace/components.json`; see [its component page](rd_sms_native_runtime/README.md) and [release acceptance gates](../releases/v0.4.9.10.md). New native game projects link it plus separate `rd_video_sms_mode4` and `rd_runtime_host` DLLs. The 642 frozen source files remain reference-only.
+
+## v0.4.9.13 direct analysis provider
+
+- [analysis_integration](analysis_integration/README.md) `0.2.0`: active RecompDev-owned Rizin CLI/provenance/ANSI-aware JSON adapter; Ghidra/reconciliation still temporarily depend on historic Python. No new compiled DLL is claimed.

@@ -1,5 +1,12 @@
 # rd_machine_sms — independent changelog
 
+## [0.4.0] - 2026-11-07
+
+- **Changed:** The SMS machine plugin now compiles against maintained runtime state headers and links the independent `rd_sms_native_runtime` and `rd_video_sms_mode4` DLLs instead of compiling frozen Master System runtime sources. All existing bus/mapper descriptors and external CPU-discovery extensions remain in place.
+- **Validation:** Full available Linux harness regression and an independent C++ source-attested bank-6 runtime/Mode-4/frame-host smoke execute without static linkage to the historical runtime. Actual graphical pixel parity, deterministic controls and Windows dynamic loading are still acceptance gates.
+- **Deployment:** Requires new `rd_sms_native_runtime` alongside existing Mode-4 renderer in the active plugin store; the controller uses DLL-load-directory search flags to resolve these dependent modules from their actual location.
+- **Compatibility:** Prior machine descriptor and source mapper C ABIs are unchanged. New DLL dependency must be present alongside the machine plugin at deployment; historical reference files remain byte-identical.
+
 ## [0.3.0] - 2026-11-06
 
 - **Changed:** Original SMS initial mapper and register-write effects now model context-qualified ROM physical offsets, retaining existing bus and source resolver compatibility.

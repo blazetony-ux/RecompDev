@@ -1,6 +1,7 @@
 #include "native_discovery.hpp"
 #include "rd_native_discovery_v1.h"
 #include "rd_sha256.hpp"
+#include "rd_tiny_json.hpp"
 #include <algorithm>
 #include <cctype>
 #include <cstdint>
@@ -12,6 +13,7 @@
 #include <iostream>
 #include <memory>
 #include <set>
+#include <unordered_map>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -27,7 +29,7 @@ namespace fs=std::filesystem;
 namespace {
 #ifdef _WIN32
 using Handle=HMODULE;
-Handle load(const fs::path&p){return LoadLibraryW(p.wstring().c_str());}
+Handle load(const fs::path&p){return LoadLibraryExW(fs::absolute(p).wstring().c_str(),nullptr,LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR|LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);}
 void* sym(Handle h,const char*n){return reinterpret_cast<void*>(GetProcAddress(h,n));}
 void close(Handle h){if(h)FreeLibrary(h);}
 constexpr auto SUFFIX=".dll";
@@ -123,25 +125,73 @@ const char*platform(uint32_t p){switch(p){case RD_PLATFORM_SMS:return "sms";case
 const char*cpu(uint32_t p){switch(p){case RD_CPU_Z80_FAMILY:return "z80";case RD_CPU_M68000:return "m68000";case RD_CPU_MIPS_R3000A:return "mips-r3000a";default:return "unverified";}}
 struct Block{uint16_t pc;uint64_t phys;uint32_t len,flow;uint16_t target;std::string sha;uint32_t known_banks=0;};
 struct Gap{uint16_t pc;std::string reason;};
+struct RuntimeSeed {
+ uint16_t pc;uint64_t physical;RD_SmsSourceMapV1 mapping;
+ // Optional, run-observed SP from the native pilot. Without an observed SP,
+ // CALL/PUSH may write to SMS mapper registers and the CPU provider must
+ // conservatively invalidate the bank map. Do not guess an initial SP.
+ bool known_sp=false;uint16_t sp=0;
+};
 struct Discovery{
  std::vector<Block> blocks;std::vector<Gap> gaps;uint32_t edges=0;
 };
-Discovery walk(const RD_SourceV1*s,const Plugin&cpu_plugin,const Plugin&mapper,uint32_t max_items){
+Discovery walk(const RD_SourceV1*s,const Plugin&cpu_plugin,const Plugin&mapper,uint32_t max_items,
+ const std::vector<RuntimeSeed>&runtime_seeds){
  auto decode=cpu_plugin.symbol<RD_Z80DecodeFnV1>("rd_z80_decode_source_v1");
  auto init=mapper.symbol<RD_SmsMapInitialFnV1>("rd_sms_map_initial_v1");
  auto map=mapper.symbol<RD_SmsMapResolveFnV1>("rd_sms_map_resolve_v1");
  auto write=mapper.symbol<RD_SmsMapWriteFnV1>("rd_sms_map_write_v1");
  auto effects=cpu_plugin.symbol<RD_Z80AbstractFnV1>("rd_z80_abstract_a_v1");
- struct Work{uint16_t pc;RD_SmsSourceMapV1 mapping;RD_Z80AbstractV1 a;};
+ auto effects_v2=cpu_plugin.symbol<RD_Z80AbstractFnV2>("rd_z80_abstract_effect_v2");
+ struct Frame {uint16_t return_pc,expected_sp;uint8_t known_sp;};
+ struct Work{uint16_t pc;RD_SmsSourceMapV1 mapping;RD_Z80AbstractV2 a;
+  std::vector<Frame> calls;};
  RD_SmsSourceMapV1 initial{};initial.struct_size=sizeof(initial);
  if(init(&initial)!=1)throw std::runtime_error("SMS_INITIAL_MAPPER_FAILED");
- RD_Z80AbstractV1 initial_a{};initial_a.abi_version=RD_NATIVE_DISCOVERY_ABI;initial_a.struct_size=sizeof(initial_a);
- Discovery out;std::vector<Work> todo{{0,initial,initial_a}};
+ RD_Z80AbstractV2 initial_a{};initial_a.abi_version=RD_NATIVE_DISCOVERY_ABI;initial_a.struct_size=sizeof(initial_a);
+ Discovery out;std::vector<Work> todo;
+ // Ask the CPU plugin for architectural entrypoints: the controller must
+ // not hardcode Z80 reset/IM1/NMI addresses or assume all are reachable.
+ if(auto entries=cpu_plugin.symbol<RD_Z80EntryPointsFnV1>("rd_z80_source_entrypoints_v1")){
+  RD_Z80EntryPointsV1 vectors{};vectors.struct_size=sizeof(vectors);
+  if(entries(&vectors)!=1||vectors.abi_version!=RD_NATIVE_DISCOVERY_ABI||
+     vectors.count<1||vectors.count>8)throw std::runtime_error("CPU_VECTOR_ABI_INVALID");
+  bool reset=false;
+  for(uint32_t i=0;i<vectors.count;++i){
+   if(vectors.pc[i]>=0xc000)throw std::runtime_error("CPU_VECTOR_OUTSIDE_ROM");
+   if(vectors.kind[i]>2)throw std::runtime_error("CPU_VECTOR_KIND_UNRECOGNISED");
+   if(vectors.kind[i]==0&&vectors.pc[i]==0)reset=true;
+   todo.push_back({vectors.pc[i],initial,initial_a,{}});
+  }
+  if(!reset)throw std::runtime_error("CPU_VECTOR_RESET_MISSING");
+ }else todo.push_back({0,initial,initial_a,{}});
+ // A stopped native run can contribute an observed (PC, mapper) entry.
+ // It is not executable code: the CPU and mapper plugins verify every
+ // instruction and ROM byte before adding it to the discovery output.
+ for(const auto&seed:runtime_seeds){
+  auto observed=initial_a;
+  if(seed.known_sp){observed.known_sp=1;observed.sp=seed.sp;}
+  todo.push_back({seed.pc,seed.mapping,observed,{}});
+ }
  // Context key includes physical bank identity, not only guest PC; two distinct
  // ROM banks may map the same CPU address and must never be merged.
  std::set<std::string> seen;
+ std::unordered_map<std::string,uint32_t> visits_per_mapping;
+ constexpr uint32_t max_abstract_contexts_per_mapping=24;
  while(!todo.empty()&&seen.size()<max_items){
   Work w=todo.back();todo.pop_back();
+  // Bounded abstract interpretation: loop counters and pointers can change
+  // on every iteration. After 24 distinct states at a single ROM mapping,
+  // join them conservatively into one unknown-register state instead of
+  // treating thousands of iterations as independently discovered code.
+  std::string mapping_key;
+  mapping_key.append(reinterpret_cast<const char*>(&w.pc),sizeof(w.pc));
+  mapping_key.push_back(char(w.mapping.known_mask));
+  for(auto bank:w.mapping.mapper)mapping_key.push_back(char(bank));
+  if(visits_per_mapping[mapping_key]>=max_abstract_contexts_per_mapping){
+   w.a.known_a=0;
+   w.a.known_bc=0;w.a.known_de=0;w.a.known_hl=0;
+  }
   std::string key;
   key.append(reinterpret_cast<const char*>(&w.pc),sizeof(w.pc));
   key.push_back(char(w.mapping.known_mask));
@@ -149,7 +199,20 @@ Discovery walk(const RD_SourceV1*s,const Plugin&cpu_plugin,const Plugin&mapper,u
   key.push_back(char(w.a.known_a));key.push_back(char(w.a.known_a?w.a.a:0));
   key.push_back(char(w.a.known_sp));
   if(w.a.known_sp){key.push_back(char(w.a.sp));key.push_back(char(w.a.sp>>8));}
+  for(const auto pair: {std::pair<bool,uint16_t>{w.a.known_bc!=0,w.a.bc},
+                         {w.a.known_de!=0,w.a.de},{w.a.known_hl!=0,w.a.hl}}){
+   key.push_back(char(pair.first));
+   if(pair.first){key.push_back(char(pair.second));key.push_back(char(pair.second>>8));}
+  }
+  // A call-return continuation is reachable only from the verified caller.
+  // Keep contexts distinct for different return sites and stack depths.
+  for(const auto&frame:w.calls){
+   key.push_back(char(frame.return_pc));key.push_back(char(frame.return_pc>>8));
+   key.push_back(char(frame.known_sp));
+   if(frame.known_sp){key.push_back(char(frame.expected_sp));key.push_back(char(frame.expected_sp>>8));}
+  }
   if(!seen.insert(key).second)continue;
+  ++visits_per_mapping[mapping_key];
   uint64_t phys=RD_NATIVE_SOURCE_UNMAPPED;
   int mapped=map(&w.mapping,w.pc,s->byte_size,&phys);
   if(mapped!=1){out.gaps.push_back({w.pc,mapped==0?"BANK_CONTEXT_UNRESOLVED":"NO_ROM_MAPPING"});continue;}
@@ -161,9 +224,18 @@ Discovery walk(const RD_SourceV1*s,const Plugin&cpu_plugin,const Plugin&mapper,u
   if(!s->read(s->ctx,phys,b.data(),decoded.length)){out.gaps.push_back({w.pc,"SOURCE_READ_FAILED"});continue;}
   out.blocks.push_back({w.pc,phys,decoded.length,decoded.flow,decoded.target,
    rdhash::sha256(b.data(),decoded.length),w.mapping.known_mask});
+  const Work before=w;
   RD_Z80EffectV1 effect{};effect.struct_size=sizeof(effect);
-  if(effects(b.data(),decoded.length,&w.a,&effect)!=1||
-     effect.abi_version!=RD_NATIVE_DISCOVERY_ABI){
+  int effect_rc=0;
+  if(effects_v2)effect_rc=effects_v2(b.data(),decoded.length,&w.a,&effect);
+  else{
+   RD_Z80AbstractV1 old{};old.abi_version=RD_NATIVE_DISCOVERY_ABI;old.struct_size=sizeof(old);
+   old.known_a=w.a.known_a;old.a=w.a.a;old.known_sp=w.a.known_sp;old.sp=w.a.sp;
+   effect_rc=effects(b.data(),decoded.length,&old,&effect);
+   w.a.known_a=old.known_a;w.a.a=old.a;w.a.known_sp=old.known_sp;w.a.sp=old.sp;
+   w.a.known_bc=w.a.known_de=w.a.known_hl=0;
+  }
+  if(effect_rc!=1||effect.abi_version!=RD_NATIVE_DISCOVERY_ABI){
    out.gaps.push_back({w.pc,"CPU_ABSTRACT_EFFECT_UNAVAILABLE"});continue;
   }
   if(effect.write_kind==RD_Z80_EFFECT_ABSOLUTE){
@@ -175,29 +247,129 @@ Discovery walk(const RD_SourceV1*s,const Plugin&cpu_plugin,const Plugin&mapper,u
    if(effect.absolute==0xffff){w.mapping.known_mask=0;}
    else if(effect.absolute>=0xfffb){w.mapping.known_mask &=uint8_t(~0x0f);}
   }
-  const bool fall=decoded.flow==RD_FLOW_FALL||decoded.flow==RD_FLOW_COND||
-                 decoded.flow==RD_FLOW_CALL||
-                 (decoded.flow==RD_FLOW_INDIRECT&&decoded.conditional);
+  const bool fall=decoded.flow==RD_FLOW_COND||
+       (decoded.flow==RD_FLOW_CALL&&decoded.conditional)||
+       (decoded.flow==RD_FLOW_RETURN&&decoded.conditional);
   const bool branch=decoded.flow==RD_FLOW_COND||decoded.flow==RD_FLOW_JUMP||decoded.flow==RD_FLOW_CALL;
   if(fall&&uint32_t(w.pc)+decoded.length<0x10000u){
-   Work after=w;after.pc=uint16_t(w.pc+decoded.length);
-   if(decoded.flow==RD_FLOW_CALL){
-    // A return-site is only a potential CFG successor; the call may modify
-    // any bank or A, so future mapping is deliberately unknown.
-    after.mapping.known_mask=0;after.a.known_a=0;after.a.known_sp=0;
-   }
+   // Conditional CALL/RET not taken: no stack or mapper mutation occurs.
+   Work after=(decoded.flow==RD_FLOW_CALL||decoded.flow==RD_FLOW_RETURN)?before:w;
+   after.pc=uint16_t(w.pc+decoded.length);
    todo.push_back(after);++out.edges;
   }
-  if(branch){w.pc=decoded.target;todo.push_back(w);++out.edges;}
+  if(decoded.flow==RD_FLOW_FALL&&uint32_t(w.pc)+decoded.length<0x10000u){
+   Work after=w;after.pc=uint16_t(w.pc+decoded.length);
+   todo.push_back(after);++out.edges;
+  }
+  if(decoded.flow==RD_FLOW_RETURN){
+   if(w.calls.empty())out.gaps.push_back({w.pc,"RETURN_WITHOUT_VERIFIED_CALLER"});
+   else{
+    const Frame frame=w.calls.back();
+    if(!frame.known_sp||!w.a.known_sp||frame.expected_sp!=w.a.sp)
+     out.gaps.push_back({w.pc,"RETURN_STACK_IDENTITY_UNVERIFIED"});
+    else{
+     w.calls.pop_back();w.pc=frame.return_pc;
+     todo.push_back(w);++out.edges;
+    }
+   }
+  }
+  if(branch){
+   if(decoded.flow==RD_FLOW_CALL){
+    if(w.calls.size()>=16)out.gaps.push_back({w.pc,"CALL_DEPTH_LIMIT"});
+    else{
+     Frame frame{};frame.return_pc=uint16_t(before.pc+decoded.length);
+     frame.known_sp=before.a.known_sp;
+     frame.expected_sp=before.a.sp;
+     w.calls.push_back(frame);w.pc=decoded.target;
+     todo.push_back(w);++out.edges;
+    }
+   }else{w.pc=decoded.target;todo.push_back(w);++out.edges;}
+  }
   if(decoded.flow==RD_FLOW_INDIRECT)
    out.gaps.push_back({w.pc,"DYNAMIC_TARGET_REQUIRES_RUNTIME_EVIDENCE"});
  }
  if(!todo.empty())out.gaps.push_back({todo.back().pc,"DISCOVERY_BUDGET_EXHAUSTED"});
  return out;
 }
+// Consume only a bounded, already-executed native pilot stop. The report
+// cannot inject executable C++, a bank mapping, or unverified source bytes.
+RuntimeSeed parse_runtime_seed(const fs::path&path,uint64_t source_size,const Plugin&mapper){
+ if(!fs::is_regular_file(path)||fs::is_symlink(path)||fs::file_size(path)>8u*1024u*1024u)
+  throw std::runtime_error("RUNTIME_STOP_REPORT_INVALID_FILE");
+ std::ifstream in(path,std::ios::binary);
+ std::string body((std::istreambuf_iterator<char>(in)),{});
+ if(!in.eof()&&in.bad())throw std::runtime_error("RUNTIME_STOP_REPORT_READ_FAILED");
+ // NativePilot prints one PILOT_RESULT JSON object to standard output.
+ // Accept the original line or its JSON payload, but no incidental logs.
+ const std::string prefix="PILOT_RESULT=";
+ if(body.compare(0,prefix.size(),prefix)==0)body.erase(0,prefix.size());
+ const auto d=rdjson::Reader(body).parse();
+ auto integer=[&](const char*key,uint64_t max)->uint64_t{
+  const auto value=d.get(key).integer();
+  if(value<0||uint64_t(value)>max)throw std::runtime_error(std::string("RUNTIME_STOP_")+key+"_INVALID");
+  return uint64_t(value);
+ };
+ const auto status=d.get("status").string();
+ if(status!="UNTRANSLATED_INITIAL_CODE"&&status!="BANKED_CODE_NOT_TRANSLATED"&&
+    status!="UNTRANSLATED_PHYSICAL_ROM_OFFSET")throw std::runtime_error("RUNTIME_STOP_REASON_NOT_TRANSLATION_GAP");
+ if(integer("native_steps",1000000000)==0||integer("rom_bytes",1ull<<32)!=source_size)
+  throw std::runtime_error("RUNTIME_STOP_SOURCE_SIZE_OR_EXECUTION_UNVERIFIED");
+ auto pc=integer("pc",65535);auto physical=integer("physical_offset",source_size?source_size-1:0);
+ if(pc>=0xc000)throw std::runtime_error("RUNTIME_STOP_PC_NOT_ROM");
+ const auto&mapping=d.get("mapper").array();
+ if(mapping.size()!=4)throw std::runtime_error("RUNTIME_STOP_MAPPER_INVALID");
+ RD_SmsSourceMapV1 m{};m.struct_size=sizeof(m);m.abi_version=RD_NATIVE_DISCOVERY_ABI;
+ m.known_mask=0x0f;
+ for(unsigned i=0;i<4;++i){
+  const auto bank=mapping[i].integer();
+  if(bank<0||bank>255)throw std::runtime_error("RUNTIME_STOP_MAPPER_INVALID");
+  m.mapper[i]=uint8_t(bank);
+ }
+ auto map=mapper.symbol<RD_SmsMapResolveFnV1>("rd_sms_map_resolve_v1");
+ uint64_t checked=RD_NATIVE_SOURCE_UNMAPPED;
+ if(map(&m,uint16_t(pc),source_size,&checked)!=1||checked!=physical)
+  throw std::runtime_error("RUNTIME_STOP_PHYSICAL_MAPPING_MISMATCH");
+ // A native pilot records SP at the *actual stopped instruction*. This is
+ // machine state evidence, not an inferred initial register value. Preserve
+ // compatibility with pre-SP reports by falling back to conservative analysis.
+ const bool known_sp=!d.get("sp").isnull();
+ const uint16_t sp=known_sp?uint16_t(integer("sp",65535)):0;
+ return RuntimeSeed{uint16_t(pc),physical,m,known_sp,sp};
+}
+std::vector<RuntimeSeed> parse_analysis_hypotheses(const fs::path&file,
+ const std::string&sha,uint64_t source_size,const Plugin&mapper){
+ if(!fs::is_regular_file(file)||fs::is_symlink(file)||fs::file_size(file)>8u*1024u*1024u)
+  throw std::runtime_error("ANALYSIS_CANDIDATES_INVALID_FILE");
+ std::ifstream f(file,std::ios::binary);std::string body((std::istreambuf_iterator<char>(f)),{});
+ auto d=rdjson::Reader(body).parse();
+ if(d.get("schema").string()!="recomp-analysis-reconciliation-v1" ||
+    d.get("source_sha256").string()!=sha ||
+    d.get("source_size").integer()!=static_cast<int64_t>(source_size) ||
+    d.get("isa").string()!="z80" || d.get("base").integer()!=0)
+  throw std::runtime_error("ANALYSIS_CANDIDATES_SOURCE_OR_ISA_MISMATCH");
+ const auto&rows=d.get("candidates").array();
+ if(rows.size()>20000)throw std::runtime_error("ANALYSIS_CANDIDATE_COUNT_INVALID");
+ RD_SmsSourceMapV1 initial{};initial.struct_size=sizeof(initial);
+ if(mapper.symbol<RD_SmsMapInitialFnV1>("rd_sms_map_initial_v1")(&initial)!=1)
+  throw std::runtime_error("ANALYSIS_INITIAL_MAPPER_FAILED");
+ auto map=mapper.symbol<RD_SmsMapResolveFnV1>("rd_sms_map_resolve_v1");
+ std::vector<RuntimeSeed>out;std::set<uint16_t>seen;
+ for(const auto&entry:rows){
+  auto pos=entry.get("entry").integer();
+  if(pos<0||pos>=0xc000||!seen.insert(uint16_t(pos)).second)continue;
+  // Function boundaries are untrusted hypotheses, never execution evidence.
+  // Map them only through the documented initial mapper. CPU plugin attests
+  // every resulting instruction byte before it can reach the translator.
+  uint64_t physical=RD_NATIVE_SOURCE_UNMAPPED;
+  if(map(&initial,uint16_t(pos),source_size,&physical)!=1||physical==RD_NATIVE_SOURCE_UNMAPPED)continue;
+  out.push_back({uint16_t(pos),physical,initial,false,0});
+  if(out.size()>=256)break;
+ }
+ return out;
+}
 } // namespace
 int rd_native_discover(const std::vector<std::string>&args,const fs::path&exe_path){
- fs::path rom,plugindir=exe_path.parent_path(),out;bool explicit_plugin_dir=false;
+ fs::path rom,plugindir=exe_path.parent_path(),out,analysis_candidates;std::vector<fs::path>runtime_gap_reports;bool explicit_plugin_dir=false;
  uint32_t budget=4096;
  for(size_t i=0;i<args.size();++i){
   auto next=[&]()->std::string{if(i+1==args.size())throw std::runtime_error("MISSING_ARGUMENT "+args[i]);return args[++i];};
@@ -205,6 +377,8 @@ int rd_native_discover(const std::vector<std::string>&args,const fs::path&exe_pa
   else if(args[i]=="--stage"){if(next()!="discover")throw std::runtime_error("UNEXPECTED_STAGE");}
   else if(args[i]=="--plugin-dir"){plugindir=fs::u8path(next());explicit_plugin_dir=true;}
   else if(args[i]=="--out")out=fs::u8path(next());
+  else if(args[i]=="--runtime-gap-report")runtime_gap_reports.push_back(fs::u8path(next()));
+  else if(args[i]=="--analysis-candidates")analysis_candidates=fs::u8path(next());
   else if(args[i]=="--budget"){auto n=std::stoull(next());if(n<1||n>100000)throw std::runtime_error("INVALID_DISCOVERY_BUDGET");budget=uint32_t(n);}
   else throw std::runtime_error("UNKNOWN_NATIVE_DISCOVERY_OPTION "+args[i]);
  }
@@ -240,13 +414,18 @@ int rd_native_discover(const std::vector<std::string>&args,const fs::path&exe_pa
   plugins.push_back(std::move(p));
  }
  if(chosen.empty())throw std::runtime_error("UNRECOGNISED_FORMAT (no native plugin qualified the source)");
+ if((!runtime_gap_reports.empty()||!analysis_candidates.empty())&&accepted.platform!=RD_PLATFORM_SMS)throw std::runtime_error("RUNTIME_STOP_CPU_PLATFORM_UNSUPPORTED");
+ if(runtime_gap_reports.size()>64)throw std::runtime_error("RUNTIME_STOP_REPORT_COUNT_LIMIT");
  if(accepted.status!=RD_INSPECT_MATCH)throw std::runtime_error("FORMAT_FOUND_BUT_UNQUALIFIED: "+std::string(accepted.evidence));
  Discovery disc;
  std::unique_ptr<Plugin> cpu_plugin,mapper;
  if(accepted.platform==RD_PLATFORM_SMS){
   cpu_plugin=std::make_unique<Plugin>(plugindir/(std::string("rd_cpu_z80")+SUFFIX),RD_CPU,sizeof(RD_CpuApi));
   mapper=std::make_unique<Plugin>(plugindir/(std::string("rd_machine_sms")+SUFFIX),RD_MACHINE,sizeof(RD_MachineApi));
-  disc=walk(&view,*cpu_plugin,*mapper,budget);
+  std::vector<RuntimeSeed>seeds;
+  for(const auto&runtime_gap_report:runtime_gap_reports)seeds.push_back(parse_runtime_seed(runtime_gap_report,src.size,*mapper));
+  if(!analysis_candidates.empty())for(const auto&candidate:parse_analysis_hypotheses(analysis_candidates,source_identity_before,src.size,*mapper))seeds.push_back(candidate);
+  disc=walk(&view,*cpu_plugin,*mapper,budget,seeds);
  }
  // Create external evidence only after source and DLL qualification.
  fs::create_directories(out);
@@ -255,8 +434,8 @@ int rd_native_discover(const std::vector<std::string>&args,const fs::path&exe_pa
  std::string srcsha=streamhash(rom);
  if(srcsha!=source_identity_before)throw std::runtime_error("SOURCE_CHANGED_DURING_DISCOVERY");
  f<<"{\n  \"schema\": \"recompdev.native.discovery.v1\",\n"
-  <<"  \"workspace_release\": \"v0.4.9.9\",\n"
-  <<"  \"controller_version\": \"0.4.6\",\n"
+  <<"  \"workspace_release\": \"v0.4.9.11\",\n"
+  <<"  \"controller_version\": \"0.4.8\",\n"
   <<"  \"source\": "<<json(rom.u8string())<<",\n"
   <<"  \"source_size\": "<<src.size<<",\n"
   <<"  \"source_sha256\": "<<json(srcsha)<<",\n"

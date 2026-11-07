@@ -22,7 +22,7 @@ namespace fs=std::filesystem;
 namespace {
 #ifdef _WIN32
 using Handle=HMODULE;
-static Handle load(const std::string& name){return LoadLibraryA(name.c_str());}
+static Handle load(const std::string& name){return LoadLibraryExA(name.c_str(),nullptr,LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR|LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);}
 static void *symbol(Handle h,const char* n){return reinterpret_cast<void*>(GetProcAddress(h,n));}
 static void unload(Handle h){if(h)FreeLibrary(h);}
 static const char* suffix=".dll";

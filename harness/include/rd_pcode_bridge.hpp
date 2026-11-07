@@ -8,6 +8,7 @@
 #include <array>
 #include <cstdint>
 #include <stdexcept>
+#include <unordered_map>
 namespace rd {
 using u64=std::uint64_t;
 enum class Op { COPY, INT_AND, INT_OR, INT_LEFT, INT_ADD, INT_EQUAL, INT_RIGHT, INT_SRIGHT,
@@ -52,11 +53,11 @@ inline u64 evaluate(Op op,u64 a,u64 b,unsigned size,unsigned as,unsigned bs){
 class BridgeState {
  RD_CpuState& cpu;const RD_Bus& bus;
  std::array<std::uint8_t,72> reg{};
- std::array<std::uint8_t,65536> unique{};
+ std::unordered_map<unsigned,std::uint8_t> unique;
  static u64 load(const std::uint8_t* p,unsigned offset,unsigned size){u64 v=0;for(unsigned i=0;i<size;++i)v|=u64(p[offset+i])<<(8*i);return v;}
  static void save(std::uint8_t* p,unsigned offset,unsigned size,u64 v){for(unsigned i=0;i<size;++i)p[offset+i]=std::uint8_t(v>>(8*i));}
  static void check_reg(unsigned offset,unsigned size){if(size<1||size>8||!((offset+size<=8)||(offset>=68&&offset+size<=70)))throw std::out_of_range("unsupported Z80 register offset");}
- static void check_unique(unsigned offset,unsigned size){if(size<1||size>8||offset>65536-size)throw std::out_of_range("unsupported unique offset");}
+ static void check_unique(unsigned offset,unsigned size){if(size<1||size>8||offset>1024u*1024u-size)throw std::out_of_range("unsupported unique offset");}
 public:
  bool halted=false;int interrupt_mode=0;
  explicit BridgeState(RD_CpuState& s,const RD_Bus& b):cpu(s),bus(b){
@@ -65,8 +66,11 @@ public:
  }
  u64 get_register(unsigned o,unsigned n)const{check_reg(o,n);return load(reg.data(),o,n);}
  void set_register(unsigned o,unsigned n,u64 v){check_reg(o,n);save(reg.data(),o,n,v);}
- u64 get_unique(unsigned o,unsigned n)const{check_unique(o,n);return load(unique.data(),o,n);}
- void set_unique(unsigned o,unsigned n,u64 v){check_unique(o,n);save(unique.data(),o,n,v);}
+ u64 get_unique(unsigned o,unsigned n)const{check_unique(o,n);u64 result=0;
+  for(unsigned i=0;i<n;++i){auto it=unique.find(o+i);if(it!=unique.end())result|=u64(it->second)<<(i*8);}
+  return result;}
+ void set_unique(unsigned o,unsigned n,u64 v){check_unique(o,n);
+  for(unsigned i=0;i<n;++i)unique[o+i]=std::uint8_t(v>>(i*8));}
  u64 memory(std::uint16_t address,unsigned n)const{
   if(n<1||n>8)throw std::out_of_range("memory width");
   u64 v=0;for(unsigned i=0;i<n;++i)v|=u64(bus.read(bus.ctx,std::uint16_t(address+i)))<<(8*i);return v;

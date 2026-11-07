@@ -1,6 +1,8 @@
 #include "native_discovery.hpp"
 #include "native_execute.hpp"
-// RecompDev v0.4.6: native P-code game execution and discovery controller with explicit legacy fallback.
+#include "native_translate.hpp"
+#include "native_job.hpp"
+// RecompDev v0.4.8: native P-code translation and game execution and discovery controller with explicit legacy fallback.
 // The preserved Python analysis/recovery services are deliberately retained.
 // No shell invocation: all forwarded arguments remain literal even with spaces.
 #include <filesystem>
@@ -128,15 +130,21 @@ static fs::path project_root(fs::path exe){
     throw std::runtime_error("RecompDev source checkout not found; runtime needs source-root.txt");
 }
 static void usage(){
-    std::cout<<"RecompDev v0.4.6 native controller (DLL execution + discovery, legacy translation retained)\n"
+    std::cout<<"RecompDev v0.4.9.17 native controller (compiled job lifecycle + plugin discovery)\n"
       "Usage: RecompDev.exe --rom FILE --stage discover|prepare|recover [options]\n"
       "  --steps N --frames N --max-recoveries N --timeout N --capture-hardware\n"
       "  --auto-continue --max-rounds N (continue source-verified recovery in bounded batches)\n"
       "  --catalogue FILE --out DIR --ghidra FILE --export FILE --budget N\n"
       "  --analyze-evidence DIR [--out DIR] [--reference-image PNG] [--reference-session JSON]\n"
       "  --plugins | --verify | --status | --help\n"
+      "  run --rom FILE [--logging debug|info|warning|error] [--max-cycles N]\n"
+      "  configure --ghidra PATH --rizin PATH [--workspace DIR] [--allow-tool-root DIR]\n"
+      "  resume [--job ID] [--max-cycles N]; status [--job ID]; inspect [--job ID]\n"
+      "  diagnostics export [--job ID] (redacted upload-ready ZIP; no ROM)\n"
       "  plugin build|test|activate|rollback|bump|status|release [args]\n"
       "Native --stage native-execute requires --rom FILE --game rd_NAME --out PREFIX; source identity is verified.\n"
+      "Native --stage native-orchestrate: --rom ROM --out DIR --plugin-dir DLLS [--ghidra HEADLESS --rizin EXE --allow-tool-root DIR | --export JSON] [--history-root DIR] [--max-rounds N] [--target-frames N].\n"
+      "Native --stage native-translate --rom FILE --export GHIDRA_JSON --out DIR [--bank-export JSON] creates and compiles a source-bound game DLL.\n"
       "Native --stage discover loads native format/CPU/machine DLLs; use --stage legacy-discover for historical Python pipeline.\n";
 }
 #ifdef _WIN32
@@ -161,14 +169,14 @@ int main(int argc,char** argv)
 #endif
           )){usage();return 0;}
 #ifdef _WIN32
-        if(equals(argv[1],L"--version")){std::cout<<"RecompDev 0.4.6\n";return 0;}
+        if(equals(argv[1],L"--version")){std::cout<<"RecompDev 0.4.9.17\n";return 0;}
         if(equals(argv[1],L"plugin"))op="plugin-manager";
         if(equals(argv[1],L"--plugins"))op="plugins";
         if(equals(argv[1],L"--verify"))op="verify";
         if(equals(argv[1],L"--status"))op="status";
         if(equals(argv[1],L"--analyze-evidence"))op="review-evidence";
 #else
-        if(equals(argv[1],"--version")){std::cout<<"RecompDev 0.4.6\n";return 0;}
+        if(equals(argv[1],"--version")){std::cout<<"RecompDev 0.4.9.17\n";return 0;}
         if(equals(argv[1],"plugin"))op="plugin-manager";
         if(equals(argv[1],"--plugins"))op="plugins";
         if(equals(argv[1],"--verify"))op="verify";
@@ -177,15 +185,15 @@ int main(int argc,char** argv)
 #endif
         // Detect native discovery before resolving the Python checkout. The native
         // path requires only the binary and independently deployed DLL providers.
-        bool native_discover=false,native_execute=false,legacy_discover=false;
+        bool native_discover=false,native_execute=false,native_translate=false,native_orchestrate=false,legacy_discover=false;
         for(int i=1;i+1<argc;++i){
 #ifdef _WIN32
-          if(equals(argv[i],L"--stage")){native_discover=equals(argv[i+1],L"discover");native_execute=equals(argv[i+1],L"native-execute");legacy_discover=equals(argv[i+1],L"legacy-discover");}
+          if(equals(argv[i],L"--stage")){native_discover=equals(argv[i+1],L"discover");native_execute=equals(argv[i+1],L"native-execute");native_translate=equals(argv[i+1],L"native-translate");native_orchestrate=equals(argv[i+1],L"native-orchestrate");legacy_discover=equals(argv[i+1],L"legacy-discover");}
 #else
-          if(equals(argv[i],"--stage")){native_discover=equals(argv[i+1],"discover");native_execute=equals(argv[i+1],"native-execute");legacy_discover=equals(argv[i+1],"legacy-discover");}
+          if(equals(argv[i],"--stage")){native_discover=equals(argv[i+1],"discover");native_execute=equals(argv[i+1],"native-execute");native_translate=equals(argv[i+1],"native-translate");native_orchestrate=equals(argv[i+1],"native-orchestrate");legacy_discover=equals(argv[i+1],"legacy-discover");}
 #endif
         }
-        if(native_discover||native_execute){
+        if(native_discover||native_execute||native_translate){
            std::vector<std::string> args;
 #ifdef _WIN32
            for(int i=1;i<argc;++i){
@@ -198,9 +206,64 @@ int main(int argc,char** argv)
 #else
            for(int i=1;i<argc;++i)args.emplace_back(argv[i]);
 #endif
-           return native_execute?rd_native_execute(args,self_path()):rd_native_discover(args,self_path());
+           return native_execute?rd_native_execute(args,self_path()):native_translate?rd_native_translate(args,self_path()):rd_native_discover(args,self_path());
         }
         fs::path root=project_root(self_path());
+#ifdef _WIN32
+        const bool native_job=equals(argv[1],L"run")||equals(argv[1],L"resume")||equals(argv[1],L"status")||equals(argv[1],L"inspect")||equals(argv[1],L"configure")||equals(argv[1],L"diagnostics");
+#else
+        const bool native_job=equals(argv[1],"run")||equals(argv[1],"resume")||equals(argv[1],"status")||equals(argv[1],"inspect")||equals(argv[1],"configure")||equals(argv[1],"diagnostics");
+#endif
+        if(native_job){
+           std::vector<std::string> job_args;
+#ifdef _WIN32
+           for(int i=1;i<argc;++i){
+              int n=WideCharToMultiByte(CP_UTF8,WC_ERR_INVALID_CHARS,argv[i],-1,nullptr,0,nullptr,nullptr);
+              if(n<=0)throw std::runtime_error("ARGUMENT_UTF8_CONVERSION_FAILED");
+              std::string v(size_t(n),'\0');
+              if(!WideCharToMultiByte(CP_UTF8,WC_ERR_INVALID_CHARS,argv[i],-1,v.data(),n,nullptr,nullptr))throw std::runtime_error("ARGUMENT_UTF8_CONVERSION_FAILED");
+              v.pop_back();job_args.push_back(std::move(v));
+           }
+           auto invoke=[&](const std::vector<std::string>&cmd)->int{
+              std::vector<std::wstring> forwarded={(cmd.size()>1 && cmd[0]=="--stage" && cmd[1]=="job-diagnostics" ? (root/L"workspace"/L"diagnostics_export.py") : (root/L"analysis_integration"/L"cli.py")).wstring()};
+              for(auto&str:cmd){
+                  int n=MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,str.c_str(),-1,nullptr,0);
+                  if(n<=0)throw std::runtime_error("PROVIDER_ARGUMENT_UTF8_INVALID");
+                  std::wstring w(size_t(n),L'\0');
+                  if(!MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,str.c_str(),-1,w.data(),n))throw std::runtime_error("PROVIDER_ARGUMENT_UTF8_INVALID");
+                  w.pop_back();forwarded.push_back(std::move(w));
+              }
+              if(!(cmd.size()>1 && cmd[1]=="job-diagnostics")){forwarded.emplace_back(L"--controller-exe");forwarded.emplace_back(self_path().wstring());
+              forwarded.emplace_back(L"--source-root");forwarded.emplace_back(root.wstring());}
+              return spawn(root,forwarded);
+           };
+#else
+           for(int i=1;i<argc;++i)job_args.emplace_back(argv[i]);
+           auto invoke=[&](const std::vector<std::string>&cmd)->int{
+              std::vector<std::string> forwarded={(cmd.size()>1 && cmd[0]=="--stage" && cmd[1]=="job-diagnostics" ? (root/"workspace"/"diagnostics_export.py") : (root/"analysis_integration"/"cli.py")).string()};
+              forwarded.insert(forwarded.end(),cmd.begin(),cmd.end());
+              if(!(cmd.size()>1 && cmd[1]=="job-diagnostics")){forwarded.emplace_back("--controller-exe");forwarded.emplace_back(self_path().string());
+              forwarded.emplace_back("--source-root");forwarded.emplace_back(root.string());}
+              return spawn(root,forwarded);
+           };
+#endif
+           return rd_native_job(job_args,root,self_path(),invoke);
+        }
+        if(native_orchestrate){
+#ifdef _WIN32
+            std::vector<std::wstring> forwarded={(root/L"analysis_integration"/L"cli.py").wstring()};
+            for(int i=1;i<argc;++i)forwarded.emplace_back(argv[i]);
+            forwarded.emplace_back(L"--controller-exe");forwarded.emplace_back(self_path().wstring());
+            forwarded.emplace_back(L"--source-root");forwarded.emplace_back(root.wstring());
+            return spawn(root,forwarded);
+#else
+            std::vector<std::string> forwarded={(root/"analysis_integration"/"cli.py").string()};
+            for(int i=1;i<argc;++i)forwarded.emplace_back(argv[i]);
+            forwarded.emplace_back("--controller-exe");forwarded.emplace_back(self_path().string());
+            forwarded.emplace_back("--source-root");forwarded.emplace_back(root.string());
+            return spawn(root,forwarded);
+#endif
+        }
 #ifdef _WIN32
         std::vector<std::wstring> forwarded;
         if(op=="plugin-manager"){

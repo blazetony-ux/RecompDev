@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.17)
-project(RecompDevModularConsolidation VERSION 0.4.6 LANGUAGES CXX)
+project(RecompDevModularConsolidation VERSION 0.4.9 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -15,18 +15,27 @@ function(poc_module TARGET SOURCE)
    target_compile_options(${TARGET} PRIVATE -Wall -Wextra -Wpedantic)
  endif()
 endfunction()
+# Independent active SMS state/runtime DLL. Its source and ABI no longer compile
+# from frozen legacy or baselines directories.
+add_library(rd_sms_native_runtime SHARED ../runtime_sms/src/runtime.cpp)
+target_compile_definitions(rd_sms_native_runtime PRIVATE RD_SMS_NATIVE_BUILD)
+target_include_directories(rd_sms_native_runtime PUBLIC ../runtime_sms/include)
+target_include_directories(rd_sms_native_runtime PRIVATE ../video_sms/include)
+target_link_libraries(rd_sms_native_runtime PRIVATE rd_video_sms_mode4)
+set_target_properties(rd_sms_native_runtime PROPERTIES PREFIX "" OUTPUT_NAME "rd_sms_native_runtime"
+ RUNTIME_OUTPUT_DIRECTORY "${OUT_DIR}" LIBRARY_OUTPUT_DIRECTORY "${OUT_DIR}")
 poc_module(rd_machine_sms machine_sms.cpp)
-target_sources(rd_machine_sms PRIVATE ../legacy/RecompDev-v0.4.0.45/systems/mastersystem/runtime.cpp)
-target_include_directories(rd_machine_sms PRIVATE "${CMAKE_SOURCE_DIR}/../legacy/RecompDev-v0.4.0.45")
+target_include_directories(rd_machine_sms PRIVATE ../runtime_sms/include ../video_sms/include)
+target_link_libraries(rd_machine_sms PRIVATE rd_sms_native_runtime rd_video_sms_mode4)
 poc_module(rd_machine_synthetic machine_synthetic.cpp)
 poc_module(rd_cpu_z80 cpu_z80.cpp)
-target_include_directories(rd_cpu_z80 PRIVATE "${CMAKE_SOURCE_DIR}/../legacy/RecompDev-v0.4.0.45")
+target_include_directories(rd_cpu_z80 PRIVATE ../runtime_sms/templates)
 poc_module(rd_game_fixture game_fixture.cpp)
 poc_module(rd_game_probe game_probe.cpp)
 # Generated owner code is independent of the shipped synthetic regression game.
 # EXCLUDE_FROM_ALL: not compiled until the owner supplies verified export evidence.
 add_library(rd_game_owner SHARED EXCLUDE_FROM_ALL owner-generated/rd_game_owner.cpp)
-target_include_directories(rd_game_owner PRIVATE include "${CMAKE_SOURCE_DIR}/../legacy/RecompDev-v0.4.0.45")
+target_include_directories(rd_game_owner PRIVATE include ../runtime_sms/templates)
 set_target_properties(rd_game_owner PROPERTIES PREFIX "" OUTPUT_NAME "rd_game_owner" RUNTIME_OUTPUT_DIRECTORY "${OUT_DIR}" LIBRARY_OUTPUT_DIRECTORY "${OUT_DIR}")
 poc_module(rd_discovery_jsonl discovery_jsonl.cpp)
 poc_module(rd_display_ppm display_ppm.cpp)
@@ -81,7 +90,7 @@ endif()
 # This is source-created synthetic acceptance evidence. Real owner exports are
 # substituted through tools/build_pcode_plugin.py, then rebuilding this DLL.
 add_library(rd_game_recomp_v0445 SHARED generated/rd_game_recomp_v0445.cpp)
-target_include_directories(rd_game_recomp_v0445 PRIVATE include "${CMAKE_SOURCE_DIR}/../legacy/RecompDev-v0.4.0.45")
+target_include_directories(rd_game_recomp_v0445 PRIVATE include ../runtime_sms/templates)
 set_target_properties(rd_game_recomp_v0445 PROPERTIES PREFIX "" OUTPUT_NAME "rd_game_recomp_v0445"
   RUNTIME_OUTPUT_DIRECTORY "${OUT_DIR}" LIBRARY_OUTPUT_DIRECTORY "${OUT_DIR}")
 if(MSVC)
@@ -161,8 +170,8 @@ endif()
 
 # v0.4.2 compiled top-level controller; unlike the standalone test harness it
 # owns the real ROM workflow entry point and delegates legacy services safely.
-add_executable(RecompDev ../controller/main.cpp ../controller/native_execute.cpp)
-target_include_directories(RecompDev PRIVATE include)
+add_executable(RecompDev ../controller/main.cpp ../controller/native_execute.cpp ../controller/native_translate.cpp ../controller/native_job.cpp)
+target_include_directories(RecompDev PRIVATE include ../translation_pcode/include)
 target_link_libraries(RecompDev PRIVATE rd_native_game_runner)
 # Resolve exactly the Python interpreter used by the tests, not an ambiguous py.exe shim.
 configure_file("${CMAKE_SOURCE_DIR}/../controller/recompdev_python_config.h.in"
@@ -225,7 +234,7 @@ endif()
 # Reuse the verified legacy OS adapters as source, without editing frozen files.
 add_library(rd_runtime_host SHARED ../runtime_host/src/host.cpp)
 target_compile_definitions(rd_runtime_host PRIVATE RD_RUNTIME_HOST_BUILD)
-target_include_directories(rd_runtime_host PRIVATE ../runtime_host/include ../legacy/RecompDev-v0.4.0.45)
+target_include_directories(rd_runtime_host PRIVATE ../runtime_host/include ../runtime_sms/include)
 set_target_properties(rd_runtime_host PROPERTIES PREFIX "" OUTPUT_NAME "rd_runtime_host"
  RUNTIME_OUTPUT_DIRECTORY "${OUT_DIR}" LIBRARY_OUTPUT_DIRECTORY "${OUT_DIR}")
 if(WIN32)
@@ -305,4 +314,142 @@ if(Python3_Interpreter_FOUND)
   "${CMAKE_SOURCE_DIR}/examples/recomp-pcode/synthetic.sms")
  set_tests_properties(v0499_controller_native_pcode_and_banked_source PROPERTIES
   ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+endif()
+
+# v0.4.9.10: real source-attested P-code lowering, executed in an independent
+# native translator DLL. The original Ghidra verifier remains the oracle;
+# this is not the full legacy runtime / recovery migration.
+add_library(rd_translation_pcode SHARED ../translation_pcode/src/translator.cpp)
+target_include_directories(rd_translation_pcode PRIVATE include ../translation_pcode/include)
+set_target_properties(rd_translation_pcode PROPERTIES PREFIX "" OUTPUT_NAME "rd_translation_pcode"
+ RUNTIME_OUTPUT_DIRECTORY "${OUT_DIR}" LIBRARY_OUTPUT_DIRECTORY "${OUT_DIR}")
+target_include_directories(RecompDev PRIVATE ../translation_pcode/include)
+if(MSVC)
+ target_compile_options(rd_translation_pcode PRIVATE /W4 /EHsc)
+else()
+ target_compile_options(rd_translation_pcode PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+if(Python3_Interpreter_FOUND)
+ add_test(NAME v04910_native_pcode_translation_compile_execute COMMAND "${Python3_EXECUTABLE}"
+  "${CMAKE_SOURCE_DIR}/../translation_pcode/tests/test_translation.py"
+  "$<TARGET_FILE:RecompDev>" "$<TARGET_FILE_DIR:RecompDev>" "${CMAKE_SOURCE_DIR}/..")
+ set_tests_properties(v04910_native_pcode_translation_compile_execute PROPERTIES ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+endif()
+
+# Source-driven native C++ recovery regression: independently compiled modules,
+# mapper-bank flow, loop-state bound and forged source-evidence rejection.
+if(Python3_Interpreter_FOUND)
+ add_test(NAME v04910_native_banked_source_recovery_compilation COMMAND "${Python3_EXECUTABLE}"
+  "${CMAKE_SOURCE_DIR}/../translation_pcode/tests/test_source_recovery.py"
+  "$<TARGET_FILE:RecompDev>" "$<TARGET_FILE_DIR:RecompDev>" "${CMAKE_SOURCE_DIR}/..")
+ set_tests_properties(v04910_native_banked_source_recovery_compilation PROPERTIES ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+ add_test(NAME v04910_translation_partition_stability COMMAND "${Python3_EXECUTABLE}"
+  "${CMAKE_SOURCE_DIR}/../translation_pcode/tests/test_partition_stability.py"
+  "$<TARGET_FILE:RecompDev>" "$<TARGET_FILE_DIR:rd_translation_pcode>" "${CMAKE_SOURCE_DIR}/..")
+ set_tests_properties(v04910_translation_partition_stability PROPERTIES ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+ add_test(NAME v04910_runtime_gap_native_recovery COMMAND "${Python3_EXECUTABLE}"
+  "${CMAKE_SOURCE_DIR}/../translation_pcode/tests/test_runtime_gap_recovery.py"
+  "$<TARGET_FILE:RecompDev>" "$<TARGET_FILE_DIR:rd_translation_pcode>" "${CMAKE_SOURCE_DIR}/..")
+ set_tests_properties(v04910_runtime_gap_native_recovery PROPERTIES ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+ add_test(NAME v04910_source_lift_block_copy_repeat COMMAND "${Python3_EXECUTABLE}"
+  "${CMAKE_SOURCE_DIR}/../translation_pcode/tests/test_z80_block_copy_repeat.py"
+  "$<TARGET_FILE:RecompDev>" "$<TARGET_FILE_DIR:rd_translation_pcode>" "${CMAKE_SOURCE_DIR}/..")
+ set_tests_properties(v04910_source_lift_block_copy_repeat PROPERTIES ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+endif()
+
+# v0.4.9.10: compiled production DLL boundary, not the frozen implementation.
+add_executable(rd_sms_native_runtime_smoke ../runtime_sms/tests/smoke.cpp)
+target_include_directories(rd_sms_native_runtime_smoke PRIVATE ../runtime_sms/include ../video_sms/include ../runtime_host/include)
+target_link_libraries(rd_sms_native_runtime_smoke PRIVATE rd_sms_native_runtime rd_video_sms_mode4 rd_runtime_host)
+set_target_properties(rd_sms_native_runtime_smoke PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${OUT_DIR}")
+add_test(NAME v04910_production_native_sms_runtime_cutover COMMAND $<TARGET_FILE:rd_sms_native_runtime_smoke>)
+if(Python3_Interpreter_FOUND)
+ add_test(NAME v04910_production_legacy_boundary COMMAND "${Python3_EXECUTABLE}"
+  "${CMAKE_SOURCE_DIR}/../runtime_sms/tests/test_no_legacy_production.py"
+  "${CMAKE_SOURCE_DIR}/..")
+ set_tests_properties(v04910_production_legacy_boundary PROPERTIES ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+endif()
+
+# v0.4.9.11: controller -> dual optional analysis providers -> reconciled
+# boundaries -> compiled native discovery/translation, tested on two distinct
+# synthetic ROMs; genuine Ghidra/Rizin and 2 real ROMs remain owner gates.
+if(Python3_Interpreter_FOUND)
+ add_test(NAME v04911_controller_analysis_recovery_integration COMMAND
+  "${Python3_EXECUTABLE}"
+  "${CMAKE_SOURCE_DIR}/../analysis_integration/tests/test_native_orchestration.py"
+  "$<TARGET_FILE:RecompDev>" "$<TARGET_FILE_DIR:rd_translation_pcode>" "${CMAKE_SOURCE_DIR}/..")
+ set_tests_properties(v04911_controller_analysis_recovery_integration PROPERTIES TIMEOUT 180)
+endif()
+
+# v0.4.9.12: strict independent Rizin output-normalization contract.
+# These are parser tests; the preceding native-orchestrate test exercises the
+# same adapter through the actual compiled controller process boundary.
+if(Python3_Interpreter_FOUND)
+ add_test(NAME v04912_rizin_output_compatibility COMMAND
+  "${Python3_EXECUTABLE}" -B
+  "${CMAKE_SOURCE_DIR}/../analysis_integration/tests/test_rizin_output_compat.py" -q)
+ set_tests_properties(v04912_rizin_output_compatibility PROPERTIES
+  ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1" TIMEOUT 30)
+endif()
+
+# v0.4.9.13 independently maintained external Rizin analyzer provider.
+if(Python3_Interpreter_FOUND)
+ add_test(NAME v04913_rizin_direct_provider COMMAND
+  "${Python3_EXECUTABLE}"
+  "${CMAKE_SOURCE_DIR}/../analysis_integration/tests/test_rizin_provider.py" -q)
+ set_tests_properties(v04913_rizin_direct_provider PROPERTIES TIMEOUT 90)
+endif()
+
+# v0.4.9.14: maintained Ghidra evidence + source-bound recovery reuse.
+if(Python3_Interpreter_FOUND)
+ add_test(NAME v04914_ghidra_recovery_history COMMAND
+  "${Python3_EXECUTABLE}" -B
+  "${CMAKE_SOURCE_DIR}/../analysis_integration/tests/test_recovery_history.py" -q)
+ set_tests_properties(v04914_ghidra_recovery_history PROPERTIES TIMEOUT 60)
+endif()
+
+if(Python3_Interpreter_FOUND)
+ add_test(NAME v04914_compiled_recovery_history_bridge COMMAND
+  "${Python3_EXECUTABLE}"
+  "${CMAKE_SOURCE_DIR}/../analysis_integration/tests/test_recovery_compiled_bridge.py"
+  "$<TARGET_FILE:RecompDev>" "$<TARGET_FILE_DIR:rd_translation_pcode>" "${CMAKE_SOURCE_DIR}/..")
+ set_tests_properties(v04914_compiled_recovery_history_bridge PROPERTIES TIMEOUT 120)
+endif()
+
+# v0.4.9.15: compiled controller-owned persistent job manager and structured logger.
+add_executable(rd_controller_job_contract ../controller/tests/job_manager_contract.cpp ../controller/native_job.cpp)
+target_include_directories(rd_controller_job_contract PRIVATE ../controller include ../translation_pcode/include)
+add_test(NAME v04915_compiled_controller_job_manager COMMAND $<TARGET_FILE:rd_controller_job_contract> "${CMAKE_SOURCE_DIR}/.." "$<TARGET_FILE:RecompDev>")
+set_tests_properties(v04915_compiled_controller_job_manager PROPERTIES TIMEOUT 45)
+if(Python3_Interpreter_FOUND)
+ add_test(NAME v04915_compiled_job_cli_dispatch COMMAND "${Python3_EXECUTABLE}"
+  "${CMAKE_SOURCE_DIR}/../controller/tests/test_job_cli_smoke.py" "$<TARGET_FILE:RecompDev>")
+ set_tests_properties(v04915_compiled_job_cli_dispatch PROPERTIES TIMEOUT 35)
+endif()
+
+# v0.4.9.16: three-session cumulative evidence preservation and isolated
+# release-checkpoint Git plumbing. These do not represent real-ROM parity.
+if(Python3_Interpreter_FOUND)
+ add_test(NAME v04916_cumulative_recovery_ledger COMMAND "${Python3_EXECUTABLE}" -B
+  "${CMAKE_SOURCE_DIR}/../analysis_integration/tests/test_recovery_history.py" -q)
+ set_tests_properties(v04916_cumulative_recovery_ledger PROPERTIES TIMEOUT 45)
+ add_test(NAME v04916_single_package_checkpoint_contract COMMAND "${Python3_EXECUTABLE}" -B
+  "${CMAKE_SOURCE_DIR}/../release/tests/test_checkpoint_contract.py" -q)
+ set_tests_properties(v04916_single_package_checkpoint_contract PROPERTIES TIMEOUT 45)
+endif()
+
+# v0.4.9.17: secure diagnostic export, explicit infrastructure-only promotion
+# and a migration register; 1,800-frame native gameplay qualification remains blocked.
+if(Python3_Interpreter_FOUND)
+ add_test(NAME v04917_controller_diagnostics_export COMMAND "${Python3_EXECUTABLE}" -B -m unittest
+  discover -s "${CMAKE_SOURCE_DIR}/../workspace/tests" -p test_diagnostics_export.py -q)
+ set_tests_properties(v04917_controller_diagnostics_export PROPERTIES TIMEOUT 30)
+ add_test(NAME v04917_infrastructure_release_policy COMMAND "${Python3_EXECUTABLE}" -B -m unittest
+  discover -s "${CMAKE_SOURCE_DIR}/../release/tests" -p test_infrastructure_promotion.py -q)
+ set_tests_properties(v04917_infrastructure_release_policy PROPERTIES TIMEOUT 30)
+endif()
+if(Python3_Interpreter_FOUND)
+ add_test(NAME v04917_migration_register_inventory COMMAND "${Python3_EXECUTABLE}" -B -m unittest
+  discover -s "${CMAKE_SOURCE_DIR}/../migration/tests" -p test_v04917_inventory.py -q)
+ set_tests_properties(v04917_migration_register_inventory PROPERTIES TIMEOUT 30)
 endif()

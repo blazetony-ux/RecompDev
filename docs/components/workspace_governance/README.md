@@ -25,3 +25,11 @@ Source ownership in `workspace/manager.py` now recognises the independent `produ
 ## v0.4.9.7 candidate interface (0.1.4)
 
 Mandatory binding development contract, approved pre-build report and handover/release acknowledgement. The authoritative registry is `workspace/components.json`; use the ABI declarations in `harness/include/rd_native_discovery_v1.h`. New policy omissions automatically fail documentation governance; no ROM or binary modifications. No Shinobi-specific logic is introduced; independently measured gameplay parity remains unverified.
+
+## v0.1.7 numeric release checks
+
+Versioned installer and development-contract checks use numeric version tuples, so `v0.4.9.10` does not sort before `v0.4.9.8`; this closes an unintended release gate bypass while leaving the signed/permanent Git-managed PowerShell installer unchanged. See [component history](CHANGELOG.md) and source registry `workspace/components.json`.
+
+## Migration and release acceptance split
+
+`migration/register_check.py` enforces 14 source-mapped capability owners with explicit migration state and exit criteria. Read-only `migration/knowledge_inventory.py DATABASE.sqlite` emits schema row counts and database hash, never data records. Source-only infrastructure promotion does not satisfy Shinobi 1,800-frame native gameplay/VDP/PSG parity.

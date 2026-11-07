@@ -8,7 +8,7 @@ Harness Master System bus, banking and VDP/PSG state backed by SMS runtime.
 
 ## Source and interface
 
-`harness/plugins/machine_sms.cpp; harness/systems/mastersystem/runtime.hpp`. **Build target:** `rd_machine_sms`. Component kind: `compiled-plugin`. The registry in `workspace/components.json` is authoritative for version and deployment scope; C++ DLLs export the versioned `rd_get_plugin_v1` interface declared in `harness/include/rd_plugin.h`.
+`harness/plugins/machine_sms.cpp; runtime_sms/include/runtime.hpp`. **Build target:** `rd_machine_sms`. Component kind: `compiled-plugin`. The registry in `workspace/components.json` is authoritative for version and deployment scope; C++ DLLs export the versioned `rd_get_plugin_v1` interface declared in `harness/include/rd_plugin.h`.
 
 ## Qualification and known limits
 
@@ -25,3 +25,7 @@ Conservative static-ROM reset/interrupt source mapping with dynamic/banked addre
 ## v0.3.0 native migration (workspace/v0.4.9.9)
 
 Original SMS initial mapper and register-write effects now model context-qualified ROM physical offsets, retaining existing bus and source resolver compatibility. See [the release](../../releases/v0.4.9.9.md) for what still uses Python and for test limitations. No title-specific workarounds or production gameplay-parity claim.
+
+## v0.4.9.10 maintained-runtime cutover (0.4.0)
+
+The newly generated full native project uses `runtime_sms/templates` and its CMake build links independent SMS state/video/host DLL targets. It **does not** compile or copy the frozen original runtime. This is a source dependency migration, not evidence of equivalent 1,800-frame Shinobi graphics, control or generic machine-ABI parity; verification remains blocked. See [runtime component](../rd_sms_native_runtime/README.md) and [candidate release](../../releases/v0.4.9.10.md).

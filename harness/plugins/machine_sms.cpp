@@ -1,7 +1,8 @@
 #include "rd_plugin.h"
 #include "rd_native_discovery_v1.h"
-#include "systems/mastersystem/runtime.hpp"
+#include "runtime.hpp"
 #include "hardware/adapters/sms.hpp"
+#include "rd_sms_mode4.h"
 #include <algorithm>
 #include <cstring>
 #include <new>
@@ -46,9 +47,10 @@ static int frame_bgra(void *p,uint32_t *pixels,size_t count,uint32_t *w,uint32_t
  if(!pixels||count<RD_PIXELS||!w||!h)return 0;
  try{
   auto& s=static_cast<Machine*>(p)->s;
-  auto frame=recomp::hw::sms::render_mode4(s.vram,s.cram,s.vdp_regs,s.tstates,s.frames);
-  *w=frame.width;*h=frame.height;
-  std::memcpy(pixels,frame.pixels.data(),frame.pixels.size()*sizeof(uint32_t));return 1;
+  if(!rd_sms_mode4_render(s.vram.data(),uint32_t(s.vram.size()),
+      s.cram.data(),uint32_t(s.cram.size()),s.vdp_regs.data(),uint32_t(s.vdp_regs.size()),
+      pixels,uint32_t(RD_PIXELS),nullptr))return 0;
+  *w=RD_SMS_MODE4_WIDTH;*h=RD_SMS_MODE4_HEIGHT;return 1;
  }catch(...){return 0;}
 }
 static int audio_pcm(void *p,int16_t *dest,size_t n){

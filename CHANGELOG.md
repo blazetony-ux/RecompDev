@@ -1,5 +1,70 @@
 # RecompDev workspace changelog
 
+## [workspace/v0.4.9.17] - 2026-11-07
+
+- **Changed:** First **infrastructure-source-only** promotion track (`git-main-only-no-runtime`) with mandatory independent Windows tests, rollback and explicit separation from the still-unmet Shinobi 1,800-frame gameplay/hardware parity acceptance. Compiled controller 0.4.13 owns configured large-job workspace, old AppData job lookup, automated sanitised diagnostics ZIPs on terminal recovery states and `diagnostics export --job ID`.
+- **Migration:** Expanded inventory to 14 legacy subsystem capabilities with accountable owners and exit criteria; added read-only hashed table-count knowledge inventory. This does not claim complete migration of old campaigns, asset export, all 84 legacy tests, or compiled native Ghidra/Rizin ABI.
+- **Validation:** New ZIP safety, source-promotion and migration regression tests plus existing full native/Python suites. Windows MSVC full suite and Install result must be supplied by owner; imported-history Shinobi remains 896/1,800 frames with input/VDP/PSG correctness unverified. Runtime activation remains blocked.
+
+## [workspace/v0.4.9.16] - 2026-11-07
+
+- **Changed:** Preserve an independently re-attested cumulative recovery history across controller sessions; allow explicit legacy evidence bootstrap and detect repeated frontiers or stagnation against job-wide best. Controller 0.4.12 and analysis_integration 0.3.1, no native plugin ABI changes or game-specific offsets.
+- **Validation:** Three-session synthetic history, tamper rejection and compiled controller imported-history/stagnation regression tests. Previous owner v0.4.9.15 full Windows 60/60 and two-cycle real-ROM test passed but stopped at 64 frames; v0.4.9.14 reached 894 frames. New Windows acceptance pending, parity still blocked.
+- **Release:** Single SHA-pinned ZIP with embedded updated installer can create an offline development Git checkpoint after successful candidate validation, without separate bundle distribution or any change to main, active runtime or GitHub. Promotion eligibility remains false.
+
+## [workspace/v0.4.9.15] - 2026-11-07
+
+- Compiled `RecompDev.exe` now owns persistent ROM-bound jobs and automatically chains bounded recovery batches, preserving immutable session evidence and reattesting source bytes before each resume. New `run`, `resume`, `status`, `inspect`, `configure` commands replace repeated hand-written PowerShell orchestration.
+- Added controller-level `--logging debug|info|warning|error` with structured JSONL job events, console threshold and durable diagnostics. Existing Ghidra/Rizin batch adapter remains Python temporarily; no new game-specific logic, CPU/plugin ABI changes or legacy source modifications.
+- Native compiled job-manager and actual CLI dispatch tests added. Latest owner real v0.4.9.14 resumed Shinobi evidence reached 894 frames, not 1,800-frame parity; installed `main` remains v0.4.9.9. Candidate is not promotion-eligible.
+
+## [workspace/v0.4.9.14] - 2026-11-07
+
+- Maintained headless Ghidra launcher and scripts, byte-bound function verification, and Ghidra/Rizin reconciliation outside frozen history; optional `--resume-from` imports hash-verified prior recovery seeds and bank overlays into a fresh run. No new native CPU/console semantics or compiled provider ABI.
+- Windows real v0.4.9.13 recovered 244 Rizin hypotheses with no legacy Rizin execution but reached a four-round recovery limit at 67 frames; previous main remains v0.4.9.9, validation candidate not production installed.
+
+## [workspace/v0.4.9.13] - 2026-11-07
+
+- Replaced active legacy Rizin `_attempt_rizin` and external-tool authorization imports with maintained, bounded direct provider; kept raw output and provider audit immutable.
+- Allowed the Windows Rizin 0.9.1 standalone `ESC[2K` formatting prefix while preserving strict warning/output validation and function hypothesis semantics.
+- Added direct-provider/ANSI regression tests and an offline Git development checkpoint plan; compiled controller and plugin versions unchanged. Real Ghidra/Rizin+gameplay acceptance and live installation remain blocked.
+
+
+## [workspace/v0.4.9.12] - 2026-11-07
+
+- **Controller-owned Rizin compatibility candidate:** Added strict warning-prefixed Rizin `aflj` parsing at the active analysis-provider boundary. The preserved raw analyzer log remains unchanged, JSON normalization is separately SHA-256 recorded, and diagnostic warnings remain visible to the orchestration manifest. Failed or ambiguous outputs still block native translation.
+- **Architecture and tests:** Source-only `analysis_integration` advances 0.1.0 to 0.1.1; synthetic analyzer fixtures feed warnings through the compiled controller path, and new provider-level tests cover malformed/error/size/semantics and immutable evidence. No change to controller EXE, native DLLs, translation logic, or frozen 642 historical files. The Rizin/Ghidra subprocess adapters and recovery Python bridge are still temporary historical dependencies, with explicit staged removal gates in the [legacy exit plan](docs/architecture/LEGACY-EXIT-PLAN.md).
+- **Release:** Validation candidate based on installed workspace/v0.4.9.9; owner Windows MSVC and real Rizin/Ghidra retry, Shinobi 1,800 frames, second real ROM and full interchangeability remain **BLOCKED**. No automatic tag or active install.
+
+
+## [workspace/v0.4.9.11] - 2026-11-07
+
+- **Architecture integration, validation-only:** Compiled `RecompDev.exe --stage native-orchestrate` now drives independently authorized Ghidra headless Z80 export and Rizin `aflj` hypothesis analysis via controller-owned compatibility adapters, source-byte/hash reconciliation, native C++ discovery and P-code translation, CMake build, and bounded automatic app-run gap recovery with immutable per-round evidence. Approved Ghidra backends are re-invoked at actual missing-code PCs with verified observed mapper windows to recover reachable function regions as source-hashed, bank-qualified Ghidra P-code overlays. It reuses historical Ghidra preparation and Rizin coordinator *for analysis only*, never the old monolithic production execution or generated runtime. The current compiled execution backend remains SMS/Z80 and fails closed for unsupported platforms.
+- **Native evidence contract:** Continuous app now reports observed stopped guest SP and source length; its exact status, mapper and physical offset are reverified by the native mapper and CPU plugins. Rizin only contributes source-checked initial-bank function-entry hypotheses, never executable C++ or independent hardware semantics. The build refuses unapproved analyzer tool paths, unverified ROM exports, repeated gaps and exhausted round budgets.
+- **Validation:** Local Linux compiled controller and new provider integration regression pass with two unrelated synthetic ROMs, mock external analyzer processes, real source-based native C++ translation, generated native application build and observed-state execution, and forgery/authorization gates. Real installed Ghidra/Rizin MSVC runs, second *real* ROM, true fully autonomous 1,800-frame parity, universal CPU/machine negotiation and interface isolation remain **BLOCKED**. Original installed workspace v0.4.9.9 and 642 frozen `legacy/` + `baselines/` files are unchanged. This is **NOT** a promotion candidate.
+
+
+## [workspace/v0.4.9.10] - 2026-11-06
+
+- **2026-11-07 WindowsFix4 (candidate):** WindowsFix3 52/52 owner CTests, then true pilot stopped at `0xB2EE` / 1,590,262 steps (33 steps beyond prior `0xB2E1`) with `ED B0` (`LDIR`) source bytes. `rd_cpu_z80` 0.5.1 adds generic attested LDIR/LDDR one-iteration native C++ execution/repeat branching; new synthetic compiled-DLL fixture validates source-to-RAM three-byte copies in both directions, final guest registers and 21/16 T-state timing. Real Windows full-ROM execution beyond this second stop is NOT YET demonstrated. Frozen history, production DLL boundaries, permanent release installer and installed v0.4.9.9 unchanged; promotion remains blocked.
+
+
+- **2026-11-07 WindowsFix3 source-recovery correction (candidate):** Owner WindowsFix2 recompiled Shinobi under the independent SMS/video/host DLLs and confirmed 120-frame deterministic parity, then the 1,800-frame neutral-input test stopped at 248 frames / 1,590,229 native steps, guest PC/physical ROM `0xB2E1`, mapper `[0,0,1,2]`, status `UNTRANSLATED_INITIAL_CODE`. The native-pilot recovery now propagates its **observed** stack pointer to source discovery, allowing the CPU DLL to follow CALL/PUSH/RET without guessing mapper safety. Z80 DLL also retains bank context across verified relative/conditional jumps and flags-only operations, and emits source-attested JR NZ/Z/NC/C native code. A generic synthetic call/stack/JR regression covers both observed-SP success and unknown-SP conservative rejection. Real-ROM local source discovery grows from 620 initial candidates to 2,464 candidates with a test-only observed stop seed; these are discovery candidates, **not** 2,464 independently executed instructions. WindowsFix3 still requires Windows MSVC and fresh real-ROM native execution tests. No original source, runtime-state DLL or permanent installer changes; installed baseline v0.4.9.9 untouched.
+
+- **2026-11-07 WindowsFix2 generated-project correction:** The full-ROM generated translation uses a separate 24-partition static library; unlike executable source targets it lacked the maintained `runtime_sms/include` directory and Windows MSVC failed C1083 on `runtime.hpp`. The translator now attaches the active runtime include roots directly to `rd_generated_translation`. Expanded the 600-instruction partition regression to CMake-build/link both generated executables. The prior Windows 52/52 release validation passed; the fresh real Shinobi native project did not compile. Fix remains candidate-only and has not passed Windows yet.
+
+- **2026-11-07 Windows candidate correction:** MSVC C2487 in exported SMS runtime class fixed by replacing static constexpr data members with typed enum constants of identical values. Added portable ABI-header regression guard. Validate-only; no runtime activation, gameplay parity still unverified.
+
+- **2026-11-07 cutover revision (candidate):** Introduced independent `rd_sms_native_runtime` 0.1.0, updated `rd_machine_sms` 0.4.0, `RecompDev.exe` 0.4.9, `rd_translation_pcode` 0.3.0, `rd_runtime_host` 0.1.1. Generated native applications now build and link active SMS state, Mode-4 renderer and generic audio/window/input DLLs from maintained source without compiling original frozen runtime code. The real-Shinobi 120-frame / red-title evidence precedes this cutover and **must be re-proven** under it; still BLOCKED, not tagged/installed. Existing original-source differential reference tests retained; Python analysis/recovery and portable machine-neutral State ABI not finished. New 2 compiled-boundary CTests plus existing regressions.
+
+
+- **Updated native decoder/translator candidate:** CPU DLL 0.5.0 adds source-attested ED block port I/O, CB BIT/RES/SET, conditional RET, mapper-conservative abstract effects and declared Z80 interrupt vectors. Translator DLL 0.2.0 now preserves source-verified returns and uses stable physical-address C++ partitions for incremental builds. Controller 0.4.8 accepts repeatable, validated native runtime-stop evidence as discovery seeds with no Python decoder or Shinobi-specific instruction patches.
+- **Real Shinobi ROM evidence:** SHA-256-matched uploaded 256 KiB source; generated full-nativepilot build executed **338,531 native steps / 64 elapsed frames**, with 3,168 VRAM and 32 CRAM writes; still stopped at untranslated PC `0x53A3`. The particular imported historical bank-export set and current CPU discovery yielded 4,843 emitted instructions and zero rejections; this is **not** proof of graphics, input control or historical 1,800-frame parity. The original Ghidra base export was replaced in the local test by a synthetic empty shell; genuine Ghidra base export and second-ROM parity remain mandatory. Revised candidate is NOT installed or tagged. Evidence now defaults under the release version root, no extra `workspace/` directory. Permanent Git-controlled installer unchanged.
+
+- **Compiled native P-code translation is now real C++ DLL functionality:** `rd_translation_pcode` 0.1.0 accepts source-attested preserved Ghidra export JSON, verifies ROM/source bytes, lowers supported P-code to C++, and builds either the original full nativepilot executable/runtime or an interchangeable source-specific game DLL. The new compiled `RecompDev.exe` 0.4.7 `--stage native-translate` invokes the DLL and CMake without a Python generator or controller wrapper.
+- The generated full nativepilot fixture executes with the **same CPU/banking/timing/stop results** as the untouched historical Python generator; a separate generated game DLL executes three native instructions with zero interpreter fallback. Includes strict provenance failures, reuse of original verified `bank-functions.json`, source-id checks, and optional version-scoped evidence output. Generic controller and DLLs have no Shinobi address/title rules.
+- **Blocked for real-game parity:** no Shinobi ROM or owner's complete historical base P-code export in build environment; 1,800-frame execution, exact legacy feature parity, automated Ghidra analysis and recovery have **not** been established. Full preserved old workflow remains available. Linux native CTests 45/45 executable tests (two external-archive tests unavailable here); Windows owner compilation still pending. See [release](docs/releases/v0.4.9.10.md) and [approved-scope build record](docs/project/PREBUILD-v0.4.9.10.md).
+
 ## [workspace/v0.4.9.9] - 2026-11-06
 
 - **Ported existing native execution orchestration** from the previously verified harness into compiled `RecompDev.exe` 0.4.6. The controller uses a shared compiled game-runner module to load existing P-code-generated game, machine, CPU, discovery, display, audio and input DLLs. New stage `native-execute` refuses source mismatches and runs without Python.

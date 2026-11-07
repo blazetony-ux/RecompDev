@@ -128,7 +128,8 @@ def check(source: Path = SOURCE, *, release: str | None = None) -> dict:
     missing = [p for p in required if not (source / p).is_file()]
     if missing:
         raise ValueError('Missing authoritative documents: ' + ', '.join(missing))
-    if version >= 'v0.4.9.8':
+    parts = tuple(int(piece) for piece in version.removeprefix('v').split('.'))
+    if parts >= (0, 4, 9, 8):
         installer=source/'Install-RecompDev-Release.ps1'
         if not installer.is_file() or installer.stat().st_size < 2000:
             raise ValueError('Permanent root release installer missing or incomplete')
@@ -148,8 +149,16 @@ def check(source: Path = SOURCE, *, release: str | None = None) -> dict:
     prebuild=(source/'docs/project/PREBUILD-v0.4.9.7.md').read_text(encoding='utf8')
     if 'approval' not in prebuild.lower() or 'SHINOBI' not in prebuild.upper():
         raise ValueError('Pre-build report missing approval rules or Shinobi continuity')
+    if parts >= (0, 4, 9, 17):
+        # Every new release must account for legacy capabilities; registering a
+        # capability does not assert that behavioural equivalence is qualified.
+        from migration.register_check import check as check_migration
+        check_migration(source)
+        policy=(source/'docs/project/DEVELOPMENT-CONTRACT.md').read_text('utf-8')
+        if not all(word in policy for word in ('infrastructure-source', 'git-main-only-no-runtime', '1,800')):
+            raise ValueError('Infrastructure/gameplay acceptance scopes must remain explicit')
     release_doc=(source/f'docs/releases/{version}.md').read_text(encoding='utf8')
-    if version >= 'v0.4.9.7' and not all(x in release_doc for x in ('DEVELOPMENT-CONTRACT.md', 'PREBUILD-v0.4.9.7.md', 'BLOCKED')):
+    if parts >= (0, 4, 9, 7) and not all(x in release_doc for x in ('DEVELOPMENT-CONTRACT.md', 'PREBUILD-v0.4.9.7.md', 'BLOCKED')):
         raise ValueError('Release compliance must acknowledge approved scope and remaining acceptance blockers')
     log = (source / 'CHANGELOG.md').read_text(encoding='utf8')
     check_workspace_changelog(log, current_release)

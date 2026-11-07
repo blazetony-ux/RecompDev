@@ -37,7 +37,8 @@ with tempfile.TemporaryDirectory(prefix='RecompDev native port ') as td:
     shutil.copy2(exe,installed/exe.name)
     active=installed/'active';active.mkdir()
     for name in ('rd_machine_sms','rd_cpu_z80','rd_game_recomp_v0445',
-                 'rd_discovery_jsonl','rd_display_ppm','rd_audio_wav','rd_input_fixed'):
+                 'rd_discovery_jsonl','rd_display_ppm','rd_audio_wav','rd_input_fixed',
+                 'rd_sms_native_runtime','rd_video_sms_mode4'):
         options=[p for p in plugin_dir.glob(name+'.*') if p.suffix in ('.dll','.so','.dylib')]
         assert len(options)==1,(name,options)
         shutil.copy2(options[0],active/options[0].name)

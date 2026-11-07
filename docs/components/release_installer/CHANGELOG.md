@@ -1,5 +1,17 @@
 # release_installer — component changelog
 
+## [1.2.0] - 2026-11-07
+
+- **Changed:** Explicit `infrastructure-source` release track with `git-main-only-no-runtime` promotion scope. After exact package hash, source preservation, governance and full named Windows CTests, `-Mode Install` may update source `main` and a Git tag while deliberately leaving active runtime EXE/DLLs and lockfile untouched. The Shinobi 1,800-frame qualification is retained for separately approved gameplay-runtime acceptance.
+- **Validation:** Automated source-level separation tests reject accidental runtime copy or a missing release-track guard; the existing rollback, detached Git-backup and isolated `Validate` checkpoint tests remain. Windows PowerShell 5.1 Install transaction still requires owner validation and approval before calling it installed.
+- **Compatibility:** Single SHA-pinned source ZIP and transactional rollback remain. No GitHub push, force operation, automatic runtime promotion or gameplay-success assertion is performed.
+
+## [1.1.0] - 2026-11-07
+
+- **Changed:** A single release ZIP embeds a SHA-256-pinned updated installer. On `Validate` after the complete source and compiled test suite passes, it can write a new versioned `dev` Git checkpoint from staged candidate files with an isolated index and worktree, without separate user-downloaded Git bundles. The expected prior `dev` commit is mandatory.
+- **Validation:** Portable Git plumbing test verifies development ref content and unchanged checked-out main; source tests require full CTest preceding checkpoint creation and retained promotion guard. Windows PowerShell 5.1 end-to-end is pending.
+- **Compatibility:** `Install` remains gated by `promotion_eligible=true`, source history safeguards and rollback. `Validate` never changes active source/main, production tags or runtime binaries, and never publishes to GitHub automatically.
+
 ## [1.0.0] - 2026-11-05
 
 - **Changed:** Introduced a permanent root-level Git-managed PowerShell installer that consumes independently SHA-256-pinned source ZIPs with a versioned manifest, extracts to external staging and verifies canonical committed Git blobs instead of checkout- or archive-dependent line endings. Separate validation and promotion modes, with protected history paths.

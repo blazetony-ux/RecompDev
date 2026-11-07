@@ -14,6 +14,10 @@ def sms():
     image = bytearray(0x8000)
     # reset: JP 0005, 0005: LD A,1, conditional JR +2, NOP, HALT
     image[:12] = bytes.fromhex('c305003e01200200767600') + bytes(1)
+    # Architectural IRQ/NMI vectors are CPU-owned discovery seeds. The
+    # synthetic fixture terminates them explicitly to avoid padding scans.
+    image[0x38]=0x76
+    image[0x66]=0x76
     image[0x7ff0:0x7ff8] = b'TMR SEGA'
     return bytes(image)
 
@@ -105,7 +109,7 @@ with tempfile.TemporaryDirectory(prefix='RecompDev native 0497 spaced ') as temp
     shutil.copy2(exe,installed/exe.name)
     installed_plugins=installed/'active';installed_plugins.mkdir()
     for dll in plugindir.iterdir():
-        if dll.name.startswith(('rd_format_','rd_cpu_z80','rd_machine_sms')):
+        if dll.name.startswith(('rd_format_','rd_cpu_z80','rd_machine_sms','rd_sms_native_runtime','rd_video_sms_mode4')):
             shutil.copy2(dll,installed_plugins/dll.name)
     installed_command=[str(installed/exe.name),'--stage','discover','--rom',str(root/samples[0][0]),
                        '--out',str(root/'installed-layout'), '--budget','300']
@@ -117,7 +121,7 @@ with tempfile.TemporaryDirectory(prefix='RecompDev native 0497 spaced ') as temp
     # Reject wrong kind without accidentally calling another plugin's inspect()
     badplugins=root/'bad plugins';badplugins.mkdir()
     for dll in plugindir.iterdir():
-        if dll.name.startswith(('rd_format_','rd_cpu_z80','rd_machine_sms')):
+        if dll.name.startswith(('rd_format_','rd_cpu_z80','rd_machine_sms','rd_sms_native_runtime','rd_video_sms_mode4')):
             shutil.copy2(dll,badplugins/dll.name)
     first=next(badplugins.glob('rd_format_sms.*'))
     shutil.copy2(next(plugindir.glob('rd_cpu_z80.*')),first)

@@ -31,9 +31,15 @@ class TestPreservation(unittest.TestCase):
 
     def test_direct_production_runtime_not_legacy_vendor_copy(self):
         cmake = (ROOT / 'harness/CMakeLists.txt').read_text()
-        self.assertIn('../legacy/RecompDev-v0.4.0.45/systems/mastersystem/runtime.cpp', cmake)
-        gen = (ROOT / 'harness/tools/build_pcode_plugin.py').read_text()
-        self.assertIn("ROOT.parent/'legacy'/'RecompDev-v0.4.0.45'", gen)
+        self.assertIn('add_library(rd_sms_native_runtime SHARED ../runtime_sms/src/runtime.cpp)', cmake)
+        self.assertNotIn('target_sources(rd_machine_sms PRIVATE ../legacy/', cmake)
+        self.assertNotIn('target_include_directories(rd_runtime_host PRIVATE ../runtime_host/include ../legacy/', cmake)
+        translator=(ROOT / 'translation_pcode/src/translator.cpp').read_text()
+        self.assertIn('ACTIVE_SMS_RUNTIME_SOURCE_MISSING',translator)
+        self.assertNotIn('legacy/"RecompDev-v0.4.0.45"',translator)
+        self.assertNotIn('nativepilot/z80_cycles.hpp', translator)
+        gen=(ROOT / 'harness/tools/build_pcode_plugin.py').read_text()
+        self.assertIn('z80_cycles.hpp', gen)
 
 
 class TestProductionBridge(unittest.TestCase):

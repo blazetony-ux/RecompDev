@@ -168,6 +168,48 @@ function CopySourceToCheckout($Entries){
     Copy-Item -LiteralPath $sourceFile -Destination $target -Force
   }
 }
+# v0.4.9.16: candidate validation may create a *development-only* Git checkpoint
+# in the existing repo. Use an isolated index/worktree pointing at the validated
+# stage: never checkout, reset, stage or commit onto the active main branch.
+function WriteDevelopmentCheckpoint {
+  $spec=$manifest.development_checkpoint
+  if($null -eq $spec){return}
+  $branch=[string]$spec.branch
+  $parentBranch=[string]$spec.parent_branch
+  $parentHash=[string]$spec.parent_commit
+  Assert ($branch -match '^dev/v\d+\.\d+\.\d+(\.\d+)?$') 'Invalid development checkpoint ref'
+  Assert ($parentBranch -match '^dev/v\d+\.\d+\.\d+(\.\d+)?$') 'Invalid checkpoint parent ref'
+  Assert ($parentHash -match '^[0-9a-f]{40}$') 'Invalid checkpoint parent object'
+  $parentRef='refs/heads/'+$parentBranch
+  $branchRef='refs/heads/'+$branch
+  $actualParent=(& $git -C $Source rev-parse --verify $parentRef | Out-String).Trim().ToLowerInvariant()
+  Assert ($LASTEXITCODE -eq 0 -and $actualParent -eq $parentHash) 'Expected verified development parent is not present'
+  $already=(& $git -C $Source show-ref --verify --quiet $branchRef);Assert ($LASTEXITCODE -ne 0) ('Development ref already exists: '+$branchRef)
+  $previousIndex=[Environment]::GetEnvironmentVariable('GIT_INDEX_FILE','Process')
+  $previousWork=[Environment]::GetEnvironmentVariable('GIT_WORK_TREE','Process')
+  $index=Join-Path $job 'checkpoint.index'
+  try{
+    [Environment]::SetEnvironmentVariable('GIT_INDEX_FILE',$index,'Process')
+    [Environment]::SetEnvironmentVariable('GIT_WORK_TREE',$staged,'Process')
+    Run $git @('-C',$Source,'read-tree',$parentRef) 'Cannot initialize isolated development index'
+    foreach($file in $manifest.files){Run $git @('-C',$Source,'add','--',[string]$file.path) 'Cannot stage development checkpoint payload'}
+    $tree=(& $git -C $Source write-tree | Out-String).Trim().ToLowerInvariant()
+    Assert ($LASTEXITCODE -eq 0 -and $tree -match '^[0-9a-f]{40}$') 'Cannot create isolated development tree'
+    $checkpoint=(& $git -C $Source commit-tree $tree -p $parentHash -m ('Verified development candidate '+$release) | Out-String).Trim().ToLowerInvariant()
+    Assert ($LASTEXITCODE -eq 0 -and $checkpoint -match '^[0-9a-f]{40}$') 'Cannot create development checkpoint commit'
+  }finally{
+    [Environment]::SetEnvironmentVariable('GIT_INDEX_FILE',$previousIndex,'Process')
+    [Environment]::SetEnvironmentVariable('GIT_WORK_TREE',$previousWork,'Process')
+  }
+  # The zero old-id forbids overwriting an existing branch. No remote push,
+  # production tag or active runtime activation occurs during Validate.
+  Run $git @('-C',$Source,'update-ref',$branchRef,$checkpoint,('0'*40)) 'Cannot atomically install development checkpoint ref'
+  Assert ((& $git -C $Source rev-parse HEAD | Out-String).Trim().ToLowerInvariant() -eq $oldHead) 'Main checkout changed during checkpoint creation'
+  Write-Host ('RECOMPDEV_DEV_CHECKPOINT='+$branch)
+  Write-Host ('RECOMPDEV_DEV_COMMIT='+$checkpoint)
+  Write-Host 'RECOMPDEV_DEV_MAIN_UNCHANGED=TRUE'
+}
+
 function RestoreTransaction {
   if($runtimeTouched){
     foreach($item in $runtimeSnapshot){
@@ -275,6 +317,10 @@ try {
   if($Mode -eq 'Install'){
     Assert ($manifest.promotion_eligible -eq $true) ('Release is CANDIDATE/BLOCKED: '+[string]$manifest.promotion_blocker)
     Assert (@($manifest.required_acceptance_tests).Count -gt 0) 'Promotion requires explicit named acceptance tests'
+    # Never interpret an infrastructure-source release as native-game qualification.
+    Assert ([string]$manifest.release_track -eq 'infrastructure-source') 'This installer requires a separately qualified release track for runtime activation'
+    Assert ([string]$manifest.promotion_scope -eq 'git-main-only-no-runtime') 'Ambiguous infrastructure promotion scope'
+    Assert ($manifest.gameplay_qualified -eq $false) 'Infrastructure release must not claim gameplay qualification'
   }
   Write-Host "RECOMPDEV_RELEASE_TARGET=$release"
   Write-Host 'RECOMPDEV_PHASE=CANONICAL_GIT_STAGING'
@@ -341,9 +387,53 @@ try {
   Write-Host "RECOMPDEV_BINARY_HASHES=$inventoryFile"
   Write-Host 'RECOMPDEV_TESTS=PASS'
   if($Mode -eq 'Validate'){
+    Write-Host 'RECOMPDEV_PHASE=DEV_CHECKPOINT'
+    WriteDevelopmentCheckpoint
     Write-Host ('RECOMPDEV_CANDIDATE_RESULT=VALIDATED_NOT_INSTALLED')
     Write-Host ('RECOMPDEV_PROMOTION_STATUS='+[string]$manifest.promotion_blocker)
     Write-Host 'RECOMPDEV_ACTIVE_RUNTIME_UNCHANGED=TRUE'
+    $releaseOk=$true
+  }elseif($manifest.release_track -eq 'infrastructure-source'){
+    # v0.4.9.17: infrastructure source promotion is deliberately separate from
+    # game runtime qualification. This transaction never copies EXEs/DLLs or
+    # updates active-components.json. Build artifacts remain in release evidence.
+    Write-Host 'RECOMPDEV_PHASE=INFRASTRUCTURE_SOURCE_PROMOTION'
+    $stateFile=Join-Path $runtimeRoot 'active-components.json'
+    $stateHash=if(Test-Path -LiteralPath $stateFile -PathType Leaf){Hash $stateFile}else{''}
+    New-Item -ItemType Directory -Path $backup -Force | Out-Null
+    foreach($entry in $manifest.files){
+      $rel=[string]$entry.path
+      $target=Join-Path $Source ($rel.Replace('/','\'))
+      $exists=Test-Path -LiteralPath $target -PathType Leaf
+      $saved=Join-Path $backup ('source\'+$rel.Replace('/','\'))
+      if($exists){
+        New-Item -ItemType Directory -Path (Split-Path -Parent $saved) -Force | Out-Null
+        Copy-Item -LiteralPath $target -Destination $saved -Force
+      }
+      $sourceSnapshot+= [pscustomobject]@{path=$target;existed=$exists;saved=$saved}
+    }
+    $changedSource=$true
+    CopySourceToCheckout $manifest.files
+    foreach($entry in $manifest.files){Run $git @('-C',$Source,'add','--',[string]$entry.path) 'Cannot stage infrastructure source'}
+    Run $git @('-C',$Source,'commit','-m',([string]$manifest.commit_message)) 'Infrastructure source commit failed'
+    $madeCommit=$true
+    $newHead=(& $git -C $Source rev-parse HEAD | Out-String).Trim()
+    Assert ($LASTEXITCODE -eq 0 -and $newHead -ne $oldHead) 'Source promotion did not create a commit'
+    Run $git @('-C',$Source,'tag','-a',$tag,'-m',('Validated infrastructure source '+$tag)) 'Infrastructure tag failed'
+    $madeTag=$true
+    $gitBundle=Join-Path $archiveRoot ('git-backups\'+($tag.Replace('/','_'))+'-'+$newHead.Substring(0,12)+'.bundle')
+    New-Item -ItemType Directory -Path (Split-Path -Parent $gitBundle) -Force | Out-Null
+    Run $git @('-C',$Source,'bundle','create',$gitBundle,'--all') 'Source rollback backup failed'
+    Run $git @('-C',$Source,'bundle','verify',$gitBundle) 'Source rollback backup invalid'
+    Assert ((& $git -C $Source rev-list -n 1 $tag | Out-String).Trim() -eq $newHead) 'Infrastructure Git tag mismatch'
+    Assert ((& $git -C $Source status --porcelain --untracked-files=all | Out-String).Trim() -eq '') 'Checkout dirty following infrastructure promotion'
+    Assert ($(if(Test-Path -LiteralPath $stateFile -PathType Leaf){Hash $stateFile}else{''}) -eq $stateHash) 'Active runtime lockfile changed unexpectedly'
+    Write-Host 'RECOMPDEV_RELEASE_RESULT=INFRASTRUCTURE_SOURCE_INSTALLED'
+    Write-Host 'RECOMPDEV_RUNTIME_QUALIFIED=FALSE'
+    Write-Host 'RECOMPDEV_ACTIVE_RUNTIME_UNCHANGED=TRUE'
+    Write-Host "RECOMPDEV_GIT_COMMIT=$newHead"
+    Write-Host "RECOMPDEV_GIT_TAG=$tag"
+    Write-Host "RECOMPDEV_GIT_BACKUP=$gitBundle"
     $releaseOk=$true
   }else{
     Write-Host 'RECOMPDEV_PHASE=ACTIVATE_AFTER_TESTS'

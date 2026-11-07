@@ -1,10 +1,12 @@
 """End-to-end direct compiled controller -> original discovery Python service."""
-import json,subprocess,sys,tempfile,shutil
+import json,subprocess,sys,tempfile,shutil,re
 from pathlib import Path
 exe=Path(sys.argv[1]).resolve(strict=True)
 root=Path(sys.argv[2]).resolve(strict=True)
 version=subprocess.run([str(exe),'--version'],text=True,capture_output=True,timeout=20)
-assert version.returncode==0 and '0.4.6' in version.stdout,version
+assert version.returncode==0,version
+reported=re.search(r'RecompDev\s+(\d+)\.(\d+)\.(\d+)(?:\.(\d+))?',version.stdout)
+assert reported and tuple(int(x) for x in reported.groups() if x is not None)>=(0,4,8),version
 registry=subprocess.run([str(exe),'--plugins'],text=True,capture_output=True,timeout=30)
 assert registry.returncode==0 and 'legacy.discovery' in registry.stdout,registry.stderr
 sample=root/'harness/examples/recomp-pcode/synthetic.sms'

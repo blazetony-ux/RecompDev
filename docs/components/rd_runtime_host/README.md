@@ -1,6 +1,6 @@
 # rd_runtime_host — generic native presentation host
 
-**Scope:** `production-presentation`, canonical independent component version in [`workspace/components.json`](../../../workspace/components.json). Host library built from `runtime_host/src/host.cpp`, public C ABI in `runtime_host/include/rd_runtime_host.h`. Target `rd_runtime_host` can be compiled and activated without rebuilding the controller, Z80 or machine plugins.
+**Scope:** `production-presentation`, canonical independent component version in [`workspace/components.json`](../../../workspace/components.json). Host library built from `runtime_host/src/host.cpp` and linked by newly generated native games, public C ABI in `runtime_host/include/rd_runtime_host.h`. Target `rd_runtime_host` can be compiled and activated without rebuilding the controller, Z80 or machine plugins.
 
 ## Responsibilities and boundaries
 
@@ -19,3 +19,7 @@ The existing legacy native application supplies the **same guest-generated frame
 Windows acceptance: build only `rd_runtime_host` and `rd_runtime_host_smoke`, pass the portable smoke plus existing tests, install the versioned DLL, and use `tools/Run-Native-Game.ps1` with the previous 600-frame native project. First real-game launch requires Windows validation and might uncover additional native input/hardware issues. Close with Escape; wait for `RECOMPDEV_EVIDENCE_ZIP` to upload diagnostics.
 
 See [the component changelog](CHANGELOG.md), [release notes](../../releases/v0.4.8.md) and [project handover](../../project/HANDOVER.md).
+
+## v0.4.9.10 maintained-runtime cutover (0.1.1)
+
+The newly generated full native project uses `runtime_sms/templates` and its CMake build links independent SMS state/video/host DLL targets. It **does not** compile or copy the frozen original runtime. This is a source dependency migration, not evidence of equivalent 1,800-frame Shinobi graphics, control or generic machine-ABI parity; verification remains blocked. See [runtime component](../rd_sms_native_runtime/README.md) and [candidate release](../../releases/v0.4.9.10.md).

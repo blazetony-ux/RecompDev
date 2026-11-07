@@ -1,3 +1,7 @@
+## v0.4.9.16 — accumulate authenticated recovery, not shell commands
+
+Following v0.4.9.15 owner 60/60 Windows acceptance and genuine Shinobi two-session 64-frame job, v0.4.9.16 retains earlier imported evidence rather than discarding it between batches. **Real-ROM acceptance still pending.** Future work: second ROM, graphics/audio/input parity, 1,800-frame target, complete native provider ABIs and zero active frozen dependencies. No broadening into ROM-specific patches. See [prebuild](PREBUILD-v0.4.9.16.md).
+
 ## 2026-11-06 — native existing-functionality migration
 
 - **Implemented in v0.4.9.9 source candidate:** controller directly executes existing hash-verified P-code game DLL through shared native harness runner; Z80 source decoder now recognises documented prefixed opcodes; original SMS mapper state is used via hardware DLL. Linux acceptance does not establish Shinobi gameplay parity.
@@ -85,3 +89,39 @@ The permanent Git-controlled `Install-RecompDev-Release.ps1` with externally SHA
 ## Owner-requested v0.4.9.8 installation gate (2026-11-06)
 
 The Windows owner has passed 45/45 native CTests, docs/Python checks and original 642/642 frozen histories in `Validate` mode. As explicitly requested, v0.4.9.8 is re-scoped as an **installable native-discovery milestone** (controller + SMS/MD/PS1 format plugins + conservative Z80 and SMS extensions + permanent Git-managed release script). The next activity is to exercise `Install` end to end and verify actual Git commit, `workspace/v0.4.9.8` tag, verified bundle and active binary SHA lockfile. Only then begin the real-ROM source block -> full preserved P-code -> native C++ build integration as the next milestone. Re-scoping release acceptance is not a claim that native translation is implemented.
+
+## v0.4.9.10 — compiled P-code translation migration (candidate, real-ROM gate BLOCKED)
+
+Compiled controller and `rd_translation_pcode` DLL now generate and build the full preserved nativepilot application or interchangeable game DLL from source-verified Ghidra exports. Fixture differential against original generator passes locally. The mandatory next acceptance is owner real Shinobi original ROM plus original authentic Ghidra base export and old bank recovery evidence, fresh native compilation through the new controller, then deterministic execution compared with observed 1,800-frame legacy run and a second Master System game. Until proven, auto-recovery, full Ghidra disassembly and hardware runtime plugin migration remain top priority, not new release engineering or generic monitor work. See [full release record](../releases/v0.4.9.10.md).
+
+## v0.4.9.10 active SMS runtime cutover status (2026-11-07)
+
+Compiled maintained SMS state/video/host boundaries are working on Linux synthetic fixtures. The real 120-frame Shinobi display predates this cutover; require a fresh Windows Shinobi native project with these independent DLLs, repeat 1,800-frame deterministic input and image comparison, verify a second Master System ROM, and finish replacing Python analysis/recovery services. Do not promote a synthetic-only candidate.
+
+
+## v0.4.9.11 architectural integration and outstanding promotion gates (2026-11-07)
+
+**Current:** Compiled controller starts authorized Ghidra/Rizin analysis providers via temporary source-only adapter; reconciled, hash-bound entries enter native CPU/mapper discovery, generated native project translation/build and bounded application-stop recovery. Verified by two synthetic ROMs, not two real games. **Next:** Windows real Ghidra/Rizin execution, native processor/platform provider ABI with zero hardcoded SMS/Z80 entrypoint in universal controller, persistent cross-run source-hash evidence index and whole reachable-bank discovery; verify autonomous 1,800-frame Shinobi plus second unrelated real ROM. Do not release based solely on manual single-instruction recovery. Full game parity, input/video/audio and native ABI remain BLOCKED.
+
+
+## From v0.4.9.12 onward — compulsory legacy dependency exit (owner direction)
+
+v0.4.9.12 only hardens Rizin serialization within the active provider boundary. The **next builds must eliminate dependency on frozen Python/scripts in production**, not merely wrap them again. Keep `legacy/` and `baselines/` immutable for reference/differential tests. Order work by verified interface and parity gates, not arbitrary version promises: (1) replace Rizin subprocess execution/authorization and aflj parser with an independently versioned native analysis-provider process ABI; (2) migrate Ghidra invocation, byte-attested P-code export and reconciliation into maintained native provider contracts, retaining Ghidra as an external analysis tool where needed; (3) move Python orchestration/recovery and evidence approval into compiled controller/native DLL providers; (4) eliminate active runtime imports from frozen modules and test with frozen tree intentionally unavailable while preserving independent differential tests. Require multi-CPU fixtures and real Master System regression before each cutover. Details and dependency inventory: [legacy exit plan](../architecture/LEGACY-EXIT-PLAN.md).
+
+## v0.4.9.13 — Rizin independent provider and controlled Git checkpoint
+
+Source candidate replaces the active archived Rizin runner and tool authorization with maintained subprocess, strict aflj+ANSI evidence and versioned Python contract, without altering compiled controller/plugin ABIs. The reported Windows `ESC[2K` issue is now covered by synthetic tests. Next acceptance: owner Windows Validate and real Ghidra/Rizin run under new evidence directory with correct source hash, then independent second-ROM and 1800-frame parity checks before promotion. Release source remains non-promotable until all mandatory gates pass. Preserve a separate Git development branch checkpoint to prevent lost uncommitted progress; never equate a checkpoint with installed stable binaries.
+
+**Next architectural priorities:** RecompDev-owned Ghidra exporter and normalized IR/reconciliation, then compiled analysis-provider ABI and controller-native recovery scheduler; enforce zero archived production imports in staged production-execution tests while retaining all historic files for regression comparisons.
+
+## v0.4.9.14 — recovery history import and Ghidra dependency reduction
+
+Maintained Ghidra process/export/scripts, source-byte checks and reconciliation replace the frozen analysis imports in this component. Import prior stops/bank overlays through immutable evidence replay in new runs, not binary/process checkpoint restoration. Qualify owner Windows real Shinobi restart and second ROM; move iteration and import enforcement into the compiled controller/provider ABI, remove remaining frozen imports in production translation/discovery, then prove complete parity.
+
+## v0.4.9.15 — controller-owned persistent jobs (candidate)
+
+The native controller now accepts `run`, `resume`, `status`, `inspect`, `configure`, owns the persistent per-ROM job registry and automatically chains immutable verified analysis/translation/execute/recovery **batches** with source SHA and stagnation checks. The temporary Python per-batch analyzer adapter must be retired through a true compiled versioned provider ABI; logging is controller-structured JSONL today, not yet universal per-plugin event streaming. Owner v0.4.9.14 Shinobi verification showed improvement from 67 to 894 frames using 4 authenticated prior stop overlays; 1,800-frame target and gameplay parity remain unproven. Second unrelated real ROM, native analysis-provider ABI, zero-frozen-import gate and git-main promotion remain mandatory acceptance.
+
+## v0.4.9.17 infrastructure track: consolidation and missing legacy integrations
+
+New acceptance split: SHA-pinned source-only Git main/tag promotion after full Windows regression; 1,800-frame Shinobi/hardware parity remain independently blocked for game runtime. Controller workspace/evidence ZIP, read-only catalogue inventory and accountable migration register establish operator/migration baseline. Next: full compiled analysis provider ABI, asset provider contracts, verified catalogue import, multi-ROM campaign, controller-authorised Workbench and full legacy test coverage. Do not treat status `independent` as `qualified` until differential tests pass.

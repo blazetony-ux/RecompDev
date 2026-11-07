@@ -26,3 +26,13 @@ Release claims must distinguish cross-platform CI/local tests, owner Windows log
 - [v0.4.9.4 — Generic state observation](v0.4.9.4.md): reusable memory-region telemetry through replaceable providers.
 
 - [v0.4.9.5 — Controller live execution monitor](v0.4.9.5.md): one controller event interface, independent live GUI, bounded instruction samples.
+
+- [v0.4.9.10 — Native compiled P-code generation and full runtime translation candidate (real-ROM acceptance BLOCKED)](v0.4.9.10.md): source-attested Ghidra P-code to full nativepilot/game DLL and historical differential fixture testing, owner Shinobi parity not established.
+
+- [v0.4.9.11 — Universal analysis & bounded native recovery integration (validation only; promotion BLOCKED)](v0.4.9.11.md): compiled orchestration entry and Ghidra/Rizin compatibility providers, source-based recovery evidence and generic synthetic cross-target regression.
+
+- [v0.4.9.13 — Direct maintained Rizin provider and offline Git consolidation candidate (promotion blocked)](v0.4.9.13.md): removes legacy Rizin runner, validates ANSI+warning output, does not install to live Git.
+
+- [v0.4.9.15 — Compiled controller job lifecycle, recovery continuation and structured logging (validation-only)](v0.4.9.15.md): native job manager and CLI, Python per-batch analyzer retained; Windows and parity gates BLOCKED.
+
+- [v0.4.9.16 — Cumulative authenticated recovery and one-package dev checkpoint (candidate)](v0.4.9.16.md): source-verified recovery ledger, optional prior history import and isolated Git ref after Windows validation.

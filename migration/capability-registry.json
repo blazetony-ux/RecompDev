@@ -20,7 +20,11 @@
       ],
       "new_boundary": "original build-time generator + game DLL, future ISA executors",
       "status": "partial",
-      "qualification": "Z80 verified export sample, other ISA legacy regression preserved"
+      "qualification": "Z80 verified export sample, other ISA legacy regression preserved",
+      "owner": "translation_pcode and platform CPU providers",
+      "migration_state": "adapter",
+      "acceptance_test": "PENDING differential ownership test; historical baseline remains",
+      "exit_criteria": "Diff original Z80, M68K and MIPS fixtures and independent runtime semantics"
     },
     {
       "name": "SMS machine and hardware",
@@ -32,7 +36,11 @@
       ],
       "new_boundary": "rd_machine_sms DLL built against original runtime source",
       "status": "partial",
-      "qualification": "synthetic parity only; original hardware tests retained"
+      "qualification": "synthetic parity only; original hardware tests retained",
+      "owner": "rd_machine_sms",
+      "migration_state": "adapter",
+      "acceptance_test": "PENDING differential ownership test; historical baseline remains",
+      "exit_criteria": "Verify VDP, mapper, IRQ, PSG, input and reference hardware parity"
     },
     {
       "name": "Discovery/recovery/campaign",
@@ -44,7 +52,11 @@
       ],
       "new_boundary": "Original discovery.engine, nativeprep.engine and continuous-recovery-v0445.py executable through independently registered modular services; source never rewritten",
       "status": "partial",
-      "qualification": "Original/modular discovery comparison, original native C++ pilot invoked, no real owner ROM or Ghidra prepared"
+      "qualification": "Original/modular discovery comparison, original native C++ pilot invoked, no real owner ROM or Ghidra prepared",
+      "owner": "discovery_integration and controller",
+      "migration_state": "adapter",
+      "acceptance_test": "PENDING differential ownership test; historical baseline remains",
+      "exit_criteria": "Run native multi-game campaign and source-verified discovery parity"
     },
     {
       "name": "Ghidra and analysis tools",
@@ -56,7 +68,11 @@
       ],
       "new_boundary": "original analyses retained as external services and direct P-code export verifier",
       "status": "partial",
-      "qualification": "no all-systems end-to-end Ghidra export demonstrated"
+      "qualification": "no all-systems end-to-end Ghidra export demonstrated",
+      "owner": "analysis_integration",
+      "migration_state": "adapter",
+      "acceptance_test": "PENDING differential ownership test; historical baseline remains",
+      "exit_criteria": "Move analyzer execution into compiled ABI, verify real tools and output"
     },
     {
       "name": "Historical evidence & catalogues",
@@ -69,7 +85,11 @@
       ],
       "new_boundary": "immutable original source, file hashes, read-only schema check and verified copy",
       "status": "preserved",
-      "qualification": "owner-local external evidence not in release"
+      "qualification": "owner-local external evidence not in release",
+      "owner": "migration and knowledge inventory",
+      "migration_state": "preserved",
+      "acceptance_test": "PENDING differential ownership test; historical baseline remains",
+      "exit_criteria": "Inventory owner-local and bundled databases, preserve source hashes and row counts"
     },
     {
       "name": "Mega Drive and PlayStation work",
@@ -81,7 +101,11 @@
       ],
       "new_boundary": "preserved profiles and analysis artifacts, not runnable machine plugins",
       "status": "preserved",
-      "qualification": "no complete console implementation claim"
+      "qualification": "no complete console implementation claim",
+      "owner": "format_md and format_ps1",
+      "migration_state": "preserved",
+      "acceptance_test": "PENDING differential ownership test; historical baseline remains",
+      "exit_criteria": "Ship independent native CPU and machine providers with real second ROM tests"
     },
     {
       "name": "Tests and governance",
@@ -93,7 +117,111 @@
       ],
       "new_boundary": "immutable legacy regressions, subset runner on disposable copy, modular suite",
       "status": "partial",
-      "qualification": "full original test suite still required"
+      "qualification": "full original test suite still required",
+      "owner": "workspace governance",
+      "migration_state": "adapter",
+      "acceptance_test": "PENDING differential ownership test; historical baseline remains",
+      "exit_criteria": "Map all 84 legacy tests to maintained or differential equivalents"
+    },
+    {
+      "name": "Diagnostic archive and privacy",
+      "legacy_paths": [
+        "modular/evidence_bundle.py",
+        "modular/cli.py"
+      ],
+      "new_boundary": "controller plus workspace.diagnostics_export",
+      "status": "partial",
+      "owner": "controller plus workspace.diagnostics_export",
+      "migration_state": "independent",
+      "qualification": "Redacted per-job JSON ZIP; full raw Ghidra/Rizin logs intentionally excluded",
+      "acceptance_test": "v04917_controller_diagnostics_export",
+      "exit_criteria": "Ensure compiled controller produces ZIP on real-ROM recovery limits and verify no secrets"
+    },
+    {
+      "name": "Workspace and job persistence",
+      "legacy_paths": [
+        "docs/architecture/ARCHITECTURE-CONTRACT.md",
+        "modular/controller.py"
+      ],
+      "new_boundary": "controller.native_job",
+      "status": "partial",
+      "owner": "controller.native_job",
+      "migration_state": "independent",
+      "qualification": "Configurable external workspace and AppData legacy registry fallback",
+      "acceptance_test": "v04915_compiled_controller_job_manager",
+      "exit_criteria": "Owner Windows workspace migration and legacy job access acceptance"
+    },
+    {
+      "name": "Asset discovery and export",
+      "legacy_paths": [
+        "legacy/RecompDev-v0.4.0.45/discovery",
+        "modular/asset_decoders"
+      ],
+      "new_boundary": "discovery_integration, planned asset-provider ABI",
+      "status": "partial",
+      "owner": "discovery_integration, planned asset-provider ABI",
+      "migration_state": "adapter",
+      "qualification": "Structure inspection exists; all-console extraction/preview not controller-owned",
+      "acceptance_test": "PENDING asset output differential fixtures",
+      "exit_criteria": "Restore task scheduling, TIM, MD tiles, confidence states and closure export"
+    },
+    {
+      "name": "Knowledge catalogue integration",
+      "legacy_paths": [
+        "legacy/RecompDev-v0.4.0.45/catalogue.sqlite",
+        "migration/controller.py"
+      ],
+      "new_boundary": "migration.knowledge_inventory and planned shared knowledge provider",
+      "status": "partial",
+      "owner": "migration.knowledge_inventory and planned shared knowledge provider",
+      "migration_state": "adapter",
+      "qualification": "Read-only SHA-256/table row inventory, not yet unified with jobs",
+      "acceptance_test": "v04917_migration_register_inventory",
+      "exit_criteria": "Source-attested import and reconciliation of owner-local knowledge without mutating records"
+    },
+    {
+      "name": "Operator Workbench and monitor",
+      "legacy_paths": [
+        "legacy/RecompDev-v0.4.0.45/workbench.py",
+        "workbench",
+        "execution_monitor"
+      ],
+      "new_boundary": "controller diagnostics event API and future operator UI",
+      "status": "partial",
+      "owner": "controller diagnostics event API and future operator UI",
+      "migration_state": "adapter",
+      "qualification": "Read-only workbench and monitor exist, native job controls not unified",
+      "acceptance_test": "PENDING end-to-end operator UI test",
+      "exit_criteria": "Reintegrate authorised task controls, previews, cancel, ZIP downloads"
+    },
+    {
+      "name": "Native gameplay qualification",
+      "legacy_paths": [
+        "legacy/RecompDev-v0.4.0.45/nativecore",
+        "runtime_sms",
+        "translation_pcode"
+      ],
+      "new_boundary": "CPU/platform providers and controller qualification track",
+      "status": "partial",
+      "owner": "CPU/platform providers and controller qualification track",
+      "migration_state": "adapter",
+      "qualification": "Real Shinobi 896-frame frontier only; 1800-frame semantic parity NOT verified",
+      "acceptance_test": "PENDING real two-ROM gameplay parity",
+      "exit_criteria": "Independent input/VDP/PSG/IRQ parity, ROM-independent native application"
+    },
+    {
+      "name": "Git and release promotion",
+      "legacy_paths": [
+        "Install-RecompDev-Release.ps1",
+        "release/tests"
+      ],
+      "new_boundary": "release_installer",
+      "status": "partial",
+      "owner": "release_installer",
+      "migration_state": "independent",
+      "qualification": "One-package development validation and source-only infrastructure promotion",
+      "acceptance_test": "v04917_infrastructure_release_policy",
+      "exit_criteria": "Owner Windows Install transaction verified, GitHub push separately approved"
     }
   ],
   "external_evidence": {
@@ -103,5 +231,9 @@
       "RecompDev-Data/verified-coverage-v0443.sqlite"
     ],
     "treatment": "inventory owner-local files separately, never overwrite or claim zero-loss for unprovided evidence"
+  },
+  "release_track_policy": {
+    "infrastructure_source": "After full Windows CTest may update Git main/source tag; never activate unqualified runtime DLLs.",
+    "gameplay_qualification": "1,800 Shinobi frames with independent hardware/input/audio parity, second real ROM and compiled analysis ABI remain BLOCKED."
   }
 }

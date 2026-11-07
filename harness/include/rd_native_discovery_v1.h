@@ -42,6 +42,17 @@ typedef struct RD_Z80DecodeV1 {
  uint8_t reserved[2];
 } RD_Z80DecodeV1;
 typedef int (*RD_Z80DecodeFnV1)(const RD_SourceV1*,uint64_t physical,uint16_t pc,RD_Z80DecodeV1*);
+/* Optional CPU-owned architectural entry points. A reset vector, a maskable
+   IRQ vector and an NMI vector are *candidates*, never assertions that the
+   ROM contains verified executable code at those addresses. The controller
+   verifies every source byte through the independent decoder before admission. */
+typedef struct RD_Z80EntryPointsV1 {
+ uint32_t abi_version,struct_size,count;
+ uint16_t pc[8];
+ uint8_t kind[8]; /* 0=reset, 1=maskable IRQ, 2=NMI */
+} RD_Z80EntryPointsV1;
+typedef int (*RD_Z80EntryPointsFnV1)(RD_Z80EntryPointsV1*);
+
 /* 1=unambiguously mapped, 0=bank context required, -1=outside ROM/RAM. */
 typedef int (*RD_SmsResolveFnV1)(uint16_t guest,uint64_t source_size,uint64_t *physical);
 /* Optional source-exact mapping snapshot: bank numbers and the control
@@ -71,6 +82,19 @@ typedef struct RD_Z80EffectV1 {
  uint8_t reserved[2];
 } RD_Z80EffectV1;
 typedef int (*RD_Z80AbstractFnV1)(const uint8_t*,uint32_t,RD_Z80AbstractV1*,RD_Z80EffectV1*);
+/* Optional ABI extension: explicit Z80 register-pair constant propagation.
+   Does not change the v1 structure or any existing plugin entrypoint.
+   A known indirect write is safe only if its whole range avoids FFFC-FFFF. */
+typedef struct RD_Z80AbstractV2 {
+ uint32_t abi_version,struct_size;
+ uint8_t known_a,a,known_sp,reserved;
+ uint16_t sp;
+ uint8_t reserved2[2];
+ uint8_t known_bc,known_de,known_hl,reserved3;
+ uint16_t bc,de,hl;
+} RD_Z80AbstractV2;
+typedef int (*RD_Z80AbstractFnV2)(const uint8_t*,uint32_t,RD_Z80AbstractV2*,RD_Z80EffectV1*);
+
 
 #ifdef __cplusplus
 }
