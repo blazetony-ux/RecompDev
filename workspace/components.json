@@ -1,17 +1,17 @@
 {
   "components": {
     "analysis_integration": {
-      "description": "Maintained Ghidra/Rizin source-attested providers with cumulative, immutable, independently reverified recovery-history ledger across controller sessions; temporary Python analysis bridge remains.",
+      "description": "Maintained Ghidra/Rizin providers with source/tool/provider-hash verified initial-analysis reuse and newest-attested-stop-first recovery; cumulative history reattested; Python adapter remains.",
       "kind": "tooling",
       "scope": "production-workflow",
-      "version": "0.3.1"
+      "version": "0.3.2"
     },
     "controller": {
-      "description": "Compiled controller-managed configurable workspaces, legacy AppData job lookup and automatic bounded redacted diagnostic ZIP orchestration, preserving source-attested native job recovery.",
+      "description": "Compiled controller job manager with versioned evidence root, backward-compatible legacy job lookup, secure current-release diagnostics routing and source-attested recovery priority scheduling.",
       "kind": "controller",
       "scope": "production-entrypoint",
       "target": "RecompDev",
-      "version": "0.4.13"
+      "version": "0.4.14"
     },
     "controller_diagnostics": {
       "description": "Single authenticated controller-owned local diagnostics event protocol, bounded subscriptions and history; orchestrated by runtime launcher, no compiled controller binary changes",
@@ -199,10 +199,10 @@
       "version": "0.1.0"
     },
     "release_installer": {
-      "description": "One-ZIP Git-managed transactional installer with explicit infrastructure-source-only main promotion, separate unqualified runtime activation and unchanged gameplay acceptance gates.",
+      "description": "Transactional one-ZIP installer with safe main-parent infrastructure Validate checkpoints and separate source-only Git promotion; full Windows tests and runtime immutability mandatory.",
       "kind": "tooling",
       "scope": "workspace",
-      "version": "1.2.0"
+      "version": "1.2.1"
     },
     "runtime_host_integration": {
       "description": "Generated native-project monitor staging, controller service launch and evidence integration; does not change compiled host DLL",
@@ -229,12 +229,12 @@
       "version": "0.1.0"
     },
     "workspace_governance": {
-      "description": "Mandatory legacy capability ownership register, protected diagnostic export and separate infrastructure/gameplay release tracks.",
+      "description": "Verified address-only diagnostic coverage deltas and recovery stop classifications, source-only infrastructure promotion from exact main Git baseline, migration registry and historical preservation gates.",
       "kind": "tooling",
       "scope": "workspace",
-      "version": "0.1.8"
+      "version": "0.1.9"
     }
   },
   "schema": "recompdev-components-v1",
-  "workspace_release": "v0.4.9.17"
+  "workspace_release": "v0.4.9.18"
 }

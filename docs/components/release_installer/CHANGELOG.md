@@ -1,5 +1,12 @@
 # release_installer — component changelog
 
+## [1.2.1] - 2026-11-07
+
+- **Changed:** Source-only `Validate` checkpoints can use the exact, verified `main` baseline as parent when no `dev/v0.4.9.17` branch was created by an `Install`-only promotion. Reject this parent for gameplay/runtime release tracks or mismatched baseline hashes.
+- **Validation:** Isolated-index checkpoint test and explicit-main-parent source policy; full Windows end-to-end test and Git main/tag/rollback still owner gates.
+- **Compatibility:** One ZIP, unchanged production EXE/DLL/lockfile on source-only promotion; no GitHub push.
+
+
 ## [1.2.0] - 2026-11-07
 
 - **Changed:** Explicit `infrastructure-source` release track with `git-main-only-no-runtime` promotion scope. After exact package hash, source preservation, governance and full named Windows CTests, `-Mode Install` may update source `main` and a Git tag while deliberately leaving active runtime EXE/DLLs and lockfile untouched. The Shinobi 1,800-frame qualification is retained for separately approved gameplay-runtime acceptance.

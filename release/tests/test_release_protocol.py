@@ -69,7 +69,7 @@ class ReleaseProtocolTests(unittest.TestCase):
         doc=json.loads((ROOT/'workspace/components.json').read_text())
         self.assertRegex(doc['workspace_release'], r'^v0\.4\.9\.(?:[8-9]|[1-9]\d+)$')
         self.assertEqual(doc['components']['release_installer']['scope'],'workspace')
-        self.assertEqual(doc['components']['release_installer']['version'],'1.2.0')
+        self.assertEqual(doc['components']['release_installer']['version'],'1.2.1')
 
     def test_baseline_and_documented_first_bootstrap(self):
         p=(ROOT/'docs/development/RELEASE-PROCESS.md').read_text()

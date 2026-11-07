@@ -33,3 +33,7 @@ Versioned installer and development-contract checks use numeric version tuples, 
 ## Migration and release acceptance split
 
 `migration/register_check.py` enforces 14 source-mapped capability owners with explicit migration state and exit criteria. Read-only `migration/knowledge_inventory.py DATABASE.sqlite` emits schema row counts and database hash, never data records. Source-only infrastructure promotion does not satisfy Shinobi 1,800-frame native gameplay/VDP/PSG parity.
+
+## v0.4.9.18 compact coverage evidence
+
+`workspace/diagnostics_export.py` computes bounded `coverage-diff.json` from only exact source-matched generated translation manifests; archives address/length counts and reported execution stop PCs/mapper states, not P-code, ROM bytes, raw analyzer output or binaries. Includes versioned evidence-root routing and historical job compatibility checks. Missing old translation reports are marked `UNAVAILABLE`, not treated as proof of equal code coverage.

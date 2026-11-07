@@ -1,5 +1,14 @@
 # RecompDev handover — source-of-truth status
 
+## 2026-11-07 — v0.4.9.18 infrastructure source candidate, Windows validation required
+
+**Owner-verified latest stable:** v0.4.9.17 Git main `ab8745242c81e5e6cbb5754bac0d3710f289e4bc`, published to GitHub with tag `workspace/v0.4.9.17`; 65/65 Windows CTests; all 642 protected historical files identical, active runtime unchanged. Real Ghidra/Rizin Shinobi v0.4.9.16 job imported 894-frame history and reached 896 frames (6315→6320→6322 emitted instructions), with different untranslated banked region frontiers, no hardware/gameplay parity.
+
+**v0.4.9.18 work:** `controller/native_job.cpp` routes new jobs and *all* diagnostic ZIPs to current `<evidence-root>/v0.4.9.18`, while preserving lookups for older AppData and release-version job folders. Maintained `analysis_integration/analysis_reuse.py` copies initial Ghidra/Rizin analysis only after matching ROM, tool executable, provider-source/Java-script and Ghidra instruction hashes and re-reconciling Rizin hypotheses; altered/missing provenance triggers fresh analysis or fails closed, and recent verified stop seeds receive priority. `workspace/diagnostics_export.py` exports ROM-free `coverage-diff.json` with instruction-address deltas and frontier classifications. Offline analysis of owner cycle 2→3 translation manifests confirmed new physical addresses `0x184DA`, `0x184DB`, and next untranslated `0x187D1` at 896 frames. **This is evidence analysis, not a new real-ROM recovery run.**
+
+**Release:** Source-only Git main/tag promotion follows exact v0.4.9.17 main baseline; `Validate` can checkpoint from that baseline without a dev/v17 branch. No production EXE/DLL activation, no automatic GitHub push. Full Windows CTests, 642-file preservation and approved `Install` remain gating; 1,800-frame Shinobi, second ROM, semantic/hardware parity, compiled analysis ABI and unfinished legacy migration remain BLOCKED. See [prebuild](PREBUILD-v0.4.9.18.md) and [release](../releases/v0.4.9.18.md).
+
+
 ## 2026-11-07 — v0.4.9.16 candidate: cumulative recovery and one-ZIP release
 
 Owner v0.4.9.15 Windows MSVC 60/60 tests PASS; genuine two-cycle controller run reached 64 frames in each session. Existing v0.4.9.14 verified Ghidra/Rizin Shinobi evidence had reached 894/1800 frames. This candidate preserves **all** imported and new stop/bank evidence across bounded sessions with source-byte re-attestation; adds explicit `run --import-history DIR`, best-progress stagnation checks and isolated-index `dev/v0.4.9.16` checkpoint created only after validation from one SHA-pinned source ZIP. Main v0.4.9.9 and production remain unchanged; future Windows and parity tests still BLOCKED. See [release](../releases/v0.4.9.16.md) and [scope](PREBUILD-v0.4.9.16.md).

@@ -178,7 +178,14 @@ function WriteDevelopmentCheckpoint {
   $parentBranch=[string]$spec.parent_branch
   $parentHash=[string]$spec.parent_commit
   Assert ($branch -match '^dev/v\d+\.\d+\.\d+(\.\d+)?$') 'Invalid development checkpoint ref'
-  Assert ($parentBranch -match '^dev/v\d+\.\d+\.\d+(\.\d+)?$') 'Invalid checkpoint parent ref'
+  Assert ($parentBranch -eq 'main' -or $parentBranch -match '^dev/v\d+\.\d+\.\d+(\.\d+)?$') 'Invalid checkpoint parent ref'
+  if($parentBranch -eq 'main'){
+    # Source-only infrastructure releases validated from the promoted main
+    # baseline do not need an intervening dev/vN ref or a downloadable bundle.
+    Assert ([string]$manifest.release_track -eq 'infrastructure-source') 'Main-parent checkpoint only permitted for infrastructure source'
+    Assert ($parentHash -eq [string]$manifest.baseline_commit) 'Main-parent checkpoint baseline mismatch'
+    Assert ($oldHead -eq $parentHash) 'Main-parent checkpoint cannot move beyond validated HEAD'
+  }
   Assert ($parentHash -match '^[0-9a-f]{40}$') 'Invalid checkpoint parent object'
   $parentRef='refs/heads/'+$parentBranch
   $branchRef='refs/heads/'+$branch

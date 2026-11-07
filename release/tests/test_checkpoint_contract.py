@@ -17,6 +17,18 @@ class OnePackageCheckpointTests(unittest.TestCase):
         self.assertLess(script.index('Run $ctest @('), script.index('WriteDevelopmentCheckpoint\n', script.index("if($Mode -eq 'Validate')")))
         self.assertIn("$manifest.promotion_eligible -eq $true", script)
 
+    def test_v04918_main_parent_requires_verified_infrastructure(self):
+        script = (ROOT/'Install-RecompDev-Release.ps1').read_text(encoding='utf8')
+        start = script.index("if($parentBranch -eq 'main'){")
+        end = script.index('  Assert ($parentHash -match', start)
+        branch = script[start:end]
+        for check in ("$manifest.release_track -eq 'infrastructure-source'",
+                      '$parentHash -eq [string]$manifest.baseline_commit',
+                      '$oldHead -eq $parentHash'):
+            self.assertIn(check, branch)
+        self.assertIn("$parentBranch -eq 'main' -or $parentBranch -match", script)
+        self.assertIn("'GIT_INDEX_FILE'", script)
+
     def test_isolated_git_index_preserves_checked_out_main(self):
         with tempfile.TemporaryDirectory(prefix='recompdev-single-package-') as tmp:
             repo = Path(tmp)/'repo'; repo.mkdir()

@@ -21,12 +21,14 @@ SCHEMA = 'recompdev.controller.diagnostics.v1'
 MAX_SOURCE = 8 * 1024 * 1024
 MAX_TOTAL = 48 * 1024 * 1024
 MAX_SESSIONS = 16
-MAX_FILES = 100
+MAX_FILES = 160
+MAX_COVERAGE_INSTRUCTIONS = 250000
 PATH = re.compile(r'(?i)(?:[a-z]:[\\/]|\\\\[^\\/]+[\\/]|/(?:home|users|mnt|tmp|var|private|root)/)')
 SECRET = re.compile(r'(?i)(?:password|credential|secret|api[_-]?key|auth[_-]?token|access[_-]?token|bearer)')
 JOB_ID = re.compile(r'^job-[A-Za-z0-9_-]{1,96}$')
 SESSION = re.compile(r'^cycle-\d{2}$')
 STOP_FILE = re.compile(r'^round-\d{2}-observed-stop\.json$')
+ROUND_DIR = re.compile(r'^round-\d{2}$')
 
 
 def redact(value, key=''):
@@ -68,6 +70,80 @@ def sanitized_events(path: Path, root: Path) -> bytes:
     return ('\n'.join(out)+'\n').encode('utf-8')
 
 
+def coverage_snapshot(session: Path, root: Path, sha: str, previous: dict) -> tuple[dict, dict]:
+    """Derive bounded address-only instruction deltas from native translation results.
+
+    No source bytes, generated C++ or raw P-code enter the uploadable archive.
+    A missing manifest is explicitly recorded for historical or interrupted jobs.
+    """
+    rounds = [p for p in session.iterdir() if p.is_dir() and not p.is_symlink() and ROUND_DIR.fullmatch(p.name)]
+    if len(rounds) > 8:
+        raise ValueError('Too many translated rounds')
+    if not rounds:
+        return {'status': 'UNAVAILABLE', 'reason': 'NO_TRANSLATION_ROUNDS'}, previous
+    latest = max(rounds, key=lambda x: x.name)
+    source = latest / 'translation-manifest.json'
+    if not source.exists():
+        return {'status': 'UNAVAILABLE', 'reason': 'TRANSLATION_MANIFEST_MISSING'}, previous
+    if source.is_symlink() or not source.resolve(strict=True).is_relative_to(root):
+        raise ValueError('Translation manifest symlink/escape refused')
+    if source.stat().st_size > MAX_SOURCE:
+        raise ValueError('Translation manifest oversized')
+    doc = json.loads(source.read_text(encoding='utf8'))
+    if (doc.get('schema') != 'recompdev.native.pcode.generated.v1' or
+        doc.get('source_sha256') != sha):
+        raise ValueError('Translation manifest source/schema mismatch')
+    accepted = doc.get('accepted_instructions')
+    if (not isinstance(accepted, list) or len(accepted) > MAX_COVERAGE_INSTRUCTIONS or
+        doc.get('emitted') != len(accepted)):
+        raise ValueError('Translation manifest instruction count mismatch')
+    current = {}
+    for instruction in accepted:
+        if not isinstance(instruction, dict):
+            raise ValueError('Invalid translation address')
+        physical, pc, length = (instruction.get(k) for k in ('physical', 'pc', 'length'))
+        if (type(physical) is not int or type(pc) is not int or type(length) is not int or
+            not 0 <= physical < 64 * 1024 * 1024 or not 0 <= pc < 65536 or not 1 <= length <= 16):
+            raise ValueError('Invalid translation instruction coordinates')
+        key = (physical, pc)
+        if key in current and current[key] != length:
+            raise ValueError('Conflicting instruction coverage')
+        current[key] = length
+    added = sorted(({'physical': k[0], 'pc': k[1], 'length': v}
+                    for k, v in current.items() if k not in previous),
+                   key=lambda x: (x['physical'], x['pc']))
+    changed = sum(1 for k, length in current.items() if k in previous and previous[k] != length)
+    removed = sum(1 for k in previous if k not in current)
+    result = {'status': 'SOURCE_HASH_MATCHED_NOT_GAMEPLAY_QUALIFIED',
+              'translation_manifest_sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
+              'translation_round': latest.name, 'total_instructions': len(accepted),
+              'unique_physical_pc': len(current), 'new_addresses': added,
+              'new_count': len(added), 'removed_count': removed,
+              'changed_length_count': changed}
+    return result, current
+
+
+def recovery_frontiers(report: dict, accepted: dict) -> list[dict]:
+    """Observed execution stops only; no unverified inference about game semantics."""
+    rows = report.get('rounds', [])
+    if not isinstance(rows, list) or len(rows) > 8:
+        raise ValueError('Orchestration rounds missing or excessive')
+    out = []
+    for index, row in enumerate(rows, 1):
+        if not isinstance(row, dict):
+            raise ValueError('Invalid orchestration round')
+        pc, physical, mapper = row.get('pc'), row.get('physical_offset'), row.get('mapper')
+        if (type(pc) is not int or type(physical) is not int or not isinstance(mapper, list) or
+            len(mapper) != 4 or any(type(m) is not int for m in mapper)):
+            continue
+        status = row.get('status')
+        out.append({'round': index, 'pc': pc, 'physical_offset': physical,
+                    'mapper': mapper, 'reported_status': status,
+                    'in_translation_manifest': (physical, pc) in accepted,
+                    'qualification': 'RECORDED_STOP_NOT_GAMEPLAY_PARITY'})
+    return out
+
+
 def archive_job(job_dir: Path, out_dir: Path) -> dict:
     if job_dir.is_symlink():
         raise ValueError('Symlink controller job directory is forbidden')
@@ -106,6 +182,8 @@ def archive_job(job_dir: Path, out_dir: Path) -> dict:
         return {'path':str(archive),'sha256':digest,'files':len(manifest['files'])+1,'bytes':archive.stat().st_size}
 
     entries = [('job.json', sanitized_json(root/'job.json', root))]
+    coverage = []
+    previous_coverage = {}
     events = root/'events.jsonl'
     if events.exists():
         entries.append(('events.jsonl', sanitized_events(events, root)))
@@ -117,6 +195,20 @@ def archive_job(job_dir: Path, out_dir: Path) -> dict:
             raise ValueError('Recorded session path mismatch')
         report = session/'orchestration.json'
         entries.append((f'sessions/cycle-{index:02d}/orchestration.json', sanitized_json(report, root)))
+        report_doc = json.loads(report.read_text(encoding='utf-8'))
+        if (report_doc.get('schema') != 'recompdev.native.orchestrator.v1' or
+            report_doc.get('source_sha256') != doc.get('rom_sha256')):
+            raise ValueError('Orchestration source identity mismatch')
+        snapshot, next_coverage = coverage_snapshot(session, root, doc['rom_sha256'], previous_coverage)
+        snapshot['cycle'] = index
+        snapshot['frames'] = attempt.get('frames')
+        snapshot['frontiers'] = recovery_frontiers(report_doc, next_coverage)
+        coverage.append(snapshot)
+        if snapshot['status'] != 'UNAVAILABLE':
+            previous_coverage = next_coverage
+        analysis_doc = report_doc.get('analysis', {})
+        if isinstance(analysis_doc, dict):
+            snapshot['analysis_reuse'] = analysis_doc.get('cache_reuse', 'NOT_RECORDED')
         for stop in sorted(session.glob('round-*-observed-stop.json')):
             if STOP_FILE.fullmatch(stop.name):
                 entries.append((f'sessions/cycle-{index:02d}/{stop.name}', sanitized_json(stop, root)))
@@ -128,11 +220,16 @@ def archive_job(job_dir: Path, out_dir: Path) -> dict:
                'best_frames':max_frames, 'target_frames':doc.get('target_frames'),
                'rom_sha256':doc.get('rom_sha256'), 'gameplay_parity_qualified':False,
                'notes':'Execution frame counts do not establish gameplay correctness.'}
+    entries.append(('coverage-diff.json',(json.dumps({'schema':'recompdev.diagnostics.coverage-diff.v1',
+        'source_sha256':doc['rom_sha256'], 'sessions':coverage,
+        'meaning':'Source-bound instruction-address differences, not gameplay parity'},
+        sort_keys=True,indent=2)+'\n').encode('utf8')))
     entries.append(('summary.json',(json.dumps(summary, sort_keys=True, indent=2)+'\n').encode()))
     entries.append(('README.txt',('RecompDev source-attested recovery diagnostics\n'
       'ROM and native binaries omitted. Absolute local paths and sensitive-key fields redacted.\n'
       'JSON files are sanitised copies, not byte-identical source evidence.\n'
       'Source originals remain in their immutable local session folders.\n'
+      'Coverage-diff.json records translated physical/PC addresses and observed stop frontiers; no ROM bytes.\n'
       'Gameplay correctness, audio and VDP parity are not proven by this ZIP.\n').encode()))
     manifest = {'schema': SCHEMA, 'job_id':root.name, 'status':doc.get('status'),
                 'source_sha256':doc.get('rom_sha256'), 'original_rom_included':False,

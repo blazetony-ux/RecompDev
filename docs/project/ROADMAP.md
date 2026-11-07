@@ -1,3 +1,7 @@
+## v0.4.9.18 — evidence closure and targeted recovery infrastructure (2026-11-07)
+
+Source-only work from published v0.4.9.17 `main`: versioned evidence-root job/diagnostics routing; immediate-history Ghidra/Rizin reuse only after ROM, tool and provider hash re-attestation; newest imported stop prioritized; compact source-matched per-cycle translated-PC/physical-address differences in ZIP. Owner evidence v0.4.9.16 cycle 2→3 showed two new code addresses but no frames beyond 896. **Next:** owner Windows installer validation and real Ghidra/Rizin run to measure cache hits, time/cycle savings, stagnation, then independent correctness tests. Never equate extra code or frames with gameplay parity. See [prebuild](PREBUILD-v0.4.9.18.md).
+
 ## v0.4.9.16 — accumulate authenticated recovery, not shell commands
 
 Following v0.4.9.15 owner 60/60 Windows acceptance and genuine Shinobi two-session 64-frame job, v0.4.9.16 retains earlier imported evidence rather than discarding it between batches. **Real-ROM acceptance still pending.** Future work: second ROM, graphics/audio/input parity, 1,800-frame target, complete native provider ABIs and zero active frozen dependencies. No broadening into ROM-specific patches. See [prebuild](PREBUILD-v0.4.9.16.md).

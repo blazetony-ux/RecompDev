@@ -19,3 +19,7 @@ No commercial ROMs, compilation outputs or evidence databases are included in re
 ## Source-only infrastructure promotion
 
 From workspace v0.4.9.17, manifest `release_track=infrastructure-source` with `promotion_scope=git-main-only-no-runtime` can update Git main and tag after full testing through the permanent Git-managed installer `-Mode Install`. The active compiled controller binary, plugin DLLs and runtime lockfile remain untouched. Full native-game qualification remains a separate acceptance track.
+
+## v0.4.9.18 main-parent checkpoint
+
+A source-only package may declare `development_checkpoint.parent_branch=main` only when the checked out `main` commit exactly equals the package baseline and its expected `workspace/v0.4.9.17` tag. `-Mode Validate` can create a versioned dev checkpoint with an isolated index; `-Mode Install` independently revalidates and promotes source-only, leaving active runtime binaries alone. This prevents demanding a nonexistent `dev/v0.4.9.17` branch after the owner's prior direct main promotion.

@@ -46,3 +46,7 @@ Owner Windows 2026-11-06 `Validate` passed 45/45 CTests, docs, Python tests, and
 ## v0.4.9.17 independent infrastructure promotion
 
 A source ZIP may be explicitly labelled `release_track=infrastructure-source` and `promotion_scope=git-main-only-no-runtime`. Under the single Git-managed permanent `Install-RecompDev-Release.ps1`, `-Mode Validate` performs the full tests and creates only `dev/v0.4.9.17`; `-Mode Install` requires a fresh full verification and then updates Git source `main`/tag with a local Git backup while leaving active runtime binaries and `active-components.json` untouched. No automatic GitHub push. Do not set gameplay qualified or silently waive the 1,800-frame deliverable. The runtime activation track is separately blocked until independently qualified. Always record current `main` and runtime state from the actual owner output.
+
+## v0.4.9.18 current-main source checkpoint rule
+
+After v0.4.9.17 was promoted directly to Git `main` and published to GitHub (without a `dev/v0.4.9.17` branch), `Validate` may create the next dev checkpoint with `development_checkpoint.parent_branch=main` only when `parent_commit` matches the manifest's exact `baseline_commit` and the installer has already verified that same HEAD and release tag. This is exclusively for the `infrastructure-source` track. The source-only runtime-immunity gate, rollback and full Windows acceptance remain unchanged. `Install` promotes Git source locally only and does not push to GitHub.

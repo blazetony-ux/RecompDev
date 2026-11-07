@@ -87,7 +87,7 @@ void atomic_write(const fs::path& p,const std::string& data){
 }
 std::string jsonarr(const std::vector<std::string>&items){std::string s="[";for(auto &i:items){if(s.size()>1)s+=",";s+=q(i);}return s+"]";}
 struct Options{
-    std::string rom,job,logging="info",ghidra,rizin,plugin_dir,import_history,workspace;
+    std::string rom,job,logging="info",ghidra,rizin,plugin_dir,import_history,workspace,evidence_root;
     std::vector<std::string> roots;
     int max_cycles=8,rounds=4,target_frames=1800,timeout=600,step_budget=20000000;
     bool have_cycles=false;
@@ -110,6 +110,7 @@ Options parse(const std::vector<std::string>&argv){
         else if(key=="--plugin-dir")opt.plugin_dir=val;
         else if(key=="--import-history")opt.import_history=val;
         else if(key=="--workspace")opt.workspace=val;
+        else if(key=="--evidence-root")opt.evidence_root=val;
         else if(key=="--allow-tool-root")opt.roots.push_back(val);
         else if(key=="--max-cycles"){opt.max_cycles=number("MAX_CYCLES",val,1,16);opt.have_cycles=true;}
         else if(key=="--rounds-per-cycle")opt.rounds=number("ROUNDS_PER_CYCLE",val,1,8);
@@ -122,34 +123,73 @@ Options parse(const std::vector<std::string>&argv){
     return opt;
 }
 std::string config_json(const Options&o){
-    return "{\"schema\":\"recompdev.controller.config.v1\",\"ghidra\":"+q(o.ghidra)+",\"rizin\":"+q(o.rizin)+",\"allow_tool_roots\":"+jsonarr(o.roots)+",\"workspace\":"+q(o.workspace)+"}\n";
+    return "{\"schema\":\"recompdev.controller.config.v1\",\"ghidra\":"+q(o.ghidra)+",\"rizin\":"+q(o.rizin)+",\"allow_tool_roots\":"+jsonarr(o.roots)+",\"workspace\":"+q(o.workspace)+",\"evidence_root\":"+q(o.evidence_root)+"}\n";
 }
 Options load_config(const fs::path&h){
     V v=read_json(h/"config.json");
     if(getstr(v,"schema")!="recompdev.controller.config.v1")throw Error("CONFIG_SCHEMA_MISMATCH");
     Options opt;opt.ghidra=getstr(v,"ghidra");opt.rizin=getstr(v,"rizin");
     if(v.get("workspace").t==V::String)opt.workspace=getstr(v,"workspace");
+    if(v.get("evidence_root").t==V::String)opt.evidence_root=getstr(v,"evidence_root");
     for(auto& x:v.get("allow_tool_roots").array())opt.roots.push_back(x.string());
     if(opt.roots.empty()||opt.roots.size()>16)throw Error("CONFIG_TOOL_ROOTS_INVALID");
     return opt;
 }
 bool within(const fs::path& p,const fs::path& root){auto i=p.begin(),j=root.begin();for(;j!=root.end();++i,++j)if(i==p.end()||*i!=*j)return false;return true;}
-// A source checkout, user state and large job artifacts are separate roots.
-// Keep %LOCALAPPDATA%/RecompDev only for config and latest-job metadata.
-fs::path workspace(const fs::path& h,const fs::path& source){
+// Evidence lives under <configured-root>/v0.4.9.18, independently of old job locations.
+// The prior --workspace value is recognised but never rewritten automatically.
+// A version-like trailing directory is treated as an older release workspace,
+// allowing existing owner configuration to transparently select v0.4.9.18.
+constexpr const char* kEvidenceVersion = "v0.4.9.18";
+bool is_version_folder(const std::string& name){
+    if(name.size()<6||name[0]!='v')return false;
+    int dots=0;
+    for(size_t i=1;i<name.size();i++){
+        if(name[i]=='.'){++dots;continue;}
+        if(!std::isdigit(static_cast<unsigned char>(name[i])))return false;
+    }
+    return dots>=2&&dots<=3;
+}
+fs::path evidence_root(const fs::path& h,const fs::path& source){
     Options opt=load_config(h);
-    fs::path proposed=opt.workspace.empty()?source.parent_path()/"RecompDev-Work":fs::u8path(opt.workspace);
-    if(!proposed.is_absolute())throw Error("WORKSPACE_MUST_BE_ABSOLUTE");
+    fs::path proposed;
+    if(!opt.evidence_root.empty())proposed=fs::u8path(opt.evidence_root);
+    else if(!opt.workspace.empty()){
+        proposed=fs::u8path(opt.workspace);
+        if(is_version_folder(proposed.filename().u8string()))proposed=proposed.parent_path();
+    }else proposed=source.parent_path()/"RecompDev-Evidence";
+    if(!proposed.is_absolute())throw Error("EVIDENCE_ROOT_MUST_BE_ABSOLUTE");
     auto root=fs::weakly_canonical(proposed);
-    if(root==root.root_path()||within(root,source)||within(root,h)||within(h,root))throw Error("WORKSPACE_LOCATION_UNSAFE");
+    if(root==root.root_path()||within(root,source)||within(root,h)||within(h,root))throw Error("EVIDENCE_ROOT_LOCATION_UNSAFE");
     return root;
+}
+fs::path workspace(const fs::path& h,const fs::path& source){
+    return evidence_root(h,source)/kEvidenceVersion;
 }
 fs::path locate_jobs(const fs::path& preferred,const fs::path& h,const std::string& id){
     safe_job_id(id);
-    if(fs::is_regular_file(preferred/"jobs"/id/"job.json"))return preferred/"jobs";
-    // v0.4.9.15/v0.4.9.16 jobs are never moved, rewritten or deleted.
-    if(fs::is_regular_file(h/"jobs"/id/"job.json"))return h/"jobs";
-    throw Error("JOB_NOT_FOUND_IN_WORKSPACE_OR_LEGACY_HOME");
+    auto candidate=[&](const fs::path& jobs)->bool{
+        std::error_code ec;
+        auto dir=jobs/id;
+        return !fs::is_symlink(dir,ec)&&fs::is_regular_file(dir/"job.json",ec);
+    };
+    if(candidate(preferred/"jobs"))return preferred/"jobs";
+    // Support any previous version folder under the same configured root,
+    // without rewriting/moving old evidence or recursively searching the disk.
+    std::error_code ec;int inspected=0;
+    auto root=preferred.parent_path();
+    if(fs::is_directory(root,ec)){
+        for(const auto& dir:fs::directory_iterator(root)){
+            if(++inspected>128)throw Error("LEGACY_JOB_WORKSPACE_LIMIT");
+            if(dir.is_symlink(ec)||!dir.is_directory(ec)||!is_version_folder(dir.path().filename().u8string()))continue;
+            if(candidate(dir.path()/"jobs"))return dir.path()/"jobs";
+        }
+    }
+    // Pre-v0.4.9.18 workspaces may be unversioned paths.
+    Options opt=load_config(h);
+    if(!opt.workspace.empty()&&candidate(fs::u8path(opt.workspace)/"jobs"))return fs::u8path(opt.workspace)/"jobs";
+    if(candidate(h/"jobs"))return h/"jobs";
+    throw Error("JOB_NOT_FOUND_IN_EVIDENCE_OR_LEGACY_HOME");
 }
 void authorize(const Options&o){
     if(o.ghidra.empty()||o.rizin.empty())throw Error("CONFIGURE_GHIDRA_AND_RIZIN_FIRST");
@@ -216,7 +256,7 @@ void report(const Job&j,bool details){
     std::cout<<"RECOMPDEV_BEST_FRAMES="<<best<<"\nRECOMPDEV_TARGET_FRAMES="<<j.target_frames<<"\n";
     if(details){std::cout<<"RECOMPDEV_ROM_SHA256="<<j.sha<<"\n";for(auto&a:j.attempts)std::cout<<"CYCLE="<<a.cycle<<" FRAMES="<<a.frames<<" EMITTED="<<a.emitted<<" STATUS="<<a.status<<" OUTPUT="<<a.output<<"\n";}
 }
-int execute(Job&j,const fs::path&jobs,const fs::path&exe,const std::function<int(const std::vector<std::string>&)>&bridge,const std::string&logging){
+int execute(Job&j,const fs::path&jobs,const fs::path&diagnostic_dir,const fs::path&exe,const std::function<int(const std::vector<std::string>&)>&bridge,const std::string&logging){
     const auto dir=jobs/j.id;Log log(dir/"events.jsonl",j.id,logging);
     if(hash_rom(full(j.rom))!=j.sha)throw Error("ROM_SOURCE_CHANGED_REFUSE_RESUME");
     if(full(j.plugin_dir)!=fs::canonical(exe.parent_path()))throw Error("JOB_PLUGIN_DIR_MISMATCH");
@@ -226,8 +266,7 @@ int execute(Job&j,const fs::path&jobs,const fs::path&exe,const std::function<int
     auto persist=[&]{atomic_write(dir/"job.json",save_doc(j));};
     auto export_on_terminal=[&]{
         try{
-            auto root=jobs.parent_path();
-            int result=bridge({"--stage","job-diagnostics","--job-dir",dir.u8string(),"--out-dir",(root/"diagnostics").u8string()});
+            int result=bridge({"--stage","job-diagnostics","--job-dir",dir.u8string(),"--out-dir",diagnostic_dir.u8string()});
             if(result!=0)log.emit(2,"DIAGNOSTICS_EXPORT_FAILED","Diagnostic exporter returned a nonzero code");
         }catch(const std::exception&e){
             try{log.emit(2,"DIAGNOSTICS_EXPORT_FAILED",e.what());}catch(...){}
@@ -312,13 +351,13 @@ int rd_native_job(const std::vector<std::string>& args,const fs::path&source,con
         if(h==source||within(h,source))throw Error("JOB_HOME_CANNOT_BE_INSIDE_SOURCE");
         const auto& op=args.front();
         if(op=="configure"){
-            if(!opt.job.empty()||!opt.rom.empty()||opt.have_cycles||!opt.import_history.empty())throw Error("CONFIG_OPTION_NOT_SUPPORTED");
+            if(!opt.job.empty()||!opt.rom.empty()||opt.have_cycles||!opt.import_history.empty()||(!opt.workspace.empty()&&!opt.evidence_root.empty()))throw Error("CONFIG_OPTION_NOT_SUPPORTED");
             if((opt.ghidra.empty()||opt.rizin.empty())&&fs::is_regular_file(h/"config.json")){
                 auto previous=load_config(h);
                 if(opt.ghidra.empty())opt.ghidra=previous.ghidra;
                 if(opt.rizin.empty())opt.rizin=previous.rizin;
                 if(opt.roots.empty())opt.roots=previous.roots;
-                if(opt.workspace.empty())opt.workspace=previous.workspace;
+                if(opt.workspace.empty()&&opt.evidence_root.empty()){opt.workspace=previous.workspace;opt.evidence_root=previous.evidence_root;}
             }
             if(opt.ghidra.empty()||opt.rizin.empty())throw Error("CONFIGURE_REQUIRES_GHIDRA_AND_RIZIN");
             opt.ghidra=full(opt.ghidra).u8string();opt.rizin=full(opt.rizin).u8string();
@@ -332,13 +371,23 @@ int rd_native_job(const std::vector<std::string>& args,const fs::path&source,con
                 if(canon==canon.root_path()||within(canon,source)||within(canon,h)||within(h,canon))throw Error("WORKSPACE_LOCATION_UNSAFE");
                 opt.workspace=canon.u8string();
             }
+            if(!opt.evidence_root.empty()){
+                auto value=fs::u8path(opt.evidence_root);
+                if(!value.is_absolute())throw Error("EVIDENCE_ROOT_MUST_BE_ABSOLUTE");
+                auto canon=fs::weakly_canonical(value);
+                if(canon==canon.root_path()||within(canon,source)||within(canon,h)||within(h,canon))throw Error("EVIDENCE_ROOT_LOCATION_UNSAFE");
+                opt.evidence_root=canon.u8string();
+                // A new explicit root supersedes a previously configured legacy workspace.
+                opt.workspace.clear();
+            }
             atomic_write(h/"config.json",config_json(opt));
             std::cout<<"RECOMPDEV_CONFIGURATION=VERIFIED\nRECOMPDEV_CONFIG_PATH="<<(h/"config.json").string()<<"\n";
+            std::cout<<"RECOMPDEV_EVIDENCE_ROOT="<<evidence_root(h,source).string()<<"\n";
             std::cout<<"RECOMPDEV_WORKSPACE="<<workspace(h,source).string()<<"\n";return 0;
         }
         if(op=="run"){
             if(opt.rom.empty()||!opt.job.empty())throw Error("RUN_REQUIRES_ROM_ONLY");
-            if(!opt.ghidra.empty()||!opt.rizin.empty()||!opt.roots.empty()||!opt.workspace.empty())throw Error("USE_CONFIGURE_FOR_TOOL_SETTINGS");
+            if(!opt.ghidra.empty()||!opt.rizin.empty()||!opt.roots.empty()||!opt.workspace.empty()||!opt.evidence_root.empty())throw Error("USE_CONFIGURE_FOR_TOOL_SETTINGS");
             auto cfg=load_config(h);authorize(cfg);auto rom=full(opt.rom);
             auto jobs=workspace(h,source)/"jobs";
             auto sha=hash_rom(rom);
@@ -366,23 +415,23 @@ int rd_native_job(const std::vector<std::string>& args,const fs::path&source,con
             j.plugin_dir=opt.plugin_dir.empty()?fs::canonical(exe.parent_path()).u8string():full(opt.plugin_dir).u8string();
             j.max_cycles=opt.max_cycles;j.rounds=opt.rounds;j.target_frames=opt.target_frames;j.timeout=opt.timeout;j.step_budget=opt.step_budget;
             atomic_write(dir/"job.json",save_doc(j));atomic_write(h/"last-job.txt",id+"\n");
-            return execute(j,jobs,exe,bridge,opt.logging);
+            return execute(j,jobs,workspace(h,source)/"diagnostics",exe,bridge,opt.logging);
         }
         if(op=="resume"||op=="status"||op=="inspect"||diagnostics){
-            if(!opt.rom.empty()||!opt.ghidra.empty()||!opt.rizin.empty()||!opt.roots.empty()||!opt.plugin_dir.empty()||!opt.import_history.empty()||!opt.workspace.empty()||opt.rounds!=4||opt.target_frames!=1800||opt.timeout!=600||opt.step_budget!=20000000)throw Error("INVALID_JOB_COMMAND_OPTIONS");
+            if(!opt.rom.empty()||!opt.ghidra.empty()||!opt.rizin.empty()||!opt.roots.empty()||!opt.plugin_dir.empty()||!opt.import_history.empty()||!opt.workspace.empty()||!opt.evidence_root.empty()||opt.rounds!=4||opt.target_frames!=1800||opt.timeout!=600||opt.step_budget!=20000000)throw Error("INVALID_JOB_COMMAND_OPTIONS");
             auto id=opt.job.empty()?last_id(h):opt.job;
             auto jobs=locate_jobs(workspace(h,source),h,id);
             Job j=load_job(jobs,id);
             if(diagnostics){
                 if(opt.have_cycles)throw Error("INVALID_DIAGNOSTICS_OPTION");
-                int rc=bridge({"--stage","job-diagnostics","--job-dir",(jobs/id).u8string(),"--out-dir",(jobs.parent_path()/"diagnostics").u8string()});
+                int rc=bridge({"--stage","job-diagnostics","--job-dir",(jobs/id).u8string(),"--out-dir",(workspace(h,source)/"diagnostics").u8string()});
                 if(rc!=0)throw Error("DIAGNOSTICS_EXPORT_FAILED");
                 return 0;
             }
             if(op!="resume"){if(opt.have_cycles)throw Error("INVALID_STATUS_OPTION");report(j,op=="inspect");return 0;}
             if(opt.have_cycles){if(opt.max_cycles<int(j.attempts.size())||opt.max_cycles<j.max_cycles)throw Error("CANNOT_REDUCE_JOB_CYCLE_LIMIT");j.max_cycles=opt.max_cycles;}
             if(j.attempts.size()>=static_cast<size_t>(j.max_cycles))throw Error("INCREASE_MAX_CYCLES_TO_RESUME");
-            return execute(j,jobs,exe,bridge,opt.logging);
+            return execute(j,jobs,workspace(h,source)/"diagnostics",exe,bridge,opt.logging);
         }
         throw Error("UNKNOWN_JOB_COMMAND_"+op);
     }catch(const std::exception&e){std::cerr<<"RECOMPDEV_JOB_ERROR="<<e.what()<<"\n";return 2;}

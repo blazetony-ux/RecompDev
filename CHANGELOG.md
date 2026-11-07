@@ -1,5 +1,13 @@
 # RecompDev workspace changelog
 
+## [workspace/v0.4.9.18] - 2026-11-07
+
+- **Infrastructure source:** All new controller jobs and diagnostic ZIPs use `<evidence-root>/v0.4.9.18/`; current owner configuration `--workspace C:\Projects\RecompDev-Evidence\v0.4.9.17` resolves to the parent evidence root. Existing AppData or previous version folders remain readable without moving, modifying or deleting the originals. `--evidence-root` is the preferred explicit configuration.
+- **Recovery:** Reuse unchanged initial Ghidra/Rizin analysis only after a new SHA-256 ROM/tool/provider-file identity check, Ghidra instruction-byte re-attestation, Rizin input verification and deterministic reconciliation. Cache tampering fails closed; different tool or script versions execute fresh analysis. Newly observed source-checked stops are prioritized ahead of older observations, without bypassing the native CPU/mapper translation gates.
+- **Diagnostics:** A compact `coverage-diff.json` records per-cycle new translated physical/PC addresses, observed execution frontiers and analysis reuse, without ROM bytes, native binaries or raw analyzer exports. Old jobs can be exported into the current release's evidence root.
+- **Release governance:** Allow validated source-only `dev/v0.4.9.18` checkpoint to originate directly from *exact* promoted `main` commit v0.4.9.17. Full Windows MSVC CTests, preserved 642 files and explicit `-Mode Install` still gate Git main/tag promotion, never active runtime activation. Shinobi remains 896/1,800 observed frames with independent semantic/hardware parity BLOCKED.
+
+
 ## [workspace/v0.4.9.17] - 2026-11-07
 
 - **Changed:** First **infrastructure-source-only** promotion track (`git-main-only-no-runtime`) with mandatory independent Windows tests, rollback and explicit separation from the still-unmet Shinobi 1,800-frame gameplay/hardware parity acceptance. Compiled controller 0.4.13 owns configured large-job workspace, old AppData job lookup, automated sanitised diagnostics ZIPs on terminal recovery states and `diagnostics export --job ID`.

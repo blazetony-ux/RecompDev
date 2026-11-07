@@ -36,3 +36,7 @@ Release claims must distinguish cross-platform CI/local tests, owner Windows log
 - [v0.4.9.15 — Compiled controller job lifecycle, recovery continuation and structured logging (validation-only)](v0.4.9.15.md): native job manager and CLI, Python per-batch analyzer retained; Windows and parity gates BLOCKED.
 
 - [v0.4.9.16 — Cumulative authenticated recovery and one-package dev checkpoint (candidate)](v0.4.9.16.md): source-verified recovery ledger, optional prior history import and isolated Git ref after Windows validation.
+
+## v0.4.9.18
+
+[Evidence root, translation coverage deltas and source-attested analyzer reuse](v0.4.9.18.md). Source-only candidate based on v0.4.9.17 main; 1,800-frame gameplay qualification remains pending.

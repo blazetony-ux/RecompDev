@@ -59,3 +59,7 @@ Default `--logging info`; levels `debug|info|warning|error`. Console filtering i
 ## v0.4.9.17 additions
 
 Use `configure --workspace ABSOLUTE` to keep large job records in a separate workspace; the config and last job ID remain in AppData, with read-only compatibility access to legacy AppData jobs. A compiled `diagnostics export [--job ID]` invokes the versioned bounded maintained Python exporter; recovery-limit/blocked job outputs automatically try to package a redacted upload ZIP. This does not modify source-attested job evidence, implement full game parity or add title-specific CPU logic.
+
+## v0.4.9.18 versioned evidence workspace
+
+`configure --evidence-root ABSOLUTE` stores only lightweight configuration under AppData. Jobs and diagnostics are now created under `ABSOLUTE/v0.4.9.18/{jobs,diagnostics}`. Existing owner `--workspace C:\Projects\RecompDev-Evidence\v0.4.9.17` is recognised as a prior release directory: the parent becomes the root and the next release directory is chosen automatically. New diagnostic exports always target the current release's diagnostics folder, even when locating an immutable old AppData or v0.4.9.17 job. Do not delete old job directories or assume a ROM-free bundle can restore native execution state.

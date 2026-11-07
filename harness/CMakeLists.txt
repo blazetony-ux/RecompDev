@@ -453,3 +453,15 @@ if(Python3_Interpreter_FOUND)
   discover -s "${CMAKE_SOURCE_DIR}/../migration/tests" -p test_v04917_inventory.py -q)
  set_tests_properties(v04917_migration_register_inventory PROPERTIES TIMEOUT 30)
 endif()
+
+
+# v0.4.9.18: evidence-root routing, source-attested analysis-cache reuse,
+# and ROM-free coverage-diff diagnostics. Gameplay qualification remains blocked.
+if(Python3_Interpreter_FOUND)
+ add_test(NAME v04918_analysis_cache_identity COMMAND "${Python3_EXECUTABLE}" -B -m unittest
+  discover -s "${CMAKE_SOURCE_DIR}/../analysis_integration/tests" -p test_v04918_analysis_reuse.py -q)
+ set_tests_properties(v04918_analysis_cache_identity PROPERTIES TIMEOUT 30)
+ add_test(NAME v04918_coverage_diagnostics COMMAND "${Python3_EXECUTABLE}" -B -m unittest
+  discover -s "${CMAKE_SOURCE_DIR}/../workspace/tests" -p test_v04918_coverage.py -q)
+ set_tests_properties(v04918_coverage_diagnostics PROPERTIES TIMEOUT 30)
+endif()

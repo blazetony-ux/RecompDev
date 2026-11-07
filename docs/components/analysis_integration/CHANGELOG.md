@@ -1,5 +1,14 @@
 # analysis_integration — independent component history
 
+## [0.3.2] - 2026-11-07
+
+- **Changed:** Source-attested initial Ghidra/Rizin outputs can be reused across immediately consecutive sessions after SHA-256 matching ROM bytes, authorised external tool executables, maintained provider code/Java scripts, all input artifacts, Ghidra instruction bytes and deterministic Rizin reconciliation. Old v0.4.9.17 sessions or altered tools trigger fresh analysis; tampered artifacts fail closed.
+- **Recovery:** Most recent previously verified runtime-stop seed and bank export are supplied first to the native translation stage; no speculative instruction semantics, process-state restoration or changed CPU/console ABI.
+- **Validation:** Mock-tool no-process cache hit, source mismatch, binary drift, modified IR/reconciliation negative tests. Authentic Windows reuse and >896 frames still require owner runs.
+
+
+- **Compatibility:** No C++ plugin ABI modifications; no state restoration or gameplay qualification; historical v0.4.9.17 evidence remains usable through fresh Ghidra/Rizin analysis.
+
 ## [0.3.1] - 2026-11-07
 
 - **Changed:** Previous-session `--resume-from` imports the already verified `imported-history` ledger from its immediately preceding session plus new genuine stops; all previously copied stop/overlay bytes are SHA-256-checked, ROM/mapper/Ghidra instruction re-attested, bounded and recopied into a new immutable output. No external provenance paths are traversed.

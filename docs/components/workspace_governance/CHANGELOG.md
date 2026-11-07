@@ -1,5 +1,14 @@
 # workspace_governance — independent changelog
 
+## [0.1.9] - 2026-11-07
+
+- **Changed:** ROM-free diagnostic `coverage-diff.json` adds exact per-cycle physical/PC/length differences, source-bound manifest hashes, stop classifications and provenance of initial analysis reuse. Export destination is independent of where an old job lives.
+- **Validation:** Existing privacy and size-limits plus new source-mismatch, address-only delta and authentic owner cycle-02/03-manifest comparison; not runtime execution parity.
+- **Compatibility:** Frozen 642 historical files, 14 migration capability owners, original ROM and owner database remain untouched.
+
+
+- **Compatibility:** Source-only bounded ZIP copies; original native session sources and old ROM/database files remain untouched.
+
 ## [0.1.8] - 2026-11-07
 
 - **Changed:** New mandatory migration-completeness register with 14 audited subsystem capabilities, explicit owner, current boundary, maintained/preserved status, acceptance test and exit criteria. The `infrastructure-source` track is documented independently of gameplay parity; a read-only SQLite table/count/hash inventory supports future safe owner catalogue integration.

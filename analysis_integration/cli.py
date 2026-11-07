@@ -16,6 +16,7 @@ import time
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from analysis_integration.providers import acquire,ProviderBlocked,analyze_observed_bank_region
+from analysis_integration.analysis_reuse import cache_contract, record_cache_contract, reuse_initial
 from analysis_integration.recovery_history import import_previous, RecoveryHistoryError
 
 GAPS={'UNTRANSLATED_INITIAL_CODE','BANKED_CODE_NOT_TRANSLATED','UNTRANSLATED_PHYSICAL_ROM_OFFSET'}
@@ -122,16 +123,39 @@ def run(args)->dict:
         if observed.get('platform')!='sms' or observed.get('cpu')!='z80':
             raise RecoveryBlocked('NATIVE_TRANSLATION_PROVIDER_NOT_AVAILABLE_FOR_'+str(observed.get('platform')))
         state['native_format_provider']=observed['provider']
-        gh,reconcile,analysis=acquire(rom,output/'analysis',export=Path(args.export) if args.export else None,
-             ghidra=Path(args.ghidra) if args.ghidra else None,
-             rizin=Path(args.rizin) if args.rizin else None,
-             tool_roots=tuple(Path(p) for p in args.allow_tool_root),timeout=args.timeout,
-             allow_synthetic=args.allow_synthetic_test_export)
+        ghidra = Path(args.ghidra) if args.ghidra else None
+        rizin = Path(args.rizin) if args.rizin else None
+        roots = tuple(Path(p) for p in args.allow_tool_root)
+        reused = None
+        if args.resume_from and args.export is None and not args.allow_synthetic_test_export:
+            reused = reuse_initial(Path(args.resume_from), rom, output/'analysis',
+                                   ghidra=ghidra, rizin=rizin, roots=roots)
+        if reused is None:
+            gh,reconcile,analysis=acquire(rom,output/'analysis',
+                 export=Path(args.export) if args.export else None,
+                 ghidra=ghidra, rizin=rizin, tool_roots=roots,timeout=args.timeout,
+                 allow_synthetic=args.allow_synthetic_test_export)
+            # Only authentic initial-analysis sessions may seed the reuse cache.
+            if args.export is None and not args.allow_synthetic_test_export:
+                contract = cache_contract(rom, ghidra, rizin, roots)
+                record_cache_contract(analysis, output/'analysis', contract)
+        else:
+            gh,reconcile,analysis = reused
         state['analysis']=analysis
         seeds=[];bank_exports=[];seen=set();last_coverage=-1
         if args.resume_from:
             history_seeds,history_banks,history_audit=import_previous(Path(args.resume_from),output/'imported-history',rom,gh)
-            seeds.extend(history_seeds);bank_exports.extend(history_banks)
+            # Prioritise the newest source-attested execution frontier. Every
+            # historical seed/export is still supplied and independently checked
+            # by the native source/mapper provider; ordering never grants trust.
+            seeds.extend(reversed(history_seeds))
+            bank_exports.extend(reversed(history_banks))
+            if history_seeds:
+                frontier = json.loads(history_seeds[-1].read_text(encoding='utf8'))
+                state['priority_frontier'] = {
+                    'pc':frontier['pc'], 'physical_offset':frontier['physical_offset'],
+                    'mapper':frontier['mapper'], 'method':'MOST_RECENT_SOURCE_ATTESTED_STOP_FIRST',
+                    'semantics_qualified':False}
             for report in history_seeds:
                 prior=json.loads(report.read_text(encoding='utf8'))
                 seen.add((prior['pc'],prior['physical_offset'],tuple(prior['mapper'])))

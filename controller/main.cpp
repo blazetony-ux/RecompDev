@@ -130,7 +130,7 @@ static fs::path project_root(fs::path exe){
     throw std::runtime_error("RecompDev source checkout not found; runtime needs source-root.txt");
 }
 static void usage(){
-    std::cout<<"RecompDev v0.4.9.17 native controller (compiled job lifecycle + plugin discovery)\n"
+    std::cout<<"RecompDev v0.4.9.18 native controller (compiled job lifecycle + plugin discovery)\n"
       "Usage: RecompDev.exe --rom FILE --stage discover|prepare|recover [options]\n"
       "  --steps N --frames N --max-recoveries N --timeout N --capture-hardware\n"
       "  --auto-continue --max-rounds N (continue source-verified recovery in bounded batches)\n"
@@ -138,7 +138,7 @@ static void usage(){
       "  --analyze-evidence DIR [--out DIR] [--reference-image PNG] [--reference-session JSON]\n"
       "  --plugins | --verify | --status | --help\n"
       "  run --rom FILE [--logging debug|info|warning|error] [--max-cycles N]\n"
-      "  configure --ghidra PATH --rizin PATH [--workspace DIR] [--allow-tool-root DIR]\n"
+      "  configure --ghidra PATH --rizin PATH [--evidence-root DIR] [--workspace LEGACY_DIR] [--allow-tool-root DIR]\n"
       "  resume [--job ID] [--max-cycles N]; status [--job ID]; inspect [--job ID]\n"
       "  diagnostics export [--job ID] (redacted upload-ready ZIP; no ROM)\n"
       "  plugin build|test|activate|rollback|bump|status|release [args]\n"
@@ -169,14 +169,14 @@ int main(int argc,char** argv)
 #endif
           )){usage();return 0;}
 #ifdef _WIN32
-        if(equals(argv[1],L"--version")){std::cout<<"RecompDev 0.4.9.17\n";return 0;}
+        if(equals(argv[1],L"--version")){std::cout<<"RecompDev 0.4.9.18\n";return 0;}
         if(equals(argv[1],L"plugin"))op="plugin-manager";
         if(equals(argv[1],L"--plugins"))op="plugins";
         if(equals(argv[1],L"--verify"))op="verify";
         if(equals(argv[1],L"--status"))op="status";
         if(equals(argv[1],L"--analyze-evidence"))op="review-evidence";
 #else
-        if(equals(argv[1],"--version")){std::cout<<"RecompDev 0.4.9.17\n";return 0;}
+        if(equals(argv[1],"--version")){std::cout<<"RecompDev 0.4.9.18\n";return 0;}
         if(equals(argv[1],"plugin"))op="plugin-manager";
         if(equals(argv[1],"--plugins"))op="plugins";
         if(equals(argv[1],"--verify"))op="verify";

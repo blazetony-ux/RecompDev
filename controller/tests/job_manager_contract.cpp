@@ -53,7 +53,7 @@ int main(int argc,char**argv){
   require(go({"run","--rom",rom.string(),"--max-cycles","3","--rounds-per-cycle","2","--target-frames","100","--logging","warning"},source,exe,bridge)==0,"autonomous native scheduling failed");
   require(invocations==3,"expected three controller-scheduled calls");
   auto job_id=read(home/"last-job.txt");while(!job_id.empty()&&(job_id.back()=='\n'||job_id.back()=='\r'))job_id.pop_back();
-  auto job_dir=(tmp/"workspace"/"jobs")/job_id;auto job=read(job_dir/"job.json");
+  auto job_dir=(tmp/"workspace"/"v0.4.9.18"/"jobs")/job_id;auto job=read(job_dir/"job.json");
   require(job.find("TARGET_REACHED_PARITY_UNVERIFIED")!=std::string::npos,"not parity-unverified");
   require(job.find("\"cycle\":3")!=std::string::npos,"third cycle not committed");
   require(read(job_dir/"events.jsonl").find("AUTO_RESUME")!=std::string::npos,"missing controller automatic resume events");
@@ -102,7 +102,7 @@ int main(int argc,char**argv){
   require(go({"run","--rom",rom.string(),"--max-cycles","5"},source,exe,stagnant)==2,"stagnation should block");
   require(stale_calls==3,"stagnation was not measured against all-time high watermark");
   auto stagnant_id=read(home/"last-job.txt");while(!stagnant_id.empty()&&(stagnant_id.back()=='\n'||stagnant_id.back()=='\r'))stagnant_id.pop_back();
-  require(read((tmp/"workspace"/"jobs")/stagnant_id/"job.json").find("BLOCKED_STAGNATION")!=std::string::npos,"stagnation status not persisted");
+  require(read((tmp/"workspace"/"v0.4.9.18"/"jobs")/stagnant_id/"job.json").find("BLOCKED_STAGNATION")!=std::string::npos,"stagnation status not persisted");
   fs::remove_all(tmp);
   std::cout<<"PASS: compiled controller job scheduling, logging, immutable sessions and identity gates\n";
   return 0;

@@ -1,5 +1,12 @@
 # controller — independent changelog
 
+## [0.4.14] - 2026-11-07
+
+- **Changed:** Configured evidence root is independent of historic job location; `v0.4.9.18/jobs` and `v0.4.9.18/diagnostics` are release-scoped. Supports prior version folders and AppData lookup; `configure --evidence-root` overrides legacy `--workspace` while existing owner v0.4.9.17 workspace automatically resolves to parent root.
+- **Validation:** Compiled CLI routing smoke includes old version and AppData fixture ZIPs, explicit root setup and path rejection. Full Windows owner CTest and Ghidra/Rizin native gameplay validation pending.
+- **Compatibility:** Controller is still C++; Python only handles bounded analyzer/digest orchestration. Original job evidence and active production binaries never rewritten.
+
+
 ## [0.4.13] - 2026-11-07
 
 - **Changed:** The compiled controller accepts `configure --workspace ABSOLUTE`, defaults new large jobs to the sibling `RecompDev-Work` root rather than AppData, keeps configuration/last-job metadata in AppData, and can still inspect or resume older AppData-based jobs without migrating or deleting them. It invokes a bounded, redacting upload ZIP exporter automatically when native recovery terminates and via `diagnostics export --job ID`.
