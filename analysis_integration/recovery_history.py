@@ -120,7 +120,7 @@ def _check_bank_export(doc: dict, seed: dict, source_bytes: bytes, digest: str, 
     return total
 
 
-def import_previous(previous: Path, destination: Path, rom: Path, base_export: Path) -> tuple[list[Path], list[Path], dict]:
+def import_previous(previous: Path, destination: Path, rom: Path, base_export: Path, preview_seed: Path | None = None) -> tuple[list[Path], list[Path], dict]:
     """Read, verify and independently copy prior gap seeds and bank P-code overlays.
 
     No writes occur under `previous`. A fresh destination is mandatory. All
@@ -212,6 +212,16 @@ def import_previous(previous: Path, destination: Path, rom: Path, base_export: P
                 if audit.get(field) != expected:
                     raise RecoveryHistoryError('HISTORY_GHIDRA_AUDIT_MISMATCH')
         entries.append((seed_blob, bank_blob, key, index))
+    preview_added = False
+    if preview_seed is not None:
+        seed, blob = _json(Path(preview_seed), 2 * 1024 * 1024)
+        key = _check_seed(seed, data, digest)
+        if seed.get('observed_run') != 'CONTROLLER_NATIVE_PREVIEW':
+            raise RecoveryHistoryError('HISTORY_PREVIEW_PROVENANCE_INVALID')
+        if key not in seen:
+            entries.append((blob, None, key, 'preview'))
+            seen.add(key)
+            preview_added = True
     if not entries:
         raise RecoveryHistoryError('HISTORY_NO_REUSABLE_OBSERVATIONS')
     if len(entries) > MAX_IMPORTS:
@@ -236,6 +246,7 @@ def import_previous(previous: Path, destination: Path, rom: Path, base_export: P
              'source_sha256': digest, 'previous_orchestration_sha256': _sha((previous/'orchestration.json').read_bytes()),
              'imported_stops': len(imported_seeds), 'imported_bank_exports': len(imported_banks),
              'inherited_stops': inherited_count, 'new_stops': len(entries) - inherited_count,
+             'preview_stops': int(preview_added),
              'verified': 'RECHECKED_SOURCE_MAPPER_INSTRUCTION_HASHES', 'entries': provenance,
              'previous_root': str(previous), 'native_semantics_qualified': False}
     (destination/'history-import.json').write_text(json.dumps(audit, sort_keys=True, indent=2)+'\n', encoding='utf8')

@@ -18,6 +18,8 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from analysis_integration.providers import acquire,ProviderBlocked,analyze_observed_bank_region
 from analysis_integration.analysis_reuse import cache_contract, record_cache_contract, reuse_initial
 from analysis_integration.recovery_history import import_previous, RecoveryHistoryError
+from analysis_integration.preview_frontier import verify_and_stage_preview
+
 
 GAPS={'UNTRANSLATED_INITIAL_CODE','BANKED_CODE_NOT_TRANSLATED','UNTRANSLATED_PHYSICAL_ROM_OFFSET'}
 SUCCESS={'FRAME_BUDGET_REACHED'}
@@ -143,8 +145,16 @@ def run(args)->dict:
             gh,reconcile,analysis = reused
         state['analysis']=analysis
         seeds=[];bank_exports=[];seen=set();last_coverage=-1
+        if args.preview_stop and not args.resume_from:
+            raise RecoveryBlocked('PREVIEW_REQUIRES_EXISTING_RECOVERY_HISTORY')
+        preview_seed=None
+        if args.preview_stop:
+            preview_seed=verify_and_stage_preview(Path(args.preview_stop),
+                Path(args.resume_from),rom,args.preview_job_id,output/'preview-handoff.json')
+            state['preview_handoff']={'status':'SOURCE_ATTESTED_PREVIEW_GAP_ACCEPTED',
+                'source_sha256':original_sha, 'native_semantics_qualified':False}
         if args.resume_from:
-            history_seeds,history_banks,history_audit=import_previous(Path(args.resume_from),output/'imported-history',rom,gh)
+            history_seeds,history_banks,history_audit=import_previous(Path(args.resume_from),output/'imported-history',rom,gh,preview_seed)
             # Prioritise the newest source-attested execution frontier. Every
             # historical seed/export is still supplied and independently checked
             # by the native source/mapper provider; ordering never grants trust.
@@ -247,6 +257,8 @@ def main(argv=None):
     p.add_argument('--history-root',action='append',default=[])
     p.add_argument('--resume-from',help='Re-attest observed stops and focused Ghidra exports from a previous orchestration; does not restore binaries')
     p.add_argument('--runtime-gap-report',action='append',default=[])
+    p.add_argument('--preview-stop',help='Controller-attested native preview diagnostic ZIP')
+    p.add_argument('--preview-job-id',help='Controller-supplied immutable job ID for preview provenance')
     p.add_argument('--max-rounds',type=int,default=4);p.add_argument('--target-frames',type=int,default=1800)
     p.add_argument('--step-budget',type=int,default=20000000);p.add_argument('--timeout',type=int,default=600)
     p.add_argument('--no-execute',action='store_true');p.add_argument('--no-compile',action='store_true')

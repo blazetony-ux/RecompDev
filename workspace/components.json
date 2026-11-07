@@ -1,23 +1,23 @@
 {
   "components": {
     "analysis_integration": {
-      "description": "Maintained Ghidra/Rizin providers with source/tool/provider-hash verified initial-analysis reuse and newest-attested-stop-first recovery; cumulative history reattested; Python adapter remains.",
+      "description": "Maintained preview-frontier importer consumes only complete checksummed stop evidence with original generated translation source identity and actual mapper/SP/PC; the native discovery and translation DLL independently revalidate mapped ROM bytes, while Ghidra/Rizin evidence reuse remains unchanged.",
       "kind": "tooling",
       "scope": "production-workflow",
-      "version": "0.3.2"
+      "version": "0.3.3"
     },
     "controller": {
-      "description": "Compiled controller job manager with v0.4.9.19 versioned evidence and source-attested read-only preview dispatch; recovery and preview are isolated. Generic diagnostic viewer subscribes to controller events, not CPU or game memory.",
+      "description": "Compiled controller adds explicit `resume --preview-stop ZIP` with a source/session/ROM identity preflight that rejects invalid archives before modifying persistent job status. Only the first new cycle consumes a validated stop, which thereafter carries through immutable source-checked history.",
       "kind": "controller",
       "scope": "production-entrypoint",
       "target": "RecompDev",
-      "version": "0.4.15"
+      "version": "0.4.16"
     },
     "controller_diagnostics": {
-      "description": "Single authenticated controller-owned local diagnostics event protocol, bounded subscriptions and history; orchestrated by runtime launcher, no compiled controller binary changes",
+      "description": "Controller-authenticated diagnostics event schema now accepts bounded `native_result` events, keeping terminal CPU stop, host output frame and sampled guest frame in distinct fields. Existing publish/subscribe token/authentication and event size limits remain unchanged.",
       "kind": "tooling",
       "scope": "controller-diagnostics",
-      "version": "0.1.0"
+      "version": "0.1.1"
     },
     "discovery_integration": {
       "description": "Controller-mediated source-scoped discovery evidence audit with replaceable preserved format/catalogue/sector providers; no native translation or game special cases",
@@ -26,10 +26,10 @@
       "version": "0.1.0"
     },
     "execution_monitor": {
-      "description": "Current compiled-controller preview adapter: authentic generated native game copied/instrumented and built in isolated evidence directory; independent CPU-neutral read-only instruction window, sampled input/stop telemetry and ROM-free diagnostic ZIP.",
+      "description": "Independent monitor distinguishes a blocked guest from a host process crash and records guest VDP frame versus host presentation frame counts separately; the preview writes an optional ROM-free, CPU-state-complete recovery seed for explicit controller handoff.",
       "kind": "tooling",
       "scope": "developer-debugger",
-      "version": "0.2.0"
+      "version": "0.3.0"
     },
     "input_recovery": {
       "description": "Generic guest-cycle input capture and source-verified replay recovery; short-path native builds, strict compile-failure suppression, replay history re-use",
@@ -236,5 +236,5 @@
     }
   },
   "schema": "recompdev-components-v1",
-  "workspace_release": "v0.4.9.19"
+  "workspace_release": "v0.4.9.20"
 }

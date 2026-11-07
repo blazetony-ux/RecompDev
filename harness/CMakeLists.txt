@@ -473,3 +473,10 @@ if(Python3_EXECUTABLE)
   -m unittest discover -s "${CMAKE_SOURCE_DIR}/../execution_monitor/tests" -p test_v04919_job_preview.py -q)
  set_tests_properties(v04919_controller_preview_native PROPERTIES WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/.." ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
 endif()
+
+# v0.4.9.20: source-attested preview gap handoff and cross-cycle preservation.
+if(Python3_Interpreter_FOUND)
+ add_test(NAME v04920_preview_handoff COMMAND "${Python3_EXECUTABLE}"
+  -m unittest discover -s "${CMAKE_SOURCE_DIR}/../analysis_integration/tests" -p test_v04920_preview_frontier.py -q)
+ set_tests_properties(v04920_preview_handoff PROPERTIES WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/.." ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+endif()

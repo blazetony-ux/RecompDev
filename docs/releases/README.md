@@ -44,3 +44,7 @@ Release claims must distinguish cross-platform CI/local tests, owner Windows log
 ## v0.4.9.19
 
 [Compiled controller preview and live instruction/keypress stop diagnostics](v0.4.9.19.md). Current main v0.4.9.18 baseline, native smoke validation only; Windows GUI and 1,800-frame parity still blocked.
+
+## v0.4.9.20
+
+[Guarded preview-to-recovery stop handoff](v0.4.9.20.md). Source-only candidate from owner-promoted v0.4.9.19; existing diagnostic ZIP without native mapper is not a verified recovery seed.

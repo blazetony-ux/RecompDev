@@ -1,5 +1,13 @@
 # RecompDev workspace changelog
 
+## [workspace/v0.4.9.20] - 2026-11-07
+
+- Real v0.4.9.19 owner Shinobi two-window monitor recorded `UNTRANSLATED_INITIAL_CODE` at PC/physical `0xADAF`, 936 host frames and 934 guest counter frames, with no non-neutral input. This is a native guest translation gap, not an observed Z-key crash or proof of gameplay parity.
+- New read-only preview ZIP carries an optional exact final mapper/SP/PC/natively observed translation-gap seed and exposes guest-vs-host frame-count domains without silently reconciling them. The GUI marks such a stop `Guest blocked — untranslated instruction` and keeps the last evidence visible.
+- `RecompDev.exe resume --job ID --max-cycles N --preview-stop ZIP` now explicitly preflights a SHA-verified, source/ROM/job/cycle-bound preview stop and feeds it into the already established native discovery/translation provider and immutable cumulative recovery history. Invalid archives cannot change job state. Old preview ZIPs lacking observed mapper/SP are rejected, never reconstructed by guessing.
+- New regression coverage checks valid/forged preview handoffs and cross-cycle preservation. No controller game-specific code, active runtime replacement, GitHub auto-push or qualified 1,800-frame gameplay claim.
+
+
 ## [workspace/v0.4.9.19] — 2026-11-07
 
 - **Implemented:** Separate controller-owned native preview and sampled instruction/keyboard/guest-stop telemetry, rebuilding only a source-attested copy of the previously generated game; independent game/monitor windows and ROM-free diagnostic ZIP beneath the release evidence root. Preview is not recovery or gameplay qualification.

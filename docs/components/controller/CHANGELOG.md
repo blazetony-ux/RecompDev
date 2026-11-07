@@ -1,5 +1,11 @@
 # controller — independent changelog
 
+## [0.4.16] - 2026-11-07
+
+- **Changed:** Add opt-in `resume --preview-stop ZIP` and independent preflight before changing job metadata; first resumed batch receives a verified preview-bound gap, persisted by the standard history importer.
+- **Validation:** C++ job contract verifies accepted/rejected preview dispatch, no writes on invalid evidence, correct original job/round selection; complete owner Windows CTests remain outstanding.
+- **Compatibility:** No implicit preview auto-resume and no alteration of old runtime, plugin ABIs, protected historical archives or versioned evidence.
+
 ## [0.4.15] - 2026-11-07
 
 - **Changed:** Compiled `RecompDev.exe preview [--job ID]` now resolves old and current source-attested recovery jobs, validates original ROM SHA and dispatches a separate bounded native preview service. New versioned evidence root `v0.4.9.19` captures sessions/diagnostics; preview cannot mutate recovery jobs or active runtime DLLs.

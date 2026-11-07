@@ -80,3 +80,7 @@ The single ZIP's pinned installer separates infrastructure source `main` promoti
 ## v0.4.9.19 native preview (development candidate)
 
 With a Windows-validated, independently built v0.4.9.19 `RecompDev.exe`, `preview --job JOB_ID` starts a disposable source-attested native game window plus the independent read-only live instruction monitor. Original recovery sessions remain immutable; a compact ROM-free diagnostics ZIP goes to `RecompDev-Evidence/v0.4.9.19/diagnostics`. Use `--video capture --input neutral --no-viewer` for CI. The preview does not qualify gameplay or repair untranslated code and is not activated by source-only Git promotion. See [release](docs/releases/v0.4.9.19.md).
+
+## v0.4.9.20 preview-to-recovery handoff (candidate)
+
+After a v0.4.9.20 `preview` emits a complete `recovery-seed.json` in its diagnostics ZIP, resume with `RecompDev.exe resume --job JOB_ID --max-cycles NEW_TOTAL --preview-stop ABSOLUTE_ZIP`. The controller checks ROM, original translated source, job/cycle, mapper and native stop before changing a job. Preview remains a separate, read-only diagnostic execution and cannot itself qualify the game. Owner v19 preview stopped at PC `0xADAF` without keypress; original older ZIP does not contain sufficient state to use as a new native recovery seed. See [v20 release](docs/releases/v0.4.9.20.md).

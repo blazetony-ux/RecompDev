@@ -87,7 +87,7 @@ void atomic_write(const fs::path& p,const std::string& data){
 }
 std::string jsonarr(const std::vector<std::string>&items){std::string s="[";for(auto &i:items){if(s.size()>1)s+=",";s+=q(i);}return s+"]";}
 struct Options{
-    std::string rom,job,logging="info",ghidra,rizin,plugin_dir,import_history,workspace,evidence_root;
+    std::string rom,job,logging="info",ghidra,rizin,plugin_dir,import_history,workspace,evidence_root,preview_stop;
     std::vector<std::string> roots;
     int max_cycles=8,rounds=4,target_frames=1800,timeout=600,step_budget=20000000;
     int preview_frames=1200,preview_steps=12000000,preview_every=128,preview_cycle=0;
@@ -114,6 +114,7 @@ Options parse(const std::vector<std::string>&argv){
         else if(key=="--rizin")opt.rizin=val;
         else if(key=="--plugin-dir")opt.plugin_dir=val;
         else if(key=="--import-history")opt.import_history=val;
+        else if(key=="--preview-stop")opt.preview_stop=val;
         else if(key=="--workspace")opt.workspace=val;
         else if(key=="--evidence-root")opt.evidence_root=val;
         else if(key=="--allow-tool-root")opt.roots.push_back(val);
@@ -151,11 +152,11 @@ Options load_config(const fs::path&h){
     return opt;
 }
 bool within(const fs::path& p,const fs::path& root){auto i=p.begin(),j=root.begin();for(;j!=root.end();++i,++j)if(i==p.end()||*i!=*j)return false;return true;}
-// Evidence lives under <configured-root>/v0.4.9.19, independently of old job locations.
+// Evidence lives under <configured-root>/v0.4.9.20, independently of old job locations.
 // The prior --workspace value is recognised but never rewritten automatically.
 // A version-like trailing directory is treated as an older release workspace,
-// allowing existing owner configuration to transparently select v0.4.9.19.
-constexpr const char* kEvidenceVersion = "v0.4.9.19";
+// allowing existing owner configuration to transparently select v0.4.9.20.
+constexpr const char* kEvidenceVersion = "v0.4.9.20";
 bool is_version_folder(const std::string& name){
     if(name.size()<6||name[0]!='v')return false;
     int dots=0;
@@ -271,7 +272,7 @@ void report(const Job&j,bool details){
     std::cout<<"RECOMPDEV_BEST_FRAMES="<<best<<"\nRECOMPDEV_TARGET_FRAMES="<<j.target_frames<<"\n";
     if(details){std::cout<<"RECOMPDEV_ROM_SHA256="<<j.sha<<"\n";for(auto&a:j.attempts)std::cout<<"CYCLE="<<a.cycle<<" FRAMES="<<a.frames<<" EMITTED="<<a.emitted<<" STATUS="<<a.status<<" OUTPUT="<<a.output<<"\n";}
 }
-int execute(Job&j,const fs::path&jobs,const fs::path&diagnostic_dir,const fs::path&exe,const std::function<int(const std::vector<std::string>&)>&bridge,const std::string&logging){
+int execute(Job&j,const fs::path&jobs,const fs::path&diagnostic_dir,const fs::path&exe,const std::function<int(const std::vector<std::string>&)>&bridge,const std::string&logging,const std::string&preview_stop=""){
     const auto dir=jobs/j.id;Log log(dir/"events.jsonl",j.id,logging);
     if(hash_rom(full(j.rom))!=j.sha)throw Error("ROM_SOURCE_CHANGED_REFUSE_RESUME");
     if(full(j.plugin_dir)!=fs::canonical(exe.parent_path()))throw Error("JOB_PLUGIN_DIR_MISMATCH");
@@ -287,15 +288,23 @@ int execute(Job&j,const fs::path&jobs,const fs::path&diagnostic_dir,const fs::pa
             try{log.emit(2,"DIAGNOSTICS_EXPORT_FAILED",e.what());}catch(...){}
         }
     };
+    const int initial_cycle=static_cast<int>(j.attempts.size())+1;
     j.status="RUNNING";persist();log.emit(1,"JOB_STARTED",std::string("Starting native recovery, cycle ")+std::to_string(j.attempts.size()+1));
     while(j.attempts.size()<static_cast<size_t>(j.max_cycles)){
         const int n=static_cast<int>(j.attempts.size())+1;
+        const bool first_new_cycle=(n==initial_cycle);
         auto out=dir/"sessions"/("cycle-"+(n<10?std::string("0"):std::string())+std::to_string(n));
         if(fs::exists(out))throw Error("IMMUTABLE_SESSION_OUTPUT_ALREADY_EXISTS");
         std::vector<std::string> cmd={"--stage","native-orchestrate","--rom",j.rom,"--out",out.u8string(),"--plugin-dir",j.plugin_dir,
             "--ghidra",j.ghidra,"--rizin",j.rizin,"--max-rounds",std::to_string(j.rounds),
             "--target-frames",std::to_string(j.target_frames),"--timeout",std::to_string(j.timeout),"--step-budget",std::to_string(j.step_budget)};
         for(auto& root:j.roots){cmd.push_back("--allow-tool-root");cmd.push_back(root);}
+        if(first_new_cycle && !preview_stop.empty()){
+            // Explicit preview evidence is only admitted to the FIRST new
+            // recovery session; it is then carried by source-checked history.
+            cmd.push_back("--preview-stop");cmd.push_back(preview_stop);
+            cmd.push_back("--preview-job-id");cmd.push_back(j.id);
+        }
         if(!j.attempts.empty()){cmd.push_back("--resume-from");cmd.push_back(j.attempts.back().output);}
         else if(!j.import_history.empty()){
             auto prior=read_json(full(j.import_history)/"orchestration.json");
@@ -365,6 +374,7 @@ int rd_native_job(const std::vector<std::string>& args,const fs::path&source,con
         auto opt=parse(parsed);auto h=home();
         if(h==source||within(h,source))throw Error("JOB_HOME_CANNOT_BE_INSIDE_SOURCE");
         const auto& op=args.front();
+        if(op!="resume"&&!opt.preview_stop.empty())throw Error("PREVIEW_STOP_ONLY_FOR_RESUME");
         if(op!="preview"&&(opt.preview_frames!=1200||opt.preview_steps!=12000000||opt.preview_every!=128||
            opt.preview_cycle!=0||opt.preview_video!="window"||opt.preview_input!="live"||!opt.preview_viewer||opt.preview_hold))
             throw Error("PREVIEW_OPTIONS_ONLY_FOR_PREVIEW");
@@ -468,9 +478,18 @@ int rd_native_job(const std::vector<std::string>& args,const fs::path&source,con
                 return 0;
             }
             if(op!="resume"){if(opt.have_cycles)throw Error("INVALID_STATUS_OPTION");report(j,op=="inspect");return 0;}
+            if(!opt.preview_stop.empty()){
+                if(j.attempts.empty())throw Error("PREVIEW_STOP_REQUIRES_PRIOR_CYCLE");
+                auto archive=full(opt.preview_stop);
+                if(!fs::is_regular_file(archive) || fs::is_symlink(archive))throw Error("PREVIEW_STOP_ARCHIVE_INVALID");
+                auto preflight=bridge({"--stage","preview-verify","--preview-stop",archive.u8string(),
+                    "--rom",j.rom,"--resume-from",j.attempts.back().output,"--job-id",j.id});
+                if(preflight!=0)throw Error("PREVIEW_STOP_NOT_ATTESTED_JOB_UNCHANGED");
+            }
             if(opt.have_cycles){if(opt.max_cycles<int(j.attempts.size())||opt.max_cycles<j.max_cycles)throw Error("CANNOT_REDUCE_JOB_CYCLE_LIMIT");j.max_cycles=opt.max_cycles;}
             if(j.attempts.size()>=static_cast<size_t>(j.max_cycles))throw Error("INCREASE_MAX_CYCLES_TO_RESUME");
-            return execute(j,jobs,workspace(h,source)/"diagnostics",exe,bridge,opt.logging);
+            return execute(j,jobs,workspace(h,source)/"diagnostics",exe,bridge,opt.logging,
+                           opt.preview_stop.empty()?std::string{}:full(opt.preview_stop).u8string());
         }
         throw Error("UNKNOWN_JOB_COMMAND_"+op);
     }catch(const std::exception&e){std::cerr<<"RECOMPDEV_JOB_ERROR="<<e.what()<<"\n";return 2;}

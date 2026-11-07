@@ -53,7 +53,7 @@ int main(int argc,char**argv){
   require(go({"run","--rom",rom.string(),"--max-cycles","3","--rounds-per-cycle","2","--target-frames","100","--logging","warning"},source,exe,bridge)==0,"autonomous native scheduling failed");
   require(invocations==3,"expected three controller-scheduled calls");
   auto job_id=read(home/"last-job.txt");while(!job_id.empty()&&(job_id.back()=='\n'||job_id.back()=='\r'))job_id.pop_back();
-  auto job_dir=(tmp/"workspace"/"v0.4.9.19"/"jobs")/job_id;auto job=read(job_dir/"job.json");
+  auto job_dir=(tmp/"workspace"/"v0.4.9.20"/"jobs")/job_id;auto job=read(job_dir/"job.json");
   require(job.find("TARGET_REACHED_PARITY_UNVERIFIED")!=std::string::npos,"not parity-unverified");
   require(job.find("\"cycle\":3")!=std::string::npos,"third cycle not committed");
   require(read(job_dir/"events.jsonl").find("AUTO_RESUME")!=std::string::npos,"missing controller automatic resume events");
@@ -65,8 +65,8 @@ int main(int argc,char**argv){
      auto val=[&](const std::string&key)->std::string{for(size_t i=0;i+1<args.size();++i)if(args[i]==key)return args[i+1];return "";};
      require(val("--stage")=="job-preview","wrong preview provider selected");
      require(val("--job-dir")==job_dir.string(),"preview must use immutable existing job");
-     require(val("--out-dir")==((tmp/"workspace"/"v0.4.9.19")/"preview").string(),"preview output outside evidence root");
-     require(val("--diagnostics-dir")==((tmp/"workspace"/"v0.4.9.19")/"diagnostics").string(),"preview diagnostic root wrong");
+     require(val("--out-dir")==((tmp/"workspace"/"v0.4.9.20")/"preview").string(),"preview output outside evidence root");
+     require(val("--diagnostics-dir")==((tmp/"workspace"/"v0.4.9.20")/"diagnostics").string(),"preview diagnostic root wrong");
      require(val("--sample-every")=="64","preview sampling option lost");
      require(val("--video")=="capture"&&val("--input")=="neutral","preview backend option lost");
      return 0;
@@ -118,7 +118,47 @@ int main(int argc,char**argv){
   require(go({"run","--rom",rom.string(),"--max-cycles","5"},source,exe,stagnant)==2,"stagnation should block");
   require(stale_calls==3,"stagnation was not measured against all-time high watermark");
   auto stagnant_id=read(home/"last-job.txt");while(!stagnant_id.empty()&&(stagnant_id.back()=='\n'||stagnant_id.back()=='\r'))stagnant_id.pop_back();
-  require(read((tmp/"workspace"/"v0.4.9.19"/"jobs")/stagnant_id/"job.json").find("BLOCKED_STAGNATION")!=std::string::npos,"stagnation status not persisted");
+  require(read((tmp/"workspace"/"v0.4.9.20"/"jobs")/stagnant_id/"job.json").find("BLOCKED_STAGNATION")!=std::string::npos,"stagnation status not persisted");
+  // v0.4.9.20: preview handoff must be explicitly requested and source-attested
+  // BEFORE a recovery job is mutated; no implicit preview-to-job writes.
+  int bounded=0;
+  auto incomplete=[&](const std::vector<std::string>&args)->int{
+      if(args.size()>1&&args[1]=="job-diagnostics")return 0;
+      ++bounded;auto it=std::find(args.begin(),args.end(),"--out");require(it!=args.end()&&++it!=args.end(),"missing output");
+      fs::path out=*it;fs::create_directories(out);
+      put(out/"orchestration.json","{\"source_sha256\":"+q(digest)+",\"status\":\"MAX_RECOVERY_ROUNDS_REACHED\",\"rounds\":[{\"frames\":18,\"emitted\":1800}]}");
+      return 2;
+  };
+  require(go({"run","--rom",rom.string(),"--max-cycles","1"},source,exe,incomplete)==2,"preview handoff fixture not bounded");
+  auto preview_job=read(home/"last-job.txt");while(!preview_job.empty()&&(preview_job.back()=='\n'||preview_job.back()=='\r'))preview_job.pop_back();
+  auto preview_jdir=(tmp/"workspace"/"v0.4.9.20"/"jobs")/preview_job;
+  auto unchanged=read(preview_jdir/"job.json");
+  auto zip=tmp/"preview-check.zip";put(zip,"fake archived fixture");
+  int probes=0,scheduled=0;
+  auto preview_verified=[&](const std::vector<std::string>&args)->int{
+      auto val=[&](const std::string&key){for(size_t i=0;i+1<args.size();++i)if(args[i]==key)return args[i+1];return std::string();};
+      if(val("--stage")=="preview-verify"){
+         ++probes;require(val("--job-id")==preview_job,"preview provenance job not forwarded");
+         require(val("--resume-from")==((preview_jdir/"sessions")/"cycle-01").string(),"preview source cycle changed");
+         return probes==1?2:0;
+      }
+      if(val("--stage")=="job-diagnostics")return 0;
+      require(val("--stage")=="native-orchestrate","wrong resume provider");
+      ++scheduled;require(val("--preview-stop")==zip.string(),"missing explicitly verified preview seed");
+      require(val("--preview-job-id")==preview_job,"preview job identity not forwarded to analyzer");
+      fs::path out=val("--out");fs::create_directories(out);
+      put(out/"orchestration.json","{\"source_sha256\":"+q(digest)+",\"status\":\"MAX_RECOVERY_ROUNDS_REACHED\",\"rounds\":[{\"frames\":19,\"emitted\":1801}]}");
+      return 2;
+  };
+  require(go({"resume","--job",preview_job,"--max-cycles","2","--preview-stop",zip.string()},source,exe,preview_verified)==2,
+          "invalid preview did not fail closed");
+  require(read(preview_jdir/"job.json")==unchanged,"rejected preview changed recovery job");
+  require(scheduled==0,"unverified preview reached native translator");
+  require(go({"resume","--job",preview_job,"--max-cycles","2","--preview-stop",zip.string()},source,exe,preview_verified)==2,
+          "valid preflight dispatch did not reach bounded recovery");
+  require(probes==2&&scheduled==1,"preview was executed without attestation");
+  require(go({"preview","--job",preview_job,"--preview-stop",zip.string()},source,exe,unexpected)==2,
+          "preview-stop unexpectedly accepted by non-resume command");
   fs::remove_all(tmp);
   std::cout<<"PASS: compiled controller job scheduling, logging, immutable sessions and identity gates\n";
   return 0;

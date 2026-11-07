@@ -139,7 +139,7 @@ static void usage(){
       "  --plugins | --verify | --status | --help\n"
       "  run --rom FILE [--logging debug|info|warning|error] [--max-cycles N]\n"
       "  configure --ghidra PATH --rizin PATH [--evidence-root DIR] [--workspace LEGACY_DIR] [--allow-tool-root DIR]\n"
-      "  resume [--job ID] [--max-cycles N]; status [--job ID]; inspect [--job ID]\n"
+      "  resume [--job ID] [--max-cycles N] [--preview-stop ZIP]; status [--job ID]; inspect [--job ID]\n"
       "  diagnostics export [--job ID] (redacted upload-ready ZIP; no ROM)\n"
       "  preview [--job ID] [--cycle N] [--frames N] [--steps N] [--monitor-every N]\n"
       "    [--video window|capture] [--input live|neutral] [--no-viewer] [--hold-window]\n"
@@ -228,7 +228,8 @@ int main(int argc,char** argv)
            }
            auto invoke=[&](const std::vector<std::string>&cmd)->int{
               std::vector<std::wstring> forwarded={(cmd.size()>1 && cmd[0]=="--stage" && cmd[1]=="job-diagnostics" ? (root/L"workspace"/L"diagnostics_export.py") :
-                 cmd.size()>1 && cmd[0]=="--stage" && cmd[1]=="job-preview" ? (root/L"execution_monitor"/L"job_preview.py") : (root/L"analysis_integration"/L"cli.py")).wstring()};
+                 cmd.size()>1 && cmd[0]=="--stage" && cmd[1]=="job-preview" ? (root/L"execution_monitor"/L"job_preview.py") :
+                 cmd.size()>1 && cmd[0]=="--stage" && cmd[1]=="preview-verify" ? (root/L"analysis_integration"/L"preview_frontier.py") : (root/L"analysis_integration"/L"cli.py")).wstring()};
               for(auto&str:cmd){
                   int n=MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,str.c_str(),-1,nullptr,0);
                   if(n<=0)throw std::runtime_error("PROVIDER_ARGUMENT_UTF8_INVALID");
@@ -236,7 +237,7 @@ int main(int argc,char** argv)
                   if(!MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,str.c_str(),-1,w.data(),n))throw std::runtime_error("PROVIDER_ARGUMENT_UTF8_INVALID");
                   w.pop_back();forwarded.push_back(std::move(w));
               }
-              if(!(cmd.size()>1 && (cmd[1]=="job-diagnostics"||cmd[1]=="job-preview"))){forwarded.emplace_back(L"--controller-exe");forwarded.emplace_back(self_path().wstring());
+              if(!(cmd.size()>1 && (cmd[1]=="job-diagnostics"||cmd[1]=="job-preview"||cmd[1]=="preview-verify"))){forwarded.emplace_back(L"--controller-exe");forwarded.emplace_back(self_path().wstring());
               forwarded.emplace_back(L"--source-root");forwarded.emplace_back(root.wstring());}
               return spawn(root,forwarded);
            };
@@ -244,9 +245,10 @@ int main(int argc,char** argv)
            for(int i=1;i<argc;++i)job_args.emplace_back(argv[i]);
            auto invoke=[&](const std::vector<std::string>&cmd)->int{
               std::vector<std::string> forwarded={(cmd.size()>1 && cmd[0]=="--stage" && cmd[1]=="job-diagnostics" ? (root/"workspace"/"diagnostics_export.py") :
-                 cmd.size()>1 && cmd[0]=="--stage" && cmd[1]=="job-preview" ? (root/"execution_monitor"/"job_preview.py") : (root/"analysis_integration"/"cli.py")).string()};
+                 cmd.size()>1 && cmd[0]=="--stage" && cmd[1]=="job-preview" ? (root/"execution_monitor"/"job_preview.py") :
+                 cmd.size()>1 && cmd[0]=="--stage" && cmd[1]=="preview-verify" ? (root/"analysis_integration"/"preview_frontier.py") : (root/"analysis_integration"/"cli.py")).string()};
               forwarded.insert(forwarded.end(),cmd.begin(),cmd.end());
-              if(!(cmd.size()>1 && (cmd[1]=="job-diagnostics"||cmd[1]=="job-preview"))){forwarded.emplace_back("--controller-exe");forwarded.emplace_back(self_path().string());
+              if(!(cmd.size()>1 && (cmd[1]=="job-diagnostics"||cmd[1]=="job-preview"||cmd[1]=="preview-verify"))){forwarded.emplace_back("--controller-exe");forwarded.emplace_back(self_path().string());
               forwarded.emplace_back("--source-root");forwarded.emplace_back(root.string());}
               return spawn(root,forwarded);
            };

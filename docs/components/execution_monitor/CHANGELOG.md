@@ -1,5 +1,11 @@
 # execution_monitor component history
 
+## [0.3.0] - 2026-11-07
+
+- **Changed:** Create ROM-free optional `recovery-seed.json` only from exact native final guest translation-gap state and matching live stop event. Display guest-blocked outcome separately from native process completion, showing distinct host and guest frame counters.
+- **Validation:** Synthetic native compile/run, token-authenticated viewer and ROM-bound seed validation; real Windows GUI observation remains owner acceptance.
+- **Compatibility:** Read-only viewer and original generated source remain unchanged. No guest modifications, CPU/console heuristic, or proof that input caused a stop.
+
 ## [0.2.0] - 2026-11-07
 
 - **Changed:** Reconnect the existing CPU-neutral, independent read-only instruction viewer to current compiled-controller recovery artifacts. New `execution_monitor/job_preview.py` reconstructs a private generated project from a source-attested historical round, instruments only copied machine adapter code, compiles native preview and watches buffered instruction, frame, input-mask and stop events. The adapter now accepts the separate Mode 4 video plugin path as well as the previous inline renderer.

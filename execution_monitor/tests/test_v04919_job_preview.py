@@ -116,7 +116,7 @@ class PreviewContract(unittest.TestCase):
             self.assertEqual(len(artifacts),1)
             with zipfile.ZipFile(artifacts[0]) as z:
                 summary=json.loads(z.read('preview.json'))
-                self.assertEqual(summary['status'],'PREVIEW_CAPTURE_COMPLETE')
+                self.assertEqual(summary['status'],'GUEST_BLOCKED_UNTRANSLATED')
                 self.assertTrue(summary['observed_events']>0)
                 self.assertEqual(summary['native_stop']['status'],'UNTRANSLATED_INITIAL_CODE')
                 self.assertEqual(summary['native_stop']['pc'],1)

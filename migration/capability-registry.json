@@ -61,7 +61,7 @@
       "name": "Ghidra and analysis tools",
       "new_boundary": "original analyses retained as external services and direct P-code export verifier",
       "owner": "analysis_integration",
-      "qualification": "Partial source/tool/provider-attested initial-analysis reuse added v0.4.9.18; native ABI and owner Windows real-tool parity pending",
+      "qualification": "Partial source/tool/provider-attested initial-analysis reuse added v0.4.9.18; native ABI and owner Windows real-tool parity pending Explicit preview-gap admission to native discovery by source-attested mapper/ROM state in v0.4.9.20; compiled analysis ABI still pending.",
       "status": "partial"
     },
     {
@@ -170,7 +170,7 @@
       "status": "partial"
     },
     {
-      "acceptance_test": "v04919_controller_preview_native; PENDING owner Windows two-window input acceptance and unified Workbench controls",
+      "acceptance_test": "v04919_controller_preview_native; v04920_preview_handoff; PENDING owner Windows input acceptance and full operator Workbench",
       "exit_criteria": "Reintegrate authorised task controls, previews, cancel, ZIP downloads",
       "legacy_paths": [
         "legacy/RecompDev-v0.4.0.45/workbench.py",
@@ -179,9 +179,9 @@
       ],
       "migration_state": "adapter",
       "name": "Operator Workbench and monitor",
-      "new_boundary": "controller.native_job + execution_monitor.job_preview + controller.diagnostics + replaceable game presentation host",
+      "new_boundary": "controller.native_job + execution_monitor.job_preview + analysis_integration.preview_frontier + controller.diagnostics",
       "owner": "controller + execution_monitor; hardware/provider-specific adapters independently replaceable",
-      "qualification": "Current compiled controller now dispatches source-attested native previews and sampled input/stop monitor; full operator Workbench, multi-ISA runtime UI and real Windows keypress qualification remain pending",
+      "qualification": "Native preview diagnostic ZIP now contains only source-attested, mapper/ROM-checked executable-gap stops for explicit controller recovery handoff; no implicit guest mutation. Windows real ROM two-window acceptance and source/gameplay parity still pending.",
       "status": "partial"
     },
     {

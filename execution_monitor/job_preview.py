@@ -25,6 +25,10 @@ if str(ROOT) not in sys.path: sys.path.insert(0, str(ROOT))
 from controller.diagnostics import ControllerDiagnostics
 from execution_monitor.bridge import HEADER, live_transform
 from execution_monitor.stream import NativeEventReader
+from analysis_integration.recovery_history import _check_seed, RecoveryHistoryError
+
+TRANSLATION_GAPS = frozenset({'UNTRANSLATED_INITIAL_CODE', 'BANKED_CODE_NOT_TRANSLATED',
+                              'UNTRANSLATED_PHYSICAL_ROM_OFFSET'})
 
 JOB = re.compile(r'^job-[A-Za-z0-9_-]{1,96}$')
 CYCLE = re.compile(r'^cycle-(?:0[1-9]|1[0-6])$')
@@ -238,10 +242,56 @@ def collect_input_stop(events, native):
     return stop,total
 
 
-def diagnostic_zip(out,diagnostics,summary,events):
+def preview_recovery_seed(native, rom, expected_sha, process_exit_code, published_stop):
+    """Only actual, source/mapper-rechecked native translation gaps are replayable.
+
+    The monitor's sampled instruction stream is NOT a replacement for this
+    precise native exit state. No seed is inferred from an address alone.
+    """
+    if process_exit_code != 0 or not isinstance(native,dict) or native.get('status') not in TRANSLATION_GAPS:
+        return None
+    if not isinstance(published_stop,dict) or published_stop.get('status') != 'untranslated_code':
+        return None
+    if published_stop.get('pc') != native.get('pc') or published_stop.get('physical_offset') != native.get('physical_offset'):
+        return None
+    keys=('status','pc','physical_offset','sp','mapper','native_steps','rom_bytes')
+    if any(key not in native for key in keys):return None
+    seed={'schema':'recompdev.native.app.stop.v1', 'source_sha256':expected_sha,
+          'observed_run':'CONTROLLER_NATIVE_PREVIEW',
+          'source_verification':'RECHECK_BY_NATIVE_DISCOVERY',
+          'qualification':'UNTRANSLATED_CODE_STOP_ONLY',
+          **{key:native[key] for key in keys}}
+    rom=Path(rom)
+    if digest(rom)!=expected_sha:return None
+    try:
+        _check_seed(seed,rom.read_bytes(),expected_sha)
+        if seed['native_steps'] < 1:return None
+    except (RecoveryHistoryError,ValueError):return None
+    return seed
+
+
+def frame_accounting(native,published_stop):
+    """Explicitly distinguish CPU/VBlank and presentation clock domains.
+
+    A delta must never be silently interpreted as additional guest progress.
+    """
+    host=native.get('frames') if isinstance(native,dict) else None
+    cpu=published_stop.get('frame') if isinstance(published_stop,dict) else None
+    if type(host) is int and type(cpu) is int:
+        return {'host_output_frames':host,'guest_cpu_frames':cpu,
+                'delta_host_minus_guest':host-cpu,
+                'same_clock_domain':False,
+                'interpretation':'HOST_PRESENTATION_VS_GUEST_VDP_COUNTERS_NOT_PARITY_PROOF'}
+    return {'host_output_frames':host,'guest_cpu_frames':cpu,
+            'interpretation':'FRAME_COUNTER_COMPARISON_UNAVAILABLE'}
+
+
+def diagnostic_zip(out,diagnostics,summary,events,recovery_seed=None):
     diagnostics=Path(diagnostics);diagnostics.mkdir(parents=True,exist_ok=True)
     payload={'preview.json':(json.dumps(summary,indent=2,sort_keys=True)+'\n').encode('utf8'),
              'monitor-events.jsonl':(''.join(json.dumps(safe_excerpt(e),sort_keys=True)+'\n' for e in list(events)[-MAX_EVENTS_ZIP:])).encode('utf8')}
+    if recovery_seed is not None:
+        payload['recovery-seed.json']=(json.dumps(recovery_seed,indent=2,sort_keys=True)+'\n').encode('utf8')
     manifest={'schema':'recompdev.preview.diagnostics.v1',
               'files':{name:{'sha256':hashlib.sha256(data).hexdigest(),'bytes':len(data)} for name,data in payload.items()},
               'rom_included':False,'native_binary_included':False,'host_paths_included':False}
@@ -331,8 +381,11 @@ def preview(opts):
                     for line in (out/'native-stdout.log').read_text(encoding='utf8',errors='replace').splitlines():
                         if line.startswith('NATIVE_APP_RESULT='):
                             native=json.loads(line.partition('=')[2]);break
-                broker.publish({'type':'stop','status':str(native.get('status','NO_NATIVE_RESULT')) if native else 'NO_NATIVE_RESULT',
-                                'pc':native.get('pc',0) if native else 0,'frame':native.get('frames',0) if native else 0,
+                raw_last_stop=next((e for e in reversed(events) if e.get('type')=='stop'),None)
+                broker.publish({'type':'native_result','status':str(native.get('status','NO_NATIVE_RESULT')) if native else 'NO_NATIVE_RESULT',
+                                'pc':native.get('pc',0) if native else 0,
+                                'host_frame':native.get('frames',0) if native else 0,
+                                'guest_frame':raw_last_stop.get('frame') if raw_last_stop else None,
                                 'physical_offset':native.get('physical_offset',0) if native else 0})
                 time.sleep(0.15)
             finally:
@@ -342,14 +395,18 @@ def preview(opts):
         safe=explanation if re.fullmatch(r'[A-Z0-9_]+',explanation) else 'REDACTED_EXCEPTION_DETAILS'
         error=type(exc).__name__+': '+safe
     stop,n=collect_input_stop(events,native)
-    state['status']='PREVIEW_CAPTURE_COMPLETE' if proc_rc==0 and native and not error else 'PREVIEW_INCOMPLETE'
+    eligible=preview_recovery_seed(native,rom,job['rom_sha256'],proc_rc,stop.get('published_stop'))
+    state['status']=('GUEST_BLOCKED_UNTRANSLATED' if eligible is not None and not error else
+                     'PREVIEW_CAPTURE_COMPLETE' if proc_rc==0 and native and not error else 'PREVIEW_INCOMPLETE')
     state['process_exit_code']=proc_rc
     state['native_stop']=stop
+    state['frame_accounting']=frame_accounting(native,stop.get('published_stop'))
+    state['recovery_seed_available']=eligible is not None
     state['observed_events']=n
     state['viewer']=viewer_state
     if error:state['failure_code']=error
     (out/'preview-summary.json').write_text(json.dumps(state,indent=2,sort_keys=True)+'\n',encoding='utf8')
-    diagnostics=diagnostic_zip(out,opts.diagnostics_dir,state,events)
+    diagnostics=diagnostic_zip(out,opts.diagnostics_dir,state,events,eligible)
     print('RECOMPDEV_PREVIEW_RESULT='+state['status'])
     print('RECOMPDEV_PREVIEW_NATIVE_STATUS='+stop['status'])
     print('RECOMPDEV_PREVIEW_LAST_INPUT='+json.dumps(stop['preceding_input'],sort_keys=True))
@@ -359,7 +416,7 @@ def preview(opts):
     print('RECOMPDEV_PREVIEW_EVIDENCE='+str(out))
     print('RECOMPDEV_DIAGNOSTICS_ZIP='+str(diagnostics))
     print('RECOMPDEV_DIAGNOSTICS_SHA256='+digest(diagnostics))
-    return 0 if state['status']=='PREVIEW_CAPTURE_COMPLETE' else 2
+    return 0 if state['status'] in ('PREVIEW_CAPTURE_COMPLETE','GUEST_BLOCKED_UNTRANSLATED') else 2
 
 
 def main(argv=None):

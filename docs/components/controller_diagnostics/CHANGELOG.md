@@ -1,5 +1,11 @@
 # controller_diagnostics component history
 
+## [0.1.1] - 2026-11-07
+
+- **Changed:** Add one bounded native-result telemetry event type so the independently subscribed viewer can show final reported host and sampled guest frame counters without confusing the capture result with gameplay execution.
+- **Validation:** Native preview regression exercises session end with a native-result event; invalid event types and oversized events remain rejected by the existing broker.
+- **Compatibility:** No sockets exposed beyond authenticated loopback, no new mutation controls, and no CPU- or platform-specific payload parsing inside the controller.
+
 ## [0.1.0] - 2026-11-05
 
 - **Changed:** Added independently versioned controller diagnostics api as a reusable, non-game-specific service.

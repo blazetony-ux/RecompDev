@@ -1,5 +1,9 @@
 ## v0.4.9.18 — evidence closure and targeted recovery infrastructure (2026-11-07)
 
+## v0.4.9.20 — guarded native preview handoff
+
+The owner v0.4.9.19 observed PC `0xADAF` and 936 host frames without pressing Z. This candidate adds a complete source-attested optional preview gap, direct controller `resume --preview-stop` preflight, native plugin-byte recheck and immutable history import. Host and guest frame counters are displayed separately, without claiming parity. 1,800-frame gameplay and multiple console/ISA qualification remain outstanding. See [scope](PREBUILD-v0.4.9.20.md).
+
 Source-only work from published v0.4.9.17 `main`: versioned evidence-root job/diagnostics routing; immediate-history Ghidra/Rizin reuse only after ROM, tool and provider hash re-attestation; newest imported stop prioritized; compact source-matched per-cycle translated-PC/physical-address differences in ZIP. Owner evidence v0.4.9.16 cycle 2→3 showed two new code addresses but no frames beyond 896. **Next:** owner Windows installer validation and real Ghidra/Rizin run to measure cache hits, time/cycle savings, stagnation, then independent correctness tests. Never equate extra code or frames with gameplay parity. See [prebuild](PREBUILD-v0.4.9.18.md).
 
 ## v0.4.9.16 — accumulate authenticated recovery, not shell commands

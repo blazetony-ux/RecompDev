@@ -1,5 +1,11 @@
 # analysis_integration — independent component history
 
+## [0.3.3] - 2026-11-07
+
+- **Changed:** Add `preview_frontier.py` with exact manifest checks, source/ROM/mapper/PC/SP/guest-stop attestation and immutable `recovery_history.import_previous` preview injection; no address guessing.
+- **Validation:** Adversarial ZIP mutation, wrong ROM, wrong job/cycle, source replacement, missing state and cross-session inheritance tests; native source verification remains mandatory.
+- **Compatibility:** Prior `resume` and provider contracts unchanged; incomplete v0.4.9.19 preview ZIPs rejected, and Python analysis ABI migration remains pending.
+
 ## [0.3.2] - 2026-11-07
 
 - **Changed:** Source-attested initial Ghidra/Rizin outputs can be reused across immediately consecutive sessions after SHA-256 matching ROM bytes, authorised external tool executables, maintained provider code/Java scripts, all input artifacts, Ghidra instruction bytes and deterministic Rizin reconciliation. Old v0.4.9.17 sessions or altered tools trigger fresh analysis; tampered artifacts fail closed.

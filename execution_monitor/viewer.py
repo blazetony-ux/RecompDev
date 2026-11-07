@@ -47,7 +47,7 @@ class Viewer:
         self.root.minsize(650, 420)
         self.info = tk.StringVar(value='Connecting to controller...')
         self.cpu = tk.StringVar(value='CPU: —     PC: —     SP: —     Steps: —')
-        self.frame = tk.StringVar(value='Frame: —     Cycles: —     Input: —')
+        self.frame = tk.StringVar(value='Guest frame: —     Cycles: —     Input: —')
         self.stop = tk.StringVar(value='Status: starting')
         for var in (self.info, self.cpu, self.frame, self.stop):
             tk.Label(root, textvariable=var, font=('Consolas', 11), anchor='w').pack(fill='x', padx=12, pady=(8, 0))
@@ -85,16 +85,24 @@ class Viewer:
                 self.recent.append(f"{event.get('guest_cycles', 0):>12}  {pc:04X}  opcode {event.get('opcode', 0):02X}  {event.get('opcode_class', '?'):<24} -> {event.get('next_pc', 0):04X}")
                 changed = True
             elif kind == 'frame':
-                self.frame.set(f"Frame: {event.get('frame', 0)}     Cycles: {event.get('guest_cycles', 0):,}     Steps: {event.get('steps', 0):,}")
+                self.frame.set(f"Guest frame: {event.get('frame', 0)}     Cycles: {event.get('guest_cycles', 0):,}     Steps: {event.get('steps', 0):,}")
             elif kind == 'input':
                 self.frame.set(self.frame.get().split('     Input:')[0] + f"     Input mask: {event.get('buttons', 0):#x}")
                 self.recent.append('INPUT ' + str(event))
                 changed = True
-            elif kind in ('stop', 'notice', 'session'):
+            elif kind in ('stop', 'native_result', 'notice', 'session'):
                 if kind == 'session' and str(event.get('status', '')).startswith('Controller disconnected'):
                     self.info.set('Controller disconnected — last events retained; close this window when ready')
+                elif kind == 'native_result':
+                    if str(event.get('status','')).startswith(('UNTRANSLATED','BANKED_CODE_NOT_TRANSLATED')):
+                        status='Guest blocked — untranslated instruction'
+                    else:
+                        status='Guest execution ended — '+str(event.get('status','?'))
+                    self.stop.set(status+' @ '+hex(event.get('pc',0)))
+                    self.info.set('Native run complete; monitor retains the last trace')
+                    self.frame.set(f"Guest frame: {event.get('guest_frame', '?')}    Host output frame: {event.get('host_frame','?')}   (different counters)")
                 elif kind == 'stop':
-                    self.stop.set('Guest stopped: ' + str(event.get('status', '?')) + ' @ ' + hex(event.get('pc', 0)))
+                    self.stop.set('Guest blocked — '+str(event.get('status', '?')) + ' @ ' + hex(event.get('pc', 0)))
                 else:
                     self.stop.set('Status: ' + str(event.get('status', event.get('message', kind))))
                 self.recent.append(kind.upper() + ' ' + str(event))
