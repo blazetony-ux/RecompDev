@@ -507,3 +507,14 @@ if(Python3_Interpreter_FOUND)
   discover -s "${CMAKE_SOURCE_DIR}/../execution_monitor/tests" -p test_v04921_native_monitor.py -q)
  set_tests_properties(v04921_preview_and_recovery_bounds PROPERTIES TIMEOUT 30 WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/..")
 endif()
+
+# v0.4.9.22 CPU-neutral bounded monitoring stress test: no GUI required.
+add_executable(rd_native_monitor_stress ../execution_monitor/native/monitor_stress.cpp)
+target_include_directories(rd_native_monitor_stress PRIVATE ../execution_monitor/native ../execution_monitor/bridge ../translation_pcode/include)
+add_test(NAME v04922_native_monitor_stress COMMAND $<TARGET_FILE:rd_native_monitor_stress>)
+set_tests_properties(v04922_native_monitor_stress PROPERTIES TIMEOUT 30)
+if(Python3_Interpreter_FOUND)
+ add_test(NAME v04922_monitor_watch_pipeline COMMAND "${Python3_EXECUTABLE}" -B -m unittest
+  discover -s "${CMAKE_SOURCE_DIR}/../execution_monitor/tests" -p test_v04922_monitor_watch.py -q)
+ set_tests_properties(v04922_monitor_watch_pipeline PROPERTIES TIMEOUT 45 WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/..")
+endif()

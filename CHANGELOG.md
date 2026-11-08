@@ -1,5 +1,13 @@
 # RecompDev workspace changelog
 
+## [workspace/v0.4.9.22] - 2026-11-08
+
+- **Native monitor responsiveness:** Replace per-batch full-text repaint with bounded reader/UI queues, timer-based (100 ms) Win32 event ingestion, incremental trace rendering and a 2,000-entry searchable history. Report display-transport queue losses without affecting the source evidence log. Terminal PC is identified as terminal rather than conflated with last sampled SP and step count. Win32 watcher token conversion remains proper UTF-8 without lossy wchar narrowing.
+- **Monitor filters and capture:** Read-only search, field selector for PC/physical offset/opcode class/event type, matches-only toggle, previous/next navigation and follow-latest. `preview --monitor-pc 0xADDR` and repeatable `--monitor-pc-range A:B` capture watched logical CPU PCs even if `--monitor-every N` would omit them. Each watch event is tagged, bounds are enforced by controller, preview and C++ producer, and game execution is not paused or mutated.
+- **Second-ROM acceptance:** Add bounded, sequential `tools/Run-RecompDev-ROM-Smoke.ps1`, producing separate source-attested jobs for each `.sms` file and a per-ROM summary outside Git/AppData. No cross-ROM history import; no ROM contents in diagnostic ZIPs.
+- **Windows monitor stress correction:** Initial owner Windows CTest 73/74 exposed a cross-platform test cleanup defect (open telemetry JSONL deleted before publisher closes). The follow-up candidate closes the generic producer stream explicitly and idempotently before inspection/removal, with full Windows suite rerun required. COMPAT-023 (Rizin `ESC[2K` followed by carriage return) remains unfixed and separately tracked.
+- **Owner baseline:** v0.4.9.21 installed source commit `87a9ed588e9e155e6a1c7d2fa3132072f60a4603`; all 72 Windows CTests passed with 642 frozen files preserved. Owner screenshots showed the native monitor thread appearing unresponsive until 1,800-frame preview completion; video/input/audio/CPU-state reference parity is still **BLOCKED**. A native process exit 0 is not game correctness. This candidate still requires Windows compilation and visual UI acceptance before source promotion.
+
 ## [workspace/v0.4.9.21] - 2026-11-07
 
 - **Native monitor:** Add independent Win32 C++ `RecompDevMonitor.exe` subscribing to the existing authenticated controller diagnostics protocol; current compiled-controller previews stop launching Python/Tk. Python remains a transitional per-preview build/analysis adapter, not a GUI. Original Tk source retained for audit.

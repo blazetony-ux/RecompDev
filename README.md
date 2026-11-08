@@ -1,5 +1,10 @@
 **v0.4.9.16 candidate:** source-attested cumulative recovery ledger across autonomous controller sessions; optional `run --import-history DIR` for existing evidence, best-frontier stagnation checks and single-ZIP development checkpoint via a validated package-pinned installer. Not installed or parity-qualified. See [release record](docs/releases/v0.4.9.16.md).
 
+## v0.4.9.22 — responsive native execution monitor and other-ROM testing
+
+The generic compiled controller now supports CPU-neutral `preview --monitor-pc 0xADDR` and inclusive `--monitor-pc-range 0xSTART:0xEND`. The independently deployed Win32 execution monitor has a bounded reader queue, timer-driven UI, incremental trace, address/opcode/event search, matched-only filter and follow controls. It does not load the ROM, modify guest execution or link Z80/SMS code. `tools/Run-RecompDev-ROM-Smoke.ps1` can run independent bounded acceptance jobs for the owner's Master System ROM folder (Shinobi skipped by default); each receives a separate ROM hash/job/evidence. Reference gameplay parity is not established. The source-only release installer preserves all historical sources and does not activate runtime DLLs.
+
+
 **v0.4.9.21 candidate:** Native C++ execution monitor, standalone parity-capture comparator, explicit terminal frame accounting and configurable 128-cycle controller recovery. Owner v0.4.9.20 reached 1,800 observed Shinobi frames; gameplay, input, audio, video and emulator parity are **not yet proven**. See [release](docs/releases/v0.4.9.21.md). No production runtime activation.
 
 **Permanent release installer:** `Install-RecompDev-Release.ps1` is Git-managed after first accepted promotion; see [single ZIP release procedure](docs/development/RELEASE-PROCESS.md) and [v0.4.9.8 installable release](docs/releases/v0.4.9.8.md).

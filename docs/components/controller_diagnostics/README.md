@@ -7,3 +7,7 @@ The controller owns one CPU- and console-neutral event stream named `recompdev.c
 ## v0.4.9.20 terminal result event
 
 `native_result` is one more strictly bounded read-only event from the owner-approved controller to its token-authenticated monitor. It conveys final reported process status and separately labelled host and guest frame counters. It is not an input, debug-breakpoint or program-control channel, and accepts no guest mutation requests.
+
+## v0.4.9.22 display overflow audit
+
+The subscriber channel remains localhost/token-authenticated and read-only, but now counts event drops when an individual 256-item display channel fills. Its subscriber receives a `notice` with cumulative `display_dropped` counts; the native monitor displays broker transport drops separately from its own bounded UI reader-queue drops and rejected JSON events. These are *presentation losses*, not proof of dropped executed instructions. The preview worker continues writing native event evidence to a distinct local file, and the upload ZIP remains bounded to a 5,000-event excerpt.

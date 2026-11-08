@@ -184,7 +184,7 @@ def native_binary(build, name):
     raise ValueError('PREVIEW_NATIVE_ARTIFACT_MISSING_'+name)
 
 
-def launch_viewer(broker, out, binary):
+def launch_viewer(broker, out, binary, search="", matched_only=False):
     """Native Windows subscriber. Never silently select Python/Tk as fallback."""
     if os.name != 'nt':
         raise OSError('NATIVE_VIEWER_REQUIRES_WINDOWS')
@@ -195,7 +195,10 @@ def launch_viewer(broker, out, binary):
         raise ValueError('NATIVE_VIEWER_BINARY_INVALID')
     log=(out/'viewer.log').open('wb')
     try:
-        proc=subprocess.Popen([str(executable),'--port',str(broker.port),'--token',broker.token],
+        argv=[str(executable),'--port',str(broker.port),'--token',broker.token]
+        if search:argv.extend(['--search',search])
+        if matched_only:argv.append('--matched-only')
+        proc=subprocess.Popen(argv,
             cwd=out,stdout=log,stderr=subprocess.STDOUT,
             creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
         return proc,log
@@ -207,7 +210,7 @@ def launch_viewer(broker, out, binary):
 def safe_excerpt(obj):
     """No paths, raw ROM, environment, native stdout or full generated code."""
     fields=('type','cpu','pc','next_pc','physical_offset','opcode','opcode_class',
-            'sp','frame','guest_cycles','steps','buttons','status')
+            'sp','frame','guest_cycles','steps','buttons','status','watch_hit')
     return {key:obj[key] for key in fields if key in obj and
             (type(obj[key]) in (int,bool) or
              type(obj[key]) is str and re.fullmatch(r'[A-Za-z0-9_.:-]{1,80}',obj[key]))}
@@ -341,6 +344,10 @@ def diagnostic_zip(out,diagnostics,summary,events,recovery_seed=None,capture=Non
 
 
 def preview(opts):
+    # Preserve preview ABI for existing clients that do not provide v22 watches.
+    opts.monitor_pc=getattr(opts,'monitor_pc',[])
+    opts.monitor_pc_range=getattr(opts,'monitor_pc_range',[])
+    opts.monitor_matched_only=getattr(opts,'monitor_matched_only',False)
     job_dir=Path(opts.job_dir).resolve(strict=True)
     job,rom,session,project,translation=select_source(job_dir,opts.cycle)
     source=Path(opts.source_root).resolve(strict=True)
@@ -353,7 +360,8 @@ def preview(opts):
     out.mkdir(mode=0o700)
     state={'schema':'recompdev.preview.session.v1', 'job_id':job_dir.name,
            'source_sha256':job['rom_sha256'],'cycle':session.name,'round':project.name,
-           'monitor_sample_every':opts.sample_every,'requested_video':opts.video,
+           'monitor_sample_every':opts.sample_every,'monitor_watch_pc':opts.monitor_pc,
+           'monitor_watch_pc_ranges':opts.monitor_pc_range,'requested_video':opts.video,
            'requested_input':opts.input,'status':'STARTING',
            'gameplay_qualified':False,'recovery_state_modified':False}
     events=[]
@@ -375,6 +383,12 @@ def preview(opts):
         env=os.environ.copy()
         env['RECOMPDEV_CONTROLLER_DIAGNOSTIC_EVENTS']=str(out/'monitor-events.jsonl')
         env['RECOMPDEV_MONITOR_SAMPLE_EVERY']=str(opts.sample_every)
+        if opts.monitor_pc:
+            env['RECOMPDEV_MONITOR_WATCH_PC']=','.join(map(str,opts.monitor_pc))
+        else:env.pop('RECOMPDEV_MONITOR_WATCH_PC',None)
+        if opts.monitor_pc_range:
+            env['RECOMPDEV_MONITOR_WATCH_PC_RANGE']=','.join(f'{lo}:{hi}' for lo,hi in opts.monitor_pc_range)
+        else:env.pop('RECOMPDEV_MONITOR_WATCH_PC_RANGE',None)
         # Native game CMake builds its private presentation providers. No active plugin mutation.
         dll={'nt':('.dll','Release'),'posix':('.so','')}
         for key,name in (('RECOMPDEV_RUNTIME_HOST_DLL','rd_runtime_host'),('RECOMPDEV_SMS_MODE4_DLL','rd_video_sms_mode4')):
@@ -388,7 +402,10 @@ def preview(opts):
             log_handle=None
             if not opts.no_viewer:
                 try:
-                    viewer,log_handle=launch_viewer(broker,out,getattr(opts,'viewer_binary',''))
+                    viewer,log_handle=launch_viewer(broker,out,getattr(opts,'viewer_binary',''),
+                        '' if opts.monitor_matched_only else f'0x{opts.monitor_pc[0]:X}' if opts.monitor_pc else
+                        f'0x{opts.monitor_pc_range[0][0]:X}:0x{opts.monitor_pc_range[0][1]:X}' if opts.monitor_pc_range else '',
+                        opts.monitor_matched_only)
                     time.sleep(0.25)
                     viewer_state='NATIVE_WIN32_LAUNCHED_UNVERIFIED' if viewer.poll() is None else 'NATIVE_WIN32_UNAVAILABLE_CHECK_VIEWER_LOG'
                 except OSError:
@@ -444,6 +461,7 @@ def preview(opts):
     state['candidate_capture_available']=capture is not None
     state['recovery_seed_available']=eligible is not None
     state['observed_events']=n
+    state['monitor_watch_hits']=sum(1 for event in events if event.get('type')=='instruction' and event.get('watch_hit') is True)
     state['viewer']=viewer_state
     if error:state['failure_code']=error
     (out/'preview-summary.json').write_text(json.dumps(state,indent=2,sort_keys=True)+'\n',encoding='utf8')
@@ -460,6 +478,22 @@ def preview(opts):
     return 0 if state['status'] in ('PREVIEW_CAPTURE_COMPLETE','GUEST_BLOCKED_UNTRANSLATED') else 2
 
 
+def watch_number(value):
+    # Accept decimal and 0x-prefixed hex, never signed or out-of-range values.
+    if not isinstance(value,str) or not re.fullmatch(r'(?:[0-9]+|0[xX][0-9a-fA-F]+)',value):
+        raise ValueError('MONITOR_ADDRESS_INVALID')
+    n=int(value,16 if value.lower().startswith('0x') else 10)
+    if n>0xffffffff:raise ValueError('MONITOR_ADDRESS_OUT_OF_RANGE')
+    return n
+
+
+def watch_range(value):
+    if not isinstance(value,str) or value.count(':')!=1:raise ValueError('MONITOR_RANGE_INVALID')
+    lo,hi=map(watch_number,value.split(':'))
+    if lo>hi:raise ValueError('MONITOR_RANGE_REVERSED')
+    return lo,hi
+
+
 def main(argv=None):
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--stage',choices=['job-preview'],required=True)
@@ -472,10 +506,18 @@ def main(argv=None):
     p.add_argument('--timeout',type=int,default=600)
     p.add_argument('--no-viewer',action='store_true');p.add_argument('--hold-window',action='store_true')
     p.add_argument('--viewer-binary',default='')
+    p.add_argument('--monitor-pc',action='append',type=str,default=[])
+    p.add_argument('--monitor-pc-range',action='append',type=str,default=[])
+    p.add_argument('--monitor-matched-only',action='store_true')
     a=p.parse_args(argv)
     if not (0<=a.cycle<=128 and 1<=a.frames<=36000 and 1<=a.steps<=20000000 and
             1<=a.sample_every<=65536 and 30<=a.timeout<=1800):
         p.error('Invalid preview bounds')
+    if len(a.monitor_pc)>16 or len(a.monitor_pc_range)>16:p.error('Monitor watch limit is 16 addresses and 16 ranges')
+    try:
+        a.monitor_pc=[watch_number(x) for x in a.monitor_pc]
+        a.monitor_pc_range=[watch_range(x) for x in a.monitor_pc_range]
+    except (ValueError,TypeError) as exc:p.error('Invalid monitor watch address or range: '+str(exc))
     if a.input=='live' and a.video!='window':p.error('Live input requires a window')
     if a.hold_window and a.video!='window':p.error('Hold-window requires a window')
     try:return preview(a)

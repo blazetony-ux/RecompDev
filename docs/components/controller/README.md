@@ -75,3 +75,7 @@ Use `configure --workspace ABSOLUTE` to keep large job records in a separate wor
 ## v0.4.9.21 bounded automatic recovery
 
 Compiled controller accepts `--max-cycles 1..128` for new source-verified jobs, preserving immutable cycle reports, source checks, existing stagnation policies and pinned DLL identity. Use `--import-history` into a new job to move from a previous release binary; do not silently upgrade old job plugin DLLs. Native preview explicitly selects a standalone `RecompDevMonitor.exe` in the compiled controller build directory; a Python/Tk monitor is no longer launched from this path. Linux headless tests use `--no-viewer`.
+
+## v0.4.9.22 address-targeted preview controls
+
+`RecompDev.exe preview --job JOB_ID --cycle 1 --monitor-pc 0x0BDB --monitor-pc-range 0x0BD8:0x0BE4 --monitor-matched-only` forwards CPU-neutral logical-PC watch filters into the private native capture worker and initial native viewer presentation. Existing `--monitor-every` remains the regular sampling stride; explicit watch matches are emitted even when stride sampling would otherwise skip them. Every option is read-only and does not alter guest instruction execution, recovery jobs, source ROM or production DLLs. These are neither debugger breakpoints nor automatic stepping commands.

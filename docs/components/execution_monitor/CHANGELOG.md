@@ -1,5 +1,12 @@
 # execution_monitor component history
 
+## [0.4.1] - 2026-11-08
+
+- **Changed:** Standalone Win32 monitor performs off-thread bounded event ingestion and 100 ms timer-driven UI updates rather than rebuild/scroll on each high-volume event. Native search by text/PC/physical address/class/event, next/previous, matched-only and follow controls. The producer captures explicitly watched CPU PC/range hits regardless of ordinary sample stride; guest execution stays uninfluenced. Terminal PC is distinct from previous sample SP/step and display transport loss is disclosed.
+- **Windows stress correction:** Explicit `Publisher::finish()` flush/close before the stress fixture removes its temporary JSONL trace; Windows cannot delete a still-open file as Linux can. The first owner v0.4.9.22 candidate failed 1/74 tests with process exit `0xC0000409`; corrected candidate is pending owner MSVC rerun.
+- **Validation:** Linux native source build plus 50,000-event queue burst, 40,000 instruction-model events, exact watched-address sampling override, source-attested preview regression, and control-event tests. Windows GUI responsiveness still requires owner testing.
+- **Compatibility:** Read-only protocol remains v1 and hardware neutral; no memory read, CPU stepping, breakpoints, ROM parsing, Tk dependency, console DLL change or independent gameplay-parity claim. Full native event evidence remains separate from bounded GUI/display excerpts.
+
 ## [0.4.0] - 2026-11-07
 
 - **Changed:** Native Win32 `RecompDevMonitor.exe` now subscribes to CPU-neutral authenticated localhost controller diagnostics; no Python/Tk viewer is launched by the v0.4.9.21 preview. Terminal frame fields report host presentation count, native guest VDP counter and latest sampled frame independently. Source-attested previews can include an unqualified candidate frame-fingerprint manifest.

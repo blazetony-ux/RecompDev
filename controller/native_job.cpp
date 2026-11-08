@@ -92,6 +92,9 @@ struct Options{
     int max_cycles=8,rounds=4,target_frames=1800,timeout=600,step_budget=20000000;
     int preview_frames=1200,preview_steps=12000000,preview_every=128,preview_cycle=0;
     std::string preview_video="window",preview_input="live";
+    std::vector<std::uint32_t> preview_watch_pc;
+    std::vector<std::pair<std::uint32_t,std::uint32_t>> preview_watch_ranges;
+    bool preview_matched_only=false;
     bool preview_viewer=true,preview_hold=false,have_cycles=false;
 };
 int number(const std::string&name,const std::string&s,int lo,int hi){
@@ -99,11 +102,25 @@ int number(const std::string&name,const std::string&s,int lo,int hi){
     try{auto n=std::stoll(s);if(n<lo||n>hi)throw Error("OUT_OF_RANGE_"+name);return static_cast<int>(n);}
     catch(const std::out_of_range&){throw Error("OUT_OF_RANGE_"+name);}
 }
+std::uint32_t monitor_address(const std::string& s){
+    if(s.empty()||s.size()>10)throw Error("MONITOR_ADDRESS_INVALID");
+    const bool hex=s.size()>2&&s[0]=='0'&&(s[1]=='x'||s[1]=='X');
+    const auto digits=hex?s.substr(2):s;
+    if(digits.empty()||!std::all_of(digits.begin(),digits.end(),[hex](unsigned char c){
+        return (c>='0'&&c<='9')||(hex&&((c>='a'&&c<='f')||(c>='A'&&c<='F')));
+    }))throw Error("MONITOR_ADDRESS_INVALID");
+    try{
+        auto n=std::stoull(digits,nullptr,hex?16:10);
+        if(n>std::numeric_limits<std::uint32_t>::max())throw Error("MONITOR_ADDRESS_OUT_OF_RANGE");
+        return static_cast<std::uint32_t>(n);
+    }catch(const std::out_of_range&){throw Error("MONITOR_ADDRESS_OUT_OF_RANGE");}
+}
 Options parse(const std::vector<std::string>&argv){
     Options opt;
     for(size_t i=1;i<argv.size();i++){
         auto key=argv[i];
         if(key=="--no-viewer"){opt.preview_viewer=false;continue;}
+        if(key=="--monitor-matched-only"){opt.preview_matched_only=true;continue;}
         if(key=="--hold-window"){opt.preview_hold=true;continue;}
         if(i+1>=argv.size())throw Error("MISSING_VALUE_"+key);
         auto val=argv[++i];
@@ -126,6 +143,16 @@ Options parse(const std::vector<std::string>&argv){
         else if(key=="--frames")opt.preview_frames=number("PREVIEW_FRAMES",val,1,36000);
         else if(key=="--steps")opt.preview_steps=number("PREVIEW_STEPS",val,1,20000000);
         else if(key=="--monitor-every")opt.preview_every=number("MONITOR_EVERY",val,1,65536);
+        else if(key=="--monitor-pc"){
+            if(opt.preview_watch_pc.size()>=16)throw Error("MONITOR_WATCH_LIMIT");
+            opt.preview_watch_pc.push_back(monitor_address(val));
+        }else if(key=="--monitor-pc-range"){
+            if(opt.preview_watch_ranges.size()>=16)throw Error("MONITOR_WATCH_LIMIT");
+            auto sep=val.find(':');if(sep==std::string::npos||val.find(':',sep+1)!=std::string::npos)throw Error("MONITOR_RANGE_INVALID");
+            auto lo=monitor_address(val.substr(0,sep)),hi=monitor_address(val.substr(sep+1));
+            if(lo>hi)throw Error("MONITOR_RANGE_REVERSED");
+            opt.preview_watch_ranges.emplace_back(lo,hi);
+        }
         else if(key=="--cycle")opt.preview_cycle=number("PREVIEW_CYCLE",val,1,128);
         else if(key=="--video")opt.preview_video=val;
         else if(key=="--input")opt.preview_input=val;
@@ -152,11 +179,11 @@ Options load_config(const fs::path&h){
     return opt;
 }
 bool within(const fs::path& p,const fs::path& root){auto i=p.begin(),j=root.begin();for(;j!=root.end();++i,++j)if(i==p.end()||*i!=*j)return false;return true;}
-// Evidence lives under <configured-root>/v0.4.9.21, independently of old job locations.
+// Evidence lives under <configured-root>/v0.4.9.22, independently of old job locations.
 // The prior --workspace value is recognised but never rewritten automatically.
 // A version-like trailing directory is treated as an older release workspace,
-// allowing existing owner configuration to transparently select v0.4.9.21.
-constexpr const char* kEvidenceVersion = "v0.4.9.21";
+// allowing existing owner configuration to transparently select v0.4.9.22.
+constexpr const char* kEvidenceVersion = "v0.4.9.22";
 bool is_version_folder(const std::string& name){
     if(name.size()<6||name[0]!='v')return false;
     int dots=0;
@@ -376,7 +403,8 @@ int rd_native_job(const std::vector<std::string>& args,const fs::path&source,con
         const auto& op=args.front();
         if(op!="resume"&&!opt.preview_stop.empty())throw Error("PREVIEW_STOP_ONLY_FOR_RESUME");
         if(op!="preview"&&(opt.preview_frames!=1200||opt.preview_steps!=12000000||opt.preview_every!=128||
-           opt.preview_cycle!=0||opt.preview_video!="window"||opt.preview_input!="live"||!opt.preview_viewer||opt.preview_hold))
+           opt.preview_cycle!=0||opt.preview_video!="window"||opt.preview_input!="live"||!opt.preview_viewer||opt.preview_hold||
+           !opt.preview_watch_pc.empty()||!opt.preview_watch_ranges.empty()||opt.preview_matched_only))
             throw Error("PREVIEW_OPTIONS_ONLY_FOR_PREVIEW");
         if(op=="configure"){
             if(!opt.job.empty()||!opt.rom.empty()||opt.have_cycles||!opt.import_history.empty()||(!opt.workspace.empty()&&!opt.evidence_root.empty()))throw Error("CONFIG_OPTION_NOT_SUPPORTED");
@@ -462,8 +490,11 @@ int rd_native_job(const std::vector<std::string>& args,const fs::path&source,con
                 "--frames",std::to_string(opt.preview_frames),"--steps",std::to_string(opt.preview_steps),
                 "--sample-every",std::to_string(opt.preview_every),"--cycle",std::to_string(opt.preview_cycle),
                 "--video",opt.preview_video,"--input",opt.preview_input,"--timeout",std::to_string(opt.timeout)};
+            for(const auto pc:opt.preview_watch_pc){command.push_back("--monitor-pc");command.push_back(std::to_string(pc));}
+            for(const auto range:opt.preview_watch_ranges){command.push_back("--monitor-pc-range");command.push_back(std::to_string(range.first)+":"+std::to_string(range.second));}
+            if(opt.preview_matched_only)command.push_back("--monitor-matched-only");
             // The compiled controller selects an independent native Win32 monitor.
-            // Never fall back to a Python/Tk GUI in the v0.4.9.21 preview path.
+            // Never fall back to a Python/Tk GUI in the v0.4.9.22 preview path.
             command.push_back("--viewer-binary");
             command.push_back((exe.parent_path()/"RecompDevMonitor.exe").u8string());
             if(!opt.preview_viewer)command.push_back("--no-viewer");

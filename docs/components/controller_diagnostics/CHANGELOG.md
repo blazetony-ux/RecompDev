@@ -1,5 +1,11 @@
 # controller_diagnostics component history
 
+## [0.1.2] - 2026-11-08
+
+- **Changed:** Authenticated localhost subscription tracks bounded per-subscriber FIFO overflow and emits an explicit cumulative display-loss notice. The underlying native producer event log and controller job evidence are unaffected, and event payloads remain schema-checked and size-limited.
+- **Validation:** Existing subscriber/authentication/overflow tests plus native monitor stress and end-to-end source-snapshot preview regressions.
+- **Compatibility:** Same controller diagnostics v1 schema and read-only token authorization; never slows or controls guest execution, changes plugin semantics or asserts evidence completeness of ZIP excerpts.
+
 ## [0.1.1] - 2026-11-07
 
 - **Changed:** Add one bounded native-result telemetry event type so the independently subscribed viewer can show final reported host and sampled guest frame counters without confusing the capture result with gameplay execution.

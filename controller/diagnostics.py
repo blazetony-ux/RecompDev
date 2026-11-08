@@ -41,6 +41,7 @@ class ControllerDiagnostics:
         self._lock = threading.RLock()
         self._history = deque(maxlen=history_limit)
         self._subscribers: list[queue.Queue] = []
+        self._subscriber_drops: dict[queue.Queue, int] = {}
         self._subscriber_limit = subscriber_limit
         self._sequence = 0
         owner = self
@@ -62,6 +63,8 @@ class ControllerDiagnostics:
                                 channel.get_nowait()
                             channel.put_nowait(event)
                         owner._subscribers.append(channel)
+                        owner._subscriber_drops[channel] = 0
+                    last_drop_notice = 0
                     self.connection.settimeout(1)
                     try:
                         self.wfile.write((json.dumps({'schema': SCHEMA, 'type': 'connected'}) + '\n').encode())
@@ -71,12 +74,23 @@ class ControllerDiagnostics:
                                 event = channel.get(timeout=0.5)
                             except queue.Empty:
                                 continue
+                            with owner._lock:
+                                dropped = owner._subscriber_drops.get(channel, 0)
+                            if dropped > last_drop_notice:
+                                # This counts display transport losses only.
+                                # The on-disk native telemetry evidence is separate.
+                                notice = {'schema': SCHEMA, 'type': 'notice',
+                                          'message': 'Display transport dropped samples',
+                                          'display_dropped': dropped}
+                                self.wfile.write((json.dumps(notice, separators=(',', ':')) + '\n').encode())
+                                last_drop_notice = dropped
                             self.wfile.write((json.dumps(event, separators=(',', ':')) + '\n').encode())
                             self.wfile.flush()
                     finally:
                         with owner._lock:
                             if channel in owner._subscribers:
                                 owner._subscribers.remove(channel)
+                            owner._subscriber_drops.pop(channel, None)
                 except (OSError, json.JSONDecodeError, ValueError):
                     return
 
@@ -101,6 +115,7 @@ class ControllerDiagnostics:
             for channel in self._subscribers:
                 if channel.full():
                     channel.get_nowait()
+                    self._subscriber_drops[channel] = self._subscriber_drops.get(channel, 0) + 1
                 channel.put_nowait(data)
 
     def close(self):

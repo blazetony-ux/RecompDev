@@ -1,5 +1,11 @@
 # controller — independent changelog
 
+## [0.4.18] - 2026-11-08
+
+- **Changed:** The generic C++ controller now accepts bounded repeatable `--monitor-pc` and `--monitor-pc-range` address watches plus optional `--monitor-matched-only`, safely forwards normalized addresses into the independent native telemetry subscriber and rejects malformed or unsupported command combinations. Versioned evidence root advances to v0.4.9.22; existing v0.4.9.21 jobs remain pinned to their source/build.
+- **Validation:** Compiled controller test checks two watch parameters, range normalization, rejection of reversed/out-of-range addresses, no mutation of source-attested jobs, and the existing 20-cycle scheduling regression.
+- **Compatibility:** No controller-specific Z80/console instructions, no new CPU/format/machine ABI, no automatic source modifications in previous jobs, no active runtime replacement. Works with existing analyzer provider configuration.
+
 ## [0.4.17] - 2026-11-07
 
 - **Changed:** Controller-owned recovery sessions now support up to 128 total cycles per new job with immutable source-checked history and the existing stopping conditions; preview launches only its independent `RecompDevMonitor.exe` subscriber, not Tkinter.

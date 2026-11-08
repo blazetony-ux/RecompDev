@@ -1,5 +1,10 @@
 # Current roadmap and acceptance gates
 
+## v0.4.9.22 UI and second-ROM evidence
+
+Native monitor UI scheduling, bounded queue overflow reporting, exact sample-independent logical-PC watches and search/follow are implemented in source candidate v0.4.9.22; Linux CI/build and owner Windows full acceptance gates apply. Test real Win32 responsiveness under 1,800-frame Shinobi traffic and run independent, small-budget ROM smoke jobs. Do not claim second-ROM compiled support until genuine source-attested outcomes exist. Independent reference-emulator replay/input/audio/video/state checks and full legacy migration remain blocked. [Release](../releases/v0.4.9.22.md).
+
+
 ## v0.4.9.21 — native monitor and explicit parity gates
 
 The owner reached 1,800 native host output frames on original Shinobi with a source-verified v0.4.9.20 recovery job; the target is **frame-count only**, without deterministic gameplay/input/audio/reference parity. The next candidate introduces a genuine independently compiled Win32 C++ read-only monitor, a CPU-neutral data comparator, terminal guest/device/host frame counter separation and bounded 128-cycle automatic recovery. **Independent trusted emulator capture, real input replay and CPU/VDP/PSG/interrupt parity remain BLOCKED.** Do not add game-specific controller hacks, replace pinned old DLLs or declare native parity qualified. See [release](../releases/v0.4.9.21.md).

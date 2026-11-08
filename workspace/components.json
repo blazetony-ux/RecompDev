@@ -7,17 +7,17 @@
       "version": "0.3.4"
     },
     "controller": {
-      "description": "Compiled controller selects the standalone native Windows diagnostics monitor and supports up to 128 bounded, immutable recovery cycles with source-attested history, stagnation detection and the same plugin pinning. Original 16-cycle jobs are not silently modified.",
+      "description": "Compiled C++ controller forwards validated, bounded generic address and range watch options to the native preview service; original CPU/machine translation and immutable job lifecycle are unchanged.",
       "kind": "controller",
       "scope": "production-entrypoint",
       "target": "RecompDev",
-      "version": "0.4.17"
+      "version": "0.4.18"
     },
     "controller_diagnostics": {
-      "description": "Controller-authenticated diagnostics event schema now accepts bounded `native_result` events, keeping terminal CPU stop, host output frame and sampled guest frame in distinct fields. Existing publish/subscribe token/authentication and event size limits remain unchanged.",
+      "description": "Authenticated localhost diagnostics broker reports subscriber transport overflow as UI-only loss without altering native execution or stored evidence; bounded read-only schema remains v1.",
       "kind": "tooling",
       "scope": "controller-diagnostics",
-      "version": "0.1.1"
+      "version": "0.1.2"
     },
     "discovery_integration": {
       "description": "Controller-mediated source-scoped discovery evidence audit with replaceable preserved format/catalogue/sector providers; no native translation or game special cases",
@@ -26,10 +26,10 @@
       "version": "0.1.0"
     },
     "execution_monitor": {
-      "description": "Standalone Win32 C++ read-only event subscriber replaces Python/Tk GUI in the compiled-controller preview path; terminal native guest VDP frame, last sampled frame and host presentation frames are separated. Preview ZIP can carry a portable unqualified per-frame candidate fingerprint manifest.",
+      "description": "Win32 standalone native monitor ingests off-thread to a bounded queue, paints on a 10-Hz timer, incrementally updates the trace and offers CPU-neutral PC/physical/class/event search, matched-only filtering, previous/next and follow controls. Explicit PC/range capture bypasses ordinary sampling with provenance flags and bounded limits.",
       "kind": "tooling",
       "scope": "developer-debugger",
-      "version": "0.4.0"
+      "version": "0.4.1"
     },
     "input_recovery": {
       "description": "Generic guest-cycle input capture and source-verified replay recovery; short-path native builds, strict compile-failure suppression, replay history re-use",
@@ -243,5 +243,5 @@
     }
   },
   "schema": "recompdev-components-v1",
-  "workspace_release": "v0.4.9.21"
+  "workspace_release": "v0.4.9.22"
 }

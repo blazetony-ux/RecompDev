@@ -15,7 +15,7 @@ int main(){
  ok(m.status.find("FRAME_BUDGET_REACHED")!=std::string::npos);
  ok(m.ingest(R"({"schema":"recompdev.controller.diagnostics.v1","type":"session","status":"Controller disconnected"})"));
  ok(m.connection.find("disconnected")!=std::string::npos);
- for(int i=0;i<700;++i)ok(m.ingest(R"({"schema":"recompdev.controller.diagnostics.v1","type":"input","buttons":1,"guest_cycles":2})"));
- ok(m.lines.size()==300&&m.accepted==705&&m.rejected==2);
+ for(int i=0;i<3000;++i)ok(m.ingest(R"({"schema":"recompdev.controller.diagnostics.v1","type":"input","buttons":1,"guest_cycles":2})"));
+ ok(m.lines.size()==rdmonitor::kHistoryLimit&&m.accepted==3005&&m.rejected==2);
  std::cout<<"PASS: native CPU-neutral monitor event schema, bounded projection and terminal frames\n";
 }
