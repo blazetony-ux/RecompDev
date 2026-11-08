@@ -41,3 +41,29 @@ class NativeEventReader:
             self.delivered += 1
             produced += 1
         return produced
+
+class LiveDisplaySampler:
+    """Explicit, bounded live-view decimation; never alters disk evidence.
+
+    All non-instruction events are forwarded (including input, stop, frame,
+    watch summaries, capture-limit notices). The full observed instruction
+    stream remains in the source-authenticated native JSONL evidence.
+    """
+    def __init__(self, publish, *, instruction_interval: int = 16):
+        if not 1 <= instruction_interval <= 65536:
+            raise ValueError('INVALID_DISPLAY_SAMPLE_INTERVAL')
+        self.publish = publish
+        self.instruction_interval = instruction_interval
+        self.seen_instructions = 0
+        self.suppressed_instructions = 0
+        self.forwarded_events = 0
+
+    def __call__(self, event):
+        if event.get('type') == 'instruction':
+            self.seen_instructions += 1
+            if self.seen_instructions % self.instruction_interval != 1:
+                self.suppressed_instructions += 1
+                return False
+        self.publish(event)
+        self.forwarded_events += 1
+        return True

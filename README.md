@@ -1,5 +1,10 @@
 **v0.4.9.16 candidate:** source-attested cumulative recovery ledger across autonomous controller sessions; optional `run --import-history DIR` for existing evidence, best-frontier stagnation checks and single-ZIP development checkpoint via a validated package-pinned installer. Not installed or parity-qualified. See [release record](docs/releases/v0.4.9.16.md).
 
+## v0.4.9.23 source candidate — Rizin compatibility and telemetry reliability
+
+The CPU-neutral analyzer boundary now recognizes approved `ESC[2K\r` Windows Rizin framing (`COMPAT-023`) with strict audit and raw-log preservation; this removes a proven *provider parsing* blocker encountered with Alex Kidd and Bank Panic, not an established CPU/ROM incompatibility. Watched-address hits are counted exactly but display instruction details are bounded and coalesced, with explicit loss-domain summaries. A source-only release with independent 76-test Windows acceptance and separate fresh-ROM acceptance, **not** production-runtime or gameplay parity qualification. See [release record](docs/releases/v0.4.9.23.md), [prebuild](docs/project/PREBUILD-v0.4.9.23.md) and [handover](docs/project/HANDOVER.md).
+
+
 ## v0.4.9.22 — responsive native execution monitor and other-ROM testing
 
 The generic compiled controller now supports CPU-neutral `preview --monitor-pc 0xADDR` and inclusive `--monitor-pc-range 0xSTART:0xEND`. The independently deployed Win32 execution monitor has a bounded reader queue, timer-driven UI, incremental trace, address/opcode/event search, matched-only filter and follow controls. It does not load the ROM, modify guest execution or link Z80/SMS code. `tools/Run-RecompDev-ROM-Smoke.ps1` can run independent bounded acceptance jobs for the owner's Master System ROM folder (Shinobi skipped by default); each receives a separate ROM hash/job/evidence. Reference gameplay parity is not established. The source-only release installer preserves all historical sources and does not activate runtime DLLs.

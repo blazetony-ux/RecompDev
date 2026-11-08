@@ -518,3 +518,13 @@ if(Python3_Interpreter_FOUND)
   discover -s "${CMAKE_SOURCE_DIR}/../execution_monitor/tests" -p test_v04922_monitor_watch.py -q)
  set_tests_properties(v04922_monitor_watch_pipeline PROPERTIES TIMEOUT 45 WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/..")
 endif()
+
+# v0.4.9.23: real Windows Rizin CR framing and loss-audited live telemetry.
+if(Python3_Interpreter_FOUND)
+ add_test(NAME v04923_rizin_windows_cr COMMAND "${Python3_EXECUTABLE}" -B -m unittest
+  discover -s "${CMAKE_SOURCE_DIR}/../analysis_integration/tests" -p test_rizin_provider.py -q)
+ set_tests_properties(v04923_rizin_windows_cr PROPERTIES TIMEOUT 60 WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/..")
+ add_test(NAME v04923_live_telemetry_contract COMMAND "${Python3_EXECUTABLE}" -B -m unittest
+  discover -s "${CMAKE_SOURCE_DIR}/../execution_monitor/tests" -p test_v04923_telemetry.py -q)
+ set_tests_properties(v04923_live_telemetry_contract PROPERTIES TIMEOUT 45 WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/..")
+endif()

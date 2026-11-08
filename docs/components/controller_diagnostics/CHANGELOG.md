@@ -1,5 +1,15 @@
 # controller_diagnostics component history
 
+## [0.1.3] - 2026-11-08
+
+- **Changed:** Reusable integration without CPU/game assumptions.
+- **Validation:** Synthetic tests locally; owner Windows regression gates pending.
+- **Compatibility:** Schema, ROM and immutable evidence contracts preserved; runtime parity not asserted.
+
+- **Changed:** Strict CPU-neutral event whitelist admits structured `watch_summary` counters. Live display instruction decimation is separate from true per-subscriber transport overflow and GUI drops; input/frame/stop and capture-limit notices bypass display decimation. Schema remains `recompdev.controller.diagnostics.v1`, authenticated localhost, no controls or executable payload.
+- **Validation:** Synthetic 1,600-instruction burst forwards exactly 100 display instructions while preserving critical events; checksum and privacy of disk evidence remain independent. Owner Windows and stress gates pending.
+
+
 ## [0.1.2] - 2026-11-08
 
 - **Changed:** Authenticated localhost subscription tracks bounded per-subscriber FIFO overflow and emits an explicit cumulative display-loss notice. The underlying native producer event log and controller job evidence are unaffected, and event payloads remain schema-checked and size-limited.

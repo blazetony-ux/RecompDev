@@ -11,6 +11,7 @@
 #include <limits>
 #include <cstdlib>
 #include <fstream>
+#include <map>
 #include <string>
 #include <stdexcept>
 
@@ -19,10 +20,23 @@ class Publisher final {
  std::ofstream out_;
  std::uint64_t emitted_=0, every_=256;
  std::uint64_t last_buttons_=~std::uint64_t{0};
- bool enabled_=false, limit_reported_=false;
+ bool enabled_=false, limit_reported_=false, terminal_limit_reported_=false;
  std::vector<std::uint32_t> watch_pc_;
  std::vector<std::pair<std::uint32_t,std::uint32_t>> watch_range_;
- std::uint64_t watch_hits_=0;
+ std::uint64_t watch_hits_=0, watch_transitions_emitted_=0, coalesced_hits_=0;
+ std::uint64_t since_flush_=0;
+ std::map<std::uint32_t,std::uint64_t> per_pc_hits_;
+ std::uint64_t unbucketed_hits_=0;
+ static constexpr std::uint64_t kWatchInitialDetails=32;
+ static constexpr std::uint64_t kWatchSummaryStride=4096;
+ static constexpr std::uint64_t kInstructionEventCeiling=180000;
+ void flush_bounded(bool immediate=false){
+  if(!out_)throw std::runtime_error("CONTROLLER_DIAGNOSTIC_TRACE_WRITE_FAILED");
+  if(immediate||++since_flush_>=256){
+   out_.flush();since_flush_=0;
+   if(!out_)throw std::runtime_error("CONTROLLER_DIAGNOSTIC_TRACE_FLUSH_FAILED");
+  }
+ }
  static bool parse_address(const std::string& value,std::uint32_t& n){
   if(value.empty()||value.size()>10)return false;
   for(char c:value)if(c<'0'||c>'9')return false;
@@ -75,12 +89,25 @@ class Publisher final {
   if(!out_)throw std::runtime_error("CONTROLLER_DIAGNOSTIC_TRACE_OPEN_FAILED");
   parse_watch();enabled_=true;
  }
- bool begin(){
-  if(!enabled_ || limit_reported_)return false;
+ bool begin(bool critical=false){
+  if(!enabled_)return false;
+  // Reserve a final allowance for frames/input/stops if sampled instruction
+  // events saturate. Never misrepresent this as a complete full-hit trace.
+  if(!critical && emitted_>=kInstructionEventCeiling){
+   if(!limit_reported_){
+    limit_reported_=true;
+    out_<<"{\"type\":\"notice\",\"message\":\"Controller sampled telemetry cap reached\",\"capture_truncated\":true}\n";
+    flush_bounded(true);
+   }
+   return false;
+  }
   if(emitted_>=200000){
-   limit_reported_=true;
-   out_<<"{\"type\":\"notice\",\"message\":\"Controller telemetry event limit reached\"}\n";
-   out_.flush();return false;
+   if(!terminal_limit_reported_){
+    terminal_limit_reported_=true;
+    out_<<"{\"type\":\"notice\",\"message\":\"Controller telemetry event limit reached\",\"capture_truncated\":true}\n";
+    flush_bounded(true);
+   }
+   return false;
   }
   ++emitted_;return true;
  }
@@ -92,11 +119,20 @@ class Publisher final {
  // required on Windows, where an open file normally cannot be unlinked.
  // Idempotent; no further events can be published after finish().
  void finish(){
-  enabled_=false;
-  if(!out_.is_open())return;
+  if(!out_.is_open()){enabled_=false;return;}
+  if(enabled_){
+   for(const auto& item:per_pc_hits_){
+    out_<<"{\"type\":\"watch_summary\",\"scope\":\"pc\",\"pc\":"<<item.first
+        <<",\"hit_count\":"<<item.second<<",\"hits_total\":"<<watch_hits_
+        <<",\"coalesced_hits\":"<<coalesced_hits_<<",\"final\":true}\n";
+   }
+   out_<<"{\"type\":\"watch_summary\",\"scope\":\"all\",\"pc\":0,\"hit_count\":0,\"hits_total\":"<<watch_hits_
+       <<",\"coalesced_hits\":"<<coalesced_hits_
+       <<",\"unbucketed_hits\":"<<unbucketed_hits_<<",\"final\":true}\n";
+  }
   out_.flush();
   if(!out_)throw std::runtime_error("CONTROLLER_DIAGNOSTIC_TRACE_FLUSH_FAILED");
-  out_.close();
+  out_.close();enabled_=false;
   if(!out_)throw std::runtime_error("CONTROLLER_DIAGNOSTIC_TRACE_CLOSE_FAILED");
  }
  void transition(const char* cpu,std::uint64_t step,std::uint64_t cycle,std::uint64_t frame,
@@ -107,39 +143,60 @@ class Publisher final {
                        std::strcmp(kind,"untranslated_code")==0;
   const bool watch_hit=hit(pc);
   if(blocked){
-   if(begin()){
+   if(begin(true)){
     out_<<"{\"type\":\"stop\",\"status\":\""<<kind
         <<"\",\"cpu\":\""<<cpu<<"\",\"pc\":"<<next_pc
         <<",\"physical_offset\":"<<physical<<",\"frame\":"<<frame
         <<",\"guest_cycles\":"<<cycle<<",\"steps\":"<<step<<"}\n";
-    out_.flush();
+    flush_bounded(true);
    }
   }
-  if(step % every_ != 0 && !blocked && !watch_hit)return;
+  // Count every matching PC precisely but emit only early examples and
+  // ordinary stride samples. A hot loop cannot dominate the transport.
+  bool detailed_watch=false;
+  std::uint64_t count=0;
+  if(watch_hit){
+   ++watch_hits_;
+   if(per_pc_hits_.size()<256 || per_pc_hits_.count(pc)){
+    count=++per_pc_hits_[pc];
+    detailed_watch=count<=kWatchInitialDetails;
+   }else ++unbucketed_hits_;
+   if(watch_hits_%kWatchSummaryStride==0 && begin()){
+    out_<<"{\"type\":\"watch_summary\",\"pc\":"<<pc
+        <<",\"hit_count\":"<<count<<",\"hits_total\":"<<watch_hits_
+        <<",\"coalesced_hits\":"<<coalesced_hits_
+        <<",\"unbucketed_hits\":"<<unbucketed_hits_<<"}\n";
+    flush_bounded();
+   }
+  }
+  const bool stride_sample=step%every_==0;
+  if(!stride_sample && !blocked && !detailed_watch){
+   if(watch_hit)++coalesced_hits_;
+   return;
+  }
   if(!begin())return;
-  if(watch_hit)++watch_hits_;
+  if(watch_hit)++watch_transitions_emitted_;
   out_<<"{\"type\":\"instruction\",\"cpu\":\""<<cpu
       <<"\",\"pc\":"<<pc<<",\"next_pc\":"<<next_pc
       <<",\"sp\":"<<sp<<",\"physical_offset\":"<<physical
       <<",\"opcode\":"<<opcode<<",\"opcode_class\":\""<<opcode_class
       <<"\",\"guest_cycles\":"<<cycle<<",\"frame\":"<<frame
       <<",\"steps\":"<<step<<",\"watch_hit\":"<<(watch_hit?"true":"false")<<"}\n";
-  out_.flush();
-  if(!out_)throw std::runtime_error("CONTROLLER_DIAGNOSTIC_TRACE_WRITE_FAILED");
+  flush_bounded();
  }
  void frame(std::uint64_t frame,std::uint64_t cycle,std::uint64_t steps){
-  if(!begin())return;
+  if(!begin(true))return;
   out_<<"{\"type\":\"frame\",\"frame\":"<<frame
       <<",\"guest_cycles\":"<<cycle<<",\"steps\":"<<steps<<"}\n";
-  out_.flush();
+  flush_bounded(true);
  }
  void input(std::uint64_t cycle,std::uint64_t buttons){
   if(!enabled_ || buttons==last_buttons_)return;
   last_buttons_=buttons;
-  if(!begin())return;
+  if(!begin(true))return;
   out_<<"{\"type\":\"input\",\"guest_cycles\":"<<cycle
       <<",\"buttons\":"<<buttons<<"}\n";
-  out_.flush();
+  flush_bounded(true);
  }
 };
 inline void transition(const char* cpu,std::uint64_t step,std::uint64_t cycle,std::uint64_t frame,

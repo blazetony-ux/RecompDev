@@ -1,5 +1,16 @@
 # execution_monitor component history
 
+## [0.4.2] - 2026-11-08
+
+- **Changed:** Reusable integration without CPU/game assumptions.
+- **Validation:** Synthetic tests locally; owner Windows regression gates pending.
+- **Compatibility:** Schema, ROM and immutable evidence contracts preserved; runtime parity not asserted.
+
+- **Sustainable watches:** Exact watched-PC hits are counted, while detail output is bounded: first 32 per PC, ordinary stride samples, summaries every 4096 hits, and final per-PC/global counters. Coalesced hit count is explicit, not silently portrayed as every-hit instruction evidence. Maps limited to 256 unique PCs; excess counted as unbucketed.
+- **Independent live display:** Bounded 1/16 live instruction forwarding to authenticated controller viewer, preserving the native sampled JSONL and all input/stop/frame/summary/notice events. Flushes 256 instruction samples or at critical boundaries; seals the trace and final summary in the *instrumented copy* of the generated frontend. This reduces, but does not promise zero, transport loss.
+- **Audit:** Summary includes watched-PC totals, intentionally coalesced hits, intentional display sampling and capture-truncation notices. 120k hot-PC stress regression passes locally; Windows 76/76 CTests and real UI observation pending. No CPU-specific code, breakpoint/control commands or reference parity claim.
+
+
 ## [0.4.1] - 2026-11-08
 
 - **Changed:** Standalone Win32 monitor performs off-thread bounded event ingestion and 100 ms timer-driven UI updates rather than rebuild/scroll on each high-volume event. Native search by text/PC/physical address/class/event, next/previous, matched-only and follow controls. The producer captures explicitly watched CPU PC/range hits regardless of ordinary sample stride; guest execution stays uninfluenced. Terminal PC is distinct from previous sample SP/step and display transport loss is disclosed.

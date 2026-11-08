@@ -42,8 +42,8 @@ static int exercise_monitor(){
  ok(model.ingest(R"({"schema":"recompdev.controller.diagnostics.v1","type":"native_result","status":"FRAME_BUDGET_REACHED","pc":300,"host_frame":1800,"guest_frame":1799})"));
  ok(model.cpu.find("Terminal PC: 0x12C")!=std::string::npos);
  ok(model.cpu.find("SP(last sample)")!=std::string::npos);
- // Captures all hits on explicitly watched addresses regardless of the
- // configured sampling stride; never references machine instruction encoding.
+ // Every hit is counted; only early details and stride samples are emitted.
+ // This test is CPU-neutral and never inspects machine opcodes.
  auto path=std::filesystem::temp_directory_path()/("rd22-monitor-"+std::to_string(std::chrono::steady_clock::now().time_since_epoch().count())+".jsonl");
  env("RECOMPDEV_CONTROLLER_DIAGNOSTIC_EVENTS",path.string().c_str());
  env("RECOMPDEV_MONITOR_SAMPLE_EVERY","128");
@@ -53,14 +53,28 @@ static int exercise_monitor(){
   const unsigned pc=(i%100);
   rd_execution_events::transition("generic",i,i*4,0,pc,pc+1,400,pc,0,"BRANCH","normal");
  }
+ // Hot watched-PC loops must be counted without sending every hit. A 120k
+ // identical-address burst is bounded to early details + periodic summaries
+ // + ordinary stride samples, and final counters must remain exact.
+ for(std::uint64_t i=1;i<=120000;++i)
+  rd_execution_events::transition("generic",256+i,(256+i)*4,0,5,6,400,5,0,"BRANCH","normal");
  // The static publisher otherwise holds the log open until process exit.
  // Linux allows unlinking an open file; Windows rejects it, so finalize first.
  rd_execution_events::Publisher::instance().finish();
  rd_execution_events::Publisher::instance().finish(); // idempotency contract
  std::ifstream file(path);ok(bool(file));
- int instructions=0,watched=0,sampled=0;
+ int instructions=0,watched=0,sampled=0,summaries=0;
+ std::uint64_t final_hits=0,final_coalesced=0;
  std::string line;
  while(std::getline(file,line)){
+  if(line.find("\"type\":\"watch_summary\"")!=std::string::npos){
+   ++summaries;
+   if(line.find("\"final\":true")!=std::string::npos){
+    const auto item=rdjson::Reader(line).parse();
+    final_hits=static_cast<std::uint64_t>(item.get("hits_total").integer());
+    final_coalesced=static_cast<std::uint64_t>(item.get("coalesced_hits").integer());
+   }
+  }
   if(line.find("\"type\":\"instruction\"")==std::string::npos)continue;
   ++instructions;
   if(line.find("\"watch_hit\":true")!=std::string::npos)++watched;
@@ -69,9 +83,12 @@ static int exercise_monitor(){
  file.close();ok(std::filesystem::remove(path));
  // 2 sampled (128,256), plus 2-3 repeated watch hits per address/range.
  ok(watched>=12&&sampled==2&&instructions>sampled);
+ ok(summaries>=29&&final_hits>=120000&&final_coalesced>100000);
+ ok(instructions<2000); // no hot-PC transport flood
+
  auto elapsed=std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now()-t0).count();
  ok(elapsed<20);
- std::cout<<"PASS: 50k-event bounded queue; 40k native-model ingestion; exact PC watch overrides sampling; terminal state\n";
+ std::cout<<"PASS: 50k-event bounded queue; 40k native-model ingestion; PC hit aggregation preserves counts without flooding; terminal state\n";
  return 0;
 }
 int main(){

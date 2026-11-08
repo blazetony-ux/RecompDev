@@ -1,5 +1,12 @@
 # controller — independent changelog
 
+## [0.4.19] - 2026-11-08
+
+- **Changed:** Compiled `RecompDev.exe` and ROM-identified job namespace version advanced to `v0.4.9.23`, preserving controller-to-CPU/machine/plugin boundaries. Python analyzer and preview modules remain separately swappable; no direct game-specific logic, ROM overrides, or pinned-native DLL replacement.
+- **Validation:** Controller job lifecycle and CLI dispatch passed focused Linux native CTests; full 76-test MSVC owner acceptance pending, with original 642 protected files unchanged.
+- **Compatibility:** Existing v22 jobs are not rewritten or silently migrated; new work uses a separate evidence-root release folder. Non-neutral input and reference gameplay parity remain independently unqualified.
+
+
 ## [0.4.18] - 2026-11-08
 
 - **Changed:** The generic C++ controller now accepts bounded repeatable `--monitor-pc` and `--monitor-pc-range` address watches plus optional `--monitor-matched-only`, safely forwards normalized addresses into the independent native telemetry subscriber and rejects malformed or unsupported command combinations. Versioned evidence root advances to v0.4.9.22; existing v0.4.9.21 jobs remain pinned to their source/build.

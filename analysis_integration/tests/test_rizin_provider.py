@@ -68,6 +68,33 @@ class RizinProviderTests(unittest.TestCase):
         self.assertIn('-A',argv)
         self.assertIn('z80',argv)
 
+    def test_compat_023_exact_windows_erase_cr_boundary(self):
+        # Alex Kidd and Bank Panic both emitted b"\x1b[2K\r[{...}]" on Windows.
+        # The regression is the exact five-byte prefix, not an LF substitute.
+        raw_prefix = bytes.fromhex('1B5B324B0D')
+        self.assertEqual(raw_prefix, b'\x1b[2K\r')
+        for isa in ARCHITECTURES:
+            with self.subTest(isa=isa):
+                result, _, audit = self.call_stub(raw_prefix + AFLJ, isa=isa)
+                self.assertEqual(result['function_count'], 1)
+                self.assertEqual(result['warning_count'], 0)
+                self.assertEqual(audit['erase_line_count'], 1)
+                self.assertEqual(audit['diagnostic_prefix_bytes'], 5)
+                self.assertEqual(audit['original_log_sha256'],
+                                 hashlib.sha256(raw_prefix + AFLJ).hexdigest())
+
+    def test_compat_023_rejects_unknown_cr_framing(self):
+        for invalid in (b'\r' + AFLJ,
+                        b'\x1b[2J\r' + AFLJ,
+                        b'\x1b[1K\r' + AFLJ,
+                        b'\x1b[2K\x1b[0m\r' + AFLJ,
+                        b'\x1b[2K\r' + AFLJ + b'invalid',
+                        b'\x1b[2K\r[{"offset":0,"offset":2,"size":3}]',
+                        b'\x1b[2K\r[{"offset":0,"size":0}]',
+                        b'\x1b[2K\r[{"offset":0,"size":2}]\n[{}]'):
+            with self.subTest(blob=invalid[:24]), self.assertRaisesRegex(RizinProviderError, 'RIZIN_OUTPUT_REJECTED'):
+                self.call_stub(invalid)
+
     def test_clean_json_and_cross_isa_cli(self):
         for isa, (arch, bits) in ARCHITECTURES.items():
             with self.subTest(isa=isa):

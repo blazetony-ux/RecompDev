@@ -1,4 +1,4 @@
-# RecompDev v0.4.9.22 second-ROM acceptance: independent, bounded real-ROM jobs.
+# RecompDev v0.4.9.23 second-ROM acceptance: independent, bounded real-ROM jobs.
 # ROMs remain in place. No Shinobi history is imported. No production DLLs change.
 [CmdletBinding()]
 param(
@@ -16,7 +16,7 @@ $ErrorActionPreference='Stop'
 if(!(Test-Path -LiteralPath $Controller -PathType Leaf)){throw 'Controller executable not found'}
 if(!(Test-Path -LiteralPath $RomDirectory -PathType Container)){throw 'ROM directory not found'}
 if($MaxCycles -lt 1 -or $MaxCycles -gt 128 -or $RoundsPerCycle -lt 1 -or $RoundsPerCycle -gt 8 -or $TargetFrames -lt 1 -or $TargetFrames -gt 36000 -or $TimeoutSeconds -lt 30 -or $TimeoutSeconds -gt 7200 -or $StepBudget -lt 1 -or $StepBudget -gt 20000000){throw 'Invalid bounded smoke parameters'}
-$target=Join-Path $EvidenceRoot ('v0.4.9.22\smoke-tests\'+(Get-Date -Format 'yyyyMMddTHHmmss')+'-'+[guid]::NewGuid().ToString('N').Substring(0,8))
+$target=Join-Path $EvidenceRoot ('v0.4.9.23\smoke-tests\'+(Get-Date -Format 'yyyyMMddTHHmmss')+'-'+[guid]::NewGuid().ToString('N').Substring(0,8))
 New-Item -ItemType Directory -Path $target -Force | Out-Null
 $roms=@(Get-ChildItem -LiteralPath $RomDirectory -Filter '*.sms' -File | Sort-Object Name | Where-Object {$IncludeShinobi -or $_.Name -notmatch '^Shinobi '})
 if($roms.Count -eq 0){throw 'No .sms files selected'}

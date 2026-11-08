@@ -179,11 +179,11 @@ Options load_config(const fs::path&h){
     return opt;
 }
 bool within(const fs::path& p,const fs::path& root){auto i=p.begin(),j=root.begin();for(;j!=root.end();++i,++j)if(i==p.end()||*i!=*j)return false;return true;}
-// Evidence lives under <configured-root>/v0.4.9.22, independently of old job locations.
+// Evidence lives under <configured-root>/v0.4.9.23, independently of old job locations.
 // The prior --workspace value is recognised but never rewritten automatically.
 // A version-like trailing directory is treated as an older release workspace,
-// allowing existing owner configuration to transparently select v0.4.9.22.
-constexpr const char* kEvidenceVersion = "v0.4.9.22";
+// allowing existing owner configuration to transparently select v0.4.9.23.
+constexpr const char* kEvidenceVersion = "v0.4.9.23";
 bool is_version_folder(const std::string& name){
     if(name.size()<6||name[0]!='v')return false;
     int dots=0;
@@ -494,7 +494,7 @@ int rd_native_job(const std::vector<std::string>& args,const fs::path&source,con
             for(const auto range:opt.preview_watch_ranges){command.push_back("--monitor-pc-range");command.push_back(std::to_string(range.first)+":"+std::to_string(range.second));}
             if(opt.preview_matched_only)command.push_back("--monitor-matched-only");
             // The compiled controller selects an independent native Win32 monitor.
-            // Never fall back to a Python/Tk GUI in the v0.4.9.22 preview path.
+            // Never fall back to a Python/Tk GUI in the v0.4.9.23 preview path.
             command.push_back("--viewer-binary");
             command.push_back((exe.parent_path()/"RecompDevMonitor.exe").u8string());
             if(!opt.preview_viewer)command.push_back("--no-viewer");

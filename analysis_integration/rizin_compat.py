@@ -24,7 +24,10 @@ _ERASE_LINE = '\x1b[2K'
 _WARNING = re.compile(r'WARNING: invalid address from 0x[0-9a-fA-F]{1,16}')
 # An array must begin at a line boundary, with its first element an object,
 # or be an empty array. An unrelated bracket in a warning cannot count.
-_ARRAY_START = re.compile(r'(?m)^[ \t]*(?=\[\s*(?:\{|\]))')
+# Windows Rizin may place its aflj array directly after an approved ESC[2K\r.
+# This is NOT a generic CR line boundary: arbitrary control material remains
+# forbidden by the diagnostic allowlist and strict JSON verification below.
+_ARRAY_START = re.compile(r'(?m)(?:^[ \t]*|(?<=\x1b\[2K\r))(?=\[\s*(?:\{|\]))')
 
 
 class RizinCompatibilityError(ValueError):

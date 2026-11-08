@@ -1,5 +1,8 @@
 # RecompDev component catalogue
 
+**v0.4.9.23:** `controller` 0.4.19 advances versioned independent jobs; `analysis_integration` 0.3.5 fixes strict Windows Rizin array framing; `execution_monitor` 0.4.2 and `controller_diagnostics` 0.1.3 add bounded, explicit watched-PC aggregation. Source-only. See [release](../releases/v0.4.9.23.md).
+
+
 **Status:** Current registry as of workspace v0.4.9.16. Every component has an independent version and its own [changelog](../development/RELEASE-PROCESS.md).
 
 | Component | Scope | Implementation |

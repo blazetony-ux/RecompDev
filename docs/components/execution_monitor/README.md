@@ -1,5 +1,8 @@
 # Live execution monitor
 
+**Latest v0.4.9.23 contract:** v0.4.9.23: watched PC hits are counted exactly but instruction detail is sampled/coalesced after early examples. Periodic/final summaries, separate display decimation and explicit capture-truncation flags prevent a misleading full-trace claim; no execution control.
+
+
 **Scope:** `developer-debugger`. **Version:** `0.1.0`. Canonical registry: `workspace/components.json`.
 
 `python -m execution_monitor.viewer` is spawned separately by the host launcher only with `-ExecutionMonitor`. It subscribes to the **controller diagnostics service**, not to any CPU, VDP, video, ROM, device or raw trace. It displays sampled instruction transitions (guest PC and next PC, raw opcode byte and classification, SP, cycles, steps), input masks, frames and stop events. It is deliberately **not a validated Z80 disassembler**; no assembly mnemonic guarantee. Adapter `execution_monitor/bridge.py` stages a neutral `rd_execution_events.hpp` publisher in the copied generated `live_sms.hpp`, leaving `translated.cpp`, original generator and all frozen baselines untouched. Future CPU adapters provide the same event schema without monitor changes. Default one instruction sample per 256 reported guest steps (`-MonitorEvery` changes it, minimum 1; output bounded at 200,000 events). The monitor stays open showing the last events even when controller disconnects after guest stop. No pause, step, breakpoints or ROM-free execution in this version. If Tk is unavailable, the launch log records the error; it is not proof of a visible GUI.

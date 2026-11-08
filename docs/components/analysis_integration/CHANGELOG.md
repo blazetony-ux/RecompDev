@@ -1,5 +1,15 @@
 # analysis_integration — independent component history
 
+## [0.3.5] - 2026-11-08
+
+- **Changed:** Reusable integration without CPU/game assumptions.
+- **Validation:** Synthetic tests locally; owner Windows regression gates pending.
+- **Compatibility:** Schema, ROM and immutable evidence contracts preserved; runtime parity not asserted.
+
+- **COMPAT-023:** Exact Windows `ESC[2K\r` `aflj` prefix can terminate a recognized formatting line before a JSON array. Only that approved CR boundary is admitted; generic standalone CR, unknown ANSI/OSC, garbage, malformed/duplicate/trailing JSON and hash mismatches continue to fail closed. Raw Rizin logs remain unchanged, with five prefix bytes reflected in audit.
+- **Validation:** Exact raw-byte regression fixture and negative boundary cases pass locally. Real Alex Kidd/Bank Panic parser and downstream controller retest pending owner Windows v23 install. Do not promote Rizin boundary guesses to translated executable code.
+
+
 ## [0.3.4] - 2026-11-07
 
 - **Changed:** Source-attested preview recovery preflight accepts immutable `cycle-01` through `cycle-128` session identities, including three-digit cycle IDs, without relaxing the original mapper or ROM identity tests.

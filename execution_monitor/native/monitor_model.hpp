@@ -94,6 +94,12 @@ struct State {
      e.get("watch_hit").t==rdjson::V::Bool&&e.get("watch_hit").n!=0);
    }else if(kind=="frame"){
     frame="Guest sampled frame: "+number(e,"frame")+"   Cycles: "+number(e,"guest_cycles")+"   Steps: "+number(e,"steps");
+   }else if(kind=="watch_summary"){
+    const auto total=field(e,"scope","")=="all";
+    append(std::string(total?"WATCH TOTAL":"WATCH PC "+hex(e,"pc"))+
+       "  hits "+(total?number(e,"hits_total"):number(e,"hit_count"))+
+       "  coalesced "+number(e,"coalesced_hits"),
+       "watch_summary",total?"":hex(e,"pc"),"","",true);
    }else if(kind=="input")append("INPUT mask "+hex(e,"buttons")+"  cycles "+number(e,"guest_cycles"),"input");
    else if(kind=="stop"){
     status="Guest blocked: "+field(e,"status")+" @ "+hex(e,"pc");

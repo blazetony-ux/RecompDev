@@ -1,5 +1,13 @@
 # RecompDev workspace changelog
 
+## [workspace/v0.4.9.23] - 2026-11-08
+
+- **COMPAT-023:** Rizin provider permits the *exact approved* Windows `ESC[2K\r` preamble before an `aflj` JSON array, while preserving the pre-existing newline/warning framing. Standalone carriage returns, unknown ANSI commands, malformed/duplicate/trailing JSON and tool/source/hash mismatch still fail closed. Original logs remain byte-for-byte; audit records the five-byte prefix and normalized function hypotheses separately.
+- **Nonblocking, bounded telemetry:** Instrumented game adapters count every watched logical PC hit but emit only first 32 per address plus regular stride-sampled instructions. Periodic (4096-hit) and final audited per-PC/global summaries disclose exact hit totals and intentional coalescing. Finalization occurs in the private compiled preview, not the source-attested translation or active DLLs. A separate, explicit 1-in-16 instruction live-display decimator reduces controller subscriber queue overflow while preserving all source JSONL samples and every input/frame/stop/summary/notice event for display.
+- **Fail-closed visibility:** Sample-instruction budget (180,000) reserves remaining event allowance for terminal evidence, emits explicit capture-truncation notice if reached; preview diagnostics distinguish captured sampling, aggregated watch hits, intentionally suppressed UI samples, and actual transport/UI drops. These are different loss domains, not proof of full per-hit archival or reference gameplay parity.
+- **Windows and ROM acceptance gates:** New exact-byte provider and telemetry tests supplement 74 existing Windows CTests (target 76). Owner must validate independently with fresh Alex Kidd and Bank Panic jobs; parser acceptance does not prove qualified analyzer function boundaries, compiled game execution or gameplay parity. v0.4.9.22 was installed on local `main` at `9299590078ae5f8af547e2d7733fc428394d83f9` with 74/74 Windows CTests and protected 642/642 unchanged; owner screenshots show running Shinobi native video and live instructions, but telemetry transport losses remain observed. This release is source-only, no active DLLs or historical job mutation.
+
+
 ## [workspace/v0.4.9.22] - 2026-11-08
 
 - **Native monitor responsiveness:** Replace per-batch full-text repaint with bounded reader/UI queues, timer-based (100 ms) Win32 event ingestion, incremental trace rendering and a 2,000-entry searchable history. Report display-transport queue losses without affecting the source evidence log. Terminal PC is identified as terminal rather than conflated with last sampled SP and step count. Win32 watcher token conversion remains proper UTF-8 without lossy wchar narrowing.

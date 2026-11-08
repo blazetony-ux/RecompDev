@@ -1,23 +1,23 @@
 {
   "components": {
     "analysis_integration": {
-      "description": "Preview-frontier identity gate now recognizes source-verified session numbers through 128 and refuses out-of-range identifiers; all SHA, mapper, ROM and source-instruction checks remain intact.",
+      "description": "Strict Rizin Windows ESC[2K\\r aflj array boundary (COMPAT-023), exact-byte/unknown-control fail-closed regression and immutable raw-log source/tool SHA audits; function inventory remains unqualified hypotheses.",
       "kind": "tooling",
       "scope": "production-workflow",
-      "version": "0.3.4"
+      "version": "0.3.5"
     },
     "controller": {
-      "description": "Compiled C++ controller forwards validated, bounded generic address and range watch options to the native preview service; original CPU/machine translation and immutable job lifecycle are unchanged.",
+      "description": "Compiled generic job manager v23 routes fresh ROM-identified job/evidence namespaces and unchanged source-attested preview ABI; standalone controller forwards CPU-neutral watch configuration only. No game-specific decisions or runtime activation.",
       "kind": "controller",
       "scope": "production-entrypoint",
       "target": "RecompDev",
-      "version": "0.4.18"
+      "version": "0.4.19"
     },
     "controller_diagnostics": {
-      "description": "Authenticated localhost diagnostics broker reports subscriber transport overflow as UI-only loss without altering native execution or stored evidence; bounded read-only schema remains v1.",
+      "description": "Authenticated localhost v1 watch_summary whitelist and separate intentional live display instruction sampling vs actual broker/display drops and on-disk capture truncation.",
       "kind": "tooling",
       "scope": "controller-diagnostics",
-      "version": "0.1.2"
+      "version": "0.1.3"
     },
     "discovery_integration": {
       "description": "Controller-mediated source-scoped discovery evidence audit with replaceable preserved format/catalogue/sector providers; no native translation or game special cases",
@@ -26,10 +26,10 @@
       "version": "0.1.0"
     },
     "execution_monitor": {
-      "description": "Win32 standalone native monitor ingests off-thread to a bounded queue, paints on a 10-Hz timer, incrementally updates the trace and offers CPU-neutral PC/physical/class/event search, matched-only filtering, previous/next and follow controls. Explicit PC/range capture bypasses ordinary sampling with provenance flags and bounded limits.",
+      "description": "CPU-neutral bounded watched-PC counters, 4096-hit periodic/final per-PC aggregation, reserved critical-event capacity, private native trace seal and independent live UI sampling; no guest modifications, opcode-specific logic or reference gameplay parity.",
       "kind": "tooling",
       "scope": "developer-debugger",
-      "version": "0.4.1"
+      "version": "0.4.2"
     },
     "input_recovery": {
       "description": "Generic guest-cycle input capture and source-verified replay recovery; short-path native builds, strict compile-failure suppression, replay history re-use",
@@ -243,5 +243,5 @@
     }
   },
   "schema": "recompdev-components-v1",
-  "workspace_release": "v0.4.9.22"
+  "workspace_release": "v0.4.9.23"
 }

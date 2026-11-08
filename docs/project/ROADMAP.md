@@ -1,5 +1,10 @@
 # Current roadmap and acceptance gates
 
+## v0.4.9.23 — Rizin CR boundary and sustained, auditable telemetry
+
+Source-only candidate on installed v0.4.9.22. P0: correct approved `ESC[2K\r` Rizin framing (COMPAT-023) and add exact-byte fail-closed tests. P0: count each watched-PC event while aggregating hot-loop repetition, reserve stop/frame event capacity, decimate live display independently from evidence, expose all separate losses. Mandatory owner Windows 76/76 CTests and fresh Alex Kidd / Bank Panic jobs to demonstrate movement beyond provider validation; longer and keyboard-controlled Shinobi previews remain separate unqualified reference-free tests. P1 later: prove Ghidra/Rizin extra candidates reachable using source-verified bank-aware observations; build independent hardware reference video/audio/input parity. No CPU/hardware/game-specific controller patches or runtime promotion. [Release](../releases/v0.4.9.23.md).
+
+
 ## v0.4.9.22 UI and second-ROM evidence
 
 Native monitor UI scheduling, bounded queue overflow reporting, exact sample-independent logical-PC watches and search/follow are implemented in source candidate v0.4.9.22; Linux CI/build and owner Windows full acceptance gates apply. Test real Win32 responsiveness under 1,800-frame Shinobi traffic and run independent, small-budget ROM smoke jobs. Do not claim second-ROM compiled support until genuine source-attested outcomes exist. Independent reference-emulator replay/input/audio/video/state checks and full legacy migration remain blocked. [Release](../releases/v0.4.9.22.md).

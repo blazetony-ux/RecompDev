@@ -15,7 +15,7 @@ import threading
 from typing import Any
 
 SCHEMA = 'recompdev.controller.diagnostics.v1'
-EVENT_TYPES = frozenset(('session', 'instruction', 'frame', 'input', 'hardware', 'stop', 'native_result', 'notice'))
+EVENT_TYPES = frozenset(('session', 'instruction', 'frame', 'input', 'hardware', 'stop', 'native_result', 'notice', 'watch_summary'))
 MAX_EVENT_BYTES = 4096
 
 

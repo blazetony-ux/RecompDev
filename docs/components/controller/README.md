@@ -1,5 +1,7 @@
 ## v0.4.9.16 — cumulative persisted job capabilities
 
+**v0.4.9.23 current contract:** compiled controller `0.4.19` routes independent versioned new jobs; no active-runtime swap, no Shinobi- or Z80-specific policy. See [v23 release](../../releases/v0.4.9.23.md).
+
 Controller 0.4.12 accepts `run --import-history PREVIOUS_RUN_DIR` to bootstrap a source-matched prior recovery (for example the owner's 894-frame v0.4.9.14 evidence), persists the selection and automatically re-attests it. Every later session uses cumulative copied evidence, and global high-watermark/repeated-frontier stagnation guards stop futile replays. Source and plugin ABIs remain immutable, and Python analyzer batch remains a temporary bridge. See [release](../../releases/v0.4.9.16.md).
 
 # controller — component contract

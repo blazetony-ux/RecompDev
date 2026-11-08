@@ -24,7 +24,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path: sys.path.insert(0, str(ROOT))
 from controller.diagnostics import ControllerDiagnostics
 from execution_monitor.bridge import HEADER, live_transform
-from execution_monitor.stream import NativeEventReader
+from execution_monitor.stream import NativeEventReader, LiveDisplaySampler
 from analysis_integration.recovery_history import _check_seed, RecoveryHistoryError
 
 TRANSLATION_GAPS = frozenset({'UNTRANSLATED_INITIAL_CODE', 'BANKED_CODE_NOT_TRANSLATED',
@@ -118,6 +118,15 @@ def copy_and_instrument(project, target):
     original = (target/'live_sms.hpp').read_text(encoding='utf8')
     converted = live_transform(original)
     (target/'live_sms.hpp').write_text(converted,encoding='utf8',newline='\n')
+    # Seal the opt-in observation stream in the private preview copy only.
+    # This guarantees a final, counted aggregation report before the controller
+    # collects evidence. The authenticated generated source stays unmodified.
+    frontend=target/'interactive.cpp'
+    text=frontend.read_text(encoding='utf8')
+    finish_anchor='  if(config.diagnose_events){guest.state().finish_event_stream();'
+    if text.count(finish_anchor)!=1:raise ValueError('PREVIEW_FINALIZATION_ANCHOR_INVALID')
+    text=text.replace(finish_anchor,'  rd_execution_events::Publisher::instance().finish();\n'+finish_anchor,1)
+    frontend.write_text(text,encoding='utf8',newline='\n')
     (target/'hardware').mkdir()
     shutil.copyfile(HEADER,target/'hardware/rd_execution_events.hpp')
     if digest(target/'translated.cpp') != before or digest(project/'translated.cpp') != before:
@@ -210,7 +219,8 @@ def launch_viewer(broker, out, binary, search="", matched_only=False):
 def safe_excerpt(obj):
     """No paths, raw ROM, environment, native stdout or full generated code."""
     fields=('type','cpu','pc','next_pc','physical_offset','opcode','opcode_class',
-            'sp','frame','guest_cycles','steps','buttons','status','watch_hit')
+            'sp','frame','guest_cycles','steps','buttons','status','watch_hit',
+            'hit_count','hits_total','coalesced_hits','unbucketed_hits','capture_truncated','final','scope')
     return {key:obj[key] for key in fields if key in obj and
             (type(obj[key]) in (int,bool) or
              type(obj[key]) is str and re.fullmatch(r'[A-Za-z0-9_.:-]{1,80}',obj[key]))}
@@ -398,6 +408,7 @@ def preview(opts):
             if entry is None:raise ValueError('PREVIEW_PRESENTATION_PROVIDER_NOT_BUILT_'+name)
             env[key]=str(entry)
         with ControllerDiagnostics() as broker:
+            display=LiveDisplaySampler(broker.publish, instruction_interval=16)
             broker.publish({'type':'session','status':'Starting separate preview','sample_every':opts.sample_every})
             log_handle=None
             if not opts.no_viewer:
@@ -414,7 +425,7 @@ def preview(opts):
                 args=[str(game),str(rom),str(out/'frame'),str(opts.frames),str(opts.steps),
                      '--video',opts.video,'--audio','null','--input',opts.input,'--snapshot-every','60']
                 if opts.hold_window:args.append('--hold-window')
-                reader=NativeEventReader(out/'monitor-events.jsonl',lambda event:(events.append(event),broker.publish(event)))
+                reader=NativeEventReader(out/'monitor-events.jsonl',lambda event:(events.append(event),display(event)))
                 with (out/'native-stdout.log').open('wb') as stdout,(out/'native-stderr.log').open('wb') as stderr:
                     p=subprocess.Popen(args,env=env,stdout=stdout,stderr=stderr)
                     started=time.monotonic()
@@ -461,7 +472,13 @@ def preview(opts):
     state['candidate_capture_available']=capture is not None
     state['recovery_seed_available']=eligible is not None
     state['observed_events']=n
-    state['monitor_watch_hits']=sum(1 for event in events if event.get('type')=='instruction' and event.get('watch_hit') is True)
+    summaries=[e for e in events if e.get('type')=='watch_summary' and type(e.get('hits_total')) is int]
+    state['monitor_watch_hits']=max((e['hits_total'] for e in summaries),default=sum(1 for event in events if event.get('type')=='instruction' and event.get('watch_hit') is True))
+    state['monitor_watch_hits_coalesced']=max((e.get('coalesced_hits',0) for e in summaries),default=0)
+    state['monitor_capture_truncated']=any(e.get('capture_truncated') is True for e in events)
+    state['monitor_capture_mode']='SAMPLED_INSTRUCTIONS_WITH_AGGREGATED_WATCH_HITS_NOT_FULL_INSTRUCTION_TRACE'
+    state['display_intentionally_suppressed_instruction_samples']=display.suppressed_instructions if 'display' in locals() else 0
+    state['display_forwarded_events']=display.forwarded_events if 'display' in locals() else 0
     state['viewer']=viewer_state
     if error:state['failure_code']=error
     (out/'preview-summary.json').write_text(json.dumps(state,indent=2,sort_keys=True)+'\n',encoding='utf8')

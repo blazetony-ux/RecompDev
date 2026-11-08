@@ -1,5 +1,8 @@
 ## v0.4.9.16 — cumulative recovery history
 
+**Latest v0.4.9.23 contract:** COMPAT-023: the approved exact Windows `ESC[2K\r` Rizin console prefix is a recognized array boundary, without permitting generic CR or unknown ANSI. Audit hashes original bytes and records hypotheses, never verified code.
+
+
 `analysis_integration` 0.3.1 now re-verifies and carries forward the immediately prior session's imported copied evidence plus its own new observations. It checks every ROM/mapper/P-code SHA and the original authorized tool evidence, never follows provenance paths, and enforces 64-item bound. Existing `--resume-from` schema remains compatible. See [release](../../releases/v0.4.9.16.md).
 
 # analysis_integration — bounded analysis and native recovery providers

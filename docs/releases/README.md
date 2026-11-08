@@ -1,5 +1,8 @@
 - [v0.4.9.9 — Native controller executes preserved P-code DLL, mapper/Z80 extensions (Windows unverified)](v0.4.9.9.md)
 
+- [v0.4.9.23 — strict Rizin Windows CR prefix and bounded CPU-neutral telemetry](v0.4.9.23.md): pending owner Windows and second-ROM qualification; source-only.
+
+
 - **[v0.4.9.22](v0.4.9.22.md)** — native monitor responsiveness, CPU-neutral PC watch/filter/search and independent second-ROM smoke workflow; gameplay parity BLOCKED.
 - [v0.4.9.8 — Combined native discovery + permanent release protocol CANDIDATE (BLOCKED)](v0.4.9.8.md): v0.4.9.7 never installed; source-only archive and stable installer.
 - [v0.4.9.7 — Native discovery DLL candidate, acceptance blocked](v0.4.9.7.md)

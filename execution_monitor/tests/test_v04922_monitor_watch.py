@@ -21,7 +21,8 @@ class V22Watch(unittest.TestCase):
   self.assertNotIn('junk',row)
   bridge=(ROOT/'execution_monitor/bridge/rd_execution_events.hpp').read_text()
   self.assertIn('const bool watch_hit=hit(pc)',bridge)
-  self.assertIn('&& !watch_hit)return;',bridge)
+  self.assertIn('const bool stride_sample=step%every_==0',bridge)
+  self.assertIn('coalesced_hits_',bridge)
   self.assertIn('MONITOR_WATCH_PC_RANGE',bridge)
   self.assertNotIn('shinobi',bridge.lower())
  def test_compiled_controller_routes_capture_watch(self):
