@@ -1,3 +1,9 @@
+## 2026-11-08 — v0.4.9.25 universal portable artifact-store handover
+
+**Owner requirement:** Retention must be CPU/console/host independent and should not rely on indefinite report-file histories. v24 proved automatic Bank Panic 1,535-instruction history selection and 960 neutral host frames but still required v23 reports and reran analyzers. This change builds a generic native content-addressed store with a separate `rd_artifact_store` C ABI, versioned arbitrary producer metadata, automatic source-attested capsule migration and persisted, independently relocatable data objects. Old evidence is never edited. `run` selects a portable capsule first; if absent it searches legacy source matches and attempts one-time migration. The existing Ghidra/Rizin adapter retains final tool/provider/ROM/bank re-attestation before translation. `cache` can inspect portable matches. The synthetic acceptance test removes the original session, moves the artifact directory and imports the source-verified bank overlay and Ghidra initial analysis without the original reports. No native binary reuse or hotload is claimed; the current provider still compiles the native application as necessary.
+
+**Owner acceptance:** Windows MSVC 81/81 CTests, historical 642-byte-identical gate, real Bank Panic/Alex Kidd automatic migration and cache-only rerun with historical folders made temporarily inaccessible, then Shinobi preview result/interactive stop regression. Install remains infrastructure-source only; active runtime unchanged. See [v25 release](../releases/v0.4.9.25.md), [PREBUILD](PREBUILD-v0.4.9.25.md), [DEVELOPMENT-CONTRACT.md](DEVELOPMENT-CONTRACT.md) and [PREBUILD-v0.4.9.7.md](PREBUILD-v0.4.9.7.md).
+
 # RecompDev handover — source-of-truth status
 
 ## Current checkpoint — v0.4.9.24 source candidate (2026-11-08)

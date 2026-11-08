@@ -170,7 +170,7 @@ endif()
 
 # v0.4.2 compiled top-level controller; unlike the standalone test harness it
 # owns the real ROM workflow entry point and delegates legacy services safely.
-add_executable(RecompDev ../controller/main.cpp ../controller/native_execute.cpp ../controller/native_translate.cpp ../controller/native_job.cpp ../controller/recovery_registry.cpp)
+add_executable(RecompDev ../controller/main.cpp ../controller/native_execute.cpp ../controller/native_translate.cpp ../controller/native_job.cpp ../controller/recovery_registry.cpp ../controller/artifact_store.cpp)
 target_include_directories(RecompDev PRIVATE include ../translation_pcode/include)
 target_link_libraries(RecompDev PRIVATE rd_native_game_runner)
 # Resolve exactly the Python interpreter used by the tests, not an ambiguous py.exe shim.
@@ -417,7 +417,7 @@ if(Python3_Interpreter_FOUND)
 endif()
 
 # v0.4.9.15: compiled controller-owned persistent job manager and structured logger.
-add_executable(rd_controller_job_contract ../controller/tests/job_manager_contract.cpp ../controller/native_job.cpp ../controller/recovery_registry.cpp)
+add_executable(rd_controller_job_contract ../controller/tests/job_manager_contract.cpp ../controller/native_job.cpp ../controller/recovery_registry.cpp ../controller/artifact_store.cpp)
 target_include_directories(rd_controller_job_contract PRIVATE ../controller include ../translation_pcode/include)
 add_test(NAME v04915_compiled_controller_job_manager COMMAND $<TARGET_FILE:rd_controller_job_contract> "${CMAKE_SOURCE_DIR}/.." "$<TARGET_FILE:RecompDev>")
 set_tests_properties(v04915_compiled_controller_job_manager PROPERTIES TIMEOUT 45)
@@ -538,4 +538,28 @@ if(Python3_Interpreter_FOUND)
  add_test(NAME v04924_native_terminal_result COMMAND "${Python3_EXECUTABLE}" -B -m unittest
   discover -s "${CMAKE_SOURCE_DIR}/../execution_monitor/tests" -p test_v04924_stdout.py -q)
  set_tests_properties(v04924_native_terminal_result PROPERTIES TIMEOUT 30 WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/..")
+endif()
+
+# v0.4.9.25 universal portable content-addressed artifact contract: distinct CPU,
+# hardware and ABI labels without introducing a Z80/SMS cache schema.
+add_executable(rd_artifact_store_contract ../controller/tests/artifact_store_contract.cpp ../controller/artifact_store.cpp)
+target_include_directories(rd_artifact_store_contract PRIVATE ../controller include ../translation_pcode/include)
+add_test(NAME v04925_universal_artifact_store COMMAND $<TARGET_FILE:rd_artifact_store_contract>)
+
+# Independent native artifact provider ABI shared by future CPU/hardware plugins.
+add_library(rd_artifact_store SHARED ../controller/artifact_store.cpp ../controller/artifact_store_abi.cpp)
+target_include_directories(rd_artifact_store PRIVATE ../controller include ../translation_pcode/include)
+target_compile_definitions(rd_artifact_store PRIVATE RD_ARTIFACT_STORE_BUILD)
+set_target_properties(rd_artifact_store PROPERTIES PREFIX "" OUTPUT_NAME "rd_artifact_store"
+ RUNTIME_OUTPUT_DIRECTORY "${OUT_DIR}" LIBRARY_OUTPUT_DIRECTORY "${OUT_DIR}")
+
+add_executable(rd_artifact_store_abi_contract ../controller/tests/artifact_store_abi_contract.cpp)
+target_include_directories(rd_artifact_store_abi_contract PRIVATE ../controller)
+target_link_libraries(rd_artifact_store_abi_contract PRIVATE rd_artifact_store)
+set_target_properties(rd_artifact_store_abi_contract PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${OUT_DIR}")
+add_test(NAME v04925_artifact_store_plugin_abi COMMAND $<TARGET_FILE:rd_artifact_store_abi_contract>)
+if(Python3_Interpreter_FOUND)
+ add_test(NAME v04925_portable_provider_replay COMMAND "${Python3_EXECUTABLE}" -B
+   "${CMAKE_SOURCE_DIR}/../controller/tests/test_portable_replay.py" "$<TARGET_FILE:rd_artifact_store_contract>")
+ set_tests_properties(v04925_portable_provider_replay PROPERTIES TIMEOUT 60 WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/..")
 endif()

@@ -1,3 +1,9 @@
+## [0.4.21] - 2026-11-08
+
+- **Changed:** CPU-neutral native controller now consults independently portable content-addressed artifact capsules first, automatically promotes eligible legacy source-attested Ghidra/recovery inputs upon a new run, and publishes eligible fresh sessions. Existing registry fallback remains for incomplete legacy inputs, but verified capsules do not depend on old evidence roots.
+- **Validation:** Universal artifact/ABI contracts and an independently moved evidence-free provider replay; compiled job-manager and plugin-dispatch contracts remain mandatory. Owner Windows full 81-test suite, authentic Bank Panic/Alex Kidd migration, and Shinobi runtime parity remain pending.
+- **Compatibility:** No game-specific logic or CPU instruction semantics added to the controller. Current backend still recompiles native game binaries and uses temporary Ghidra/Rizin provider adapter; do not claim in-process hotload, exact-state continuation, or portable binary execution until independently proven.
+
 # controller — independent changelog
 
 ## [0.4.20] - 2026-11-08

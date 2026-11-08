@@ -1,5 +1,17 @@
 # RecompDev workspace changelog
 
+## [workspace/v0.4.9.25 Windows validation correction] - 2026-11-08
+
+- Fixed the universal artifact store's Windows atomic-publication `ARTIFACT_WRITE_FAILED` caused by an overlong capsule-manifest temporary filename. The immutable content-hash target is unchanged; temporary writes use short same-directory siblings and still commit by rename.
+- Original Windows Validate: 80/81 CTests; only `v04925_universal_artifact_store` failed. This corrected candidate requires a fresh full Windows Validate before source promotion. No active runtime change is claimed.
+
+## [workspace/v0.4.9.25] - 2026-11-08
+
+- **Changed:** Add a CPU/hardware-independent, content-addressed C++ artifact store and independently compiled `rd_artifact_store` provider with stable v1 C ABI. Real source-attested analysis and translated C++ source can be promoted into portable, checksum-verified capsules containing their required inputs. The native controller checks capsules first, migrates compatible v23/v24 histories on first execution and persists new recovery artifacts automatically.
+- **Validation:** Separate Z80, MIPS and 68000 artifact identities; binary put/get ABI test; source-attested synthetic Ghidra/observed-bank replay after deleting original evidence and relocating the cache; existing job tests, governance and full owner Windows 81-CTest acceptance still required.
+- **Compatibility:** No Z80/SMS/68000/MIPS instruction semantics changed. No live hot-loading or compiled game-binary reuse is claimed. Legacy histories remain untouched; old records are migration inputs, not executable trust anchors. Runtime/gameplay parity and state-continuity qualifications remain BLOCKED.
+
+
 ## [workspace/v0.4.9.24] - 2026-11-08 — Shared, source-bound recovery registry and bounded native result ingestion
 
 - **C++ controller recovery registry (new):** Independent `controller/recovery_registry.cpp/.hpp` handles ROM-SHA-keyed, immutable, SHA-verified records pointing to eligible previous recovery sessions under the configured Evidence root. A new `run --rom` automatically selects the highest translated-coverage session from the index or bounded read-only v23/older evidence; `cache --rom` inspects candidate selection; `--no-auto-history` explicitly disables selection; `--import-history` takes precedence. Native provider still checks ROM, source, tools, bank mapper, IR and translated instruction hashes and may invalidate stale history. This is not a compiled DLL cache or checkpoint/replay state.

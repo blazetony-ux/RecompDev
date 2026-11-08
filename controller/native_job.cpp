@@ -1,5 +1,6 @@
 #include "native_job.hpp"
 #include "recovery_registry.hpp"
+#include "artifact_store.hpp"
 #include "rd_tiny_json.hpp"
 #include "rd_sha256.hpp"
 #include <algorithm>
@@ -71,6 +72,20 @@ fs::path home(){
     env=std::getenv("HOME");if(env&&*env)return fs::path(env)/".local/state/recompdev";
 #endif
     throw Error("RECOMPDEV_HOME_NOT_AVAILABLE");
+}
+// Artifact retention is deliberately independent of the evidence/workspace tree.
+// Moving this entire directory to a compatible installation preserves its bytes.
+fs::path artifact_root(const fs::path& h,const fs::path& source){
+    fs::path base=h/"artifact-store"/"v1";
+    if(const auto* v=std::getenv("RECOMPDEV_ARTIFACT_ROOT"))if(*v){
+        auto p=fs::u8path(v);
+        if(!p.is_absolute())throw Error("ARTIFACT_ROOT_MUST_BE_ABSOLUTE");
+        base=p;
+    }
+    base=fs::absolute(base).lexically_normal();
+    if(base==base.root_path()||(!source.empty() && (base==source||base.u8string().rfind(source.u8string()+"/",0)==0)))
+        throw Error("ARTIFACT_ROOT_UNSAFE");
+    return base;
 }
 void atomic_write(const fs::path& p,const std::string& data){
     if(data.size()>kMaxJson)throw Error("JOB_STATE_TOO_LARGE");
@@ -181,11 +196,11 @@ Options load_config(const fs::path&h){
     return opt;
 }
 bool within(const fs::path& p,const fs::path& root){auto i=p.begin(),j=root.begin();for(;j!=root.end();++i,++j)if(i==p.end()||*i!=*j)return false;return true;}
-// Evidence lives under <configured-root>/v0.4.9.24, independently of old job locations.
+// Evidence lives under <configured-root>/v0.4.9.25, independently of old job locations.
 // The prior --workspace value is recognised but never rewritten automatically.
 // A version-like trailing directory is treated as an older release workspace,
-// allowing existing owner configuration to transparently select v0.4.9.24.
-constexpr const char* kEvidenceVersion = "v0.4.9.24";
+// allowing existing owner configuration to transparently select v0.4.9.25.
+constexpr const char* kEvidenceVersion = "v0.4.9.25";
 bool is_version_folder(const std::string& name){
     if(name.size()<6||name[0]!='v')return false;
     int dots=0;
@@ -369,7 +384,18 @@ int execute(Job&j,const fs::path&jobs,const fs::path&diagnostic_dir,const fs::pa
         // A controller-owned, immutable locator is independent of the raw
         // logs; the provider still re-attests the candidate before reuse.
         if(status=="MAX_RECOVERY_ROUNDS_REACHED"||status=="FRAME_BUDGET_REACHED_PARITY_UNVERIFIED")
+        {
             rdregistry::remember(dir.parent_path().parent_path().parent_path(),j.sha,out,j.id,n);
+            try {
+                auto published=rdartifact::promote(artifact_root(home(),fs::path()),out,j.sha);
+                if(published)std::cout<<"RECOMPDEV_ARTIFACT_RETENTION=COMMITTED SHA256="<<*published<<"\n";
+                else std::cout<<"RECOMPDEV_ARTIFACT_RETENTION=SOURCE_INPUTS_INCOMPLETE\n";
+            }catch(const std::exception& exception){
+                // Recoverable retention failure must remain observable; don't
+                // misreport runtime parity or silently register a bad object.
+                log.emit(2,"ARTIFACT_RETENTION_NOT_PUBLISHED",exception.what());
+            }
+        }
         log.emit(1,"RECOVERY_RESULT","Cycle "+std::to_string(n)+" frames="+std::to_string(attempt.frames)+" emitted="+std::to_string(attempt.emitted)+" status="+status);
         if(status=="FRAME_BUDGET_REACHED_PARITY_UNVERIFIED"){
             j.status="TARGET_REACHED_PARITY_UNVERIFIED";persist();log.emit(2,"PARITY_UNVERIFIED","Frame target reached; runtime/gameplay parity is NOT proven");export_on_terminal();report(j,true);return 0;
@@ -454,8 +480,17 @@ int rd_native_job(const std::vector<std::string>& args,const fs::path&source,con
                 !opt.workspace.empty()||!opt.evidence_root.empty())throw Error("CACHE_REQUIRES_ROM_ONLY");
             auto cfg=load_config(h);authorize(cfg);
             const auto sha=hash_rom(full(opt.rom));
-            const auto match=rdregistry::find(evidence_root(h,source),sha);
+            const auto portable=rdartifact::best(artifact_root(h,source),sha);
+            const auto match=portable?std::optional<rdregistry::Hit>{}:rdregistry::find(evidence_root(h,source),sha);
             std::cout<<"RECOMPDEV_CACHE_ROM_SHA256="<<sha<<"\n";
+            if(portable){
+                std::cout<<"RECOMPDEV_CACHE_STATUS=PORTABLE_CAPSULE_FOUND_REATTEST_ON_USE\n"
+                  <<"RECOMPDEV_CACHE_TRANSLATED_INSTRUCTIONS="<<portable->emitted<<"\n"
+                  <<"RECOMPDEV_CACHE_BEST_FRAMES="<<portable->frames<<"\n"
+                  <<"RECOMPDEV_CACHE_CAPSULE_SHA256="<<portable->digest<<"\n"
+                  <<"RECOMPDEV_CACHE_CAPSULE="<<portable->session.u8string()<<"\n";
+                return 0;
+            }
             if(match){std::cout<<"RECOMPDEV_CACHE_STATUS=SOURCE_MATCH_FOUND_REATTEST_ON_USE\n";
                 std::cout<<"RECOMPDEV_CACHE_TRANSLATED_INSTRUCTIONS="<<match->emitted<<"\n";
                 std::cout<<"RECOMPDEV_CACHE_BEST_FRAMES="<<match->frames<<"\n";
@@ -473,11 +508,29 @@ int rd_native_job(const std::vector<std::string>& args,const fs::path&source,con
             // source-matching history across v23 and future versioned roots.
             std::string auto_candidate;
             if(opt.import_history.empty()&&opt.auto_history){
-                auto hit=rdregistry::find(evidence_root(h,source),sha);
-                if(hit){auto_candidate=hit->session.u8string();
-                    std::cout<<"RECOMPDEV_RECOVERY_CACHE=HIT_REATTEST_ON_USE\n";
-                    std::cout<<"RECOMPDEV_RECOVERY_CACHE_TRANSLATED_INSTRUCTIONS="<<hit->emitted<<"\n";}
-                else std::cout<<"RECOMPDEV_RECOVERY_CACHE=MISS\n";
+                auto portable=rdartifact::best(artifact_root(h,source),sha);
+                if(!portable){
+                    auto old=rdregistry::find(evidence_root(h,source),sha);
+                    if(old){
+                        // One-time migration from the source-attested v23/v24
+                        // evidence into independently stored, verified bytes.
+                        auto receipt=rdartifact::promote(artifact_root(h,source),old->session,sha);
+                        if(receipt){
+                            std::cout<<"RECOMPDEV_ARTIFACT_MIGRATION=COMMITTED SHA256="<<*receipt<<"\n";
+                            portable=rdartifact::best(artifact_root(h,source),sha);
+                        }else{
+                            auto_candidate=old->session.u8string();
+                            std::cout<<"RECOMPDEV_RECOVERY_CACHE=LEGACY_HISTORY_REATTEST_ON_USE\n";
+                            std::cout<<"RECOMPDEV_RECOVERY_CACHE_TRANSLATED_INSTRUCTIONS="<<old->emitted<<"\n";
+                        }
+                    }
+                }
+                if(portable){
+                    auto_candidate=portable->session.u8string();
+                    std::cout<<"RECOMPDEV_RECOVERY_CACHE=PORTABLE_CAPSULE_REATTEST_ON_USE\n"
+                             <<"RECOMPDEV_RECOVERY_CACHE_TRANSLATED_INSTRUCTIONS="<<portable->emitted<<"\n"
+                             <<"RECOMPDEV_ARTIFACT_SHA256="<<portable->digest<<"\n";
+                }else if(auto_candidate.empty())std::cout<<"RECOMPDEV_RECOVERY_CACHE=MISS\n";
             }else if(!opt.import_history.empty())std::cout<<"RECOMPDEV_RECOVERY_CACHE=EXPLICIT_IMPORT\n";
             else std::cout<<"RECOMPDEV_RECOVERY_CACHE=DISABLED\n";
             auto id="job-"+compact_time()+"-"+sha.substr(0,8)+"-";

@@ -1,3 +1,5 @@
+**v0.4.9.25:** New [rd_artifact_store](rd_artifact_store/README.md) (`production-infrastructure`) provides independent CPU-neutral content-addressed binary artifacts and a versioned native ABI. `controller` 0.4.21 now auto-promotes complete v23/v24 source-attested histories into portable recovery capsules; no old evidence-tree dependency after successful promotion. Compiled native game DLL reuse and live state continuity are still unimplemented. See [release](../releases/v0.4.9.25.md).
+
 # RecompDev component catalogue
 
 **v0.4.9.24:** `controller` 0.4.20 adds a separate compiled, CPU-neutral persistent recovery-history registry; `execution_monitor` 0.4.3 adds a bounded unique terminal-result parser independent of the 512-KiB diagnostic log threshold. No Z80/SMS DLL or plugin ABI changes. See [release](../releases/v0.4.9.24.md).

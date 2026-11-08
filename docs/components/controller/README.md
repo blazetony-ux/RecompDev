@@ -1,3 +1,7 @@
+## v0.4.9.25 — automatic portable artifact retention
+
+The compiled controller (`production-entrypoint`) now uses the independent `rd_artifact_store` source and ABI provider recorded in `workspace/components.json`. `run --rom` selects a verified capsule from a persistent user-scoped store before consulting the legacy history index; on a legacy hit, it promotes complete source-attested analysis/observed-bank inputs into content-addressed objects. `cache --rom` distinguishes portable capsule from old session references. Automatic session publication never modifies historic evidence. Current native translation and replay still reattest ROM, provider, tools and mapper; generated native applications are not yet retained as loadable DLLs and interactive state is not resumed.
+
 ## v0.4.9.16 — cumulative persisted job capabilities
 
 **v0.4.9.24 controller-owned recovery registry:** `run --rom` auto-locates a source-matching history session under `RecompDev-Evidence/translation-registry/v1/<rom-sha256>/` or via bounded read-only discovery of earlier versioned job evidence. This registry holds only immutable, SHA-attested history pointers; the existing provider rechecks full source/tool/IR/banked evidence before allowing any reuse. `cache --rom` is inspection-only, `--import-history` overrides selection, and `--no-auto-history` disables it. No manual JSON/log selection for common reruns, no game-specific controller logic. This is NOT a reusable compiled native DLL cache or live stateful continuation; checkpoints and hot-loadable native blocks remain future work.

@@ -1,3 +1,7 @@
+## v0.4.9.25 — hardware-neutral portable artifacts
+
+This source-only infrastructure release provides a generic independently compiled artifact API, content SHA-256 storage, immutable source-attested portable capsules and automatic legacy migration. It does not grant semantic authority to artifacts and does not load old native binaries. **Next:** finish compiler/host/ABI-keyed native machine-code retention, active plugin dispatch through the artifact API, full guest-state checkpoints or live native code hot-load, cross-platform/Mega Drive/PS1 execution and independent gameplay parity.
+
 # Current roadmap and acceptance gates
 
 **v0.4.9.24 source candidate:** First controller-owned, ROM-SHA-scoped persistent recovery registry; automatic audited history reuse, no manual logs, strict NativeResult stdout ingestion. This is a narrow native infrastructure foundation, NOT the previously proposed live `TRANSLATION_REQUIRED` pause/compile/hot-load/resume capability. The next priority is a versioned CPU/machine-neutral recoverable fault ABI and native code registry, then full-state checkpoint or deterministic input replay before claiming interactive continuation. Keep native modules interchangeable and no ROM special cases.

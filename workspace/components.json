@@ -7,11 +7,11 @@
       "version": "0.3.5"
     },
     "controller": {
-      "description": "Compiled CPU-neutral controller-owned immutable source-matched ROM SHA recovery-history registry: automatic prior translated evidence selection, cache inspection CLI and safe explicit opt-out; still reattests bank/source/tool/provider on use; NO compiled native-block cache or hotload/resume.",
+      "description": "Compiled CPU-neutral controller auto-promotes verified recovery inputs into an independent immutable universal artifact store, automatically consumes portable capsules before legacy history; exact ROM/source/provider re-attestation remains mandatory. Not native DLL hot-loading or exact-state resume.",
       "kind": "controller",
       "scope": "production-entrypoint",
       "target": "RecompDev",
-      "version": "0.4.20"
+      "version": "0.4.21"
     },
     "controller_diagnostics": {
       "description": "Authenticated localhost v1 watch_summary whitelist and separate intentional live display instruction sampling vs actual broker/display drops and on-disk capture truncation.",
@@ -85,6 +85,13 @@
       "kind": "tooling",
       "scope": "production-workflow",
       "version": "0.1.1"
+    },
+    "rd_artifact_store": {
+      "description": "Independent CPU/machine-neutral content-addressed artifact provider with a versioned C ABI and portable source-attested recovery capsules; stored bytes are not automatically executable, and legacy provider replay is transitional.",
+      "kind": "compiled-plugin",
+      "scope": "production-infrastructure",
+      "target": "rd_artifact_store",
+      "version": "0.1.0"
     },
     "rd_audio_wav": {
       "description": "DLL target with independent build and deployment; not yet a production recovery adapter",
@@ -243,5 +250,5 @@
     }
   },
   "schema": "recompdev-components-v1",
-  "workspace_release": "v0.4.9.24"
+  "workspace_release": "v0.4.9.25"
 }
