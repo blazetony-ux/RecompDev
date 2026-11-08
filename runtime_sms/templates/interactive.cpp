@@ -201,7 +201,7 @@ int main(int argc,char**argv){
   const auto samples_discarded=null_audio->samples();
   std::cout<<"NATIVE_APP_RESULT={\"schema\":\"recomp-continuous-native-v2\",\"status\":\""<<result.status
    <<"\",\"native_steps\":"<<result.executed<<",\"guest_cycles\":"<<result.cycles
-   <<",\"frames\":"<<result.frames<<",\"frame_hashes\":[";
+   <<",\"frames\":"<<result.frames<<",\"guest_frames\":"<<guest.state().frames<<",\"frame_hashes\":[";
   for(std::size_t i=0;i<captured_frames->hashes.size();++i){if(i)std::cout<<",";std::cout<<captured_frames->hashes[i];}
   std::cout<<"],\"snapshot_every\":"<<config.snapshot_every
    <<",\"snapshots_written\":"<<captured_frames->snapshots_written

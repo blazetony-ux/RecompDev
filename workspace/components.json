@@ -1,17 +1,17 @@
 {
   "components": {
     "analysis_integration": {
-      "description": "Maintained preview-frontier importer consumes only complete checksummed stop evidence with original generated translation source identity and actual mapper/SP/PC; the native discovery and translation DLL independently revalidate mapped ROM bytes, while Ghidra/Rizin evidence reuse remains unchanged.",
+      "description": "Preview-frontier identity gate now recognizes source-verified session numbers through 128 and refuses out-of-range identifiers; all SHA, mapper, ROM and source-instruction checks remain intact.",
       "kind": "tooling",
       "scope": "production-workflow",
-      "version": "0.3.3"
+      "version": "0.3.4"
     },
     "controller": {
-      "description": "Compiled controller adds explicit `resume --preview-stop ZIP` with a source/session/ROM identity preflight that rejects invalid archives before modifying persistent job status. Only the first new cycle consumes a validated stop, which thereafter carries through immutable source-checked history.",
+      "description": "Compiled controller selects the standalone native Windows diagnostics monitor and supports up to 128 bounded, immutable recovery cycles with source-attested history, stagnation detection and the same plugin pinning. Original 16-cycle jobs are not silently modified.",
       "kind": "controller",
       "scope": "production-entrypoint",
       "target": "RecompDev",
-      "version": "0.4.16"
+      "version": "0.4.17"
     },
     "controller_diagnostics": {
       "description": "Controller-authenticated diagnostics event schema now accepts bounded `native_result` events, keeping terminal CPU stop, host output frame and sampled guest frame in distinct fields. Existing publish/subscribe token/authentication and event size limits remain unchanged.",
@@ -26,10 +26,10 @@
       "version": "0.1.0"
     },
     "execution_monitor": {
-      "description": "Independent monitor distinguishes a blocked guest from a host process crash and records guest VDP frame versus host presentation frame counts separately; the preview writes an optional ROM-free, CPU-state-complete recovery seed for explicit controller handoff.",
+      "description": "Standalone Win32 C++ read-only event subscriber replaces Python/Tk GUI in the compiled-controller preview path; terminal native guest VDP frame, last sampled frame and host presentation frames are separated. Preview ZIP can carry a portable unqualified per-frame candidate fingerprint manifest.",
       "kind": "tooling",
       "scope": "developer-debugger",
-      "version": "0.3.0"
+      "version": "0.4.0"
     },
     "input_recovery": {
       "description": "Generic guest-cycle input capture and source-verified replay recovery; short-path native builds, strict compile-failure suppression, replay history re-use",
@@ -66,6 +66,13 @@
       "kind": "tooling",
       "scope": "production-diagnostics",
       "version": "0.2.1"
+    },
+    "parity_validation": {
+      "description": "Independent CPU/machine-neutral native C++ comparator for source/input-bound video frame fingerprints and optional audio/state SHA-256. Never asserts gameplay parity or reference independence; candidate fingerprints are generated from native preview with missing input/audio/state explicitly unqualified.",
+      "kind": "tooling",
+      "scope": "production-diagnostics",
+      "target": "RecompDevParity",
+      "version": "0.1.0"
     },
     "production_cpu_bridge": {
       "description": "Production Z80 source instruction admission/selection; legacy P-code generation retained",
@@ -205,10 +212,10 @@
       "version": "1.2.1"
     },
     "runtime_host_integration": {
-      "description": "Generated native-project monitor staging, controller service launch and evidence integration; does not change compiled host DLL",
+      "description": "The source-attested generated native frontend reports the exact terminal guest VDP device frame counter as a separate field; previously sampled frame events remain informational and do not prove parity.",
       "kind": "tooling",
       "scope": "production-host-integration",
-      "version": "0.1.0"
+      "version": "0.1.1"
     },
     "sms_video_integration": {
       "description": "Source-only staging bridge and SHA-locked selection for the independently versioned SMS video DLL; never edits original generator, ROM or game instructions",
@@ -236,5 +243,5 @@
     }
   },
   "schema": "recompdev-components-v1",
-  "workspace_release": "v0.4.9.20"
+  "workspace_release": "v0.4.9.21"
 }

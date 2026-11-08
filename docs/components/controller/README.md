@@ -71,3 +71,7 @@ Use `configure --workspace ABSOLUTE` to keep large job records in a separate wor
 ## v0.4.9.20 explicit preview-to-recovery handoff
 
 `RecompDev.exe resume --job JOB_ID --max-cycles NEW_LIMIT --preview-stop FULL_PATH_TO_ZIP` accepts only complete, independently rechecked preview evidence corresponding to the job's immediately previous cycle. An initial read-only preflight refuses invalid/mismatched archives before changing the job; accepted evidence is handed to the existing native analysis-discovery plugin boundary and carried forward as source-verified history. `preview` remains read-only, so users can inspect games without progressing recovery. RecompDev's source promotion still never installs unqualified production binaries.
+
+## v0.4.9.21 bounded automatic recovery
+
+Compiled controller accepts `--max-cycles 1..128` for new source-verified jobs, preserving immutable cycle reports, source checks, existing stagnation policies and pinned DLL identity. Use `--import-history` into a new job to move from a previous release binary; do not silently upgrade old job plugin DLLs. Native preview explicitly selects a standalone `RecompDevMonitor.exe` in the compiled controller build directory; a Python/Tk monitor is no longer launched from this path. Linux headless tests use `--no-viewer`.

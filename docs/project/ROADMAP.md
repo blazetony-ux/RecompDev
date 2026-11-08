@@ -1,3 +1,9 @@
+# Current roadmap and acceptance gates
+
+## v0.4.9.21 — native monitor and explicit parity gates
+
+The owner reached 1,800 native host output frames on original Shinobi with a source-verified v0.4.9.20 recovery job; the target is **frame-count only**, without deterministic gameplay/input/audio/reference parity. The next candidate introduces a genuine independently compiled Win32 C++ read-only monitor, a CPU-neutral data comparator, terminal guest/device/host frame counter separation and bounded 128-cycle automatic recovery. **Independent trusted emulator capture, real input replay and CPU/VDP/PSG/interrupt parity remain BLOCKED.** Do not add game-specific controller hacks, replace pinned old DLLs or declare native parity qualified. See [release](../releases/v0.4.9.21.md).
+
 ## v0.4.9.18 — evidence closure and targeted recovery infrastructure (2026-11-07)
 
 ## v0.4.9.20 — guarded native preview handoff
@@ -15,7 +21,6 @@ Following v0.4.9.15 owner 60/60 Windows acceptance and genuine Shinobi two-sessi
 - **Implemented in v0.4.9.9 source candidate:** controller directly executes existing hash-verified P-code game DLL through shared native harness runner; Z80 source decoder now recognises documented prefixed opcodes; original SMS mapper state is used via hardware DLL. Linux acceptance does not establish Shinobi gameplay parity.
 - **Next mandatory port, not complete:** native translation backend that accepts source-verified Ghidra P-code exports from multiple machines, replacing transitional Python generator; source-evidence-preserving runtime recovery and full Z80 state/interrupt semantics. Windows multi-ROM acceptance is pending. Do not substitute further reporting infrastructure for working executable paths.
 
-# Current roadmap and acceptance gates
 
 **Status:** Current. Last reviewed: 2026-11-05.
 

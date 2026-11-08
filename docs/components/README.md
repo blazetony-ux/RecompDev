@@ -88,3 +88,8 @@ The independent maintained `rd_sms_native_runtime` machine-state DLL is register
 ### v0.4.9.19 preview integration
 
 The versioned `execution_monitor` remains an independent CPU-neutral viewer subscriber; new compiled-controller `preview` dispatch and a temporary Python adapter stage source-attested generated game applications. Monitor, CPU, hardware and host display cannot be merged into one title-specific implementation. See [execution monitor](execution_monitor/README.md) and [controller](controller/README.md).
+
+## v0.4.9.21
+
+- [parity_validation](parity_validation/README.md) (`production-diagnostics`): independently compiled CPU/ISA-neutral parity capture comparator; matching records are never by themselves proof of independent gameplay equivalence.
+- `execution_monitor`: native Win32 `RecompDevMonitor.exe` is separately compiled and has no Python/Tk dependency in the current controller preview path; original Python GUI is retained as audit source only.

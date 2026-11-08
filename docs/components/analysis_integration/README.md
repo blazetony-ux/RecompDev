@@ -41,3 +41,7 @@ The initial Ghidra launcher and headless Java scripts now live in `analysis_inte
 ## v0.4.9.20 preview-frontier compatibility adapter
 
 The native controller can optionally pass one complete, source-attested preview diagnostic ZIP into the **first** newly resumed analysis cycle. The `analysis_integration.preview_frontier` verifier rechecks the ZIP manifest, original immutable generated `translated.cpp`, job/session/round, ROM digest and original native PC/physical/mapper/SP state. Accepted evidence enters `recovery_history` with distinct provenance; the compiled native discovery provider performs its normal byte/mapping validation again. No translated code is accepted merely from an address, and no previous session is rewritten. This remains Python tooling until a production compiled analysis ABI is qualified.
+
+## v0.4.9.21 extended immutable cycle identity
+
+Preview seed verification accepts bounded 2- or 3-digit cycle identifiers through 128, and still rejects incorrect source, mapper, ROM, session or original translation evidence. This does not make untrusted preview ZIPs replayable or authorize new providers.

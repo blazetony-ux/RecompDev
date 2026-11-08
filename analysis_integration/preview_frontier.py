@@ -22,7 +22,7 @@ from analysis_integration.recovery_history import _check_seed, RecoveryHistoryEr
 GAPS=frozenset({'UNTRANSLATED_INITIAL_CODE','BANKED_CODE_NOT_TRANSLATED','UNTRANSLATED_PHYSICAL_ROM_OFFSET'})
 EXPECTED={'manifest.json','preview.json','monitor-events.jsonl','recovery-seed.json'}
 JOB_ID=re.compile(r'job-[A-Za-z0-9_-]{1,96}\Z')
-CYCLE=re.compile(r'cycle-(?:0[1-9]|1[0-6])\Z')
+CYCLE=re.compile(r'cycle-(?:0[1-9]|[1-9][0-9]|1[01][0-9]|12[0-8])\Z')
 ROUND=re.compile(r'round-0[1-8]\Z')
 
 class PreviewFrontierError(ValueError):pass

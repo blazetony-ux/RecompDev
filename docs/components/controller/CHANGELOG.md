@@ -1,5 +1,11 @@
 # controller — independent changelog
 
+## [0.4.17] - 2026-11-07
+
+- **Changed:** Controller-owned recovery sessions now support up to 128 total cycles per new job with immutable source-checked history and the existing stopping conditions; preview launches only its independent `RecompDevMonitor.exe` subscriber, not Tkinter.
+- **Validation:** New native monitor, parity and preview-bounds contracts plus compiled controller job/CLI tests; Windows MSVC native GUI integration requires owner acceptance.
+- **Compatibility:** No CPU/machine/translator ABI changes, active runtime updates, old job mutation, game-specific rules or edits to 642 frozen files; v0.4.9.20 job DLLs remain pinned and are not swapped.
+
 ## [0.4.16] - 2026-11-07
 
 - **Changed:** Add opt-in `resume --preview-stop ZIP` and independent preflight before changing job metadata; first resumed batch receives a verified preview-bound gap, persisted by the standard history importer.

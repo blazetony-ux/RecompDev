@@ -48,3 +48,7 @@ Release claims must distinguish cross-platform CI/local tests, owner Windows log
 ## v0.4.9.20
 
 [Guarded preview-to-recovery stop handoff](v0.4.9.20.md). Source-only candidate from owner-promoted v0.4.9.19; existing diagnostic ZIP without native mapper is not a verified recovery seed.
+
+## v0.4.9.21
+
+[Native C++ execution monitor, bounded 128-cycle recovery and unqualified parity capture comparison](v0.4.9.21.md). Source-only candidate based on owner-promoted v0.4.9.20; 1,800 output frames observed but independent gameplay parity still BLOCKED.

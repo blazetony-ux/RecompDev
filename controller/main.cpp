@@ -130,7 +130,7 @@ static fs::path project_root(fs::path exe){
     throw std::runtime_error("RecompDev source checkout not found; runtime needs source-root.txt");
 }
 static void usage(){
-    std::cout<<"RecompDev v0.4.9.19 native controller (compiled job lifecycle + plugin discovery)\n"
+    std::cout<<"RecompDev v0.4.9.21 native controller (compiled job lifecycle + plugin discovery)\n"
       "Usage: RecompDev.exe --rom FILE --stage discover|prepare|recover [options]\n"
       "  --steps N --frames N --max-recoveries N --timeout N --capture-hardware\n"
       "  --auto-continue --max-rounds N (continue source-verified recovery in bounded batches)\n"
@@ -139,7 +139,7 @@ static void usage(){
       "  --plugins | --verify | --status | --help\n"
       "  run --rom FILE [--logging debug|info|warning|error] [--max-cycles N]\n"
       "  configure --ghidra PATH --rizin PATH [--evidence-root DIR] [--workspace LEGACY_DIR] [--allow-tool-root DIR]\n"
-      "  resume [--job ID] [--max-cycles N] [--preview-stop ZIP]; status [--job ID]; inspect [--job ID]\n"
+      "  resume [--job ID] [--max-cycles 1..128] [--preview-stop ZIP]; status [--job ID]; inspect [--job ID]\n"
       "  diagnostics export [--job ID] (redacted upload-ready ZIP; no ROM)\n"
       "  preview [--job ID] [--cycle N] [--frames N] [--steps N] [--monitor-every N]\n"
       "    [--video window|capture] [--input live|neutral] [--no-viewer] [--hold-window]\n"
@@ -171,14 +171,14 @@ int main(int argc,char** argv)
 #endif
           )){usage();return 0;}
 #ifdef _WIN32
-        if(equals(argv[1],L"--version")){std::cout<<"RecompDev 0.4.9.19\n";return 0;}
+        if(equals(argv[1],L"--version")){std::cout<<"RecompDev 0.4.9.21\n";return 0;}
         if(equals(argv[1],L"plugin"))op="plugin-manager";
         if(equals(argv[1],L"--plugins"))op="plugins";
         if(equals(argv[1],L"--verify"))op="verify";
         if(equals(argv[1],L"--status"))op="status";
         if(equals(argv[1],L"--analyze-evidence"))op="review-evidence";
 #else
-        if(equals(argv[1],"--version")){std::cout<<"RecompDev 0.4.9.19\n";return 0;}
+        if(equals(argv[1],"--version")){std::cout<<"RecompDev 0.4.9.21\n";return 0;}
         if(equals(argv[1],"plugin"))op="plugin-manager";
         if(equals(argv[1],"--plugins"))op="plugins";
         if(equals(argv[1],"--verify"))op="verify";

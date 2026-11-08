@@ -1,5 +1,11 @@
 # analysis_integration — independent component history
 
+## [0.3.4] - 2026-11-07
+
+- **Changed:** Source-attested preview recovery preflight accepts immutable `cycle-01` through `cycle-128` session identities, including three-digit cycle IDs, without relaxing the original mapper or ROM identity tests.
+- **Validation:** New boundary tests reject cycle 129 and verify session parser limits alongside native controller and diagnostics budgets; final Windows owner tests pending.
+- **Compatibility:** Earlier v0.4.9.20 preview archives remain in their original source directories and continue to require exact matching source, job and translation SHA-256.
+
 ## [0.3.3] - 2026-11-07
 
 - **Changed:** Add `preview_frontier.py` with exact manifest checks, source/ROM/mapper/PC/SP/guest-stop attestation and immutable `recovery_history.import_previous` preview injection; no address guessing.

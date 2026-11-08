@@ -19,14 +19,14 @@ import zipfile
 
 SCHEMA = 'recompdev.controller.diagnostics.v1'
 MAX_SOURCE = 8 * 1024 * 1024
-MAX_TOTAL = 48 * 1024 * 1024
-MAX_SESSIONS = 16
-MAX_FILES = 160
+MAX_TOTAL = 64 * 1024 * 1024
+MAX_SESSIONS = 128
+MAX_FILES = 1300
 MAX_COVERAGE_INSTRUCTIONS = 250000
 PATH = re.compile(r'(?i)(?:[a-z]:[\\/]|\\\\[^\\/]+[\\/]|/(?:home|users|mnt|tmp|var|private|root)/)')
 SECRET = re.compile(r'(?i)(?:password|credential|secret|api[_-]?key|auth[_-]?token|access[_-]?token|bearer)')
 JOB_ID = re.compile(r'^job-[A-Za-z0-9_-]{1,96}$')
-SESSION = re.compile(r'^cycle-\d{2}$')
+SESSION = re.compile(r'^cycle-\d{2,3}$')
 STOP_FILE = re.compile(r'^round-\d{2}-observed-stop\.json$')
 ROUND_DIR = re.compile(r'^round-\d{2}$')
 

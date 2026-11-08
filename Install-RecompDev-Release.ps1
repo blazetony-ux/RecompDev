@@ -392,6 +392,23 @@ try {
   $inventoryFile=Join-Path $job 'native-binary-hashes.json'
   [IO.File]::WriteAllText($inventoryFile,($inventory|ConvertTo-Json -Depth 5),[Text.UTF8Encoding]::new($false))
   Write-Host "RECOMPDEV_BINARY_HASHES=$inventoryFile"
+  # Independent native tools are source-only build outputs: attest them without
+  # adding them to the production runtime lockfile or active DLL inventory.
+  if($null -ne $manifest.PSObject.Properties['auxiliary_binaries']){
+    $auxiliary=@()
+    foreach($spec in $manifest.auxiliary_binaries){
+      $name=[string]$spec.name
+      $role=[string]$spec.role
+      Assert ($name -match '^[A-Za-z][A-Za-z0-9_]+\.exe$') "Unsafe auxiliary binary name: $name"
+      Assert ($role -match '^[a-z][a-z0-9_-]+$') "Unsafe auxiliary binary role: $role"
+      $built=Join-Path $binDir $name
+      Assert (Test-Path -LiteralPath $built -PathType Leaf) "Missing auxiliary compiled target: $name"
+      $auxiliary+= [pscustomobject]@{role=$role;file=$name;sha256=(Hash $built);path=$built}
+    }
+    $auxiliaryFile=Join-Path $job 'auxiliary-binary-hashes.json'
+    [IO.File]::WriteAllText($auxiliaryFile,($auxiliary|ConvertTo-Json -Depth 5),[Text.UTF8Encoding]::new($false))
+    Write-Host "RECOMPDEV_AUXILIARY_BINARY_HASHES=$auxiliaryFile"
+  }
   Write-Host 'RECOMPDEV_TESTS=PASS'
   if($Mode -eq 'Validate'){
     Write-Host 'RECOMPDEV_PHASE=DEV_CHECKPOINT'

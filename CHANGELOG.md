@@ -1,5 +1,13 @@
 # RecompDev workspace changelog
 
+## [workspace/v0.4.9.21] - 2026-11-07
+
+- **Native monitor:** Add independent Win32 C++ `RecompDevMonitor.exe` subscribing to the existing authenticated controller diagnostics protocol; current compiled-controller previews stop launching Python/Tk. Python remains a transitional per-preview build/analysis adapter, not a GUI. Original Tk source retained for audit.
+- **Frame and parity evidence:** Native generated frontend now reports terminal guest VDP count distinct from host output and last sampled frame. Source-verified preview ZIP can include ordered candidate host-video fingerprints. Native independent `RecompDevParity.exe` compares ROM/input identities and video/audio/state data where supplied, always reporting **gameplay parity unqualified** in the absence of independently attested references.
+- **Recovery:** Lift controller/diagnostic/preview session bound from 16 to 128 with bounded immutable history and preserved plateau checks; plugin DLL provenance remains pinned, no automatic upgrade of existing jobs.
+- **Owner confirmed before this build:** Local v0.4.9.20 `main` at b3a2db76080899307bea0385aea41648c1b3843a, 69/69 MSVC CTests, original 642 files identical, owner Shinobi completed 1,800 host output frames under compiled native execution (11,794,646 guest steps, no non-neutral input recorded). Input, video/audio timing and gameplay hardware parity remain **BLOCKED**. v0.4.9.21 Windows compiled GUI/entire MSVC acceptance remains owner-run.
+
+
 ## [workspace/v0.4.9.20] - 2026-11-07
 
 - Real v0.4.9.19 owner Shinobi two-window monitor recorded `UNTRANSLATED_INITIAL_CODE` at PC/physical `0xADAF`, 936 host frames and 934 guest counter frames, with no non-neutral input. This is a native guest translation gap, not an observed Z-key crash or proof of gameplay parity.

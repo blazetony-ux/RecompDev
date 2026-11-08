@@ -1,5 +1,11 @@
 # execution_monitor component history
 
+## [0.4.0] - 2026-11-07
+
+- **Changed:** Native Win32 `RecompDevMonitor.exe` now subscribes to CPU-neutral authenticated localhost controller diagnostics; no Python/Tk viewer is launched by the v0.4.9.21 preview. Terminal frame fields report host presentation count, native guest VDP counter and latest sampled frame independently. Source-attested previews can include an unqualified candidate frame-fingerprint manifest.
+- **Validation:** Portable C++ JSON/protocol and bounded-history tests, source-attested native preview compile/run smoke and ZIP manifest tests pass locally; visual Windows two-window testing remains owner acceptance.
+- **Compatibility:** Keeps original Python viewer source for audit only; no guest-memory access, code stepping, CPU-specific instructions, active DLL replacement or input-event causation claims.
+
 ## [0.3.0] - 2026-11-07
 
 - **Changed:** Create ROM-free optional `recovery-seed.json` only from exact native final guest translation-gap state and matching live stop event. Display guest-blocked outcome separately from native process completion, showing distinct host and guest frame counters.

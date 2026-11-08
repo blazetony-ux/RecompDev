@@ -118,7 +118,7 @@ Options parse(const std::vector<std::string>&argv){
         else if(key=="--workspace")opt.workspace=val;
         else if(key=="--evidence-root")opt.evidence_root=val;
         else if(key=="--allow-tool-root")opt.roots.push_back(val);
-        else if(key=="--max-cycles"){opt.max_cycles=number("MAX_CYCLES",val,1,16);opt.have_cycles=true;}
+        else if(key=="--max-cycles"){opt.max_cycles=number("MAX_CYCLES",val,1,128);opt.have_cycles=true;}
         else if(key=="--rounds-per-cycle")opt.rounds=number("ROUNDS_PER_CYCLE",val,1,8);
         else if(key=="--target-frames")opt.target_frames=number("TARGET_FRAMES",val,1,36000);
         else if(key=="--timeout")opt.timeout=number("TIMEOUT",val,30,7200);
@@ -126,7 +126,7 @@ Options parse(const std::vector<std::string>&argv){
         else if(key=="--frames")opt.preview_frames=number("PREVIEW_FRAMES",val,1,36000);
         else if(key=="--steps")opt.preview_steps=number("PREVIEW_STEPS",val,1,20000000);
         else if(key=="--monitor-every")opt.preview_every=number("MONITOR_EVERY",val,1,65536);
-        else if(key=="--cycle")opt.preview_cycle=number("PREVIEW_CYCLE",val,1,16);
+        else if(key=="--cycle")opt.preview_cycle=number("PREVIEW_CYCLE",val,1,128);
         else if(key=="--video")opt.preview_video=val;
         else if(key=="--input")opt.preview_input=val;
         else throw Error("UNKNOWN_JOB_OPTION_"+key);
@@ -152,11 +152,11 @@ Options load_config(const fs::path&h){
     return opt;
 }
 bool within(const fs::path& p,const fs::path& root){auto i=p.begin(),j=root.begin();for(;j!=root.end();++i,++j)if(i==p.end()||*i!=*j)return false;return true;}
-// Evidence lives under <configured-root>/v0.4.9.20, independently of old job locations.
+// Evidence lives under <configured-root>/v0.4.9.21, independently of old job locations.
 // The prior --workspace value is recognised but never rewritten automatically.
 // A version-like trailing directory is treated as an older release workspace,
-// allowing existing owner configuration to transparently select v0.4.9.20.
-constexpr const char* kEvidenceVersion = "v0.4.9.20";
+// allowing existing owner configuration to transparently select v0.4.9.21.
+constexpr const char* kEvidenceVersion = "v0.4.9.21";
 bool is_version_folder(const std::string& name){
     if(name.size()<6||name[0]!='v')return false;
     int dots=0;
@@ -255,14 +255,14 @@ Job load_job(const fs::path& jobs,const std::string&id){
     for(auto&x:v.get("allow_tool_roots").array())j.roots.push_back(x.string());
     j.max_cycles=as_int(v,"max_cycles");j.rounds=as_int(v,"rounds_per_cycle");j.target_frames=as_int(v,"target_frames");j.timeout=as_int(v,"timeout");
     j.step_budget=as_int(v,"step_budget");j.stagnant=as_int(v,"stagnant");
-    if(j.max_cycles<1||j.max_cycles>16||j.rounds<1||j.rounds>8||j.target_frames<1||j.target_frames>36000||j.attempts.size()>16)throw Error("JOB_BOUNDS_INVALID");
+    if(j.max_cycles<1||j.max_cycles>128||j.rounds<1||j.rounds>8||j.target_frames<1||j.target_frames>36000||j.attempts.size()>128)throw Error("JOB_BOUNDS_INVALID");
     for(auto&x:v.get("attempts").array()){
         Attempt a;a.cycle=as_int(x,"cycle");a.frames=as_int(x,"frames");a.emitted=as_int(x,"emitted");a.status=getstr(x,"status");a.reason=getstr(x,"reason");a.output=getstr(x,"output");
         if(x.get("frontier").t==V::String)a.frontier=getstr(x,"frontier");
         if(a.cycle!=int(j.attempts.size())+1||a.output!=(jobs/id/"sessions"/(std::string("cycle-")+(a.cycle<10?"0":"")+std::to_string(a.cycle))).u8string())throw Error("JOB_SESSION_PATH_OR_ORDER_INVALID");
         j.attempts.push_back(a);
     }
-    if(j.attempts.size()>16)throw Error("JOB_ATTEMPTS_INVALID");
+    if(j.attempts.size()>128 || j.attempts.size()>static_cast<size_t>(j.max_cycles))throw Error("JOB_ATTEMPTS_INVALID");
     return j;
 }
 std::string last_id(const fs::path&h){auto s=read_bound(h/"last-job.txt",200);while(!s.empty()&&(s.back()=='\r'||s.back()=='\n'))s.pop_back();return safe_job_id(s);}
@@ -462,6 +462,10 @@ int rd_native_job(const std::vector<std::string>& args,const fs::path&source,con
                 "--frames",std::to_string(opt.preview_frames),"--steps",std::to_string(opt.preview_steps),
                 "--sample-every",std::to_string(opt.preview_every),"--cycle",std::to_string(opt.preview_cycle),
                 "--video",opt.preview_video,"--input",opt.preview_input,"--timeout",std::to_string(opt.timeout)};
+            // The compiled controller selects an independent native Win32 monitor.
+            // Never fall back to a Python/Tk GUI in the v0.4.9.21 preview path.
+            command.push_back("--viewer-binary");
+            command.push_back((exe.parent_path()/"RecompDevMonitor.exe").u8string());
             if(!opt.preview_viewer)command.push_back("--no-viewer");
             if(opt.preview_hold)command.push_back("--hold-window");
             return bridge(command);

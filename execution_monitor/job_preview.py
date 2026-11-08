@@ -31,7 +31,7 @@ TRANSLATION_GAPS = frozenset({'UNTRANSLATED_INITIAL_CODE', 'BANKED_CODE_NOT_TRAN
                               'UNTRANSLATED_PHYSICAL_ROM_OFFSET'})
 
 JOB = re.compile(r'^job-[A-Za-z0-9_-]{1,96}$')
-CYCLE = re.compile(r'^cycle-(?:0[1-9]|1[0-6])$')
+CYCLE = re.compile(r'^cycle-(?:0[1-9]|[1-9][0-9]|1[01][0-9]|12[0-8])$')
 ROUND = re.compile(r'^round-0[1-8]$')
 NATIVE_PART = re.compile(r'^native_part_\d{1,2}\.cpp$')
 FILES = frozenset({'CMakeLists.txt', 'interactive.cpp', 'live_sms.hpp', 'main.cpp',
@@ -70,7 +70,7 @@ def select_source(job_dir, cycle=0):
     if cycle:
         candidates = [job_dir/'sessions'/f'cycle-{cycle:02d}']
     else:
-        candidates = sorted(job_dir.joinpath('sessions').glob('cycle-*'),reverse=True)
+        candidates = sorted(job_dir.joinpath('sessions').glob('cycle-*'),key=lambda x:int(x.name[6:]) if x.name[6:].isdigit() else -1,reverse=True)
     for session in candidates:
         if not CYCLE.fullmatch(session.name) or not session.is_dir() or not inside(session,job_dir): continue
         report = verified_json(session/'orchestration.json',job_dir)
@@ -184,15 +184,20 @@ def native_binary(build, name):
     raise ValueError('PREVIEW_NATIVE_ARTIFACT_MISSING_'+name)
 
 
-def launch_viewer(broker,out):
-    interpreter = Path(sys.executable)
-    if os.name == 'nt' and interpreter.with_name('pythonw.exe').is_file():
-        interpreter = interpreter.with_name('pythonw.exe')
-    log = (out/'viewer.log').open('wb')
+def launch_viewer(broker, out, binary):
+    """Native Windows subscriber. Never silently select Python/Tk as fallback."""
+    if os.name != 'nt':
+        raise OSError('NATIVE_VIEWER_REQUIRES_WINDOWS')
+    if not binary:
+        raise OSError('NATIVE_VIEWER_BINARY_NOT_PROVIDED')
+    executable=Path(binary).resolve(strict=True)
+    if executable.name.lower() != 'recompdevmonitor.exe' or not executable.is_file():
+        raise ValueError('NATIVE_VIEWER_BINARY_INVALID')
+    log=(out/'viewer.log').open('wb')
     try:
-        flags = getattr(subprocess,'CREATE_NO_WINDOW',0) if os.name == 'nt' else 0
-        proc=subprocess.Popen([str(interpreter),'-B','-m','execution_monitor.viewer',
-            '--port',str(broker.port),'--token',broker.token],cwd=ROOT,stdout=log,stderr=subprocess.STDOUT,creationflags=flags)
+        proc=subprocess.Popen([str(executable),'--port',str(broker.port),'--token',broker.token],
+            cwd=out,stdout=log,stderr=subprocess.STDOUT,
+            creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
         return proc,log
     except BaseException:
         log.close()
@@ -270,28 +275,60 @@ def preview_recovery_seed(native, rom, expected_sha, process_exit_code, publishe
     return seed
 
 
-def frame_accounting(native,published_stop):
-    """Explicitly distinguish CPU/VBlank and presentation clock domains.
+def frame_accounting(native, published_stop):
+    """Report native terminal device state and sampled events as separate clocks.
 
-    A delta must never be silently interpreted as additional guest progress.
+    This is accounting, not independent hardware correctness or parity proof.
     """
     host=native.get('frames') if isinstance(native,dict) else None
-    cpu=published_stop.get('frame') if isinstance(published_stop,dict) else None
-    if type(host) is int and type(cpu) is int:
-        return {'host_output_frames':host,'guest_cpu_frames':cpu,
-                'delta_host_minus_guest':host-cpu,
-                'same_clock_domain':False,
-                'interpretation':'HOST_PRESENTATION_VS_GUEST_VDP_COUNTERS_NOT_PARITY_PROOF'}
-    return {'host_output_frames':host,'guest_cpu_frames':cpu,
-            'interpretation':'FRAME_COUNTER_COMPARISON_UNAVAILABLE'}
+    guest=native.get('guest_frames') if isinstance(native,dict) else None
+    sampled=published_stop.get('frame') if isinstance(published_stop,dict) else None
+    result={'host_output_frames':host,'guest_vdp_frames_at_native_exit':guest,
+            'last_sampled_guest_frame':sampled,'same_clock_domain':False,
+            'gameplay_parity_qualified':False}
+    if type(host) is int and type(guest) is int:
+        result['delta_host_minus_guest_vdp']=host-guest
+        result['interpretation']='TERMINAL_NATIVE_DEVICE_COUNTERS_DISTINCT_NOT_REFERENCE_PARITY'
+    elif type(host) is int and type(sampled) is int:
+        # Backward-compatible legacy v20 field: this delta compares host output
+        # to one last sampled event, never to an exact terminal guest clock.
+        result['delta_host_minus_guest']=host-sampled
+        result['interpretation']='LEGACY_HOST_MINUS_SAMPLED_EVENT_NOT_TERMINAL_PARITY'
+    else:
+        result['interpretation']='FRAME_COUNTER_COMPARISON_UNAVAILABLE'
+    return result
 
 
-def diagnostic_zip(out,diagnostics,summary,events,recovery_seed=None):
+def candidate_capture(native, source_sha):
+    """Portable, unqualified, video-only candidate for external comparator.
+
+    Fingerprints are host-frame hashes, not cryptographic video proof. Never
+    invent a reference, audio parity, replay input identity or state parity.
+    """
+    if not isinstance(native,dict):return None
+    hashes=native.get('frame_hashes')
+    if (not isinstance(hashes,list) or not hashes or len(hashes)>36000 or
+        any(type(x) is not int or x<0 or x>=1<<64 for x in hashes) or
+        native.get('frames')!=len(hashes)):
+        return None
+    return {'schema':'recompdev.parity.capture.v1','capture_role':'candidate',
+            'capture_provider':'recompdev-native-game',
+            'clock_domain':'host_output_frames','rom_sha256':source_sha,
+            'video_fingerprint_algorithm':'recomp.hw.frame_fingerprint.v1',
+            'video_fingerprints':[f'{x:016x}' for x in hashes],
+            'input_qualification':'NOT_ATTESTED','audio_qualification':'NOT_CAPTURED_IN_PREVIEW',
+            'state_qualification':'NOT_CAPTURED_IN_PREVIEW',
+            'gameplay_parity_qualified':False}
+
+
+def diagnostic_zip(out,diagnostics,summary,events,recovery_seed=None,capture=None):
     diagnostics=Path(diagnostics);diagnostics.mkdir(parents=True,exist_ok=True)
     payload={'preview.json':(json.dumps(summary,indent=2,sort_keys=True)+'\n').encode('utf8'),
              'monitor-events.jsonl':(''.join(json.dumps(safe_excerpt(e),sort_keys=True)+'\n' for e in list(events)[-MAX_EVENTS_ZIP:])).encode('utf8')}
     if recovery_seed is not None:
         payload['recovery-seed.json']=(json.dumps(recovery_seed,indent=2,sort_keys=True)+'\n').encode('utf8')
+    if capture is not None:
+        payload['candidate-capture.json']=(json.dumps(capture,indent=2,sort_keys=True)+'\n').encode('utf8')
     manifest={'schema':'recompdev.preview.diagnostics.v1',
               'files':{name:{'sha256':hashlib.sha256(data).hexdigest(),'bytes':len(data)} for name,data in payload.items()},
               'rom_included':False,'native_binary_included':False,'host_paths_included':False}
@@ -351,11 +388,11 @@ def preview(opts):
             log_handle=None
             if not opts.no_viewer:
                 try:
-                    viewer,log_handle=launch_viewer(broker,out)
+                    viewer,log_handle=launch_viewer(broker,out,getattr(opts,'viewer_binary',''))
                     time.sleep(0.25)
-                    viewer_state='LAUNCHED_UNVERIFIED' if viewer.poll() is None else 'UNAVAILABLE_CHECK_VIEWER_LOG'
+                    viewer_state='NATIVE_WIN32_LAUNCHED_UNVERIFIED' if viewer.poll() is None else 'NATIVE_WIN32_UNAVAILABLE_CHECK_VIEWER_LOG'
                 except OSError:
-                    viewer_state='UNAVAILABLE_CHECK_VIEWER_LOG'
+                    viewer_state='NATIVE_WIN32_UNAVAILABLE_CHECK_VIEWER_LOG'
             try:
                 args=[str(game),str(rom),str(out/'frame'),str(opts.frames),str(opts.steps),
                      '--video',opts.video,'--audio','null','--input',opts.input,'--snapshot-every','60']
@@ -382,10 +419,12 @@ def preview(opts):
                         if line.startswith('NATIVE_APP_RESULT='):
                             native=json.loads(line.partition('=')[2]);break
                 raw_last_stop=next((e for e in reversed(events) if e.get('type')=='stop'),None)
+                raw_last_frame=next((e for e in reversed(events) if e.get('type')=='frame'),None)
                 broker.publish({'type':'native_result','status':str(native.get('status','NO_NATIVE_RESULT')) if native else 'NO_NATIVE_RESULT',
                                 'pc':native.get('pc',0) if native else 0,
                                 'host_frame':native.get('frames',0) if native else 0,
-                                'guest_frame':raw_last_stop.get('frame') if raw_last_stop else None,
+                                'guest_frame':native.get('guest_frames') if native else None,
+                                'sampled_guest_frame':raw_last_frame.get('frame') if raw_last_frame else None,
                                 'physical_offset':native.get('physical_offset',0) if native else 0})
                 time.sleep(0.15)
             finally:
@@ -400,13 +439,15 @@ def preview(opts):
                      'PREVIEW_CAPTURE_COMPLETE' if proc_rc==0 and native and not error else 'PREVIEW_INCOMPLETE')
     state['process_exit_code']=proc_rc
     state['native_stop']=stop
-    state['frame_accounting']=frame_accounting(native,stop.get('published_stop'))
+    state['frame_accounting']=frame_accounting(native,next((e for e in reversed(events) if e.get('type')=='frame'),stop.get('published_stop')))
+    capture=candidate_capture(native,job['rom_sha256'])
+    state['candidate_capture_available']=capture is not None
     state['recovery_seed_available']=eligible is not None
     state['observed_events']=n
     state['viewer']=viewer_state
     if error:state['failure_code']=error
     (out/'preview-summary.json').write_text(json.dumps(state,indent=2,sort_keys=True)+'\n',encoding='utf8')
-    diagnostics=diagnostic_zip(out,opts.diagnostics_dir,state,events,eligible)
+    diagnostics=diagnostic_zip(out,opts.diagnostics_dir,state,events,eligible,capture)
     print('RECOMPDEV_PREVIEW_RESULT='+state['status'])
     print('RECOMPDEV_PREVIEW_NATIVE_STATUS='+stop['status'])
     print('RECOMPDEV_PREVIEW_LAST_INPUT='+json.dumps(stop['preceding_input'],sort_keys=True))
@@ -430,8 +471,9 @@ def main(argv=None):
     p.add_argument('--input',choices=['live','neutral'],default='live')
     p.add_argument('--timeout',type=int,default=600)
     p.add_argument('--no-viewer',action='store_true');p.add_argument('--hold-window',action='store_true')
+    p.add_argument('--viewer-binary',default='')
     a=p.parse_args(argv)
-    if not (0<=a.cycle<=16 and 1<=a.frames<=36000 and 1<=a.steps<=20000000 and
+    if not (0<=a.cycle<=128 and 1<=a.frames<=36000 and 1<=a.steps<=20000000 and
             1<=a.sample_every<=65536 and 30<=a.timeout<=1800):
         p.error('Invalid preview bounds')
     if a.input=='live' and a.video!='window':p.error('Live input requires a window')
