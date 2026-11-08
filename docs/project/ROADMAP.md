@@ -1,5 +1,8 @@
 # Current roadmap and acceptance gates
 
+**v0.4.9.24 source candidate:** First controller-owned, ROM-SHA-scoped persistent recovery registry; automatic audited history reuse, no manual logs, strict NativeResult stdout ingestion. This is a narrow native infrastructure foundation, NOT the previously proposed live `TRANSLATION_REQUIRED` pause/compile/hot-load/resume capability. The next priority is a versioned CPU/machine-neutral recoverable fault ABI and native code registry, then full-state checkpoint or deterministic input replay before claiming interactive continuation. Keep native modules interchangeable and no ROM special cases.
+
+
 ## v0.4.9.23 — Rizin CR boundary and sustained, auditable telemetry
 
 Source-only candidate on installed v0.4.9.22. P0: correct approved `ESC[2K\r` Rizin framing (COMPAT-023) and add exact-byte fail-closed tests. P0: count each watched-PC event while aggregating hot-loop repetition, reserve stop/frame event capacity, decimate live display independently from evidence, expose all separate losses. Mandatory owner Windows 76/76 CTests and fresh Alex Kidd / Bank Panic jobs to demonstrate movement beyond provider validation; longer and keyboard-controlled Shinobi previews remain separate unqualified reference-free tests. P1 later: prove Ghidra/Rizin extra candidates reachable using source-verified bank-aware observations; build independent hardware reference video/audio/input parity. No CPU/hardware/game-specific controller patches or runtime promotion. [Release](../releases/v0.4.9.23.md).

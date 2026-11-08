@@ -1,5 +1,12 @@
 # controller — independent changelog
 
+## [0.4.20] - 2026-11-08
+
+- **Changed:** The compiled CPU-neutral controller now owns a persistent SHA-verified, ROM-identified recovery-history registry and provides automatic previous-session selection, `cache --rom` read-only inspection, explicit-import precedence, and opt-out. Source/tool/mapper provider verification remains mandatory; no native binary reuse is asserted.
+- **Validation:** New C++ registry contract checks cross-ROM isolation, v23 candidate discovery, append-only hashed records, corruption refusal; compiled job-manager mock proves no-manual-import reuse. Linux focused suite passed; full Windows 78/78 and 642 historical-file verification pending.
+- **Compatibility:** Unchanged plugin ABIs, untouched immutable histories and active runtime. Registry locates attested code knowledge only; does not provide hot loading, full checkpoints, input replay or game parity.
+
+
 ## [0.4.19] - 2026-11-08
 
 - **Changed:** Compiled `RecompDev.exe` and ROM-identified job namespace version advanced to `v0.4.9.23`, preserving controller-to-CPU/machine/plugin boundaries. Python analyzer and preview modules remain separately swappable; no direct game-specific logic, ROM overrides, or pinned-native DLL replacement.

@@ -170,7 +170,7 @@ endif()
 
 # v0.4.2 compiled top-level controller; unlike the standalone test harness it
 # owns the real ROM workflow entry point and delegates legacy services safely.
-add_executable(RecompDev ../controller/main.cpp ../controller/native_execute.cpp ../controller/native_translate.cpp ../controller/native_job.cpp)
+add_executable(RecompDev ../controller/main.cpp ../controller/native_execute.cpp ../controller/native_translate.cpp ../controller/native_job.cpp ../controller/recovery_registry.cpp)
 target_include_directories(RecompDev PRIVATE include ../translation_pcode/include)
 target_link_libraries(RecompDev PRIVATE rd_native_game_runner)
 # Resolve exactly the Python interpreter used by the tests, not an ambiguous py.exe shim.
@@ -417,7 +417,7 @@ if(Python3_Interpreter_FOUND)
 endif()
 
 # v0.4.9.15: compiled controller-owned persistent job manager and structured logger.
-add_executable(rd_controller_job_contract ../controller/tests/job_manager_contract.cpp ../controller/native_job.cpp)
+add_executable(rd_controller_job_contract ../controller/tests/job_manager_contract.cpp ../controller/native_job.cpp ../controller/recovery_registry.cpp)
 target_include_directories(rd_controller_job_contract PRIVATE ../controller include ../translation_pcode/include)
 add_test(NAME v04915_compiled_controller_job_manager COMMAND $<TARGET_FILE:rd_controller_job_contract> "${CMAKE_SOURCE_DIR}/.." "$<TARGET_FILE:RecompDev>")
 set_tests_properties(v04915_compiled_controller_job_manager PROPERTIES TIMEOUT 45)
@@ -527,4 +527,15 @@ if(Python3_Interpreter_FOUND)
  add_test(NAME v04923_live_telemetry_contract COMMAND "${Python3_EXECUTABLE}" -B -m unittest
   discover -s "${CMAKE_SOURCE_DIR}/../execution_monitor/tests" -p test_v04923_telemetry.py -q)
  set_tests_properties(v04923_live_telemetry_contract PROPERTIES TIMEOUT 45 WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/..")
+endif()
+
+# v0.4.9.24: controller-owned, immutable ROM-scoped history index; non-ROM
+# specific and does not imply executable-cache or guest-state continuation.
+add_executable(rd_recovery_registry_contract ../controller/tests/recovery_registry_contract.cpp ../controller/recovery_registry.cpp)
+target_include_directories(rd_recovery_registry_contract PRIVATE ../controller include ../translation_pcode/include)
+add_test(NAME v04924_recovery_registry_contract COMMAND $<TARGET_FILE:rd_recovery_registry_contract>)
+if(Python3_Interpreter_FOUND)
+ add_test(NAME v04924_native_terminal_result COMMAND "${Python3_EXECUTABLE}" -B -m unittest
+  discover -s "${CMAKE_SOURCE_DIR}/../execution_monitor/tests" -p test_v04924_stdout.py -q)
+ set_tests_properties(v04924_native_terminal_result PROPERTIES TIMEOUT 30 WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/..")
 endif()

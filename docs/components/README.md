@@ -1,5 +1,8 @@
 # RecompDev component catalogue
 
+**v0.4.9.24:** `controller` 0.4.20 adds a separate compiled, CPU-neutral persistent recovery-history registry; `execution_monitor` 0.4.3 adds a bounded unique terminal-result parser independent of the 512-KiB diagnostic log threshold. No Z80/SMS DLL or plugin ABI changes. See [release](../releases/v0.4.9.24.md).
+
+
 **v0.4.9.23:** `controller` 0.4.19 advances versioned independent jobs; `analysis_integration` 0.3.5 fixes strict Windows Rizin array framing; `execution_monitor` 0.4.2 and `controller_diagnostics` 0.1.3 add bounded, explicit watched-PC aggregation. Source-only. See [release](../releases/v0.4.9.23.md).
 
 

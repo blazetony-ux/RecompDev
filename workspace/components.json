@@ -7,11 +7,11 @@
       "version": "0.3.5"
     },
     "controller": {
-      "description": "Compiled generic job manager v23 routes fresh ROM-identified job/evidence namespaces and unchanged source-attested preview ABI; standalone controller forwards CPU-neutral watch configuration only. No game-specific decisions or runtime activation.",
+      "description": "Compiled CPU-neutral controller-owned immutable source-matched ROM SHA recovery-history registry: automatic prior translated evidence selection, cache inspection CLI and safe explicit opt-out; still reattests bank/source/tool/provider on use; NO compiled native-block cache or hotload/resume.",
       "kind": "controller",
       "scope": "production-entrypoint",
       "target": "RecompDev",
-      "version": "0.4.19"
+      "version": "0.4.20"
     },
     "controller_diagnostics": {
       "description": "Authenticated localhost v1 watch_summary whitelist and separate intentional live display instruction sampling vs actual broker/display drops and on-disk capture truncation.",
@@ -26,10 +26,10 @@
       "version": "0.1.0"
     },
     "execution_monitor": {
-      "description": "CPU-neutral bounded watched-PC counters, 4096-hit periodic/final per-PC aggregation, reserved critical-event capacity, private native trace seal and independent live UI sampling; no guest modifications, opcode-specific logic or reference gameplay parity.",
+      "description": "Native preview diagnostic adapter: strict unique bounded stdout terminal result recognition beyond 512 KiB, hard 16 MiB cap, raw evidence preservation and separate display sampling/PC watch summaries. No CPU changes or gameplay parity.",
       "kind": "tooling",
       "scope": "developer-debugger",
-      "version": "0.4.2"
+      "version": "0.4.3"
     },
     "input_recovery": {
       "description": "Generic guest-cycle input capture and source-verified replay recovery; short-path native builds, strict compile-failure suppression, replay history re-use",
@@ -243,5 +243,5 @@
     }
   },
   "schema": "recompdev-components-v1",
-  "workspace_release": "v0.4.9.23"
+  "workspace_release": "v0.4.9.24"
 }

@@ -1,5 +1,10 @@
 **v0.4.9.16 candidate:** source-attested cumulative recovery ledger across autonomous controller sessions; optional `run --import-history DIR` for existing evidence, best-frontier stagnation checks and single-ZIP development checkpoint via a validated package-pinned installer. Not installed or parity-qualified. See [release record](docs/releases/v0.4.9.16.md).
 
+## v0.4.9.24 — automatic recovery-history lookup (source candidate)
+
+`RecompDev.exe run --rom FILE` now looks for ROM-hash-matched, source-attested prior recovery sessions automatically in the controller's persistent Evidence-root registry. `RecompDev.exe cache --rom FILE` shows an eligible history without running analyzers; `--no-auto-history` forces a fresh independent recovery and `--import-history` remains available as an explicit override. Reuse is *source-verified recovered translation history*, not a compiled executable cache or live game-state resume. The Z80 and Master System plugins are unchanged. The native preview collector now extracts a unique, bounded terminal result even when stdout is >512 KiB, retaining explicit oversize evidence. New CTests and Windows gate required. [v24 release notes](docs/releases/v0.4.9.24.md) · [prebuild scope](docs/project/PREBUILD-v0.4.9.24.md).
+
+
 ## v0.4.9.23 source candidate — Rizin compatibility and telemetry reliability
 
 The CPU-neutral analyzer boundary now recognizes approved `ESC[2K\r` Windows Rizin framing (`COMPAT-023`) with strict audit and raw-log preservation; this removes a proven *provider parsing* blocker encountered with Alex Kidd and Bank Panic, not an established CPU/ROM incompatibility. Watched-address hits are counted exactly but display instruction details are bounded and coalesced, with explicit loss-domain summaries. A source-only release with independent 76-test Windows acceptance and separate fresh-ROM acceptance, **not** production-runtime or gameplay parity qualification. See [release record](docs/releases/v0.4.9.23.md), [prebuild](docs/project/PREBUILD-v0.4.9.23.md) and [handover](docs/project/HANDOVER.md).

@@ -1,4 +1,5 @@
 #include "native_job.hpp"
+#include "recovery_registry.hpp"
 #include "rd_tiny_json.hpp"
 #include "rd_sha256.hpp"
 #include <algorithm>
@@ -95,7 +96,7 @@ struct Options{
     std::vector<std::uint32_t> preview_watch_pc;
     std::vector<std::pair<std::uint32_t,std::uint32_t>> preview_watch_ranges;
     bool preview_matched_only=false;
-    bool preview_viewer=true,preview_hold=false,have_cycles=false;
+    bool preview_viewer=true,preview_hold=false,have_cycles=false,auto_history=true;
 };
 int number(const std::string&name,const std::string&s,int lo,int hi){
     if(s.empty()||!std::all_of(s.begin(),s.end(),[](char c){return c>='0'&&c<='9';}))throw Error("INVALID_"+name);
@@ -120,6 +121,7 @@ Options parse(const std::vector<std::string>&argv){
     for(size_t i=1;i<argv.size();i++){
         auto key=argv[i];
         if(key=="--no-viewer"){opt.preview_viewer=false;continue;}
+        if(key=="--no-auto-history"){opt.auto_history=false;continue;}
         if(key=="--monitor-matched-only"){opt.preview_matched_only=true;continue;}
         if(key=="--hold-window"){opt.preview_hold=true;continue;}
         if(i+1>=argv.size())throw Error("MISSING_VALUE_"+key);
@@ -179,11 +181,11 @@ Options load_config(const fs::path&h){
     return opt;
 }
 bool within(const fs::path& p,const fs::path& root){auto i=p.begin(),j=root.begin();for(;j!=root.end();++i,++j)if(i==p.end()||*i!=*j)return false;return true;}
-// Evidence lives under <configured-root>/v0.4.9.23, independently of old job locations.
+// Evidence lives under <configured-root>/v0.4.9.24, independently of old job locations.
 // The prior --workspace value is recognised but never rewritten automatically.
 // A version-like trailing directory is treated as an older release workspace,
-// allowing existing owner configuration to transparently select v0.4.9.23.
-constexpr const char* kEvidenceVersion = "v0.4.9.23";
+// allowing existing owner configuration to transparently select v0.4.9.24.
+constexpr const char* kEvidenceVersion = "v0.4.9.24";
 bool is_version_folder(const std::string& name){
     if(name.size()<6||name[0]!='v')return false;
     int dots=0;
@@ -364,6 +366,10 @@ int execute(Job&j,const fs::path&jobs,const fs::path&diagnostic_dir,const fs::pa
             j.attempts.back().frontier==attempt.frontier && j.attempts[j.attempts.size()-2].frontier==attempt.frontier &&
             attempt.frames<=best_frames;
         j.attempts.push_back(attempt);
+        // A controller-owned, immutable locator is independent of the raw
+        // logs; the provider still re-attests the candidate before reuse.
+        if(status=="MAX_RECOVERY_ROUNDS_REACHED"||status=="FRAME_BUDGET_REACHED_PARITY_UNVERIFIED")
+            rdregistry::remember(dir.parent_path().parent_path().parent_path(),j.sha,out,j.id,n);
         log.emit(1,"RECOVERY_RESULT","Cycle "+std::to_string(n)+" frames="+std::to_string(attempt.frames)+" emitted="+std::to_string(attempt.emitted)+" status="+status);
         if(status=="FRAME_BUDGET_REACHED_PARITY_UNVERIFIED"){
             j.status="TARGET_REACHED_PARITY_UNVERIFIED";persist();log.emit(2,"PARITY_UNVERIFIED","Frame target reached; runtime/gameplay parity is NOT proven");export_on_terminal();report(j,true);return 0;
@@ -402,6 +408,7 @@ int rd_native_job(const std::vector<std::string>& args,const fs::path&source,con
         if(h==source||within(h,source))throw Error("JOB_HOME_CANNOT_BE_INSIDE_SOURCE");
         const auto& op=args.front();
         if(op!="resume"&&!opt.preview_stop.empty())throw Error("PREVIEW_STOP_ONLY_FOR_RESUME");
+        if(op!="run"&&!opt.auto_history)throw Error("AUTO_HISTORY_OPTION_ONLY_FOR_RUN");
         if(op!="preview"&&(opt.preview_frames!=1200||opt.preview_steps!=12000000||opt.preview_every!=128||
            opt.preview_cycle!=0||opt.preview_video!="window"||opt.preview_input!="live"||!opt.preview_viewer||opt.preview_hold||
            !opt.preview_watch_pc.empty()||!opt.preview_watch_ranges.empty()||opt.preview_matched_only))
@@ -441,12 +448,38 @@ int rd_native_job(const std::vector<std::string>& args,const fs::path&source,con
             std::cout<<"RECOMPDEV_EVIDENCE_ROOT="<<evidence_root(h,source).string()<<"\n";
             std::cout<<"RECOMPDEV_WORKSPACE="<<workspace(h,source).string()<<"\n";return 0;
         }
+        if(op=="cache"){
+            if(opt.rom.empty()||!opt.job.empty()||!opt.import_history.empty()||opt.have_cycles||
+                !opt.ghidra.empty()||!opt.rizin.empty()||!opt.roots.empty()||!opt.plugin_dir.empty()||
+                !opt.workspace.empty()||!opt.evidence_root.empty())throw Error("CACHE_REQUIRES_ROM_ONLY");
+            auto cfg=load_config(h);authorize(cfg);
+            const auto sha=hash_rom(full(opt.rom));
+            const auto match=rdregistry::find(evidence_root(h,source),sha);
+            std::cout<<"RECOMPDEV_CACHE_ROM_SHA256="<<sha<<"\n";
+            if(match){std::cout<<"RECOMPDEV_CACHE_STATUS=SOURCE_MATCH_FOUND_REATTEST_ON_USE\n";
+                std::cout<<"RECOMPDEV_CACHE_TRANSLATED_INSTRUCTIONS="<<match->emitted<<"\n";
+                std::cout<<"RECOMPDEV_CACHE_BEST_FRAMES="<<match->frames<<"\n";
+                std::cout<<"RECOMPDEV_CACHE_HISTORY="<<match->session.u8string()<<"\n";}
+            else std::cout<<"RECOMPDEV_CACHE_STATUS=MISS\n";
+            return 0;
+        }
         if(op=="run"){
             if(opt.rom.empty()||!opt.job.empty())throw Error("RUN_REQUIRES_ROM_ONLY");
             if(!opt.ghidra.empty()||!opt.rizin.empty()||!opt.roots.empty()||!opt.workspace.empty()||!opt.evidence_root.empty())throw Error("USE_CONFIGURE_FOR_TOOL_SETTINGS");
             auto cfg=load_config(h);authorize(cfg);auto rom=full(opt.rom);
             auto jobs=workspace(h,source)/"jobs";
             auto sha=hash_rom(rom);
+            // Prefer an explicit audited import; otherwise locate the best
+            // source-matching history across v23 and future versioned roots.
+            std::string auto_candidate;
+            if(opt.import_history.empty()&&opt.auto_history){
+                auto hit=rdregistry::find(evidence_root(h,source),sha);
+                if(hit){auto_candidate=hit->session.u8string();
+                    std::cout<<"RECOMPDEV_RECOVERY_CACHE=HIT_REATTEST_ON_USE\n";
+                    std::cout<<"RECOMPDEV_RECOVERY_CACHE_TRANSLATED_INSTRUCTIONS="<<hit->emitted<<"\n";}
+                else std::cout<<"RECOMPDEV_RECOVERY_CACHE=MISS\n";
+            }else if(!opt.import_history.empty())std::cout<<"RECOMPDEV_RECOVERY_CACHE=EXPLICIT_IMPORT\n";
+            else std::cout<<"RECOMPDEV_RECOVERY_CACHE=DISABLED\n";
             auto id="job-"+compact_time()+"-"+sha.substr(0,8)+"-";
 #ifdef _WIN32
             id+=std::to_string(GetCurrentProcessId());
@@ -461,8 +494,8 @@ int rd_native_job(const std::vector<std::string>& args,const fs::path&source,con
             if(!created)throw Error("JOB_ID_COLLISION_LIMIT");
             fs::create_directories(dir/"sessions");
             Job j;j.id=id;j.rom=rom.u8string();j.sha=sha;j.ghidra=cfg.ghidra;j.rizin=cfg.rizin;j.roots=cfg.roots;
-            if(!opt.import_history.empty()){
-                auto initial=full(opt.import_history);
+            if(!opt.import_history.empty()||!auto_candidate.empty()){
+                auto initial=full(opt.import_history.empty()?auto_candidate:opt.import_history);
                 if(!fs::is_directory(initial))throw Error("INITIAL_HISTORY_NOT_DIRECTORY");
                 auto prior=read_json(initial/"orchestration.json");
                 if(getstr(prior,"schema")!="recompdev.native.orchestrator.v1"||getstr(prior,"source_sha256")!=sha)throw Error("INITIAL_HISTORY_SOURCE_IDENTITY_MISMATCH");
@@ -494,7 +527,7 @@ int rd_native_job(const std::vector<std::string>& args,const fs::path&source,con
             for(const auto range:opt.preview_watch_ranges){command.push_back("--monitor-pc-range");command.push_back(std::to_string(range.first)+":"+std::to_string(range.second));}
             if(opt.preview_matched_only)command.push_back("--monitor-matched-only");
             // The compiled controller selects an independent native Win32 monitor.
-            // Never fall back to a Python/Tk GUI in the v0.4.9.23 preview path.
+            // Never fall back to a Python/Tk GUI in the v0.4.9.24 preview path.
             command.push_back("--viewer-binary");
             command.push_back((exe.parent_path()/"RecompDevMonitor.exe").u8string());
             if(!opt.preview_viewer)command.push_back("--no-viewer");

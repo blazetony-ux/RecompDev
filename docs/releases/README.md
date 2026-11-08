@@ -1,5 +1,8 @@
 - [v0.4.9.9 — Native controller executes preserved P-code DLL, mapper/Z80 extensions (Windows unverified)](v0.4.9.9.md)
 
+**Latest candidate:** [v0.4.9.24 — controller recovery registry and RUNTIME-004](v0.4.9.24.md). Installed baseline v0.4.9.23, full 76/76 Windows CTests and 642 historical files preserved. v24 Windows owner validation pending; source-only and no gameplay parity claim.
+
+
 - [v0.4.9.23 — strict Rizin Windows CR prefix and bounded CPU-neutral telemetry](v0.4.9.23.md): pending owner Windows and second-ROM qualification; source-only.
 
 

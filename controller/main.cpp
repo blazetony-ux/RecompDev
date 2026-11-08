@@ -130,14 +130,15 @@ static fs::path project_root(fs::path exe){
     throw std::runtime_error("RecompDev source checkout not found; runtime needs source-root.txt");
 }
 static void usage(){
-    std::cout<<"RecompDev v0.4.9.23 native controller (compiled job lifecycle + plugin discovery)\n"
+    std::cout<<"RecompDev v0.4.9.24 native controller (compiled job lifecycle + plugin discovery)\n"
       "Usage: RecompDev.exe --rom FILE --stage discover|prepare|recover [options]\n"
       "  --steps N --frames N --max-recoveries N --timeout N --capture-hardware\n"
       "  --auto-continue --max-rounds N (continue source-verified recovery in bounded batches)\n"
       "  --catalogue FILE --out DIR --ghidra FILE --export FILE --budget N\n"
       "  --analyze-evidence DIR [--out DIR] [--reference-image PNG] [--reference-session JSON]\n"
       "  --plugins | --verify | --status | --help\n"
-      "  run --rom FILE [--logging debug|info|warning|error] [--max-cycles N]\n"
+      "  run --rom FILE [--logging debug|info|warning|error] [--max-cycles N] [--no-auto-history]\n"
+      "  cache --rom FILE (read-only source-matched recovery history lookup)\n"
       "  configure --ghidra PATH --rizin PATH [--evidence-root DIR] [--workspace LEGACY_DIR] [--allow-tool-root DIR]\n"
       "  resume [--job ID] [--max-cycles 1..128] [--preview-stop ZIP]; status [--job ID]; inspect [--job ID]\n"
       "  diagnostics export [--job ID] (redacted upload-ready ZIP; no ROM)\n"
@@ -172,14 +173,14 @@ int main(int argc,char** argv)
 #endif
           )){usage();return 0;}
 #ifdef _WIN32
-        if(equals(argv[1],L"--version")){std::cout<<"RecompDev 0.4.9.23\n";return 0;}
+        if(equals(argv[1],L"--version")){std::cout<<"RecompDev 0.4.9.24\n";return 0;}
         if(equals(argv[1],L"plugin"))op="plugin-manager";
         if(equals(argv[1],L"--plugins"))op="plugins";
         if(equals(argv[1],L"--verify"))op="verify";
         if(equals(argv[1],L"--status"))op="status";
         if(equals(argv[1],L"--analyze-evidence"))op="review-evidence";
 #else
-        if(equals(argv[1],"--version")){std::cout<<"RecompDev 0.4.9.23\n";return 0;}
+        if(equals(argv[1],"--version")){std::cout<<"RecompDev 0.4.9.24\n";return 0;}
         if(equals(argv[1],"plugin"))op="plugin-manager";
         if(equals(argv[1],"--plugins"))op="plugins";
         if(equals(argv[1],"--verify"))op="verify";
@@ -213,9 +214,9 @@ int main(int argc,char** argv)
         }
         fs::path root=project_root(self_path());
 #ifdef _WIN32
-        const bool native_job=equals(argv[1],L"run")||equals(argv[1],L"resume")||equals(argv[1],L"status")||equals(argv[1],L"inspect")||equals(argv[1],L"configure")||equals(argv[1],L"diagnostics")||equals(argv[1],L"preview");
+        const bool native_job=equals(argv[1],L"run")||equals(argv[1],L"resume")||equals(argv[1],L"status")||equals(argv[1],L"inspect")||equals(argv[1],L"configure")||equals(argv[1],L"diagnostics")||equals(argv[1],L"preview")||equals(argv[1],L"cache");
 #else
-        const bool native_job=equals(argv[1],"run")||equals(argv[1],"resume")||equals(argv[1],"status")||equals(argv[1],"inspect")||equals(argv[1],"configure")||equals(argv[1],"diagnostics")||equals(argv[1],"preview");
+        const bool native_job=equals(argv[1],"run")||equals(argv[1],"resume")||equals(argv[1],"status")||equals(argv[1],"inspect")||equals(argv[1],"configure")||equals(argv[1],"diagnostics")||equals(argv[1],"preview")||equals(argv[1],"cache");
 #endif
         if(native_job){
            std::vector<std::string> job_args;

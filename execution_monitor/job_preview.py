@@ -39,7 +39,8 @@ FILES = frozenset({'CMakeLists.txt', 'interactive.cpp', 'live_sms.hpp', 'main.cp
 MAX_PROJECT_BYTES = 120 * 1024 * 1024
 MAX_FILE_BYTES = 12 * 1024 * 1024
 MAX_EVENTS_ZIP = 5000
-MAX_LOG = 512 * 1024
+MAX_LOG = 512 * 1024  # legacy diagnostic threshold; not terminal-result validity
+from execution_monitor.native_result import extract_terminal_result, NativeResultError
 
 
 def digest(path):
@@ -440,12 +441,14 @@ def preview(opts):
                     finally:
                         if p.poll() is None:p.kill();p.wait()
                     proc_rc=p.returncode
-                if (out/'native-stdout.log').stat().st_size > MAX_LOG:
-                    error=error or 'PREVIEW_NATIVE_REPORT_OVERSIZED'
-                else:
-                    for line in (out/'native-stdout.log').read_text(encoding='utf8',errors='replace').splitlines():
-                        if line.startswith('NATIVE_APP_RESULT='):
-                            native=json.loads(line.partition('=')[2]);break
+                try:
+                    native,stdout_provenance=extract_terminal_result(
+                        out/'native-stdout.log',process_returncode=proc_rc)
+                    state.update(stdout_provenance)
+                except NativeResultError as exc:
+                    error=error or str(exc)
+                    state['native_stdout_bytes']=(out/'native-stdout.log').stat().st_size
+                    state['native_stdout_over_diagnostic_budget']=state['native_stdout_bytes']>MAX_LOG
                 raw_last_stop=next((e for e in reversed(events) if e.get('type')=='stop'),None)
                 raw_last_frame=next((e for e in reversed(events) if e.get('type')=='frame'),None)
                 broker.publish({'type':'native_result','status':str(native.get('status','NO_NATIVE_RESULT')) if native else 'NO_NATIVE_RESULT',

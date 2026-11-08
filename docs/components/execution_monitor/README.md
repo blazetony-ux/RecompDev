@@ -1,5 +1,8 @@
 # Live execution monitor
 
+**v0.4.9.24 RUNTIME-004:** `native_result.py` validates one native completion result by schema/typed counters/process exit in a streaming, bounded pass. Native stdout over 512 KiB is an explicit *diagnostic size warning* rather than an automatic `NO_NATIVE_RESULT`; logs over 16 MiB, ambiguous/invalid terminal framing and failed processes remain fail-closed. `preview-summary.json` records `native_stdout_bytes`, `native_stdout_over_diagnostic_budget` and the terminal-result validation scope. This does not authenticate guest state or prove gameplay parity.
+
+
 **Latest v0.4.9.23 contract:** v0.4.9.23: watched PC hits are counted exactly but instruction detail is sampled/coalesced after early examples. Periodic/final summaries, separate display decimation and explicit capture-truncation flags prevent a misleading full-trace claim; no execution control.
 
 

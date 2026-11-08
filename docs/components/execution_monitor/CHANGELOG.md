@@ -1,5 +1,12 @@
 # execution_monitor component history
 
+## [0.4.3] - 2026-11-08
+
+- **Changed:** RUNTIME-004 stdout preview collector now distinguishes over-512-KiB diagnostic output from a trustworthy unique terminal record. Stream one bounded schema-checked `NATIVE_APP_RESULT` up to a hard 16-MiB cap, and explicitly disclose diagnostic-log oversize without changing raw output.
+- **Validation:** Python regression exercises a >512-KiB 2,400-frame terminal result, hard cap, missing/duplicate/invalid records, nonzero native process exit and immutability of stdout. Linux focused suite passed; full Windows MSVC acceptance and actual Shinobi 2,400-frame retest pending.
+- **Compatibility:** Raw JSONL and stdout logs remain immutable, native output ABI and game DLLs unchanged. Capture-complete summary is not independent gameplay, graphics, audio, input or state parity proof.
+
+
 ## [0.4.2] - 2026-11-08
 
 - **Changed:** Reusable integration without CPU/game assumptions.
