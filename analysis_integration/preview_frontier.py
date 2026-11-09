@@ -21,6 +21,9 @@ from analysis_integration.recovery_history import _check_seed, RecoveryHistoryEr
 
 GAPS=frozenset({'UNTRANSLATED_INITIAL_CODE','BANKED_CODE_NOT_TRANSLATED','UNTRANSLATED_PHYSICAL_ROM_OFFSET'})
 EXPECTED={'manifest.json','preview.json','monitor-events.jsonl','recovery-seed.json'}
+REPLAY='guest-input-cycles.csv'
+CAPTURE='candidate-capture.json'
+OPTIONAL={REPLAY,CAPTURE}
 JOB_ID=re.compile(r'job-[A-Za-z0-9_-]{1,96}\Z')
 CYCLE=re.compile(r'cycle-(?:0[1-9]|[1-9][0-9]|1[01][0-9]|12[0-8])\Z')
 ROUND=re.compile(r'round-0[1-8]\Z')
@@ -37,7 +40,7 @@ def _json(blob, max_bytes):
     return doc
 
 
-def verify_and_stage_preview(archive:Path, previous:Path, rom:Path, job_id:str, destination:Path|None)->Path|dict:
+def verify_and_stage_preview(archive:Path, previous:Path, rom:Path, job_id:str, destination:Path|None, *, replay_destination:Path|None=None)->Path|dict:
     """Inspect a controller-created ZIP and copy only the admitted stop to a
     fresh evidence path. Never modifies a previous job/session or archive.
     """
@@ -46,6 +49,7 @@ def verify_and_stage_preview(archive:Path, previous:Path, rom:Path, job_id:str, 
     previous=Path(previous).resolve(strict=True)
     rom=Path(rom).resolve(strict=True)
     destination=Path(destination) if destination is not None else None
+    replay_destination=Path(replay_destination) if replay_destination is not None else None
     if not JOB_ID.fullmatch(job_id or '') or not CYCLE.fullmatch(previous.name):
         raise PreviewFrontierError('PREVIEW_SESSION_OR_JOB_INVALID')
     if previous.parent.name!='sessions' or previous.parent.parent.name!=job_id:
@@ -53,21 +57,23 @@ def verify_and_stage_preview(archive:Path, previous:Path, rom:Path, job_id:str, 
     if not archive.is_file() or archive.stat().st_size>4*1024*1024 or archive.is_symlink():
         raise PreviewFrontierError('PREVIEW_ARCHIVE_UNSAFE')
     if destination is not None and (destination.exists() or destination.is_symlink()):raise PreviewFrontierError('PREVIEW_DESTINATION_ALREADY_EXISTS')
+    if replay_destination is not None and (replay_destination.exists() or replay_destination.is_symlink()):raise PreviewFrontierError('PREVIEW_REPLAY_DESTINATION_ALREADY_EXISTS')
     rom_bytes=rom.read_bytes()
     if not (0<len(rom_bytes)<=32*1024*1024) or len(rom_bytes)%0x4000:
         raise PreviewFrontierError('PREVIEW_ROM_LAYOUT_INVALID')
     digest=_sha(rom_bytes)
     try:
         with zipfile.ZipFile(archive) as z:
-            if set(z.namelist())!=EXPECTED or len(z.infolist())!=len(EXPECTED):
+            names=set(z.namelist())
+            if not EXPECTED.issubset(names) or names-EXPECTED-OPTIONAL or len(z.infolist())!=len(names):
                 raise PreviewFrontierError('PREVIEW_SEED_MISSING_OR_EXTRA_FILES')
             if any(x.is_dir() or x.file_size>2*1024*1024 or x.compress_size>2*1024*1024 for x in z.infolist()):
                 raise PreviewFrontierError('PREVIEW_ZIP_MEMBER_TOO_LARGE')
-            content={name:z.read(name) for name in EXPECTED}
+            content={name:z.read(name) for name in names}
     except (zipfile.BadZipFile,RuntimeError,OSError) as exc:
         raise PreviewFrontierError('PREVIEW_ZIP_UNREADABLE') from exc
     manifest=_json(content['manifest.json'],16384)
-    if manifest.get('schema')!='recompdev.preview.diagnostics.v1' or not isinstance(manifest.get('files'),dict) or set(manifest['files'])!=EXPECTED-{'manifest.json'}:
+    if manifest.get('schema')!='recompdev.preview.diagnostics.v1' or not isinstance(manifest.get('files'),dict) or set(manifest['files'])!=names-{'manifest.json'}:
         raise PreviewFrontierError('PREVIEW_MANIFEST_INVALID')
     if manifest.get('rom_included') is not False or manifest.get('native_binary_included') is not False:
         raise PreviewFrontierError('PREVIEW_CONTENT_POLICY_INVALID')
@@ -76,6 +82,16 @@ def verify_and_stage_preview(archive:Path, previous:Path, rom:Path, job_id:str, 
             raise PreviewFrontierError('PREVIEW_MANIFEST_HASH_MISMATCH')
     summary=_json(content['preview.json'],256*1024)
     seed=_json(content['recovery-seed.json'],16384)
+    # Optional video-only candidate capture is produced by the same preview
+    # writer. It is evidence, not a reference or a gameplay-parity certificate.
+    # Admit only this known member, with a complete manifest and ROM identity.
+    if CAPTURE in content:
+        capture=_json(content[CAPTURE],2*1024*1024)
+        if (capture.get('schema')!='recompdev.parity.capture.v1' or
+            capture.get('capture_role')!='candidate' or
+            capture.get('rom_sha256')!=digest or
+            capture.get('gameplay_parity_qualified') is not False):
+            raise PreviewFrontierError('PREVIEW_CAPTURE_IDENTITY_MISMATCH')
     if (summary.get('schema')!='recompdev.preview.session.v1' or
         summary.get('status')!='GUEST_BLOCKED_UNTRANSLATED' or
         summary.get('process_exit_code')!=0 or
@@ -113,11 +129,38 @@ def verify_and_stage_preview(archive:Path, previous:Path, rom:Path, job_id:str, 
     try:_check_seed(seed,rom_bytes,digest)
     except RecoveryHistoryError as exc:
         raise PreviewFrontierError('PREVIEW_SEED_'+str(exc)) from exc
+    # The optional guest-cycle CSV is input evidence, not an execution checkpoint.
+    # It is verified with the existing CPU-neutral playback schema and bounded
+    # against the native stop, rather than trusting a file merely because it
+    # appeared in a checksum manifest.
+    if REPLAY in content:
+        data=content[REPLAY]
+        try:lines=data.decode('ascii').splitlines()
+        except UnicodeError as exc:raise PreviewFrontierError('PREVIEW_INPUT_NOT_ASCII') from exc
+        if (not data or len(data)>1048576 or not lines or lines[0]!='RECOMP_INPUT_CYCLES_V1' or len(lines)>10001):
+            raise PreviewFrontierError('PREVIEW_INPUT_SCHEMA_INVALID')
+        last=-1;active=False
+        for line in lines[1:]:
+            parts=line.split(',')
+            if (len(parts)!=3 or any(not re.fullmatch(r'[0-9]{1,19}',part) for part in parts)):
+                raise PreviewFrontierError('PREVIEW_INPUT_ROW_INVALID')
+            cycle,port,buttons=map(int,parts)
+            if cycle<last or cycle>1000000000 or port>15 or buttons>0xffffffffffffffff:
+                raise PreviewFrontierError('PREVIEW_INPUT_RANGE_INVALID')
+            last=cycle;active|=buttons!=0
+        if not active or summary.get('requested_input')!='live' or summary.get('input_replay_available') is not True or summary.get('input_replay_sha256')!=_sha(data):
+            raise PreviewFrontierError('PREVIEW_INPUT_ATTESTATION_MISMATCH')
+    if replay_destination is not None and REPLAY not in content:
+        raise PreviewFrontierError('PREVIEW_INPUT_REPLAY_REQUIRED')
     # The native provider will independently validate source bytes and mapping.
-    if destination is None:return seed
-    destination.parent.mkdir(parents=True,exist_ok=True)
-    destination.write_bytes(content['recovery-seed.json'])
-    return destination
+    if destination is None and replay_destination is None:return seed
+    if destination is not None:
+        destination.parent.mkdir(parents=True,exist_ok=True)
+        destination.write_bytes(content['recovery-seed.json'])
+    if replay_destination is not None:
+        replay_destination.parent.mkdir(parents=True,exist_ok=True)
+        replay_destination.write_bytes(content[REPLAY])
+    return destination if destination is not None else seed
 
 
 def main(argv=None):
@@ -127,11 +170,21 @@ def main(argv=None):
     p.add_argument('--resume-from',required=True)
     p.add_argument('--rom',required=True)
     p.add_argument('--job-id',required=True)
+    p.add_argument('--require-input-replay',action='store_true')
     args=p.parse_args(argv)
     try:
-        seed=verify_and_stage_preview(args.preview_stop,args.resume_from,args.rom,args.job_id,None)
+        seed=verify_and_stage_preview(args.preview_stop,args.resume_from,args.rom,args.job_id,None,
+            replay_destination=None)
+        if args.require_input_replay:
+            # Validate without creating a producer-controlled file in this preflight.
+            with zipfile.ZipFile(args.preview_stop) as z:
+                if REPLAY not in z.namelist():raise PreviewFrontierError('PREVIEW_INPUT_REPLAY_REQUIRED')
     except (PreviewFrontierError,OSError,ValueError,KeyError) as exc:
-        print('RECOMPDEV_PREVIEW_VERIFICATION=REJECTED_'+type(exc).__name__,flush=True)
+        # Emit the stable error token, never a path or unchecked exception
+        # string. This lets a release diagnostic locate the failing gate.
+        detail=str(exc)
+        code=detail if re.fullmatch(r'PREVIEW_[A-Z0-9_]{1,120}',detail) else type(exc).__name__
+        print('RECOMPDEV_PREVIEW_VERIFICATION=REJECTED_'+code,flush=True)
         return 2
     print('RECOMPDEV_PREVIEW_VERIFICATION=SOURCE_AND_SESSION_RECHECKED',flush=True)
     print('RECOMPDEV_PREVIEW_PC='+str(seed['pc']),flush=True)

@@ -43,6 +43,17 @@ typedef struct RD_TranslationRecoveryRequestV1 {
 } RD_TranslationRecoveryRequestV1;
 typedef int (*RD_TranslationRecoveryFnV1)(const RD_TranslationRecoveryRequestV1*,
                                           RD_TranslationResultV1*);
+/* Optional v1 extension for incremental game-code modules. The cumulative
+   source-discovery input is always verified; previously compiled instruction
+   identities are read from a source-bound coverage manifest and omitted from
+   THIS module only. No v1 plugin descriptor/ABI is changed. */
+typedef struct RD_TranslationDeltaRequestV1 {
+ uint32_t abi_version,struct_size;
+ RD_TranslationRecoveryRequestV1 recovery;
+ const char* exclude_coverage_json;
+} RD_TranslationDeltaRequestV1;
+typedef int (*RD_TranslationDeltaFnV1)(const RD_TranslationDeltaRequestV1*,
+                                       RD_TranslationResultV1*);
 
 #ifdef __cplusplus
 }

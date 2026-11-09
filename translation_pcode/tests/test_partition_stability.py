@@ -43,13 +43,13 @@ with tempfile.TemporaryDirectory(prefix='rd-translation-stable-partitions-') as 
   assert manifest['emitted']==count and manifest['rejected']==0,manifest
   files.append({p.name:hashlib.sha256(p.read_bytes()).hexdigest()
                 for p in dest.glob('native_part_*.cpp')})
- # Critically, hundreds of source-attested cases create a separate STATIC
- # translation target. Its headers must be supplied directly to that target;
- # executable PRIVATE include paths do not propagate to object compilation.
+ # Hundreds of source-attested cases compile once in an object library used
+ # by the pilot and the dynamically loadable native-code module.
  # This is the real-world Shinobi build layout, unlike the 8-case fixture.
  generated=root/'generated-600'
  cmake=(generated/'CMakeLists.txt').read_text()
- assert 'target_include_directories(rd_generated_translation PRIVATE' in cmake,cmake
+ assert 'target_include_directories(rd_generated_translation_objects PRIVATE' in cmake,cmake
+ assert 'add_library(rd_generated_translation_hot SHARED' in cmake,cmake
  assert '${RECOMPDEV_SOURCE_ROOT}/runtime_sms/include' in cmake,cmake
  build=root/'partitioned-build'
  p=subprocess.run(['cmake','-S',str(generated),'-B',str(build),
@@ -60,6 +60,7 @@ with tempfile.TemporaryDirectory(prefix='rd-translation-stable-partitions-') as 
                   capture_output=True,text=True,timeout=240)
  assert p.returncode==0,(p.stdout[-4000:],p.stderr[-4000:])
  assert any(x.is_file() for x in (build/'RecompDevNativePilot',build/'Release'/'RecompDevNativePilot.exe'))
+ assert any(x.is_file() for x in (build/'rd_generated_translation_hot.so',build/'Release'/'rd_generated_translation_hot.dll'))
  assert len(files[0])==len(files[1])==24
  differing=[name for name in files[0] if files[0][name]!=files[1][name]]
  assert len(differing)==1,differing

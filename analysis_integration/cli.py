@@ -19,6 +19,7 @@ from analysis_integration.providers import acquire,ProviderBlocked,analyze_obser
 from analysis_integration.analysis_reuse import cache_contract, record_cache_contract, reuse_initial
 from analysis_integration.recovery_history import import_previous, RecoveryHistoryError
 from analysis_integration.preview_frontier import verify_and_stage_preview
+from input_recovery.replay import validate_replay
 
 
 GAPS={'UNTRANSLATED_INITIAL_CODE','BANKED_CODE_NOT_TRANSLATED','UNTRANSLATED_PHYSICAL_ROM_OFFSET'}
@@ -90,6 +91,33 @@ def app_stop_seed(doc:dict,rom:Path,source_sha:str)->dict:
         'schema':'recompdev.native.app.stop.v1', 'observed_run':'NATIVE_APP_RESULT',
         'source_verification':'RECHECK_BY_NATIVE_DISCOVERY', 'qualification':'UNTRANSLATED_CODE_STOP_ONLY'}
 
+def inherit_attested_input_replay(previous:Path, output:Path, original_sha:str)->tuple[Path|None,dict|None]:
+    """Carry a source-bound guest-cycle input timeline through recovery rounds.
+
+    The source of truth remains an immutable previous session/capsule. An
+    external or edited replay cannot silently become neutral execution.
+    """
+    prior_root=Path(previous).resolve(strict=True)
+    prior=json.loads((prior_root/'orchestration.json').read_text(encoding='utf8'))
+    handoff=prior.get('preview_handoff')
+    if not isinstance(handoff,dict) or handoff.get('input_mode')!='GUEST_CYCLE_REPLAY_ATTESTED':
+        return None,None
+    prev_replay=prior_root/'preview-input.csv'
+    expected=handoff.get('input_sha256')
+    if (prior.get('schema')!='recompdev.native.orchestrator.v1' or
+        prior.get('source_sha256')!=original_sha or
+        not isinstance(expected,str) or len(expected)!=64 or
+        any(c not in '0123456789abcdef' for c in expected) or
+        not prev_replay.is_file() or prev_replay.is_symlink() or
+        sha(prev_replay)!=expected):
+        raise RecoveryBlocked('INHERITED_PREVIEW_REPLAY_IDENTITY_MISMATCH')
+    checked=validate_replay(prev_replay)
+    if checked['sha256']!=expected:
+        raise RecoveryBlocked('INHERITED_PREVIEW_REPLAY_INVALID')
+    copied=Path(output)/'preview-input.csv'
+    with copied.open('xb') as handle:handle.write(prev_replay.read_bytes())
+    return copied,{**handoff,'status':'INHERITED_ATTESTED_PREVIEW_INPUT_REPLAY'}
+
 def run(args)->dict:
     rom=Path(args.rom).resolve(strict=True)
     source=Path(args.source_root).resolve(strict=True)
@@ -148,11 +176,21 @@ def run(args)->dict:
         if args.preview_stop and not args.resume_from:
             raise RecoveryBlocked('PREVIEW_REQUIRES_EXISTING_RECOVERY_HISTORY')
         preview_seed=None
+        replay_path=None
         if args.preview_stop:
+            replay_path=output/'preview-input.csv' if args.require_preview_input_replay else None
             preview_seed=verify_and_stage_preview(Path(args.preview_stop),
-                Path(args.resume_from),rom,args.preview_job_id,output/'preview-handoff.json')
+                Path(args.resume_from),rom,args.preview_job_id,output/'preview-handoff.json',
+                replay_destination=replay_path)
             state['preview_handoff']={'status':'SOURCE_ATTESTED_PREVIEW_GAP_ACCEPTED',
-                'source_sha256':original_sha, 'native_semantics_qualified':False}
+                'source_sha256':original_sha,'input_mode':'GUEST_CYCLE_REPLAY_ATTESTED' if replay_path else 'NEUTRAL_NOT_INPUT_REPLAY',
+                'native_semantics_qualified':False}
+            if replay_path:
+                state['preview_handoff']['input_sha256']=sha(replay_path)
+        elif args.resume_from:
+            replay_path,inherited_handoff=inherit_attested_input_replay(
+                Path(args.resume_from),output,original_sha)
+            if inherited_handoff:state['preview_handoff']=inherited_handoff
         if args.resume_from:
             history_seeds,history_banks,history_audit=import_previous(Path(args.resume_from),output/'imported-history',rom,gh,preview_seed)
             # Prioritise the newest source-attested execution frontier. Every
@@ -207,9 +245,10 @@ def run(args)->dict:
             if not app.is_file():app=rd/'build'/'RecompDevNativeApp'
             if not app.is_file():raise RecoveryBlocked('NATIVE_APP_BINARY_NOT_FOUND')
             capture=rd/'run'
-            rc,result=checked_process([str(app),str(rom),str(capture),str(args.target_frames),str(args.step_budget),
-                 '--mode','HEADLESS_AUTONOMOUS','--video','null','--audio','null',
-                 '--input','neutral'],args.timeout,output/('round-%02d-execution.log'%(index+1)), 'NATIVE_APP_RESULT=')
+            app_cmd=[str(app),str(rom),str(capture),str(args.target_frames),str(args.step_budget),
+                 '--mode','HEADLESS_AUTONOMOUS','--video','null','--audio','null']
+            app_cmd.extend(['--input','replay','--input-events',str(replay_path)] if replay_path else ['--input','neutral'])
+            rc,result=checked_process(app_cmd,args.timeout,output/('round-%02d-execution.log'%(index+1)), 'NATIVE_APP_RESULT=')
             if rc or result is None:raise RecoveryBlocked('NATIVE_EXECUTION_FAILED_OR_REPORT_MISSING')
             record.update(status=result.get('status'),frames=result.get('frames'),
                           native_steps=result.get('native_steps'),pc=result.get('pc'),
@@ -259,6 +298,7 @@ def main(argv=None):
     p.add_argument('--runtime-gap-report',action='append',default=[])
     p.add_argument('--preview-stop',help='Controller-attested native preview diagnostic ZIP')
     p.add_argument('--preview-job-id',help='Controller-supplied immutable job ID for preview provenance')
+    p.add_argument('--require-preview-input-replay',action='store_true',help='Fail closed unless precise button-cycle replay is attested')
     p.add_argument('--max-rounds',type=int,default=4);p.add_argument('--target-frames',type=int,default=1800)
     p.add_argument('--step-budget',type=int,default=20000000);p.add_argument('--timeout',type=int,default=600)
     p.add_argument('--no-execute',action='store_true');p.add_argument('--no-compile',action='store_true')

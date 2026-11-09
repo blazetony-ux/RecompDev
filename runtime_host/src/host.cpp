@@ -18,7 +18,7 @@ struct RD_Host {
  uint32_t mode=0, rate=44100; bool running=true;
  uint64_t frames=0, samples=0, frame_hash=0, audio_hash=14695981039346656037ull;
  uint32_t width=0,height=0;
- uint64_t previously_sampled_buttons=0;
+ uint64_t previously_sampled_buttons=0,latched_pressed_buttons=0;
  std::chrono::steady_clock::time_point opened=std::chrono::steady_clock::now();
  std::ofstream input_log;
  hw::Win32Window window;
@@ -82,6 +82,7 @@ int rd_host_pump(RD_Host *p){
  if(p->mode==RD_HOST_MODE_WINDOW){
   p->running=p->window.pump();
   const auto value=p->window.buttons();
+  p->latched_pressed_buttons |= value & ~p->previously_sampled_buttons;
   if(value!=p->previously_sampled_buttons){
    const auto elapsed=std::chrono::duration_cast<std::chrono::milliseconds>(
         std::chrono::steady_clock::now()-p->opened).count();
@@ -96,6 +97,12 @@ int rd_host_pump(RD_Host *p){
  return p->running?1:0;
 }
 uint64_t rd_host_buttons(RD_Host *p){return p&&p->mode==RD_HOST_MODE_WINDOW?p->window.buttons():0;}
+uint64_t rd_host_take_pressed(RD_Host *p){
+ if(!p||p->mode!=RD_HOST_MODE_WINDOW)return 0;
+ const auto result=p->latched_pressed_buttons;
+ p->latched_pressed_buttons=0;
+ return result;
+}
 int rd_host_title(RD_Host *p,const char *title){
  if(!p||!title)return -1;
  if(p->mode==RD_HOST_MODE_WINDOW)p->window.title(title);

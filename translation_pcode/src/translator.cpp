@@ -254,9 +254,12 @@ unsigned recover_discovered(const fs::path&report,const fs::path&cpu,const std::
   // Direct branches, calls and returns are source-verified in the CPU plugin.
   // RETURN is admitted only when the DLL provides a native stack-pop lowering;
   // the discovery controller must have established a matching caller context.
-  // Truly indirect jumps still lack a verified target and remain unresolved.
+  // Indirect branch *targets* cannot be guessed by static discovery.  The
+  // verified CPU plugin may nevertheless lift the branch's dynamic semantics
+  // (e.g. JP (HL)); subsequent target PCs are discovered at execution time.
+  // Unsupported indirect variants remain unresolved via emit()==0.
   const auto flow=num(block,"flow");
-  if(flow==RD_FLOW_INDIRECT)continue;
+  (void)flow;
   RD_Z80NativeCodeV1 emitted{};emitted.struct_size=sizeof(emitted);
   auto status=plugin.emit(reinterpret_cast<const uint8_t*>(bytes.data()),uint32_t(length),&emitted);
   if(status<0||emitted.abi_version!=RD_Z80_NATIVE_CODEGEN_ABI_V1||
@@ -275,9 +278,9 @@ std::string raw(const fs::path&p){return read_file(p,64u*1024u*1024u);}
 void publish(const fs::path&p,const std::string&s){std::ofstream f(p,std::ios::binary);if(!f)throw std::runtime_error("OUTPUT_WRITE_FAILED");f<<s;if(!f)throw std::runtime_error("OUTPUT_WRITE_FAILED");}
 void result_status(RD_TranslationResultV1*r,const std::string&s){std::strncpy(r->status,s.c_str(),sizeof(r->status)-1);r->status[sizeof(r->status)-1]='\0';}
 int run(const RD_TranslationRequestV1*r,RD_TranslationResultV1*out,
- const char*discovery_report=nullptr,const char*cpu_plugin=nullptr){
+ const char*discovery_report=nullptr,const char*cpu_plugin=nullptr,const char*coverage_exclusion=nullptr){
  if(!r||!out||r->abi_version!=RD_TRANSLATION_ABI_V1||r->struct_size!=sizeof(*r)||out->struct_size!=sizeof(*out)||
-   !r->rom_path||!r->base_export||!r->output_directory||r->bank_count>64||(r->bank_count&&!r->bank_exports))return -1;
+   !r->rom_path||!r->base_export||!r->output_directory||r->bank_count>512||(r->bank_count&&!r->bank_exports))return -1;
  *out={};out->abi_version=RD_TRANSLATION_ABI_V1;out->struct_size=sizeof(*out);
  try{
   const bool full=r->full_runtime_project!=0;
@@ -317,6 +320,32 @@ int run(const RD_TranslationRequestV1*r,RD_TranslationResultV1*out,
    J sz;sz.t=J::Int;sz.n=1;arg.o.emplace("size",sz);
    J args;args.t=J::Array;args.a.push_back(arg);operation.o.emplace("inputs",args);init.pcode.a.push_back(operation);
    ins.emplace(0,std::move(init));++attested;
+  }
+  unsigned excluded_count=0;
+  if(coverage_exclusion){
+   if(!full||!discovery_report)throw std::runtime_error("DELTA_REQUIRES_FULL_SOURCE_DISCOVERY");
+   const auto excluded=rdjson::Reader(read_file(fs::u8path(coverage_exclusion),16u*1024u*1024u)).parse();
+   if(str(excluded,"schema")!="recompdev.native.coverage-exclusion.v1"||
+      str(excluded,"source_sha256")!=source_hash)
+    throw std::runtime_error("DELTA_COVERAGE_SOURCE_MISMATCH");
+   const auto& coverage=excluded.get("accepted_instructions").array();
+   if(coverage.size()>100000)throw std::runtime_error("DELTA_COVERAGE_SIZE_LIMIT");
+   std::set<int> previous;
+   for(const auto& entry:coverage){
+    const auto phys=num(entry,"physical"),pc=num(entry,"pc"),len=num(entry,"length");
+    if(phys>=int(source.size())||len<1||len>16||size_t(phys)+size_t(len)>source.size()||
+       pc>=0xc000||pc+len>0xc000||!previous.insert(phys).second)
+     throw std::runtime_error("DELTA_COVERAGE_IDENTITY_INVALID");
+    const auto hash_string=str(entry,"bytes_sha256");
+    if(hash_string!=hash(source.substr(size_t(phys),size_t(len))))
+     throw std::runtime_error("DELTA_COVERAGE_SOURCE_BYTES_MISMATCH");
+    auto it=ins.find(phys);
+    if(it!=ins.end()){
+     if(it->second.pc!=pc||it->second.length!=len||it->second.hash!=hash_string)
+      throw std::runtime_error("DELTA_COVERAGE_INSTRUCTION_CONFLICT");
+     ins.erase(it);++excluded_count;
+    }
+   }
   }
   std::ostringstream code,accepted,reject;
   if(full){
@@ -359,7 +388,7 @@ int run(const RD_TranslationRequestV1*r,RD_TranslationResultV1*out,
      code<<"  const auto timing=recomp::z80::decode([&](std::uint16_t a){return bus->read(bus->ctx,a);},cpu->pc,next,uint16_t("<<qhex(unsigned(i.fall))<<"));\n"
        <<"  if(!timing.known)return -1;\n  s.commit();cpu->pc=next;*cycles=timing.tstates;return 1;\n }\n";
     }
-    if(emitted++)accepted<<",";accepted<<"{\"physical\":"<<i.phys<<",\"pc\":"<<i.pc<<",\"length\":"<<i.length<<"}";
+    if(emitted++)accepted<<",";accepted<<"{\"physical\":"<<i.phys<<",\"pc\":"<<i.pc<<",\"length\":"<<i.length<<",\"bytes_sha256\":\""<<i.hash<<"\"}";
    }catch(const std::exception&e){if(rejected++)reject<<",";reject<<"{\"physical\":"<<i.phys<<",\"reason\":"<<rdjson::escape(e.what())<<"}";}
   }
   accepted<<"]";reject<<"]";
@@ -451,26 +480,64 @@ int run(const RD_TranslationRequestV1*r,RD_TranslationResultV1*out,
     fs::create_directories((destination/dst).parent_path());
     fs::copy_file(src,destination/dst,fs::copy_options::overwrite_existing);
    };
-   for(const auto*n:{"main.cpp","interactive.cpp","live_sms.hpp","z80_cycles.hpp","CMakeLists.txt"})
+   for(const auto*n:{"main.cpp","interactive.cpp","native_app_loader_bridge.cpp","live_sms.hpp","z80_cycles.hpp","CMakeLists.txt"})
     from(port/"templates"/n,n);
    from(fs::u8path(r->source_root)/"harness"/"include"/"rd_sha256.hpp","rd_sha256.hpp");
-   if(partition){
+   // Generated instructions stay as independent immutable native blocks.
+   // The native pilot uses the same verified object code for regression; the
+   // interactive app dynamically loads the shared block without a process
+   // restart. Both are compiled from a single object library (no duplicate
+   // massive Z80 translation pass). No game title/address special cases.
+   {
+    std::ostringstream exported;
+    exported<<"#include \"runtime.hpp\"\n#include \"rd_native_block_v1.h\"\n"
+      <<"#include \"rd_sms_dynamic_adapter.hpp\"\n#include <cstdint>\n"
+      <<"bool execute_native_instruction(rd::State&);\n"
+      <<"namespace { int step(void* ptr,std::uint32_t phys){\n"
+      <<" if(!ptr)return -1;auto& s=*static_cast<rd::State*>(ptr);\n"
+      <<" if(s.pc>=0xc000||s.rom_offset(s.pc)!=phys)return -1;\n"
+      <<" if(execute_native_instruction(s))return 1;\n"
+      <<" if(s.stopped==\"UNTRANSLATED_PHYSICAL_ROM_OFFSET\"){s.stopped.clear();return 0;}\n"
+      <<" return -1; }\n"
+      <<"const RD_NativeBlockV1 block={sizeof(RD_NativeBlockV1),RD_NATIVE_BLOCK_ABI_V1,\n"
+      <<" recomp::sms::dynamic::cpu_id,recomp::sms::dynamic::cpu_semantics,\n"
+      <<" recomp::sms::dynamic::machine_id,recomp::sms::dynamic::state_abi,\n"
+      <<" recomp::sms::dynamic::target_abi,\""<<source_hash<<"\","<<source.size()<<"ull,&step};\n}\n"
+      <<"extern \"C\" RD_NATIVE_BLOCK_EXPORT const RD_NativeBlockV1 *rd_native_block_get_v1(void){return &block;}\n";
+    publish(destination/"native_block_export.cpp",exported.str());
     std::string cmake=read_file(destination/"CMakeLists.txt",128u*1024u);
-    cmake+="\nadd_library(rd_generated_translation STATIC translated.cpp";
+    const std::string pilot="add_executable(RecompDevNativePilot main.cpp translated.cpp)";
+    const std::string app="add_executable(RecompDevNativeApp interactive.cpp translated.cpp)";
+    const auto pos0=cmake.find(pilot),pos1=cmake.find(app);
+    if(pos0==std::string::npos||pos1==std::string::npos)throw std::runtime_error("NATIVE_TEMPLATE_EXPECTATION_FAILED");
+    cmake.replace(pos1,app.size(),"add_executable(RecompDevNativeApp interactive.cpp native_app_loader_bridge.cpp)");
+    cmake.replace(pos0,pilot.size(),"add_executable(RecompDevNativePilot main.cpp)");
+    cmake+="\nadd_library(rd_generated_translation_objects OBJECT translated.cpp";
     for(const auto&name:parts)cmake+=" "+name;
-    cmake+=")\ntarget_compile_features(rd_generated_translation PRIVATE cxx_std_17)\n"
-     "target_include_directories(rd_generated_translation PRIVATE \"${RECOMPDEV_SOURCE_ROOT}/runtime_sms/include\" \"${RECOMPDEV_SOURCE_ROOT}/runtime_sms/templates\")\n"
+    cmake+=")\ntarget_compile_features(rd_generated_translation_objects PRIVATE cxx_std_17)\n"
+     "target_include_directories(rd_generated_translation_objects PRIVATE \"${RECOMPDEV_SOURCE_ROOT}/runtime_sms/include\" \"${RECOMPDEV_SOURCE_ROOT}/runtime_sms/templates\")\n"
+     "add_library(rd_generated_translation STATIC $<TARGET_OBJECTS:rd_generated_translation_objects>)\n"
+     "add_library(rd_generated_translation_hot SHARED $<TARGET_OBJECTS:rd_generated_translation_objects> native_block_export.cpp)\n"
+     "target_include_directories(rd_generated_translation_hot PRIVATE \"${RECOMPDEV_SOURCE_ROOT}/native_runtime/include\" \"${RECOMPDEV_SOURCE_ROOT}/runtime_sms/include\")\n"
+     "target_link_libraries(rd_generated_translation_hot PRIVATE rd_sms_native_runtime)\n"
+     "set_target_properties(rd_generated_translation_hot PROPERTIES PREFIX \"\" OUTPUT_NAME \"rd_generated_translation_hot\")\n"
+     "add_library(rd_native_module_loader STATIC \"${RECOMPDEV_SOURCE_ROOT}/native_runtime/src/module_set.cpp\")\n"
+     "target_include_directories(rd_native_module_loader PUBLIC \"${RECOMPDEV_SOURCE_ROOT}/native_runtime/include\" PRIVATE \"${RECOMPDEV_SOURCE_ROOT}/harness/include\")\n"
+     "target_include_directories(RecompDevNativeApp PRIVATE \"${RECOMPDEV_SOURCE_ROOT}/native_runtime/include\" \"${RECOMPDEV_SOURCE_ROOT}/harness/include\" \"${RECOMPDEV_SOURCE_ROOT}/translation_pcode/include\")\n"
+     "target_link_libraries(RecompDevNativeApp PRIVATE rd_native_module_loader)\n"
+     "target_compile_definitions(RecompDevNativeApp PRIVATE RD_SMS_HOT_TRANSLATION=1)\n"
      "target_link_libraries(RecompDevNativePilot PRIVATE rd_generated_translation)\n"
-     "target_link_libraries(RecompDevNativeApp PRIVATE rd_generated_translation)\n"
-     "if(MSVC)\n target_compile_options(rd_generated_translation PRIVATE /O1 /bigobj)\n"
-     "elseif(CMAKE_CXX_COMPILER_ID MATCHES \"GNU|Clang\")\n target_compile_options(rd_generated_translation PRIVATE -O1)\nendif()\n";
+     "if(CMAKE_DL_LIBS)\n target_link_libraries(rd_native_module_loader PUBLIC ${CMAKE_DL_LIBS})\nendif()\n"
+     "if(MSVC)\n target_compile_options(rd_generated_translation_objects PRIVATE /O1 /bigobj)\n"
+     "elseif(CMAKE_CXX_COMPILER_ID MATCHES \"GNU|Clang\")\n target_compile_options(rd_generated_translation_objects PRIVATE -O1)\nendif()\n"
+     "add_dependencies(RecompDevNativeApp rd_generated_translation_hot)\n";
     publish(destination/"CMakeLists.txt",cmake);
    }
   }else publish(destination/"rd_game_pcode.cpp",code.str());
   std::ostringstream manifest;manifest<<"{\n \"schema\":\"recompdev.native.pcode.generated.v1\",\n"
     <<" \"workspace_release\":\"v0.4.9.10\",\n \"source_sha256\":\""<<source_hash<<"\",\n"
     <<" \"source_size\":"<<source.size()<<",\n \"attested\":"<<attested<<",\n \"emitted\":"<<emitted<<",\n"
-    <<" \"rejected\":"<<rejected<<",\n \"source_decoder_recovered\":"<<source_recovered<<",\n \"backend\":\""<<(full?"dll_sms_native_runtime":"limited_harness_game_dll")<<"\",\n \"accepted_instructions\":"<<accepted.str()<<",\n \"rejections\":"<<reject.str()<<",\n"
+    <<" \"rejected\":"<<rejected<<",\n \"excluded_existing\":"<<excluded_count<<",\n \"source_decoder_recovered\":"<<source_recovered<<",\n \"backend\":\""<<(full?"dll_sms_native_runtime":"limited_harness_game_dll")<<"\",\n \"accepted_instructions\":"<<accepted.str()<<",\n \"rejections\":"<<reject.str()<<",\n"
     <<" \"full_CPU_state_port\":"<<(full?"true":"false")<<",\n \"full_recovery_port\":false\n}\n";
   publish(destination/"translation-manifest.json",manifest.str());
   std::strncpy(out->source_sha256,source_hash.c_str(),64);out->attested=attested;out->emitted=emitted;out->rejected=rejected;
@@ -489,4 +556,16 @@ extern "C" RD_EXPORT int rd_translation_recover_source_v1(
  if(!r||r->abi_version!=RD_TRANSLATION_ABI_V1||r->struct_size!=sizeof(*r)||
     !r->source_discovery_json||!r->cpu_plugin_path)return -1;
  return run(&r->base,out,r->source_discovery_json,r->cpu_plugin_path);
+}
+
+// Optional delta ABI: old plugins remain usable for non-delta translation.
+extern "C" RD_EXPORT int rd_translation_recover_delta_v1(
+ const RD_TranslationDeltaRequestV1*r,RD_TranslationResultV1*out){
+ if(!r||r->abi_version!=RD_TRANSLATION_ABI_V1||r->struct_size!=sizeof(*r)||
+    r->recovery.abi_version!=RD_TRANSLATION_ABI_V1||
+    r->recovery.struct_size!=sizeof(r->recovery)||
+    !r->recovery.source_discovery_json||!r->recovery.cpu_plugin_path||
+    !r->exclude_coverage_json)return -1;
+ return run(&r->recovery.base,out,r->recovery.source_discovery_json,
+            r->recovery.cpu_plugin_path,r->exclude_coverage_json);
 }

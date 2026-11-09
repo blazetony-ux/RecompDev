@@ -1,4 +1,13 @@
-# runtime_host_integration component history
+## [0.2.0 paused-input edge preservation] — 2026-11-08 (source-only)
+
+- Extend maintained runtime-host interface with a bounded press-edge drain while Win32/native windows pump messages during a missing-code compilation pause. Deliver captured presses on resumed guest frames without modifying CPU state while stopped; old neutral and live host paths remain available.
+- Linux generated native regressions passed; real Windows interactive Start-button acceptance has not passed.
+
+## [0.2.0] - 2026-11-08
+
+- **Changed:** - New generated NativeApp links a validated general-purpose loader and resolves translated instruction implementations from a shared module, while preserved legacy self-contained previews compile with `RD_SMS_HOT_TRANSLATION` unset. Real Windows display persistence during compilation remains unimplemented.
+- **Validation:** Native and generated Z80/SMS synthetic tests run on Linux; Win32 genuine ROM recovery, display continuity and compiled controller orchestration remain unverified.
+- **Compatibility:** Versioned module ABI and legacy static runtime path are retained; prior CPU semantics and historical source unchanged. Same-compiler SMS State C++ ABI only; live automatic compilation remains BLOCKED.
 
 ## [0.1.1] - 2026-11-07
 

@@ -1,3 +1,9 @@
+## [0.1.1] - 2026-11-08
+
+- **Changed:** Optional complete generated native-project source partitions (`native_part_*.cpp` and support headers) and a provider-attested preview guest-cycle replay can now be retained as content-addressed sources. Increase bounded capsule file count to admit multi-round partitioned native projects without losing provenance.
+- **Validation:** Linux native artifact-store contract and portable-provider replay tests passed after source updates; Windows MAX_PATH and full historical verification remain owner gates.
+- **Compatibility:** Independent artifact-store C ABI v1 and source/ROM/tool attestation remain intact. No compiled game DLL retention, cross-ABI binary reuse or hot-loading is claimed.
+
 # rd_artifact_store component changelog
 
 ## [0.1.0 Windows validation correction] - 2026-11-08

@@ -1,5 +1,6 @@
 #include "native_translate.hpp"
 #include "native_discovery.hpp"
+#include "evidence_index.hpp"
 #include "rd_translation_v1.h"
 #include "rd_sha256.hpp"
 #include "rd_tiny_json.hpp"
@@ -57,10 +58,10 @@ std::string sha(const fs::path&p){std::ifstream f(p,std::ios::binary);if(!f)thro
 void require(bool yes,const std::string&reason){if(!yes)throw std::runtime_error(reason);}
 }
 int rd_native_translate(const std::vector<std::string>&args,const fs::path&exe){
- fs::path rom,base,out,plugin_dir=exe.parent_path(),source_root,discovery_report,analysis_candidates;std::vector<fs::path>runtime_gap_reports;
+ fs::path rom,base,out,plugin_dir=exe.parent_path(),source_root,discovery_report,analysis_candidates,exclude_coverage,gap_index,bank_index;std::vector<fs::path>runtime_gap_reports;
  bool discover_source=false;
  if(fs::is_directory(plugin_dir/"active"))plugin_dir/="active";
- std::vector<std::string>banks;std::vector<fs::path>history_roots;bool require_ghidra=true,compile=true,full=true;
+ std::vector<std::string>banks;std::vector<fs::path>history_roots;bool require_ghidra=true,compile=true,full=true,module_only=false;
  for(size_t i=0;i<args.size();++i){
   auto next=[&](){require(i+1<args.size(),"MISSING_ARGUMENT "+args[i]);return args[++i];};
   const auto&a=args[i];
@@ -68,6 +69,8 @@ int rd_native_translate(const std::vector<std::string>&args,const fs::path&exe){
   else if(a=="--rom")rom=fs::u8path(next());
   else if(a=="--export")base=fs::u8path(next());
   else if(a=="--bank-export")banks.push_back(next());
+  else if(a=="--bank-export-index")bank_index=fs::u8path(next());
+  else if(a=="--runtime-gap-index"){gap_index=fs::u8path(next());discover_source=true;}
   else if(a=="--history-root")history_roots.push_back(fs::u8path(next()));
   else if(a=="--plugin-dir")plugin_dir=fs::u8path(next());
   else if(a=="--source-root")source_root=fs::u8path(next());
@@ -78,12 +81,28 @@ int rd_native_translate(const std::vector<std::string>&args,const fs::path&exe){
   else if(a=="--discover-source")discover_source=true;
   else if(a=="--allow-synthetic-export")require_ghidra=false;
   else if(a=="--no-compile")compile=false;
+  else if(a=="--module-only")module_only=true;
+  else if(a=="--exclude-coverage-manifest")exclude_coverage=fs::u8path(next());
   else if(a=="--backend"){auto b=next();require(b=="full"||b=="game-dll","UNSUPPORTED_TRANSLATION_BACKEND");full=(b=="full");}
   else throw std::runtime_error("UNKNOWN_NATIVE_TRANSLATE_OPTION "+a);
  }
  require(!rom.empty()&&!base.empty(),"ROM_AND_GHIDRA_EXPORT_REQUIRED");
+ require(!module_only||full,"MODULE_ONLY_REQUIRES_FULL_BACKEND");
+ require(exclude_coverage.empty()||(module_only&&full&&discover_source),"DELTA_REQUIRES_FULL_MODULE_SOURCE_DISCOVERY");
+ if(!exclude_coverage.empty())require(fs::is_regular_file(exclude_coverage)&&!fs::is_symlink(exclude_coverage),"DELTA_COVERAGE_FILE_UNSAFE");
  require(runtime_gap_reports.empty()||discovery_report.empty(),"SELECT_EXPLICIT_OR_RUNTIME_GAP_DISCOVERY");
- require(runtime_gap_reports.size()<=64,"RUNTIME_STOP_REPORT_COUNT_LIMIT");
+ require(gap_index.empty()||runtime_gap_reports.empty(),"RUNTIME_STOP_INDEX_EXCLUSIVE");
+ require(runtime_gap_reports.size()<=512,"RUNTIME_STOP_REPORT_COUNT_LIMIT");
+ if(!gap_index.empty()) {
+  auto indexed=rd_evidence_index::read(gap_index);
+  require(indexed.size()+runtime_gap_reports.size()<=512,"RUNTIME_STOP_REPORT_COUNT_LIMIT");
+  runtime_gap_reports.insert(runtime_gap_reports.end(),indexed.begin(),indexed.end());
+ }
+ if(!bank_index.empty()) {
+  auto indexed=rd_evidence_index::read(bank_index);
+  require(indexed.size()+banks.size()<=512,"BANK_EXPORT_COUNT_LIMIT");
+  for(const auto& path:indexed)banks.push_back(path.u8string());
+ }
  require(fs::is_regular_file(rom)&&fs::is_regular_file(base),"ROM_OR_EXPORT_MISSING");
  if(source_root.empty()){
   auto pointer=exe.parent_path()/"source-root.txt";
@@ -160,7 +179,7 @@ int rd_native_translate(const std::vector<std::string>&args,const fs::path&exe){
   }
   std::sort(found.begin(),found.end());
   found.erase(std::unique(found.begin(),found.end()),found.end());
-  require(found.size()+banks.size()<=64,"BANK_EXPORT_COUNT_LIMIT");
+  require(found.size()+banks.size()<=512,"BANK_EXPORT_COUNT_LIMIT");
   for(const auto&p:found)banks.push_back(p.u8string());
   std::cout<<"RECOMPDEV_HISTORY_BANK_EXPORTS="<<found.size()<<"\n";
  }
@@ -171,7 +190,8 @@ int rd_native_translate(const std::vector<std::string>&args,const fs::path&exe){
   std::vector<std::string> discovery_args={"--stage","discover","--rom",rom.u8string(),
     "--plugin-dir",plugin_dir.u8string(),"--out",discovery_out.u8string(),"--budget","10000"};
   if(!analysis_candidates.empty()){discovery_args.push_back("--analysis-candidates");discovery_args.push_back(analysis_candidates.u8string());}
-  for(const auto&runtime_gap_report:runtime_gap_reports){discovery_args.push_back("--runtime-gap-report");discovery_args.push_back(runtime_gap_report.u8string());}
+  if(!gap_index.empty()){discovery_args.push_back("--runtime-gap-index");discovery_args.push_back(gap_index.u8string());}
+  if(gap_index.empty())for(const auto&runtime_gap_report:runtime_gap_reports){discovery_args.push_back("--runtime-gap-report");discovery_args.push_back(runtime_gap_report.u8string());}
   require(rd_native_discover(discovery_args,exe)==0,"SOURCE_DISCOVERY_FAILED");
   discovery_report=discovery_out/"native-discovery.json";
  }
@@ -209,7 +229,14 @@ int rd_native_translate(const std::vector<std::string>&args,const fs::path&exe){
    auto report_path=fs::weakly_canonical(discovery_report).u8string();
    const auto cpu_path=fs::absolute(plugin_dir/(std::string("rd_cpu_z80")+EXT)).u8string();
    extended.source_discovery_json=report_path.c_str();extended.cpu_plugin_path=cpu_path.c_str();
-   rc=extension(&extended,&result);
+   if(!exclude_coverage.empty()){
+    auto delta=reinterpret_cast<RD_TranslationDeltaFnV1>(symbol(h,"rd_translation_recover_delta_v1"));
+    require(delta!=nullptr,"TRANSLATION_DELTA_ABI_UNAVAILABLE");
+    RD_TranslationDeltaRequestV1 v{};
+    v.abi_version=RD_TRANSLATION_ABI_V1;v.struct_size=sizeof(v);v.recovery=extended;
+    const auto excluded=fs::weakly_canonical(exclude_coverage).u8string();
+    v.exclude_coverage_json=excluded.c_str();rc=delta(&v,&result);
+   }else rc=extension(&extended,&result);
   }else rc=api->translate(&request,&result);
   require(rc==1&&result.abi_version==RD_TRANSLATION_ABI_V1&&result.emitted>0,
           "NATIVE_TRANSLATION_REJECTED: "+std::string(result.status));
@@ -251,16 +278,26 @@ int rd_native_translate(const std::vector<std::string>&args,const fs::path&exe){
    int conf=process({"cmake","-S",out,"-B",build,"-DCMAKE_BUILD_TYPE=Release",
        "-DRECOMPDEV_SOURCE_ROOT="+source_root.string()});
    require(conf==0,"PRESERVED_FULL_CMAKE_CONFIGURATION_FAILED");
-   int built=process({"cmake","--build",build,"--config","Release","--parallel","2"});
+   std::vector<fs::path> build_cmd={"cmake","--build",build,"--config","Release","--parallel","2"};
+   if(module_only){build_cmd.push_back("--target");build_cmd.push_back("rd_generated_translation_hot");}
+   int built=process(build_cmd);
    require(built==0,"PRESERVED_FULL_NATIVE_COMPILATION_FAILED");
    auto locate=[&](const std::string&name){
     for(auto candidate:{build/"Release"/(name+".exe"),build/(name+".exe"),build/"Release"/name,build/name})
      if(fs::is_regular_file(candidate))return candidate;
     throw std::runtime_error("FULL_NATIVE_BINARY_MISSING: "+name);
    };
-   const auto pilot=locate("RecompDevNativePilot"),application=locate("RecompDevNativeApp");
-   std::cout<<"RECOMPDEV_PRESERVED_NATIVE_PILOT="<<pilot.string()<<"\n"
-     <<"RECOMPDEV_PRESERVED_NATIVE_APP="<<application.string()<<"\n";
+   if(module_only){
+    fs::path module;
+    for(const auto& candidate:{build/"Release"/(std::string("rd_generated_translation_hot")+EXT),build/(std::string("rd_generated_translation_hot")+EXT)})
+     if(fs::is_regular_file(candidate)){module=candidate;break;}
+    require(!module.empty(),"COMPILED_NATIVE_HOT_MODULE_MISSING");
+    std::cout<<"RECOMPDEV_HOT_MODULE="<<module.string()<<"\n";
+   }else{
+    const auto pilot=locate("RecompDevNativePilot"),application=locate("RecompDevNativeApp");
+    std::cout<<"RECOMPDEV_PRESERVED_NATIVE_PILOT="<<pilot.string()<<"\n"
+      <<"RECOMPDEV_PRESERVED_NATIVE_APP="<<application.string()<<"\n";
+   }
   }
   close(h);return 0;
  }catch(...){close(h);throw;}

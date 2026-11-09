@@ -1,4 +1,13 @@
-# rd_translation_pcode — independent changelog
+## [0.4.0 delta translation entrypoint] — 2026-11-08 (source-only)
+
+- Add optional `RD_TranslationDeltaRequestV1` / `rd_translation_recover_delta_v1` extension for exact ROM-, physical-bank-, PC-, length- and instruction-byte-hash checked coverage exclusion; emitted C++/native DLLs contain only newly discovered instruction definitions. Existing translator ABI continues to work for callers that do not request exclusions.
+- Source verification, independent runtime module validation and original Z80 instruction rules retained. Linux delta live recovery tests PASS; Windows native real-game verification remains pending.
+
+## [0.4.0] - 2026-11-08
+
+- **Changed:** - Full-generated native source builds one partitioned translation OBJECT library, a source-locked shared `rd_generated_translation_hot` module, and legacy static pilot from the same native instruction objects. NativeApp uses a runtime module loader bridge rather than statically linking generated instructions; original instruction semantics and partition assignment unchanged.
+- **Validation:** Native and generated Z80/SMS synthetic tests run on Linux; Win32 genuine ROM recovery, display continuity and compiled controller orchestration remain unverified.
+- **Compatibility:** Versioned module ABI and legacy static runtime path are retained; prior CPU semantics and historical source unchanged. Same-compiler SMS State C++ ABI only; live automatic compilation remains BLOCKED.
 
 ## [0.3.0] - 2026-11-07
 

@@ -44,10 +44,14 @@ extern "C" RD_SMS_API int rd_sms_mode4_render(const uint8_t* vram,uint32_t vram_
  for(unsigned y=0;y<192;++y){
   std::array<uint8_t,256> bg_high_opaque{};
   for(unsigned x=0;x<256;++x){
-   // Preserve the production v0.4.9.1 background addressing convention; its
-   // scrolling/scanline accuracy is a separate, independently testable issue.
-   const unsigned sx=(x+unsigned(regs[8]))&255u;
-   const unsigned sy=(y+unsigned(regs[9]))%224u;
+   // SMS Mode 4 R8 is the number of pixels the background is shifted
+   // RIGHT. The previous implementation added it to screen X, reversing
+   // scroll direction. R0 selects two independent unscrolled HUD regions.
+   // This frame-snapshot API does not yet model mid-scanline register writes.
+   const unsigned hscroll=((regs[0]&0x40u)&&y<16u)?0u:unsigned(regs[8]);
+   const unsigned vscroll=((regs[0]&0x80u)&&x>=192u)?0u:unsigned(regs[9]);
+   const unsigned sx=(x+256u-hscroll)&255u;
+   const unsigned sy=(y+vscroll)%224u;
    const unsigned addr=(bgbase+(((sy/8u)*32u+sx/8u)*2u))&MASK;
    const unsigned attr=unsigned(vram[addr])|(unsigned(vram[(addr+1u)&MASK])<<8);
    const unsigned tile=attr&0x1ffu;
@@ -56,6 +60,10 @@ extern "C" RD_SMS_API int rd_sms_mode4_render(const uint8_t* vram,uint32_t vram_
    const unsigned ci=pixel(vram,tile,px,py);
    bg_high_opaque[x]=((attr&0x1000u)&&ci)?1u:0u;
    pixels[y*256u+x]=color(cram[((attr&0x800u)?16u:0u)+ci]);
+   // Fine horizontal scrolling leaves its leading pixels uncovered on SMS;
+   // hardware shows the backdrop here, not a wrapped fragment of col 31.
+   if(hscroll && x<(hscroll&7u))
+    pixels[y*256u+x]=color(cram[16u+(regs[7]&15u)]);
   }
   std::array<unsigned,8> active{};unsigned active_count=0;
   for(unsigned i=0;i<sprite_count;++i){
@@ -89,6 +97,12 @@ extern "C" RD_SMS_API int rd_sms_mode4_render(const uint8_t* vram,uint32_t vram_
     pixels[y*256u+unsigned(px)]=color(cram[16u+ci]);
     ++result.visible_sprite_pixels;
    }
+  }
+  // R0 bit 5 masks the leftmost character column with the backdrop color,
+  // including sprite pixels. It applies at the final pixel output stage.
+  if(regs[0]&0x20u){
+   const auto backdrop=color(cram[16u+(regs[7]&15u)]);
+   for(unsigned x=0;x<8u;++x)pixels[y*256u+x]=backdrop;
   }
  }
  if(stats)*stats=result;

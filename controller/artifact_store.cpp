@@ -18,7 +18,7 @@ struct StoreError:std::runtime_error{using std::runtime_error::runtime_error;};
 constexpr std::size_t kMaxObject=128u*1024u*1024u;
 constexpr std::size_t kMaxCapsule=256u*1024u*1024u;
 constexpr std::size_t kMaxManifest=256u*1024u;
-constexpr std::size_t kMaxFiles=180;
+constexpr std::size_t kMaxFiles=400;
 std::string sha(const std::string& s){return rdhash::sha256(reinterpret_cast<const uint8_t*>(s.data()),s.size());}
 void hexsha(const std::string& s){
  if(s.size()!=64||!std::all_of(s.begin(),s.end(),[](unsigned char c){return std::isdigit(c)||(c>='a'&&c<='f');}))
@@ -220,6 +220,15 @@ std::optional<std::string> promote(const fs::path& root,const fs::path& session,
  add_if(files,source,"orchestration.json",true);
  add_if(files,source,"analysis/provider-manifest.json",true);
  add_if(files,source,"analysis/ghidra-functions.json",true);
+ // Retain any attested exact guest-cycle input replay that led into a
+ // translation-demand recovery. It is not a state checkpoint or parity proof.
+ if(report.get("preview_handoff").t==V::Object &&
+    report.get("preview_handoff").get("input_mode").t==V::String &&
+    str(report.get("preview_handoff"),"input_mode")=="GUEST_CYCLE_REPLAY_ATTESTED"){
+   add_if(files,source,"preview-input.csv",true);
+   if(sha(files.at("preview-input.csv"))!=str(report.get("preview_handoff"),"input_sha256"))
+      throw StoreError("CAPSULE_PREVIEW_INPUT_HASH_MISMATCH");
+ }
  // Reject tampered analysis before admitting it into persistent retention.
  const auto provider_manifest=rdjson::Reader(files.at("analysis/provider-manifest.json")).parse();
  if(!equivalent(provider_manifest,analysis))throw StoreError("CAPSULE_PROVIDER_MANIFEST_CHANGED");
@@ -259,6 +268,17 @@ std::optional<std::string> promote(const fs::path& root,const fs::path& session,
    add_if(files,source,"round-"+n+"/translation-manifest.json",false);
    add_if(files,source,"round-"+n+"/translated.cpp",false);
    add_if(files,source,"round-"+n+"/rd_game_pcode.cpp",false);
+   const auto generated=source/("round-"+n);
+   if(fs::exists(generated/"translated.cpp")){
+      for(const auto* rel:{"CMakeLists.txt","interactive.cpp","live_sms.hpp",
+                            "main.cpp","z80_cycles.hpp","rd_sha256.hpp"})
+         add_if(files,source,"round-"+n+"/"+rel,false);
+      // Native source is partitioned deterministically across exactly 24
+      // possible files. Preserve all existing partitions instead of only
+      // the dispatcher; otherwise a capsule cannot rebuild the same code.
+      for(int j=0;j<24;++j)
+         add_if(files,source,"round-"+n+"/native_part_"+std::to_string(j)+".cpp",false);
+   }
  }
  auto inherited=source/"imported-history";
  if(fs::exists(inherited)){

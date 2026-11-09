@@ -1,17 +1,17 @@
 {
   "components": {
     "analysis_integration": {
-      "description": "Strict Rizin Windows ESC[2K\\r aflj array boundary (COMPAT-023), exact-byte/unknown-control fail-closed regression and immutable raw-log source/tool SHA audits; function inventory remains unqualified hypotheses.",
+      "description": "Source- and job-identified preview ZIP verification and exact guest-cycle replay in the existing compatibility analysis/native-app provider. Fail closed on missing or modified input; not a native CPU semantics implementation.",
       "kind": "tooling",
       "scope": "production-workflow",
-      "version": "0.3.5"
+      "version": "0.3.6"
     },
     "controller": {
-      "description": "Compiled CPU-neutral controller auto-promotes verified recovery inputs into an independent immutable universal artifact store, automatically consumes portable capsules before legacy history; exact ROM/source/provider re-attestation remains mandatory. Not native DLL hot-loading or exact-state resume.",
+      "description": "Compiled controller v26 optionally consumes a source-attested live translation-gap receipt and schedules bounded immutable child recovery with attested guest-cycle replay, without game-specific code. Existing analyzer is transitional; compiled DLL hot-loading and actual gameplay continuation are not proven.",
       "kind": "controller",
       "scope": "production-entrypoint",
       "target": "RecompDev",
-      "version": "0.4.21"
+      "version": "0.4.22"
     },
     "controller_diagnostics": {
       "description": "Authenticated localhost v1 watch_summary whitelist and separate intentional live display instruction sampling vs actual broker/display drops and on-disk capture truncation.",
@@ -26,10 +26,10 @@
       "version": "0.1.0"
     },
     "execution_monitor": {
-      "description": "Native preview diagnostic adapter: strict unique bounded stdout terminal result recognition beyond 512 KiB, hard 16 MiB cap, raw evidence preservation and separate display sampling/PC watch summaries. No CPU changes or gameplay parity.",
+      "description": "Read-only native guest preview now records bounded exact guest-cycle button transitions and a source-identified immutable result receipt for optional controller recovery. No real-time DLL swap or guest-state checkpoint.",
       "kind": "tooling",
       "scope": "developer-debugger",
-      "version": "0.4.3"
+      "version": "0.4.4"
     },
     "input_recovery": {
       "description": "Generic guest-cycle input capture and source-verified replay recovery; short-path native builds, strict compile-failure suppression, replay history re-use",
@@ -87,11 +87,11 @@
       "version": "0.1.1"
     },
     "rd_artifact_store": {
-      "description": "Independent CPU/machine-neutral content-addressed artifact provider with a versioned C ABI and portable source-attested recovery capsules; stored bytes are not automatically executable, and legacy provider replay is transitional.",
+      "description": "Independent v1 C ABI content-addressed artifact provider retains optional complete generated project source partitions and an attested playback trace; compiled game DLL cache remains unavailable.",
       "kind": "compiled-plugin",
       "scope": "production-infrastructure",
       "target": "rd_artifact_store",
-      "version": "0.1.0"
+      "version": "0.1.1"
     },
     "rd_audio_wav": {
       "description": "DLL target with independent build and deployment; not yet a production recovery adapter",
@@ -184,6 +184,13 @@
       "target": "rd_machine_synthetic",
       "version": "0.1.0"
     },
+    "rd_native_module_loader": {
+      "description": "Platform-neutral independently compiled native binary module loader with immutable append-only activation, SHA-256 and CPU/machine/source identity checks; v1 same-process synthetic state-continuity qualified only, no live controller recovery scheduler.",
+      "kind": "compiled-library",
+      "scope": "production-infrastructure",
+      "target": "rd_native_module_loader",
+      "version": "0.1.0"
+    },
     "rd_runtime_host": {
       "description": "Independent generic BGRA/PCM/buttons host now directly linked and invoked from freshly generated full-native applications (not just a staged old-project adapter); source now includes maintained SMS hardware contracts.",
       "kind": "compiled-plugin",
@@ -192,25 +199,25 @@
       "version": "0.1.1"
     },
     "rd_sms_native_runtime": {
-      "description": "Maintained independent SMS native runtime and generated continuous native application now report observed halted PC, SP, mapper, ROM size for source-verified automatic recovery; C++ ABI remains same-compiler only.",
+      "description": "Source-compatible generated SMS guest adapter can resume an exact untranslated-code barrier without resetting CPU/machine state after externally activated native modules; runtime C ABI unchanged. Synthetic test only.",
       "kind": "compiled-plugin",
       "scope": "production-machine-runtime",
       "target": "rd_sms_native_runtime",
-      "version": "0.1.1"
+      "version": "0.1.2"
     },
     "rd_translation_pcode": {
-      "description": "Compiled P-code lowering emits native projects linking active SMS runtime, video and host DLLs instead of embedding frozen runtime.cpp/interactive.cpp; source-byte verification, incremental partitions and provenance preserved.",
+      "description": "Full-game native translation emits SHA/source-identified hot-loadable shared modules built from one native object library, retaining static pilot and stable instruction partition semantics. Real autonomous Win32 recovery not implemented.",
       "kind": "compiled-plugin",
       "scope": "production-translation",
       "target": "rd_translation_pcode",
-      "version": "0.3.0"
+      "version": "0.4.0"
     },
     "rd_video_sms_mode4": {
-      "description": "Production SMS VDP Mode 4 display DLL with source-independent C ABI, sprite SAT evaluation, priority and diagnostics; dynamically loaded by staged native games",
+      "description": "Interchangeable Sega Master System Mode 4 video DLL with R8 scroll direction, R0 scroll-inhibit HUD regions and left/backdrop masking; frame-snapshot API has no raster-timed write fidelity yet.",
       "kind": "compiled-plugin",
       "scope": "production-video",
       "target": "rd_video_sms_mode4",
-      "version": "0.1.0"
+      "version": "0.1.1"
     },
     "release_installer": {
       "description": "Transactional one-ZIP installer with safe main-parent infrastructure Validate checkpoints and separate source-only Git promotion; full Windows tests and runtime immutability mandatory.",
@@ -219,10 +226,10 @@
       "version": "1.2.1"
     },
     "runtime_host_integration": {
-      "description": "The source-attested generated native frontend reports the exact terminal guest VDP device frame counter as a separate field; previously sampled frame events remain informational and do not prove parity.",
+      "description": "Generated native interactive app uses dynamic native code module dispatch and retains older static generated app compatibility via explicit build flag. Same-process host continuation tested headlessly; real Windows live recovery blocked.",
       "kind": "tooling",
       "scope": "production-host-integration",
-      "version": "0.1.1"
+      "version": "0.2.0"
     },
     "sms_video_integration": {
       "description": "Source-only staging bridge and SHA-locked selection for the independently versioned SMS video DLL; never edits original generator, ROM or game instructions",
@@ -250,5 +257,5 @@
     }
   },
   "schema": "recompdev-components-v1",
-  "workspace_release": "v0.4.9.25"
+  "workspace_release": "v0.4.9.27"
 }

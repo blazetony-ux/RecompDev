@@ -37,6 +37,9 @@ RD_HOST_EXPORT int rd_host_present(RD_Host *host, const uint32_t *bgra, uint32_t
 RD_HOST_EXPORT int rd_host_pcm(RD_Host *host, const int16_t *samples, size_t sample_count, uint32_t sample_rate, uint32_t channels);
 RD_HOST_EXPORT int rd_host_pump(RD_Host *host);
 RD_HOST_EXPORT uint64_t rd_host_buttons(RD_Host *host);
+/* Press edges since last take, including events pumped while guest execution
+   is suspended for native compilation; not an artificial guest instruction. */
+RD_HOST_EXPORT uint64_t rd_host_take_pressed(RD_Host *host);
 RD_HOST_EXPORT int rd_host_title(RD_Host *host, const char *title);
 RD_HOST_EXPORT int rd_host_stats(RD_Host *host, RD_HostStats *result);
 #ifdef __cplusplus

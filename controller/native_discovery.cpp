@@ -1,4 +1,5 @@
 #include "native_discovery.hpp"
+#include "evidence_index.hpp"
 #include "rd_native_discovery_v1.h"
 #include "rd_sha256.hpp"
 #include "rd_tiny_json.hpp"
@@ -369,7 +370,7 @@ std::vector<RuntimeSeed> parse_analysis_hypotheses(const fs::path&file,
 }
 } // namespace
 int rd_native_discover(const std::vector<std::string>&args,const fs::path&exe_path){
- fs::path rom,plugindir=exe_path.parent_path(),out,analysis_candidates;std::vector<fs::path>runtime_gap_reports;bool explicit_plugin_dir=false;
+ fs::path rom,plugindir=exe_path.parent_path(),out,analysis_candidates,gap_index;std::vector<fs::path>runtime_gap_reports;bool explicit_plugin_dir=false;
  uint32_t budget=4096;
  for(size_t i=0;i<args.size();++i){
   auto next=[&]()->std::string{if(i+1==args.size())throw std::runtime_error("MISSING_ARGUMENT "+args[i]);return args[++i];};
@@ -378,6 +379,7 @@ int rd_native_discover(const std::vector<std::string>&args,const fs::path&exe_pa
   else if(args[i]=="--plugin-dir"){plugindir=fs::u8path(next());explicit_plugin_dir=true;}
   else if(args[i]=="--out")out=fs::u8path(next());
   else if(args[i]=="--runtime-gap-report")runtime_gap_reports.push_back(fs::u8path(next()));
+  else if(args[i]=="--runtime-gap-index")gap_index=fs::u8path(next());
   else if(args[i]=="--analysis-candidates")analysis_candidates=fs::u8path(next());
   else if(args[i]=="--budget"){auto n=std::stoull(next());if(n<1||n>100000)throw std::runtime_error("INVALID_DISCOVERY_BUDGET");budget=uint32_t(n);}
   else throw std::runtime_error("UNKNOWN_NATIVE_DISCOVERY_OPTION "+args[i]);
@@ -415,7 +417,11 @@ int rd_native_discover(const std::vector<std::string>&args,const fs::path&exe_pa
  }
  if(chosen.empty())throw std::runtime_error("UNRECOGNISED_FORMAT (no native plugin qualified the source)");
  if((!runtime_gap_reports.empty()||!analysis_candidates.empty())&&accepted.platform!=RD_PLATFORM_SMS)throw std::runtime_error("RUNTIME_STOP_CPU_PLATFORM_UNSUPPORTED");
- if(runtime_gap_reports.size()>64)throw std::runtime_error("RUNTIME_STOP_REPORT_COUNT_LIMIT");
+ if(!gap_index.empty()){
+  auto indexed=rd_evidence_index::read(gap_index);
+  runtime_gap_reports.insert(runtime_gap_reports.end(),indexed.begin(),indexed.end());
+ }
+ if(runtime_gap_reports.size()>512)throw std::runtime_error("RUNTIME_STOP_REPORT_COUNT_LIMIT");
  if(accepted.status!=RD_INSPECT_MATCH)throw std::runtime_error("FORMAT_FOUND_BUT_UNQUALIFIED: "+std::string(accepted.evidence));
  Discovery disc;
  std::unique_ptr<Plugin> cpu_plugin,mapper;

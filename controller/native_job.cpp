@@ -111,7 +111,7 @@ struct Options{
     std::vector<std::uint32_t> preview_watch_pc;
     std::vector<std::pair<std::uint32_t,std::uint32_t>> preview_watch_ranges;
     bool preview_matched_only=false;
-    bool preview_viewer=true,preview_hold=false,have_cycles=false,auto_history=true;
+    bool preview_viewer=true,preview_hold=false,preview_auto_recover=false,have_cycles=false,auto_history=true;
 };
 int number(const std::string&name,const std::string&s,int lo,int hi){
     if(s.empty()||!std::all_of(s.begin(),s.end(),[](char c){return c>='0'&&c<='9';}))throw Error("INVALID_"+name);
@@ -139,6 +139,7 @@ Options parse(const std::vector<std::string>&argv){
         if(key=="--no-auto-history"){opt.auto_history=false;continue;}
         if(key=="--monitor-matched-only"){opt.preview_matched_only=true;continue;}
         if(key=="--hold-window"){opt.preview_hold=true;continue;}
+        if(key=="--auto-recover"){opt.preview_auto_recover=true;continue;}
         if(i+1>=argv.size())throw Error("MISSING_VALUE_"+key);
         auto val=argv[++i];
         if(key=="--rom")opt.rom=val;
@@ -180,6 +181,7 @@ Options parse(const std::vector<std::string>&argv){
     if(opt.preview_input!="live"&&opt.preview_input!="neutral")throw Error("INVALID_PREVIEW_INPUT");
     if(opt.preview_input=="live"&&opt.preview_video!="window")throw Error("LIVE_PREVIEW_REQUIRES_WINDOW");
     if(opt.preview_hold&&opt.preview_video!="window")throw Error("HOLD_PREVIEW_REQUIRES_WINDOW");
+    if(opt.preview_auto_recover&&(opt.preview_hold||opt.preview_input!="live"))throw Error("AUTO_RECOVERY_REQUIRES_LIVE_PREVIEW_WITHOUT_HOLD");
     return opt;
 }
 std::string config_json(const Options&o){
@@ -196,11 +198,11 @@ Options load_config(const fs::path&h){
     return opt;
 }
 bool within(const fs::path& p,const fs::path& root){auto i=p.begin(),j=root.begin();for(;j!=root.end();++i,++j)if(i==p.end()||*i!=*j)return false;return true;}
-// Evidence lives under <configured-root>/v0.4.9.25, independently of old job locations.
+// Evidence lives under <configured-root>/v0.4.9.26, independently of old job locations.
 // The prior --workspace value is recognised but never rewritten automatically.
 // A version-like trailing directory is treated as an older release workspace,
-// allowing existing owner configuration to transparently select v0.4.9.25.
-constexpr const char* kEvidenceVersion = "v0.4.9.25";
+// allowing existing owner configuration to transparently select v0.4.9.26.
+constexpr const char* kEvidenceVersion = "v0.4.9.26";
 bool is_version_folder(const std::string& name){
     if(name.size()<6||name[0]!='v')return false;
     int dots=0;
@@ -316,12 +318,13 @@ void report(const Job&j,bool details){
     std::cout<<"RECOMPDEV_BEST_FRAMES="<<best<<"\nRECOMPDEV_TARGET_FRAMES="<<j.target_frames<<"\n";
     if(details){std::cout<<"RECOMPDEV_ROM_SHA256="<<j.sha<<"\n";for(auto&a:j.attempts)std::cout<<"CYCLE="<<a.cycle<<" FRAMES="<<a.frames<<" EMITTED="<<a.emitted<<" STATUS="<<a.status<<" OUTPUT="<<a.output<<"\n";}
 }
-int execute(Job&j,const fs::path&jobs,const fs::path&diagnostic_dir,const fs::path&exe,const std::function<int(const std::vector<std::string>&)>&bridge,const std::string&logging,const std::string&preview_stop=""){
+int execute(Job&j,const fs::path&jobs,const fs::path&diagnostic_dir,const fs::path&exe,const std::function<int(const std::vector<std::string>&)>&bridge,const std::string&logging,const std::string&preview_stop="",bool require_preview_input_replay=false,
+            const std::string&preview_source_job_id=""){
     const auto dir=jobs/j.id;Log log(dir/"events.jsonl",j.id,logging);
     if(hash_rom(full(j.rom))!=j.sha)throw Error("ROM_SOURCE_CHANGED_REFUSE_RESUME");
     if(full(j.plugin_dir)!=fs::canonical(exe.parent_path()))throw Error("JOB_PLUGIN_DIR_MISMATCH");
     Options cfg;cfg.ghidra=j.ghidra;cfg.rizin=j.rizin;cfg.roots=j.roots;authorize(cfg);
-    if(j.status=="TARGET_REACHED_PARITY_UNVERIFIED"){report(j,true);return 0;}
+    if(j.status=="TARGET_REACHED_PARITY_UNVERIFIED"&&preview_stop.empty()){report(j,true);return 0;}
     if(j.status=="BLOCKED"||j.status=="BLOCKED_STAGNATION"||j.status=="RUNNING")throw Error("JOB_BLOCKED_OR_INTERRUPTED_INSPECT_EVIDENCE");
     auto persist=[&]{atomic_write(dir/"job.json",save_doc(j));};
     auto export_on_terminal=[&]{
@@ -347,7 +350,8 @@ int execute(Job&j,const fs::path&jobs,const fs::path&diagnostic_dir,const fs::pa
             // Explicit preview evidence is only admitted to the FIRST new
             // recovery session; it is then carried by source-checked history.
             cmd.push_back("--preview-stop");cmd.push_back(preview_stop);
-            cmd.push_back("--preview-job-id");cmd.push_back(j.id);
+            cmd.push_back("--preview-job-id");cmd.push_back(preview_source_job_id.empty()?j.id:preview_source_job_id);
+            if(require_preview_input_replay)cmd.push_back("--require-preview-input-replay");
         }
         if(!j.attempts.empty()){cmd.push_back("--resume-from");cmd.push_back(j.attempts.back().output);}
         else if(!j.import_history.empty()){
@@ -374,6 +378,8 @@ int execute(Job&j,const fs::path&jobs,const fs::path&diagnostic_dir,const fs::pa
         }
         if(doc.get("source_sha256").t!=V::String||getstr(doc,"source_sha256")!=j.sha)throw Error("ORCHESTRATION_SOURCE_IDENTITY_MISMATCH");
         if(code!=0&&code!=2)throw Error("ANALYSIS_PROVIDER_PROCESS_FAILED");
+        if(status=="FRAME_BUDGET_REACHED_PARITY_UNVERIFIED"&&attempt.frames<j.target_frames)
+            throw Error("FRAME_BUDGET_RESULT_BELOW_REQUESTED_TARGET");
         if(hash_rom(full(j.rom))!=j.sha)throw Error("ROM_CHANGED_DURING_ANALYSIS");
         int best_frames=0,best_emitted=0;
         for(auto& older:j.attempts){best_frames=std::max(best_frames,older.frames);best_emitted=std::max(best_emitted,older.emitted);}
@@ -434,6 +440,7 @@ int rd_native_job(const std::vector<std::string>& args,const fs::path&source,con
         if(h==source||within(h,source))throw Error("JOB_HOME_CANNOT_BE_INSIDE_SOURCE");
         const auto& op=args.front();
         if(op!="resume"&&!opt.preview_stop.empty())throw Error("PREVIEW_STOP_ONLY_FOR_RESUME");
+        if(op!="preview"&&opt.preview_auto_recover)throw Error("AUTO_RECOVERY_OPTION_ONLY_FOR_PREVIEW");
         if(op!="run"&&!opt.auto_history)throw Error("AUTO_HISTORY_OPTION_ONLY_FOR_RUN");
         if(op!="preview"&&(opt.preview_frames!=1200||opt.preview_steps!=12000000||opt.preview_every!=128||
            opt.preview_cycle!=0||opt.preview_video!="window"||opt.preview_input!="live"||!opt.preview_viewer||opt.preview_hold||
@@ -585,7 +592,74 @@ int rd_native_job(const std::vector<std::string>& args,const fs::path&source,con
             command.push_back((exe.parent_path()/"RecompDevMonitor.exe").u8string());
             if(!opt.preview_viewer)command.push_back("--no-viewer");
             if(opt.preview_hold)command.push_back("--hold-window");
-            return bridge(command);
+            if(!opt.preview_auto_recover)return bridge(command);
+            // The controller, not the preview viewer or game, selects this
+            // immutable result receipt in its existing versioned evidence tree.
+            const auto preview_root=workspace(h,source)/"preview";
+            fs::create_directories(preview_root);
+            const auto nonce=std::to_string(std::chrono::steady_clock::now().time_since_epoch().count());
+            const auto receipt=preview_root/("auto-recovery-result-"+nonce+".json");
+            if(fs::exists(receipt))throw Error("PREVIEW_RECEIPT_COLLISION");
+            command.push_back("--result-json");command.push_back(receipt.u8string());
+            const int result=bridge(command);
+            if(result!=0)throw Error("AUTOMATIC_PREVIEW_INCOMPLETE");
+            const auto doc=read_json(receipt);
+            if(getstr(doc,"schema")!="recompdev.preview.result.v1"||
+               getstr(doc,"job_id")!=j.id||getstr(doc,"source_sha256")!=j.sha||
+               getstr(doc,"requested_input")!="live")throw Error("PREVIEW_RECEIPT_IDENTITY_MISMATCH");
+            const auto status=getstr(doc,"status");
+            if(status!="GUEST_BLOCKED_UNTRANSLATED"){
+                if(status!="PREVIEW_CAPTURE_COMPLETE")throw Error("PREVIEW_RECOVERY_INVALID_RESULT");
+                std::cout<<"RECOMPDEV_AUTO_RECOVERY=NOT_REQUIRED\n";
+                return 0;
+            }
+            if(doc.get("input_replay_available").t!=V::Bool||!doc.get("input_replay_available").n)
+                throw Error("PREVIEW_INPUT_REPLAY_NOT_AVAILABLE_FAIL_CLOSED");
+            const auto archive=full(getstr(doc,"diagnostics_zip"));
+            const auto diagnostic_root=fs::weakly_canonical(workspace(h,source)/"diagnostics");
+            if(!fs::is_regular_file(archive)||fs::is_symlink(archive)||archive.parent_path()!=diagnostic_root||
+               fs::file_size(archive)>4*1024*1024||hash_rom(archive)!=getstr(doc,"diagnostics_sha256"))
+                throw Error("PREVIEW_RECOVERY_ARCHIVE_IDENTITY_MISMATCH");
+            if(j.attempts.empty())throw Error("AUTO_RECOVERY_REQUIRES_PREVIOUS_CYCLE");
+            // Authenticate the exact source/session/mapper/replay before any
+            // recovery-job state is changed or a new session is scheduled.
+            if(bridge({"--stage","preview-verify","--preview-stop",archive.u8string(),
+                "--rom",j.rom,"--resume-from",j.attempts.back().output,"--job-id",j.id,
+                "--require-input-replay"})!=0)throw Error("AUTO_RECOVERY_PREFLIGHT_REJECTED_JOB_UNCHANGED");
+            // Recompilation always creates a NEW child recovery job, even if
+            // the source session previously reached a neutral-input budget.
+            // Old job state and previous DLL pins remain byte-for-byte intact.
+            // This also permits a newer compiled controller to process an old
+            // preview without attempting to execute the old plugin directory.
+            auto next_jobs=workspace(h,source)/"jobs";
+            fs::create_directories(next_jobs);
+            Job recovered=j;
+            recovered.status="READY";
+            recovered.attempts.clear();recovered.stagnant=0;
+            recovered.import_history=j.attempts.back().output;
+            recovered.plugin_dir=fs::canonical(exe.parent_path()).u8string();
+            recovered.target_frames=std::max(j.target_frames,opt.preview_frames);
+            recovered.max_cycles=std::min(8,std::max(1,j.max_cycles));
+            const auto base_id="job-"+compact_time()+"-"+j.sha.substr(0,8)+"-";
+            const auto stamp=std::to_string(std::chrono::steady_clock::now().time_since_epoch().count());
+            bool created=false;
+            for(int index=0;index<100;++index){
+                const auto id=base_id+stamp+"-"+std::to_string(index);
+                const auto dest=next_jobs/id;
+                if(fs::create_directories(dest)){
+                    recovered.id=id;fs::create_directories(dest/"sessions");created=true;break;
+                }
+            }
+            if(!created)throw Error("AUTO_RECOVERY_JOB_COLLISION");
+            atomic_write(next_jobs/recovered.id/"job.json",save_doc(recovered));
+            atomic_write(h/"last-job.txt",recovered.id+"\n");
+            std::cout<<"RECOMPDEV_AUTO_RECOVERY=SOURCE_ATTESTED_GAP_SCHEDULED\n"
+                     <<"RECOMPDEV_AUTO_RECOVERY_PARENT_JOB="<<j.id<<"\n"
+                     <<"RECOMPDEV_AUTO_RECOVERY_CHILD_JOB="<<recovered.id<<"\n";
+            // The stop archive remains bound to its ORIGINAL preview job and
+            // cycle, never incorrectly relabelled as originating in this child.
+            return execute(recovered,next_jobs,workspace(h,source)/"diagnostics",exe,bridge,opt.logging,
+                archive.u8string(),true,j.id);
         }
         if(op=="resume"||op=="status"||op=="inspect"||diagnostics){
             if(!opt.rom.empty()||!opt.ghidra.empty()||!opt.rizin.empty()||!opt.roots.empty()||!opt.plugin_dir.empty()||!opt.import_history.empty()||!opt.workspace.empty()||!opt.evidence_root.empty()||opt.rounds!=4||opt.target_frames!=1800||opt.timeout!=600||opt.step_budget!=20000000)throw Error("INVALID_JOB_COMMAND_OPTIONS");

@@ -273,6 +273,18 @@ target_include_directories(rd_video_sms_mode4_smoke PRIVATE ../video_sms/include
 target_link_libraries(rd_video_sms_mode4_smoke PRIVATE rd_video_sms_mode4)
 set_target_properties(rd_video_sms_mode4_smoke PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${OUT_DIR}")
 add_test(NAME v0492_sms_video_sprite_priority COMMAND $<TARGET_FILE:rd_video_sms_mode4_smoke>)
+add_executable(rd_sms_mode4_scroll ../video_sms/tests/scroll.cpp)
+target_include_directories(rd_sms_mode4_scroll PRIVATE ../video_sms/include)
+target_link_libraries(rd_sms_mode4_scroll PRIVATE rd_video_sms_mode4)
+set_target_properties(rd_sms_mode4_scroll PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${OUT_DIR}")
+add_test(NAME v04927_sms_video_scroll_registers COMMAND $<TARGET_FILE:rd_sms_mode4_scroll>)
+if(Python3_EXECUTABLE)
+ add_test(NAME v04927_frontier_evidence_index_72 COMMAND "${Python3_EXECUTABLE}" -B
+  "${CMAKE_SOURCE_DIR}/../native_runtime/tests/test_frontier_evidence_index.py"
+  $<TARGET_FILE:RecompDev> "${CMAKE_SOURCE_DIR}/..")
+ set_tests_properties(v04927_frontier_evidence_index_72 PROPERTIES TIMEOUT 90
+  ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+endif()
 if(Python3_Interpreter_FOUND)
  add_test(NAME v0492_sms_video_staging COMMAND "${Python3_EXECUTABLE}"
   "${CMAKE_SOURCE_DIR}/../video_sms/tests/test_bridge.py")
@@ -562,4 +574,67 @@ if(Python3_Interpreter_FOUND)
  add_test(NAME v04925_portable_provider_replay COMMAND "${Python3_EXECUTABLE}" -B
    "${CMAKE_SOURCE_DIR}/../controller/tests/test_portable_replay.py" "$<TARGET_FILE:rd_artifact_store_contract>")
  set_tests_properties(v04925_portable_provider_replay PROPERTIES TIMEOUT 60 WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/..")
+endif()
+
+# v0.4.9.26 source- and guest-cycle-bound autonomous preview recovery contract.
+if(Python3_Interpreter_FOUND)
+  add_test(NAME v04926_exact_input_replay COMMAND "${Python3_EXECUTABLE}" -B -m unittest
+    discover -s "${CMAKE_SOURCE_DIR}/../analysis_integration/tests" -p test_v04926_auto_replay.py -q)
+  set_tests_properties(v04926_exact_input_replay PROPERTIES TIMEOUT 60 WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/..")
+endif()
+
+# v0.4.9.27: generic, controller-owned immutable native module activation.
+# No console/CPU decoding is built into the loader; state is opaque C ABI.
+add_library(rd_native_module_loader STATIC ../native_runtime/src/module_set.cpp)
+target_include_directories(rd_native_module_loader PUBLIC ../native_runtime/include PRIVATE include)
+if(UNIX AND NOT APPLE)
+ target_link_libraries(rd_native_module_loader PUBLIC ${CMAKE_DL_LIBS})
+endif()
+if(MSVC)
+ target_compile_options(rd_native_module_loader PRIVATE /W4 /EHsc)
+else()
+ target_compile_options(rd_native_module_loader PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+foreach(_operation IN ITEMS 0 1)
+ add_library(rd_native_fixture_${_operation} SHARED ../native_runtime/tests/probe_module.cpp)
+ target_compile_definitions(rd_native_fixture_${_operation} PRIVATE RD_FIXTURE_OP=${_operation})
+ target_include_directories(rd_native_fixture_${_operation} PRIVATE ../native_runtime/include ../native_runtime/tests)
+ set_target_properties(rd_native_fixture_${_operation} PROPERTIES PREFIX "" RUNTIME_OUTPUT_DIRECTORY "${OUT_DIR}" LIBRARY_OUTPUT_DIRECTORY "${OUT_DIR}")
+endforeach()
+add_executable(rd_native_module_contract ../native_runtime/tests/module_set_contract.cpp)
+target_include_directories(rd_native_module_contract PRIVATE ../native_runtime/include ../native_runtime/tests ../runtime_host/include)
+target_link_libraries(rd_native_module_contract PRIVATE rd_native_module_loader rd_runtime_host)
+set_target_properties(rd_native_module_contract PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${OUT_DIR}")
+add_test(NAME v04927_native_module_hot_activation COMMAND $<TARGET_FILE:rd_native_module_contract>
+ $<TARGET_FILE:rd_native_fixture_0> $<TARGET_FILE:rd_native_fixture_1>)
+if(Python3_Interpreter_FOUND)
+ add_test(NAME v04927_sms_generated_native_hot_resume COMMAND "${Python3_EXECUTABLE}"
+  "${CMAKE_SOURCE_DIR}/../native_runtime/tests/test_generated_hot_resume.py"
+  "$<TARGET_FILE:RecompDev>" "$<TARGET_FILE_DIR:rd_translation_pcode>" "${CMAKE_SOURCE_DIR}/..")
+ set_tests_properties(v04927_sms_generated_native_hot_resume PROPERTIES ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+endif()
+
+# Controller-owned live session: previously absent production handoff, now
+# exercised from source discovery through compiled-module hot activation.
+if(Python3_Interpreter_FOUND)
+ add_test(NAME v04927_controller_autonomous_two_hot_recoveries COMMAND "${Python3_EXECUTABLE}"
+  "${CMAKE_SOURCE_DIR}/../native_runtime/tests/test_live_controller_recovery.py"
+  "$<TARGET_FILE:RecompDev>" "${CMAKE_SOURCE_DIR}/..")
+ set_tests_properties(v04927_controller_autonomous_two_hot_recoveries PROPERTIES TIMEOUT 220 RUN_SERIAL TRUE
+  ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1" WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/..")
+endif()
+
+# Immutable native code cache / per-ROM source-control contract.
+if(Python3_Interpreter_FOUND)
+ add_test(NAME v04927_native_library_source_governance COMMAND "${Python3_EXECUTABLE}"
+  "${CMAKE_SOURCE_DIR}/../native_runtime/tests/test_native_library_contract.py")
+ set_tests_properties(v04927_native_library_source_governance PROPERTIES ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+endif()
+
+if(Python3_Interpreter_FOUND)
+ add_test(NAME v04927_interrupted_session_incremental_consolidation COMMAND "${Python3_EXECUTABLE}"
+  "${CMAKE_SOURCE_DIR}/../native_runtime/tests/test_interrupted_library_reuse.py"
+  "$<TARGET_FILE:RecompDev>" "${CMAKE_SOURCE_DIR}/..")
+ set_tests_properties(v04927_interrupted_session_incremental_consolidation PROPERTIES TIMEOUT 220 RUN_SERIAL TRUE
+  ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1" WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/..")
 endif()

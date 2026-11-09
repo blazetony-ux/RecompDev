@@ -1,4 +1,36 @@
+## [v0.4.9.27 persistent native-store path correction] — 2026-11-09 (source-only, Windows acceptance pending)
+
+- Owner MSVC validation `20261109T171415Z-25652` built RecompDev and passed **85/87 CTests**; two new live tests failed at the first activated module's generated-source Git checkpoint due to `WinError 3` in a long `%TEMP%`/`RECOMPDEV_HOME` evidence subtree. This is a persistent source/artifact path problem, **not** a failed native compile.
+- Separate SHA-verified persistent artifacts from arbitrarily deep evidence paths. New per-user roots: `RECOMPDEV_HOME/gs/<rom-sha>/` for isolated source Git and discovered code; `RECOMPDEV_HOME/nc/` for immutable compiled module capsules; `RECOMPDEV_HOME/nl/<rom-sha>/` for consolidated DLLs. Full SHA identities and manifest/ABI validation are retained. Generated source modules use a compact `m/<key>/s/` tree without changing their contents. Reject predicted paths of 250+ characters on Windows before writing.
+- The existing v27 live evidence remains under `RecompDev-Evidence/v0.4.9.27/live`; no historical evidence is deleted, no source Git tag is created, and the active runtime is untouched. Tests exercise SHA caching, source Git, module reuse and a representative deep Windows test path. Owner Windows full 87/87 and Fantasy Zone acceptance must be rerun.
+
+## [v0.4.9.27 incremental native-game cache] — 2026-11-08 (source-only)
+
+- Controller-owned `live_session.py` caches a native module only after a source/request-bound guest activation receipt; its `native_library.py` owns the immutable module capsules, per-ROM generated-source Git checkpoints, discovery records, consolidation and SHA-verified DLL publication. Repeated recovery uses source-verified coverage exclusions, not cumulative native compilation. A guest closed during compilation cancels its child compile process tree.
+- A normal completed session regenerates the combined native source once into a consolidated DLL; an interrupted session retains acknowledged deltas and may consolidate later. This is not object-only relinking and not a claim of Windows-game playability.
+- Synthetic two-gap second-run preload and three-session interrupted/expanded/preloaded tests pass on Linux. Real Fantasy Zone 2,400-frame gameplay, full MSVC CTests and two responsive Win32 windows remain unverified.
+
+## [v0.4.9.27 Windows native-build path correction] - 2026-11-08 (source-only, acceptance blocked)
+
+- **MSVC MAX_PATH:** Owner's second Validate passed 84/85 CTests but native autonomous recovery could not CMake-configure a generated project below the long temporary versioned evidence tree (`MSB3491`). The verified source translator had already emitted eight instructions.
+- **Fixed:** Windows generated CMake source and intermediates are staged under a private short `%LOCALAPPDATA%\RecompDev\nb\r27-*` workspace, never below an arbitrary `RECOMPDEV_HOME`/evidence path. Verify projected intermediate length, preserve SHA-checked initial/recovery translation manifests and full logs in session evidence, hash-stage compiled DLLs, commit eligible cache entries and clean compiler scratch only after the native process ends. No ROM-specific workarounds, installer bypass or system setting changes.
+- **Validation:** Linux controller/synthetic recoveries and a native path-selection regression pass. Owner Windows full CTest and real Fantasy Zone two-window 2,400-frame acceptance are **outstanding**; active runtime remains unchanged.
+
+## [0.3.6] - 2026-11-08
+
+- **Preview diagnostic interoperability correction:** Real six-member preview ZIPs may contain both `guest-input-cycles.csv` and optional video-only `candidate-capture.json`. The verifier now admits this exact combination after SHA-manifest and capture source-identity checks; all unrecognised members and altered captures remain rejected. Emit a bounded rejection token rather than only the exception class. Regression test exercises the producer API and all six members in one archive; no ROM-specific exception and no parity promotion.
+
+- **Changed:** Source-attested preview-frontier archive verification now admits an optional SHA-bound strict guest-cycle input trace. The existing compatibility recovery provider can insist on and replay the exact approved input cycle sequence on each fresh native execution; continuation retains verified inherited replay history.
+- **Validation:** Python positive and negative tests cover ordering, tampering, missing replay, source identity, cross-ROM rejection and deterministic inheritance; native-provider Windows and real gameplay recovery are unverified.
+- **Compatibility:** Ghidra/Rizin and generic translator contracts are preserved. This is not a new Python orchestration layer or dynamically loaded CPU semantics implementation; replay is a deterministic restart, not a machine-state snapshot.
+
 # analysis_integration — independent component history
+
+## [v0.4.9.27 >64 recoveries, retained source migration] — 2026-11-09 (source-only)
+
+- Source-attested live recovery is bounded at 512 activations per process, no longer at 64 observed frontiers; delta requests only resubmit the latest source gap. Consolidation accepts bounded indexed history, including prior sessions, without Windows command-line path explosion.
+- Controlled BLOCKED outcomes attempt optional consolidation of modules already activated and saved; failures retain the immutable capsules. Rebuilt controller/VDP binaries do not load old incompatible DLLs, but can re-translate archived source discovery into a newly verified base, preserving separate generated-game Git provenance.
+- Native synthetic regressions: 72 independent recovery-index seeds, interrupted-session consolidation, two hot recoveries, second-run preloading, compatibility-safe rebuild. Windows real-ROM acceptance still pending.
 
 ## [0.3.5] - 2026-11-08
 

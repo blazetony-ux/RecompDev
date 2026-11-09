@@ -53,7 +53,7 @@ int main(int argc,char**argv){
   require(go({"run","--rom",rom.string(),"--no-auto-history","--max-cycles","3","--rounds-per-cycle","2","--target-frames","100","--logging","warning"},source,exe,bridge)==0,"autonomous native scheduling failed");
   require(invocations==3,"expected three controller-scheduled calls");
   auto job_id=read(home/"last-job.txt");while(!job_id.empty()&&(job_id.back()=='\n'||job_id.back()=='\r'))job_id.pop_back();
-  auto job_dir=(tmp/"workspace"/"v0.4.9.25"/"jobs")/job_id;auto job=read(job_dir/"job.json");
+  auto job_dir=(tmp/"workspace"/"v0.4.9.26"/"jobs")/job_id;auto job=read(job_dir/"job.json");
   require(job.find("TARGET_REACHED_PARITY_UNVERIFIED")!=std::string::npos,"not parity-unverified");
   require(job.find("\"cycle\":3")!=std::string::npos,"third cycle not committed");
   require(read(job_dir/"events.jsonl").find("AUTO_RESUME")!=std::string::npos,"missing controller automatic resume events");
@@ -62,7 +62,7 @@ int main(int argc,char**argv){
   // v24: a new job automatically selects verified old history through the
   // controller registry. No --import-history, no manual file selection.
   auto initial_id=read(home/"last-job.txt");while(!initial_id.empty()&&(initial_id.back()=='\n'||initial_id.back()=='\r'))initial_id.pop_back();
-  const auto expected_history=tmp/"workspace"/"v0.4.9.25"/"jobs"/initial_id/"sessions"/"cycle-03";
+  const auto expected_history=tmp/"workspace"/"v0.4.9.26"/"jobs"/initial_id/"sessions"/"cycle-03";
   int auto_invocations=0;
   auto auto_bridge=[&](const std::vector<std::string>&args)->int{
      if(args.size()>1&&args[1]=="job-diagnostics")return 0;
@@ -83,8 +83,8 @@ int main(int argc,char**argv){
      auto val=[&](const std::string&key)->std::string{for(size_t i=0;i+1<args.size();++i)if(args[i]==key)return args[i+1];return "";};
      require(val("--stage")=="job-preview","wrong preview provider selected");
      require(val("--job-dir")==job_dir.string(),"preview must use immutable existing job");
-     require(val("--out-dir")==((tmp/"workspace"/"v0.4.9.25")/"preview").string(),"preview output outside evidence root");
-     require(val("--diagnostics-dir")==((tmp/"workspace"/"v0.4.9.25")/"diagnostics").string(),"preview diagnostic root wrong");
+     require(val("--out-dir")==((tmp/"workspace"/"v0.4.9.26")/"preview").string(),"preview output outside evidence root");
+     require(val("--diagnostics-dir")==((tmp/"workspace"/"v0.4.9.26")/"diagnostics").string(),"preview diagnostic root wrong");
      require(val("--sample-every")=="64","preview sampling option lost");
      require(val("--video")=="capture"&&val("--input")=="neutral","preview backend option lost");
      return 0;
@@ -152,7 +152,7 @@ int main(int argc,char**argv){
   require(go({"run","--rom",rom.string(),"--no-auto-history","--max-cycles","5"},source,exe,stagnant)==2,"stagnation should block");
   require(stale_calls==3,"stagnation was not measured against all-time high watermark");
   auto stagnant_id=read(home/"last-job.txt");while(!stagnant_id.empty()&&(stagnant_id.back()=='\n'||stagnant_id.back()=='\r'))stagnant_id.pop_back();
-  require(read((tmp/"workspace"/"v0.4.9.25"/"jobs")/stagnant_id/"job.json").find("BLOCKED_STAGNATION")!=std::string::npos,"stagnation status not persisted");
+  require(read((tmp/"workspace"/"v0.4.9.26"/"jobs")/stagnant_id/"job.json").find("BLOCKED_STAGNATION")!=std::string::npos,"stagnation status not persisted");
   // v0.4.9.24: preview handoff must be explicitly requested and source-attested
   // BEFORE a recovery job is mutated; no implicit preview-to-job writes.
   int bounded=0;
@@ -165,7 +165,7 @@ int main(int argc,char**argv){
   };
   require(go({"run","--rom",rom.string(),"--no-auto-history","--max-cycles","1"},source,exe,incomplete)==2,"preview handoff fixture not bounded");
   auto preview_job=read(home/"last-job.txt");while(!preview_job.empty()&&(preview_job.back()=='\n'||preview_job.back()=='\r'))preview_job.pop_back();
-  auto preview_jdir=(tmp/"workspace"/"v0.4.9.25"/"jobs")/preview_job;
+  auto preview_jdir=(tmp/"workspace"/"v0.4.9.26"/"jobs")/preview_job;
   auto unchanged=read(preview_jdir/"job.json");
   auto zip=tmp/"preview-check.zip";put(zip,"fake archived fixture");
   int probes=0,scheduled=0;
@@ -208,9 +208,73 @@ int main(int argc,char**argv){
           "new controller could not extend beyond sixteen automatic cycles");
   require(extended_calls==20,"new controller interrupted before cycle 20");
   auto long_id=read(home/"last-job.txt");while(!long_id.empty()&&(long_id.back()=='\n'||long_id.back()=='\r'))long_id.pop_back();
-  auto long_dir=tmp/"workspace"/"v0.4.9.25"/"jobs"/long_id;
+  auto long_dir=tmp/"workspace"/"v0.4.9.26"/"jobs"/long_id;
   require(fs::is_regular_file(long_dir/"sessions"/"cycle-20"/"orchestration.json"),"cycle 20 evidence missing");
   require(read(long_dir/"job.json").find("\"cycle\":20")!=std::string::npos,"cycle 20 ledger entry missing");
+  // v0.4.9.26 candidate: opt-in automatic recovery on a newly observed live
+  // input gap must reopen a prior frame-budget-complete job. The provider is
+  // mocked here; Python tests separately validate ZIP members and exact replay.
+  const auto previous_job=read(job_dir/"job.json");
+  const auto previous_session=job_dir/"sessions"/"cycle-03";
+  int automatic_preflights=0,automatic_batches=0;
+  bool replay_in_receipt=false;
+  auto automatic=[&](const std::vector<std::string>&a)->int{
+      auto val=[&](const std::string&key){for(size_t i=0;i+1<a.size();++i)if(a[i]==key)return a[i+1];return std::string();};
+      auto stage=val("--stage");
+      if(stage=="job-preview"){
+          require(val("--input")=="live"&&!val("--result-json").empty(),"automatic recovery did not require live capture receipt");
+          fs::path zip=fs::path(val("--diagnostics-dir"))/"autonomous-stop-fixture.zip";
+          fs::create_directories(zip.parent_path());put(zip,"source-pinned archive stub");
+          // Compute digest from precisely the bytes written.
+          std::string bytes=read(zip);
+          std::string receipt="{\"schema\":\"recompdev.preview.result.v1\",\"job_id\":"+q(job_id)+
+              ",\"source_sha256\":"+q(digest)+",\"requested_input\":\"live\",\"status\":\"GUEST_BLOCKED_UNTRANSLATED\",\"input_replay_available\":"+
+              (replay_in_receipt?"true":"false")+",\"diagnostics_zip\":"+q(zip.string())+
+              ",\"diagnostics_sha256\":"+q(rdhash::sha256((const uint8_t*)bytes.data(),bytes.size()))+"}";
+          put(val("--result-json"),receipt);return 0;
+      }
+      if(stage=="preview-verify"){
+          ++automatic_preflights;
+          require(std::find(a.begin(),a.end(),"--require-input-replay")!=a.end(),"missing exact replay preflight");
+          require(val("--resume-from")==previous_session.string(),"automatic stop did not bind previous source session");
+          return 0;
+      }
+      if(stage=="job-diagnostics")return 0;
+      if(stage=="native-orchestrate"){
+          ++automatic_batches;
+          require(std::find(a.begin(),a.end(),"--require-preview-input-replay")!=a.end(),"replay requirement not forwarded into native compilation and execution");
+          require(val("--resume-from")==previous_session.string(),"recovery did not use previous generated code history");
+          require(!val("--preview-stop").empty(),"automatic stop was not forwarded to translator");
+          require(val("--preview-job-id")==job_id,"child job relabelled preview origin");
+          auto out=fs::path(val("--out"));fs::create_directories(out);
+          put(out/"orchestration.json","{\"schema\":\"recompdev.native.orchestrator.v1\",\"source_sha256\":"+q(digest)+
+              ",\"status\":\"FRAME_BUDGET_REACHED_PARITY_UNVERIFIED\",\"rounds\":[{\"frames\":1200,\"emitted\":1111}]}");
+          return 0;
+      }
+      throw std::runtime_error("unexpected automatic bridge stage");
+  };
+  require(go({"preview","--job",job_id,"--auto-recover","--no-viewer"},source,exe,automatic)==2,
+      "missing guest input replay should fail closed");
+  require(automatic_preflights==0&&automatic_batches==0,"automatic recovery mutated job without replay");
+  require(read(job_dir/"job.json")==previous_job,"rejected automatic preview changed a prior completed job");
+  replay_in_receipt=true;
+  require(go({"preview","--job",job_id,"--auto-recover","--no-viewer"},source,exe,automatic)==0,
+      "valid input-stop evidence did not schedule controller recovery");
+  require(automatic_preflights==1&&automatic_batches==1,"automatic controller handoff was not performed once");
+  require(read(job_dir/"job.json")==previous_job,"automatic recovery changed the original completed job");
+  auto child_id=read(home/"last-job.txt");
+  while(!child_id.empty()&&(child_id.back()=='\n'||child_id.back()=='\r'))child_id.pop_back();
+  require(child_id!=job_id,"automatic recovery did not create a new independently pinned child job");
+  const auto child_dir=tmp/"workspace"/"v0.4.9.26"/"jobs"/child_id;
+  const auto recovered=read(child_dir/"job.json");
+  require(recovered.find("\"cycle\":1")!=std::string::npos,"child job did not run a new bounded recovery cycle");
+  require(recovered.find("TARGET_REACHED_PARITY_UNVERIFIED")!=std::string::npos,"recovery result was overstated");
+  require(read(previous_session/"orchestration.json").find("FRAME_BUDGET_REACHED_PARITY_UNVERIFIED")!=std::string::npos,
+      "existing recovery session changed");
+  require(go({"preview","--job",job_id,"--auto-recover","--input","neutral"},source,exe,unexpected)==2,
+      "automatic recovery accepted a neutral-input preview");
+  require(go({"preview","--job",job_id,"--auto-recover","--hold-window"},source,exe,unexpected)==2,
+      "automatic recovery accepted a held frozen window");
   fs::remove_all(tmp);
   std::cout<<"PASS: compiled controller job scheduling, logging, immutable sessions and identity gates\n";
   return 0;

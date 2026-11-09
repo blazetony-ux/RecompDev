@@ -149,6 +149,14 @@ class SmsNativeMachine final: public recomp::hw::NativeCpu,
  }
  recomp::hw::u64 cycles()const override{return state_.tstates;}
  const std::string& blocker()const override{return blocker_;}
+ // Only the exact untranslated-code stop is resumable at its original PC.
+ // Other failures (source mismatch, hardware, interrupts) are terminal.
+ bool resume_after_native_activation(){
+  if(blocker_!="UNTRANSLATED_INITIAL_CODE"&&blocker_!="BANKED_CODE_NOT_TRANSLATED")return false;
+  if(state_.stopped!="UNTRANSLATED_PHYSICAL_ROM_OFFSET")return false;
+  state_.stopped.clear();blocker_.clear();return true;
+ }
+
  // Host-presentation-independent FNV fingerprint of bounded guest state.
  // Diagnostic comparison only; not an independent reference oracle.
  recomp::hw::u64 guest_fingerprint()const{

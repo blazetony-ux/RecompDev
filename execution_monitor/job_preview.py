@@ -335,12 +335,52 @@ def candidate_capture(native, source_sha):
             'gameplay_parity_qualified':False}
 
 
-def diagnostic_zip(out,diagnostics,summary,events,recovery_seed=None,capture=None):
+def exact_input_replay(events, native):
+    """Represent a real preview's button changes in guest CPU cycle units.
+
+    This is deterministic *input* evidence, not a full machine checkpoint.
+    A truncated/unordered stream must never be promoted for automatic replay.
+    """
+    if not isinstance(native, dict) or type(native.get('guest_cycles')) is not int:
+        return None
+    stop_cycle = native['guest_cycles']
+    if not 0 < stop_cycle <= 1000000000:
+        return None
+    rows = [(0, 0, 0)]
+    last_cycle = -1
+    last_buttons = 0
+    active = False
+    for event in events:
+        if event.get('type') != 'input':
+            continue
+        cycle, buttons = event.get('guest_cycles'), event.get('buttons')
+        if (type(cycle) is not int or type(buttons) is not int or
+            cycle < last_cycle or cycle > stop_cycle or
+            buttons < 0 or buttons > 0xffffffffffffffff):
+            return None
+        last_cycle = cycle
+        if buttons == last_buttons:
+            continue
+        if len(rows) >= 10000:
+            return None
+        rows.append((cycle, 0, buttons))
+        last_buttons = buttons
+        active |= buttons != 0
+    if not active:
+        return None
+    data = ('RECOMP_INPUT_CYCLES_V1\n' +
+            ''.join(f'{cycle},{port},{buttons}\n' for cycle, port, buttons in rows)).encode('ascii')
+    return data if len(data) <= 1048576 else None
+
+
+def diagnostic_zip(out,diagnostics,summary,events,recovery_seed=None,capture=None,replay=None):
     diagnostics=Path(diagnostics);diagnostics.mkdir(parents=True,exist_ok=True)
     payload={'preview.json':(json.dumps(summary,indent=2,sort_keys=True)+'\n').encode('utf8'),
              'monitor-events.jsonl':(''.join(json.dumps(safe_excerpt(e),sort_keys=True)+'\n' for e in list(events)[-MAX_EVENTS_ZIP:])).encode('utf8')}
     if recovery_seed is not None:
         payload['recovery-seed.json']=(json.dumps(recovery_seed,indent=2,sort_keys=True)+'\n').encode('utf8')
+    if replay is not None:
+        payload['guest-input-cycles.csv'] = replay
     if capture is not None:
         payload['candidate-capture.json']=(json.dumps(capture,indent=2,sort_keys=True)+'\n').encode('utf8')
     manifest={'schema':'recompdev.preview.diagnostics.v1',
@@ -474,18 +514,22 @@ def preview(opts):
     capture=candidate_capture(native,job['rom_sha256'])
     state['candidate_capture_available']=capture is not None
     state['recovery_seed_available']=eligible is not None
+    capture_truncated=any(e.get('capture_truncated') is True for e in events)
+    replay=exact_input_replay(events,native) if eligible is not None and opts.input=='live' and not capture_truncated else None
+    state['input_replay_available']=replay is not None
+    if replay is not None:state['input_replay_sha256']=hashlib.sha256(replay).hexdigest()
     state['observed_events']=n
     summaries=[e for e in events if e.get('type')=='watch_summary' and type(e.get('hits_total')) is int]
     state['monitor_watch_hits']=max((e['hits_total'] for e in summaries),default=sum(1 for event in events if event.get('type')=='instruction' and event.get('watch_hit') is True))
     state['monitor_watch_hits_coalesced']=max((e.get('coalesced_hits',0) for e in summaries),default=0)
-    state['monitor_capture_truncated']=any(e.get('capture_truncated') is True for e in events)
+    state['monitor_capture_truncated']=capture_truncated
     state['monitor_capture_mode']='SAMPLED_INSTRUCTIONS_WITH_AGGREGATED_WATCH_HITS_NOT_FULL_INSTRUCTION_TRACE'
     state['display_intentionally_suppressed_instruction_samples']=display.suppressed_instructions if 'display' in locals() else 0
     state['display_forwarded_events']=display.forwarded_events if 'display' in locals() else 0
     state['viewer']=viewer_state
     if error:state['failure_code']=error
     (out/'preview-summary.json').write_text(json.dumps(state,indent=2,sort_keys=True)+'\n',encoding='utf8')
-    diagnostics=diagnostic_zip(out,opts.diagnostics_dir,state,events,eligible,capture)
+    diagnostics=diagnostic_zip(out,opts.diagnostics_dir,state,events,eligible,capture,replay)
     print('RECOMPDEV_PREVIEW_RESULT='+state['status'])
     print('RECOMPDEV_PREVIEW_NATIVE_STATUS='+stop['status'])
     print('RECOMPDEV_PREVIEW_LAST_INPUT='+json.dumps(stop['preceding_input'],sort_keys=True))
@@ -495,6 +539,19 @@ def preview(opts):
     print('RECOMPDEV_PREVIEW_EVIDENCE='+str(out))
     print('RECOMPDEV_DIAGNOSTICS_ZIP='+str(diagnostics))
     print('RECOMPDEV_DIAGNOSTICS_SHA256='+digest(diagnostics))
+    if getattr(opts, 'result_json', ''):
+        receipt=Path(opts.result_json).absolute()
+        if receipt.parent != out_root or receipt.exists() or receipt.is_symlink():
+            raise ValueError('PREVIEW_RECEIPT_PATH_UNSAFE')
+        body={'schema':'recompdev.preview.result.v1','job_id':job_dir.name,
+              'source_sha256':job['rom_sha256'],'status':state['status'],
+              'diagnostics_zip':str(diagnostics.resolve()),
+              'diagnostics_sha256':digest(diagnostics),
+              'input_replay_available':replay is not None,
+              'requested_input':opts.input}
+        with receipt.open('x',encoding='utf8',newline='\n') as f:
+            json.dump(body,f,sort_keys=True)
+            f.write('\n')
     return 0 if state['status'] in ('PREVIEW_CAPTURE_COMPLETE','GUEST_BLOCKED_UNTRANSLATED') else 2
 
 
@@ -519,6 +576,7 @@ def main(argv=None):
     p.add_argument('--stage',choices=['job-preview'],required=True)
     p.add_argument('--job-dir',required=True);p.add_argument('--source-root',required=True)
     p.add_argument('--out-dir',required=True);p.add_argument('--diagnostics-dir',required=True)
+    p.add_argument('--result-json',default='',help='Controller-owned immutable receipt path for opt-in recovery')
     p.add_argument('--cycle',type=int,default=0);p.add_argument('--frames',type=int,default=1200)
     p.add_argument('--steps',type=int,default=12000000);p.add_argument('--sample-every',type=int,default=128)
     p.add_argument('--video',choices=['window','capture'],default='window')

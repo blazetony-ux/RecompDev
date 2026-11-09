@@ -127,17 +127,32 @@ static fs::path project_root(fs::path exe){
         if(at==at.parent_path()) break;
         at=at.parent_path();
     }
+    // Isolated release transactions are paired with an immutable source stage.
+    // Resolve the exact transaction identity; never search unrelated checkouts.
+    at=exe.parent_path();
+    for(int depth=0;depth<10;++depth){
+        const auto parent=at.parent_path();
+        if(parent.filename()=="release-transactions"){
+            const auto staged=parent.parent_path().parent_path()/fs::path("RecompDev-ReleaseStage-"+at.filename().string());
+            if(is_source_root(staged))return staged;
+            break;
+        }
+        if(parent==at)break;
+        at=parent;
+    }
     throw std::runtime_error("RecompDev source checkout not found; runtime needs source-root.txt");
 }
 static void usage(){
-    std::cout<<"RecompDev v0.4.9.25 native controller (compiled job lifecycle + plugin discovery)\n"
+    std::cout<<"RecompDev v0.4.9.27 native controller (compiled job lifecycle + plugin discovery)\n"
       "Usage: RecompDev.exe --rom FILE --stage discover|prepare|recover [options]\n"
       "  --steps N --frames N --max-recoveries N --timeout N --capture-hardware\n"
       "  --auto-continue --max-rounds N (continue source-verified recovery in bounded batches)\n"
       "  --catalogue FILE --out DIR --ghidra FILE --export FILE --budget N\n"
       "  --analyze-evidence DIR [--out DIR] [--reference-image PNG] [--reference-session JSON]\n"
       "  --plugins | --verify | --status | --help\n"
-      "  run --rom FILE [--logging debug|info|warning|error] [--max-cycles N] [--no-auto-history]\n"
+      "  play ROM [--frames 2400] [--max-recoveries 128] (one native live session, Windows monitor + display)\n"
+      "  run ROM --auto-native [--target-frames 2400] (alias for play)\n"
+      "  run --rom FILE [--logging debug|info|warning|error] [--max-cycles N] [--no-auto-history] (legacy bounded)\n"
       "  cache --rom FILE (portable artifact-store lookup, then legacy-history lookup)\n"
       "  configure --ghidra PATH --rizin PATH [--evidence-root DIR] [--workspace LEGACY_DIR] [--allow-tool-root DIR]\n"
       "  resume [--job ID] [--max-cycles 1..128] [--preview-stop ZIP]; status [--job ID]; inspect [--job ID]\n"
@@ -145,6 +160,7 @@ static void usage(){
       "  preview [--job ID] [--cycle N] [--frames N] [--steps N] [--monitor-every N]\n"
       "    [--monitor-pc 0xADDR] [--monitor-pc-range 0xSTART:0xEND] [--monitor-matched-only]\n"
       "    [--video window|capture] [--input live|neutral] [--no-viewer] [--hold-window]\n"
+      "    [--auto-recover] (opt-in: source-attested input replay and bounded native recovery)\n"
       "  plugin build|test|activate|rollback|bump|status|release [args]\n"
       "Native --stage native-execute requires --rom FILE --game rd_NAME --out PREFIX; source identity is verified.\n"
       "Native --stage native-orchestrate: --rom ROM --out DIR --plugin-dir DLLS [--ghidra HEADLESS --rizin EXE --allow-tool-root DIR | --export JSON] [--history-root DIR] [--max-rounds N] [--target-frames N].\n"
@@ -173,14 +189,14 @@ int main(int argc,char** argv)
 #endif
           )){usage();return 0;}
 #ifdef _WIN32
-        if(equals(argv[1],L"--version")){std::cout<<"RecompDev 0.4.9.25\n";return 0;}
+        if(equals(argv[1],L"--version")){std::cout<<"RecompDev 0.4.9.27\n";return 0;}
         if(equals(argv[1],L"plugin"))op="plugin-manager";
         if(equals(argv[1],L"--plugins"))op="plugins";
         if(equals(argv[1],L"--verify"))op="verify";
         if(equals(argv[1],L"--status"))op="status";
         if(equals(argv[1],L"--analyze-evidence"))op="review-evidence";
 #else
-        if(equals(argv[1],"--version")){std::cout<<"RecompDev 0.4.9.25\n";return 0;}
+        if(equals(argv[1],"--version")){std::cout<<"RecompDev 0.4.9.27\n";return 0;}
         if(equals(argv[1],"plugin"))op="plugin-manager";
         if(equals(argv[1],"--plugins"))op="plugins";
         if(equals(argv[1],"--verify"))op="verify";
@@ -213,6 +229,29 @@ int main(int argc,char** argv)
            return native_execute?rd_native_execute(args,self_path()):native_translate?rd_native_translate(args,self_path()):rd_native_discover(args,self_path());
         }
         fs::path root=project_root(self_path());
+        // The owner-facing one-command route is independent of the old
+        // headless run/resume workflow. No controller-specific ROM logic.
+#ifdef _WIN32
+        const bool live_play=equals(argv[1],L"play") || (equals(argv[1],L"run") &&
+          [&](){for(int i=2;i<argc;++i)if(equals(argv[i],L"--auto-native"))return true;return false;}());
+        if(live_play){
+            std::vector<std::wstring> forwarded={(root/L"analysis_integration"/L"live_session.py").wstring()};
+            for(int i=1;i<argc;++i)forwarded.emplace_back(argv[i]);
+            forwarded.emplace_back(L"--controller-exe");forwarded.emplace_back(self_path().wstring());
+            forwarded.emplace_back(L"--source-root");forwarded.emplace_back(root.wstring());
+            return spawn(root,forwarded);
+        }
+#else
+        const bool live_play=equals(argv[1],"play") || (equals(argv[1],"run") &&
+          [&](){for(int i=2;i<argc;++i)if(equals(argv[i],"--auto-native"))return true;return false;}());
+        if(live_play){
+            std::vector<std::string> forwarded={(root/"analysis_integration"/"live_session.py").string()};
+            for(int i=1;i<argc;++i)forwarded.emplace_back(argv[i]);
+            forwarded.emplace_back("--controller-exe");forwarded.emplace_back(self_path().string());
+            forwarded.emplace_back("--source-root");forwarded.emplace_back(root.string());
+            return spawn(root,forwarded);
+        }
+#endif
 #ifdef _WIN32
         const bool native_job=equals(argv[1],L"run")||equals(argv[1],L"resume")||equals(argv[1],L"status")||equals(argv[1],L"inspect")||equals(argv[1],L"configure")||equals(argv[1],L"diagnostics")||equals(argv[1],L"preview")||equals(argv[1],L"cache");
 #else

@@ -1,3 +1,10 @@
+## [0.4.4] - 2026-11-08
+
+- **Changed:** Preserve bounded exact guest-cycle input transitions as source-hashed `guest-input-cycles.csv` in the immutable preview diagnostics ZIP and offer a receipt with source ID, job ID, result, ZIP path/hash and replay availability to the compiled controller. Capture loss or invalid event order suppresses automatic recovery eligibility.
+- **Validation:** Python replay and archive tests verify event deduplication, replay schema, SHA and negative malformed input; independent Windows interactive two-window test remains blocked.
+- **Compatibility:** Default live preview and read-only monitor retain prior semantics; no guest-state mutation, monitor-to-CPU direct link or claim that a key press causally induced the stop.
+- **Windows CTest candidate correction (2026-11-08):** `v04919_controller_preview_native` failed two legacy preview fixtures because new receipt code directly read a missing `Options.result_json` attribute. The receipt is now optional for pre-existing callers (`getattr` default empty); requested receipts still use the existing path and immutability checks. The original owner Windows run passed 81/82 CTests, and the corrected candidate requires a new Windows full-suite validation before promotion.
+
 # execution_monitor component history
 
 ## [0.4.3] - 2026-11-08

@@ -1,3 +1,14 @@
+## [0.4.22 incremental translation orchestration] — 2026-11-08 (source-only)
+
+- The generic controller forwards an exact source-/bank-/instruction-verified coverage-exclusion manifest to the native translation plugin; it does not duplicate Z80 instruction semantics. Cumulative consolidation and per-ROM source Git history remain controller-owned orchestration layers, separate from individual CPU and system plugins.
+- Legacy commands and plugin ABI remain compatible; Windows MSVC 87-test regression and 2,400-frame real-ROM playability are still pending. `workspace/v0.4.9.27` is not tagged or installed.
+
+## [0.4.22] - 2026-11-08
+
+- **Changed:** Compiled `RecompDev.exe` introduces opt-in `preview --auto-recover` for an authenticated untranslated-code stop. Requires a complete source-identified guest-cycle input trace, preflights the existing evidence verifier, forks a new bounded recovery job from the prior immutable session (including previously frame-budget-complete jobs) and schedules the existing native analysis/translation/compiler provider without any title-specific address or ROM patch. Evidence is release-scoped under `v0.4.9.26`.
+- **Validation:** Linux C++ controller lifecycle test exercises completed-job recovery, unchanged old bytes, new child attempt, replay requirement, and source identity; Windows real Shinobi, cross-game, full CTest and historical 642-file gate are still pending.
+- **Compatibility:** Original CPU/machine plugin C ABI is unchanged. Existing `preview` remains read-only by default. No DLL hot-swap or in-process state restore is implemented; replayed native app compilation still uses the transitional SMS provider and cannot prove gameplay parity.
+
 ## [0.4.21] - 2026-11-08
 
 - **Changed:** CPU-neutral native controller now consults independently portable content-addressed artifact capsules first, automatically promotes eligible legacy source-attested Ghidra/recovery inputs upon a new run, and publishes eligible fresh sessions. Existing registry fallback remains for incomplete legacy inputs, but verified capsules do not depend on old evidence roots.
@@ -5,6 +16,12 @@
 - **Compatibility:** No game-specific logic or CPU instruction semantics added to the controller. Current backend still recompiles native game binaries and uses temporary Ghidra/Rizin provider adapter; do not claim in-process hotload, exact-state continuation, or portable binary execution until independently proven.
 
 # controller — independent changelog
+
+## [v0.4.9.27 bounded live recovery evidence] — 2026-11-09 (source-only)
+
+- Native discovery and translation accept verified, bounded `--runtime-gap-index` and `--bank-export-index` files rather than hundreds of command-line flags, while continuing to check every guest mapper/physical PC and source instruction through the existing CPU/machine/translator plugins. Invalid, duplicate, unsafe and excessive paths are rejected.
+- Controller-side orchestration stops imposing an undisclosed 64-frontier lifetime limit; the guest and controller share an explicit 512-recovery per-session ceiling. No game-specific address, CPU decoding, or hardware assumptions have been added to the universal controller.
+- Automated native 72-source-frontier acceptance and historical source-upgrade regressions pass on Linux. New Windows MSVC 89-CTest and actual 2,400-frame Fantasy Zone gates are still pending.
 
 ## [0.4.20] - 2026-11-08
 

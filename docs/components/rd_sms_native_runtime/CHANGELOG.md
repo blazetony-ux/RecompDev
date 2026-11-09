@@ -1,4 +1,13 @@
-# rd_sms_native_runtime — independent component history
+## [0.1.2 consolidated-preload and activation acknowledgement] — 2026-11-08 (source-only)
+
+- Generated native game can preload a compatible source-verified consolidated DLL before its first game frame. A source-bound immutable activation receipt is written only after an independently loaded native recovery module activates in the same guest; the controller may then persist the DLL immediately. Preserve host key presses through compile pauses.
+- Synthetic two-recovery and three-session reuse tests pass on Linux; real-ROM 2,400-frame graphics/input/window acceptance is still outstanding.
+
+## [0.1.2] - 2026-11-08
+
+- **Changed:** - Generated SMS guest can clear only an authenticated untranslated-code stop after a separate compatible module is activated. No reset, replay, or mutation of guest RAM/mapper/CPU state; host remains the same. Generated NativeApp bootstraps its shared module by ROM SHA and local module digest. Maintained runtime C ABI version and frozen source remain unchanged.
+- **Validation:** Native and generated Z80/SMS synthetic tests run on Linux; Win32 genuine ROM recovery, display continuity and compiled controller orchestration remain unverified.
+- **Compatibility:** Versioned module ABI and legacy static runtime path are retained; prior CPU semantics and historical source unchanged. Same-compiler SMS State C++ ABI only; live automatic compilation remains BLOCKED.
 
 ## [0.1.1] - 2026-11-07
 

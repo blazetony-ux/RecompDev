@@ -606,6 +606,9 @@ extern "C" RD_EXPORT int rd_z80_emit_native_full_v1(const uint8_t *bytes,uint32_
   else if(op==0xf3)cpp="s.on_di();";
   else if(op==0xfb)cpp="s.on_ei();";
   else if(op==0x76)cpp="s.halted=true;";
+  // The Z80 CPU owns the *semantic* of this indirect branch; its target is
+  // read from the live register at execution time, not guessed by discovery.
+  else if(op==0xe9)cpp="next=std::uint16_t(s.get_register(6u,2u));";
   else if(op==0x77)cpp="s.write_byte(std::uint16_t(s.get_register(6u,2u)),static_cast<std::uint8_t>(s.get_register(1u,1u)));";
   else if((op&0xc7)==0x04||(op&0xc7)==0x05){
    const unsigned reg=(op>>3)&7;

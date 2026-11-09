@@ -6,6 +6,12 @@
 #include "hardware/wav.hpp"
 #include "hardware/image_io.hpp"
 #include "rd_runtime_host.h"
+#if defined(RD_SMS_HOT_TRANSLATION)
+#include "rd_sms_dynamic_adapter.hpp"
+#include "rd_live_recovery.hpp"
+#endif
+#include <filesystem>
+#include "rd_sha256.hpp"
 #include <algorithm>
 #include <chrono>
 #include <fstream>
@@ -60,9 +66,10 @@ static hw::u64 parse(const char* arg,hw::u64 max){
  const auto n=std::stoull(text);if(!n||n>max)throw std::invalid_argument("LIMIT_OUT_OF_RANGE");return n;
 }
 struct Options {
- std::string video="capture",audio="capture",input="neutral",input_events;
+ std::string video="capture",audio="capture",input="neutral",input_events,live_control,preload_module;
  bool input_explicit=false,mode_headless=false,diagnose_events=false,hold_window=false;
  std::size_t snapshot_every=0;
+ unsigned live_max_recoveries=128,live_wait_seconds=900;
  std::vector<std::uint16_t> ram_watches;
 };
 static Options options(int argc,char**argv){
@@ -77,6 +84,18 @@ static Options options(int argc,char**argv){
    const auto value=std::stoull(raw);
    if(value<1||value>600)throw std::invalid_argument("SNAPSHOT_INTERVAL_INVALID");
    out.snapshot_every=std::size_t(value);
+  }else if(a=="--live-control"){
+   if(++i>=argc)throw std::invalid_argument("LIVE_CONTROL_PATH_MISSING");
+   out.live_control=argv[i];
+  }else if(a=="--preload-module"){
+   if(++i>=argc)throw std::invalid_argument("PRELOAD_MODULE_PATH_MISSING");
+   out.preload_module=argv[i];
+  }else if(a=="--live-max-recoveries"){
+   if(++i>=argc)throw std::invalid_argument("LIVE_RECOVERY_LIMIT_MISSING");
+   out.live_max_recoveries=unsigned(parse(argv[i],512));
+  }else if(a=="--live-wait-seconds"){
+   if(++i>=argc)throw std::invalid_argument("LIVE_WAIT_LIMIT_MISSING");
+   out.live_wait_seconds=unsigned(parse(argv[i],7200));
   }else if(a=="--diagnose-events"){out.diagnose_events=true;
   }else if(a=="--watch-ram"){
    if(++i>=argc)throw std::invalid_argument("RAM_WATCH_ADDRESS_MISSING");
@@ -109,6 +128,8 @@ static Options options(int argc,char**argv){
   throw std::invalid_argument("RAM_WATCH_REQUIRES_DIAGNOSE_EVENTS");
  if(out.snapshot_every && out.video=="null")throw std::invalid_argument("SNAPSHOT_REQUIRES_VISIBLE_FRAMES");
  if(out.hold_window && out.video!="window")throw std::invalid_argument("HOLD_WINDOW_REQUIRES_WINDOW_BACKEND");
+ if(!out.live_control.empty() && out.mode_headless)
+  throw std::invalid_argument("LIVE_RECOVERY_CANNOT_BE_HEADLESS");
  if(out.mode_headless){
   if(!video_explicit)out.video="null";
   if(!audio_explicit)out.audio="null";
@@ -126,10 +147,16 @@ static Options options(int argc,char**argv){
  if(input==hw::InputBackend::Replay&&out.input_events.empty())throw std::invalid_argument("INPUT_REPLAY_FILE_REQUIRED");
  if(input!=hw::InputBackend::Replay&&!out.input_events.empty())throw std::invalid_argument("INPUT_REPLAY_BACKEND_REQUIRED");
  if(input==hw::InputBackend::Live&&video!=hw::VideoBackend::Window)throw std::invalid_argument("LIVE_INPUT_REQUIRES_WINDOW");
+ if(!out.live_control.empty() && !((input==hw::InputBackend::Live&&video==hw::VideoBackend::Window)||
+                               (input==hw::InputBackend::Neutral&&video==hw::VideoBackend::Capture)))
+  throw std::invalid_argument("LIVE_RECOVERY_REQUIRES_LIVE_INPUT_WINDOW_NO_HOLD");
+#if !defined(RD_SMS_HOT_TRANSLATION)
+ if(!out.live_control.empty())throw std::invalid_argument("LIVE_RECOVERY_REQUIRES_DYNAMIC_TRANSLATION");
+#endif
  return out;
 }
 int main(int argc,char**argv){
- if(argc<5){std::cerr<<"Usage: RecompDevNativeApp <local-rom> <output-prefix> <frames> <steps> [legacy replay.csv or -] [--window] [--mode HEADLESS_AUTONOMOUS] [--video null|capture|window] [--audio null|capture|speaker] [--input neutral|replay|live] [--input-events file] [--hold-window] [--diagnose-events] [--watch-ram 0xC001]\n";return 2;}
+ if(argc<5){std::cerr<<"Usage: RecompDevNativeApp <local-rom> <output-prefix> <frames> <steps> [legacy replay.csv or -] [--window] [--mode HEADLESS_AUTONOMOUS] [--video null|capture|window] [--audio null|capture|speaker] [--input neutral|replay|live] [--input-events file] [--hold-window] [--live-control DIR] [--live-max-recoveries N] [--diagnose-events] [--watch-ram 0xC001]\n";return 2;}
  try{
   const Options config=options(argc,argv);
   std::ifstream f(argv[1],std::ios::binary|std::ios::ate);
@@ -137,6 +164,24 @@ int main(int argc,char**argv){
   f.seekg(0);std::vector<std::uint8_t> rom(std::istreambuf_iterator<char>{f},{});
   if(rd_sms_native_runtime_abi()!=0x00010000u || rd_sms_mode4_abi()!=RD_SMS_MODE4_ABI)
    throw std::runtime_error("NATIVE_MACHINE_VIDEO_ABI_MISMATCH");
+#if defined(RD_SMS_HOT_TRANSLATION)
+  // Load a source-bound native *shared module* into this persistent app.
+  // No CPU or ROM translation happens inside the presentation host.
+  const auto module=std::filesystem::absolute(std::filesystem::path(argv[0])).parent_path()/
+#if defined(_WIN32)
+   "rd_generated_translation_hot.dll";
+#else
+   "rd_generated_translation_hot.so";
+#endif
+  recomp::sms::dynamic::activate(module,rdhash::sha256(rom.data(),rom.size()),rom.size());
+  if(!config.preload_module.empty()){
+   if(config.live_control.empty())throw std::runtime_error("PRELOAD_REQUIRES_LIVE_CONTROLLER");
+   const auto preloaded=std::filesystem::canonical(std::filesystem::u8path(config.preload_module));
+   if(preloaded.parent_path()!=std::filesystem::canonical(std::filesystem::u8path(config.live_control)/"modules"/"preload"))
+    throw std::runtime_error("PRELOAD_MODULE_OUTSIDE_SESSION");
+   recomp::sms::dynamic::activate(preloaded,rdhash::sha256(rom.data(),rom.size()),rom.size());
+  }
+#endif
   recomp::guest::SmsNativeMachine guest;guest.load_rom(rom);
   for(auto a:config.ram_watches)guest.state().add_watch(a);
   if(config.diagnose_events)guest.state().enable_event_stream(std::string(argv[2])+"-events");
@@ -175,12 +220,119 @@ int main(int argc,char**argv){
   hw::ContinuousSession session(guest,runtime);
   hw::RunLimits limits;limits.max_frames=parse(argv[3],36000);
   limits.max_steps=parse(argv[4],20000000);limits.max_guest_cycles=1000000000ull;limits.wall_seconds=60;
-  const auto result=session.run(limits,[&](hw::u64,hw::u64){
-   if(video==hw::VideoBackend::Window){if(!view || rd_host_pump(view.get())<=0)return false;}
-   if(input==hw::InputBackend::Live)runtime.record_input(runtime.cycles(),{0,rd_host_buttons(view.get()),0,0});
-   if(audio==hw::AudioBackend::Speaker)if(speaker)rd_host_pump(speaker.get());
-   return true;
-  });
+  std::ofstream telemetry;
+  std::uint64_t last_reported_frame=0,total_native_steps=0;
+  unsigned hot_activations=0;
+  std::uint64_t pending_resume_buttons=0,pending_resume_until_frame=0;
+  const auto source_sha=rdhash::sha256(rom.data(),rom.size());
+  std::filesystem::path control;
+  if(!config.live_control.empty()){
+   control=std::filesystem::canonical(std::filesystem::u8path(config.live_control));
+   if(!std::filesystem::is_directory(control)||std::filesystem::is_symlink(control)||
+      !std::filesystem::is_directory(control/"modules"))
+    throw std::runtime_error("LIVE_RECOVERY_SESSION_DIRECTORY_INVALID");
+   telemetry.open(control/"telemetry.jsonl",std::ios::binary|std::ios::app);
+   if(!telemetry)throw std::runtime_error("LIVE_MONITOR_EVENT_STREAM_UNAVAILABLE");
+  }
+  auto notice=[&](const std::string& status){
+#if defined(RD_SMS_HOT_TRANSLATION)
+   if(telemetry){telemetry<<"{\"type\":\"session\",\"status\":"<<rdjson::escape(status)<<"}\n";
+    telemetry.flush();}
+#else
+   (void)status; // Historical standalone preview has no recovery transport.
+#endif
+  };
+  auto observe=[&](){
+   if(!telemetry)return;
+   const auto pc=guest.state().pc;
+   const auto physical=pc<0xc000?guest.state().rom_offset(pc):0;
+   telemetry<<"{\"type\":\"instruction\",\"cpu\":\"Z80\",\"pc\":"<<pc
+    <<",\"physical_offset\":"<<physical<<",\"sp\":"<<guest.state().get_register(68,2)
+    <<",\"steps\":"<<guest.state().steps<<",\"guest_cycles\":"<<runtime.cycles()
+    <<",\"opcode_class\":\"SAMPLED_NEXT_PC\"}\n";
+   if(runtime.frames()!=last_reported_frame){
+    last_reported_frame=runtime.frames();
+    telemetry<<"{\"type\":\"frame\",\"frame\":"<<runtime.frames()
+     <<",\"guest_cycles\":"<<runtime.cycles()<<",\"steps\":"<<guest.state().steps<<"}\n";
+   }
+   telemetry.flush();
+  };
+  notice("NATIVE_GAME_STARTED");
+  hw::RunResult result;
+  while(true){
+   hw::RunLimits remaining=limits;
+   if(total_native_steps>=limits.max_steps){result.status="STEP_BUDGET_REACHED";break;}
+   remaining.max_steps-=total_native_steps;
+   result=session.run(remaining,[&](hw::u64,hw::u64){
+    if(video==hw::VideoBackend::Window){if(!view || rd_host_pump(view.get())<=0)return false;}
+    if(input==hw::InputBackend::Live){
+     auto buttons=rd_host_buttons(view.get());
+     if(pending_resume_buttons && runtime.frames()<pending_resume_until_frame)
+      buttons|=pending_resume_buttons;
+     else pending_resume_buttons=0;
+     runtime.record_input(runtime.cycles(),{0,buttons,0,0});
+     // Normal live samples are not replayed after a recovery; only edges
+     // pumped while the guest was paused are latched and replayed.
+     (void)rd_host_take_pressed(view.get());
+    }
+    if(audio==hw::AudioBackend::Speaker)if(speaker)rd_host_pump(speaker.get());
+    observe();return true;
+   });
+   total_native_steps+=result.executed;
+   observe();
+#if defined(RD_SMS_HOT_TRANSLATION)
+   if(control.empty() || (result.status!="UNTRANSLATED_INITIAL_CODE" &&
+       result.status!="BANKED_CODE_NOT_TRANSLATED"))break;
+   if(hot_activations>=config.live_max_recoveries){result.status="LIVE_RECOVERY_LIMIT_REACHED";break;}
+   const auto frozen=guest.guest_fingerprint();
+   const auto pc=guest.state().pc;
+   const auto physical=guest.state().rom_offset(pc);
+   std::ostringstream seed;
+   seed<<"{\"schema\":\"recompdev.native.app.stop.v1\",\"status\":"<<rdjson::escape(result.status)
+       <<",\"source_sha256\":"<<rdjson::escape(source_sha)
+       <<",\"rom_bytes\":"<<rom.size()
+       <<",\"pc\":"<<pc<<",\"physical_offset\":"<<physical
+       <<",\"sp\":"<<guest.state().get_register(68,2)
+       <<",\"native_steps\":"<<guest.state().steps
+       <<",\"guest_frames\":"<<runtime.frames()
+       <<",\"guest_state_fingerprint\":\""<<std::hex<<frozen<<std::dec<<"\""
+       <<",\"mapper\":["<<unsigned(guest.state().mapper[0])<<","<<unsigned(guest.state().mapper[1])
+       <<","<<unsigned(guest.state().mapper[2])<<","<<unsigned(guest.state().mapper[3])<<"]}";
+   notice("RECOVERY_REQUESTED");
+   if(view)rd_host_title(view.get(),"RecompDev - translating missing native code (session paused)");
+   const auto module=recomp::native::live::await_module(control,hot_activations+1,seed.str(),source_sha,[&]{
+    return !view || rd_host_pump(view.get())>0;
+   },config.live_wait_seconds);
+   if(input==hw::InputBackend::Live && view){
+    const auto pressed=rd_host_take_pressed(view.get());
+    if(pressed){pending_resume_buttons|=pressed;
+     pending_resume_until_frame=runtime.frames()+2;}
+   }
+   if(frozen!=guest.guest_fingerprint())throw std::runtime_error("LIVE_RECOVERY_GUEST_STATE_CHANGED_DURING_COMPILE");
+   recomp::sms::dynamic::activate(module,source_sha,rom.size());
+   if(!guest.resume_after_native_activation())throw std::runtime_error("LIVE_RECOVERY_RESUME_REJECTED");
+   if(frozen!=guest.guest_fingerprint())throw std::runtime_error("LIVE_RECOVERY_GUEST_STATE_CHANGED_DURING_ACTIVATION");
+   ++hot_activations;
+   // Durable activation receipt: controller must NOT cache a candidate merely
+   // because it sent READY. ABI, checksum and guest-state checks passed above.
+   std::ostringstream receipt;
+   receipt<<"{\"schema\":\"recompdev.native.live.activation.v1\",\"sequence\":"<<hot_activations
+    <<",\"source_sha256\":"<<rdjson::escape(source_sha)
+    <<",\"request_sha256\":"<<rdjson::escape(recomp::native::sha256_binary(
+       control/("request-"+recomp::native::live::request_id(hot_activations)+".json")))
+    <<",\"module_sha256\":"<<rdjson::escape(recomp::native::sha256_binary(module))
+    <<",\"guest_state_fingerprint\":\""<<std::hex<<frozen<<std::dec<<"\"}";
+   recomp::native::live::atomic_new(control/("activation-"+
+    recomp::native::live::request_id(hot_activations)+".json"),receipt.str());
+   notice("NATIVE_MODULE_ACTIVATED_RESUMING");
+   if(view)rd_host_title(view.get(),"RecompDev - Native game");
+#else
+   break;
+#endif
+  }
+  result.executed=total_native_steps;
+  result.cycles=runtime.cycles();result.frames=runtime.frames();
+  notice(result.status);
   if(config.diagnose_events){guest.state().finish_event_stream();
     if(!guest.state().event_stream_complete)throw std::runtime_error("EVENT_STREAM_INCOMPLETE");}
   // Presentation only: guest execution and reported state have already stopped.
@@ -220,6 +372,7 @@ int main(int argc,char**argv){
    <<",\"maskable_interrupts\":"<<guest.state().maskable_interrupts
    <<",\"nmi_events\":"<<guest.state().nmi_events
    <<",\"bank_switches\":"<<guest.state().bank_switches
+   <<",\"hot_activations\":"<<hot_activations
    <<",\"guest_state_fingerprint\":"<<guest.guest_fingerprint()
    <<",\"guest_vdp_writes\":"<<guest.state().vdp_control_writes+guest.state().vdp_data_writes
    <<",\"guest_psg_writes\":"<<guest.state().psg_writes
