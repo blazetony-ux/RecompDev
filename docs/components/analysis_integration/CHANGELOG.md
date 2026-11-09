@@ -1,3 +1,9 @@
+## [0.3.7] - 2026-11-09
+
+- **Changed:** Hardware-neutral `generated_source_sync.py` imports verified per-ROM generated C++ Git commits into the shared `RecompDev-plugins/main` branch using unsquashed Git subtrees, records original SHA/tree provenance and restores original per-ROM Git histories after an upgrade. Every confirmed new module receives a local Git checkpoint and nonblocking remote backup notification.
+- **Validation:** Disposable real-Git regression tests verify independent game histories, later source updates, unexpected file rejection, offline queue retry and source-history restoration; owner Windows runtime and GitHub workflow still require verification.
+- **Compatibility:** No CPU instruction or machine plugin ABI changes. No ROM bytes or DLLs enter Git; GitHub failures cannot block native guest play. Existing per-game Git commits and old DLL caches are preserved.
+
 ## [v0.4.9.27 persistent native-store path correction] — 2026-11-09 (source-only, Windows acceptance pending)
 
 - Owner MSVC validation `20261109T171415Z-25652` built RecompDev and passed **85/87 CTests**; two new live tests failed at the first activated module's generated-source Git checkpoint due to `WinError 3` in a long `%TEMP%`/`RECOMPDEV_HOME` evidence subtree. This is a persistent source/artifact path problem, **not** a failed native compile.

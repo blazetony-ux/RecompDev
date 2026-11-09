@@ -1,5 +1,13 @@
 # RecompDev workspace changelog
 
+## [workspace/v0.4.9.28] - 2026-11-09 — owner-accepted generated-source remote preservation (SOURCE-ONLY PROMOTION)
+
+- **Changed:** The universal generated-source workflow checkpoints every guest-confirmed new native-code region in its isolated ROM-SHA Git history, then queues best-effort nonblocking publication to a single shared `RecompDev-plugins/main` branch. Unsquashed Git subtrees preserve actual game-specific commit graphs; no per-ROM remote branches or DLL binaries are created. SHA-indexed provenance allows exact per-game Git history recovery after upgrade/reinstall.
+- **Installer:** The hash-verified source installer gains opt-in atomic publication of RecompDev `main` and the new annotated release tag, separate from a best-effort post-install pull and restore of generated sources. Neither remote failure triggers local source rollback or runtime activation. Both repositories remain separate.
+- **Owner acceptance:** Full Windows MSVC Validate transaction `20261109T213421Z-40500` passed **91/91 CTests**, docs/Python governance and **642/642** frozen histories. Owner restored Fantasy Zone and Shinobi (490 generated C++ files) from private GitHub, published both to shared `main`, verified real Shinobi source sync on a new native module at PC `0x2024`, and successfully retried the final pending commit to shared Git HEAD `c4b7ce42d8f8113bf7e1b98c31201696423cddfa`. Owner approved **source-only Git promotion**; the installer must still rerun all gates, commit, tag and verify backups. The 3,600-frame Shinobi session stopped at the guest step budget (exit 2), and runtime audio/independent parity remain unqualified. The existing v27 active runtime is not replaced.
+- **Compatibility:** Same CPU/native block and SMS video plugin ABIs; no new game-specific code, ROM contents, hardcoded account URL, promised audio parity or standalone application output. The generated-source synchroniser requires one-time configuration of the owner's existing private shared Git checkout.
+
+
 ## [workspace/v0.4.9.27] — incremental native-code library and independent generated-source Git (owner-accepted SOURCE-ONLY promotion)
 
 

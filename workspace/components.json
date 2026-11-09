@@ -1,17 +1,17 @@
 {
   "components": {
     "analysis_integration": {
-      "description": "Source- and job-identified preview ZIP verification and exact guest-cycle replay in the existing compatibility analysis/native-app provider. Fail closed on missing or modified input; not a native CPU semantics implementation.",
+      "description": "Hardware-neutral verified generated-native-source Git checkpoints, shared-main subtree publication and exact per-ROM Git-history restore with offline retry; independent of CPU and machine plugins.",
       "kind": "tooling",
       "scope": "production-workflow",
-      "version": "0.3.6"
+      "version": "0.3.7"
     },
     "controller": {
-      "description": "Compiled controller v26 optionally consumes a source-attested live translation-gap receipt and schedules bounded immutable child recovery with attested guest-cycle replay, without game-specific code. Existing analyzer is transitional; compiled DLL hot-loading and actual gameplay continuation are not proven.",
+      "description": "Universal compiled native orchestration entrypoint; v28 version reporting, with replaceable machine/CPU plugins and controller-owned generated-source sync in Python live adapter.",
       "kind": "controller",
       "scope": "production-entrypoint",
       "target": "RecompDev",
-      "version": "0.4.22"
+      "version": "0.4.23"
     },
     "controller_diagnostics": {
       "description": "Authenticated localhost v1 watch_summary whitelist and separate intentional live display instruction sampling vs actual broker/display drops and on-disk capture truncation.",
@@ -220,10 +220,10 @@
       "version": "0.1.1"
     },
     "release_installer": {
-      "description": "Transactional one-ZIP installer with safe main-parent infrastructure Validate checkpoints and separate source-only Git promotion; full Windows tests and runtime immutability mandatory.",
+      "description": "Independent hashed source release validation, rollback, optional atomic main/tag origin publishing and post-install per-ROM generated-source history restoration without runtime bypass.",
       "kind": "tooling",
       "scope": "workspace",
-      "version": "1.2.1"
+      "version": "1.3.0"
     },
     "runtime_host_integration": {
       "description": "Generated native interactive app uses dynamic native code module dispatch and retains older static generated app compatibility via explicit build flag. Same-process host continuation tested headlessly; real Windows live recovery blocked.",
@@ -257,5 +257,5 @@
     }
   },
   "schema": "recompdev-components-v1",
-  "workspace_release": "v0.4.9.27"
+  "workspace_release": "v0.4.9.28"
 }

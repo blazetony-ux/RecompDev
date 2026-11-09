@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""v0.4.9.27 controller-owned, single-process native gameplay recovery.
+"""v0.4.9.28 controller-owned, single-process native gameplay recovery.
 
 The guest owns its state and window. This controller owns source-attested
 translation, compilation, diagnostics, and module approval. A missing-code
@@ -26,6 +26,7 @@ from analysis_integration.tool_authorization import authorize_tool
 from controller.diagnostics import ControllerDiagnostics
 from execution_monitor.job_preview import launch_viewer
 from analysis_integration import native_library as library
+from analysis_integration import generated_source_sync as source_sync
 
 SCHEMA='recompdev.native.live.session.v1'
 RESPONSE_SCHEMA='recompdev.native.live.response.v1'
@@ -295,12 +296,13 @@ def run(opts):
     sha_rom=sha(rom)
     home=original_home()
     config=get_config(source,home,test)
-    evidence_base=evidence_root(source,config)/'v0.4.9.27'
+    evidence_base=evidence_root(source,config)/'v0.4.9.28'
     target=evidence_base/'live'
     # Durable artifacts belong to a compact independent per-user store, not
     # deeply nested evidence paths that exceed Win32 MAX_PATH during Git/copy.
     generated_history,cache_root,consolidated_root=library.storage_roots(home,sha_rom)
     cache_fingerprint=compiled_cache_fingerprint(exe,source)
+    source_publisher=source_sync.AutoPublisher(home)
     cache_root.mkdir(parents=True,exist_ok=True)
     if cache_root.is_symlink():raise RecoveryBlocked('COMPILED_CACHE_ROOT_SYMLINK')
     target.mkdir(parents=True,exist_ok=True)
@@ -309,7 +311,7 @@ def run(opts):
     session.mkdir(mode=0o700,parents=False,exist_ok=False)
     control=session/'control';control.mkdir();(control/'modules').mkdir()
     (session/'compilations').mkdir()
-    report={'schema':SCHEMA,'release':'workspace/v0.4.9.27','rom_sha256':sha_rom,
+    report={'schema':SCHEMA,'release':'workspace/v0.4.9.28','rom_sha256':sha_rom,
             'target_frames':opts.frames,'status':'INITIALIZING','same_guest_process':True,
             'window_qualified':False,'semantic_parity_qualified':False,
             'hot_activations':[],'source_root':str(source),'session':str(session)}
@@ -410,6 +412,8 @@ def run(opts):
                                                                 or generated_file.name=='translation-manifest.json'):
                                     shutil.copyfile(generated_file,archive/generated_file.name)
                         commit=library.git_checkpoint(generated_history,sha_rom,cache_fingerprint)
+                        try:source_publisher.queued(sha_rom,commit)
+                        except (OSError,RuntimeError) as error:report['generated_sync_warning']=str(error)[:300]
                         library.publish_library(consolidated_root,sha_rom,cache_fingerprint,
                             rebuilt_module,recovered,required.entries(),commit)
                         preloaded=library.fetch_library(consolidated_root,sha_rom,cache_fingerprint)
@@ -468,13 +472,18 @@ def run(opts):
                     del pending_cache[seq]
                     snapshot()
                     log_status('VERIFIED_MODULE_PERSISTED',seq)
-                    if activated_count%4==0:
-                        try:
-                            report['generated_source_commit']=library.git_checkpoint(
-                                generated_history,sha_rom,cache_fingerprint)
-                        except (OSError,RuntimeError,subprocess.TimeoutExpired) as error:
-                            report['source_control_warning']=str(error)[:300]
-                        snapshot()
+                    # Every ACKed native region receives a durable Git commit,
+                    # not just one out of four. Remote publication is queued
+                    # independently so GitHub latency cannot pause guest input.
+                    try:
+                        report['generated_source_commit']=library.git_checkpoint(
+                            generated_history,sha_rom,cache_fingerprint)
+                        try:source_publisher.queued(sha_rom,report['generated_source_commit'])
+                        except (OSError,RuntimeError) as error:
+                            report['generated_sync_warning']=str(error)[:300]
+                    except (OSError,RuntimeError,subprocess.TimeoutExpired) as error:
+                        report['source_control_warning']=str(error)[:300]
+                    snapshot()
             def consolidate_verified():
                 # Source control / consolidation are opportunistic and deliberately
                 # separate from guest playability acceptance. Failed optimisation
@@ -483,6 +492,8 @@ def run(opts):
                     try:
                         report['generated_source_commit']=library.git_checkpoint(
                             generated_history,sha_rom,cache_fingerprint)
+                        try:source_publisher.queued(sha_rom,report['generated_source_commit'])
+                        except (OSError,RuntimeError) as error:report['generated_sync_warning']=str(error)[:300]
                     except (OSError,RuntimeError,subprocess.TimeoutExpired) as error:
                         report['source_control_warning']=str(error)[:300]
                     try:
@@ -522,6 +533,8 @@ def run(opts):
                                     shutil.copyfile(file,archived/file.name)
                         # A new commit references precisely these generated sources.
                         report['generated_source_commit']=library.git_checkpoint(generated_history,sha_rom,cache_fingerprint)
+                        try:source_publisher.queued(sha_rom,report['generated_source_commit'])
+                        except (OSError,RuntimeError) as error:report['generated_sync_warning']=str(error)[:300]
                         record=library.publish_library(consolidated_root,sha_rom,cache_fingerprint,
                             merged_module,merged,known.entries(),report['generated_source_commit'])
                         report['consolidated_library']={'module_sha256':record['module_sha256'],
@@ -708,6 +721,7 @@ def run(opts):
                 try:viewer.wait(timeout=1)
                 except subprocess.TimeoutExpired:viewer.terminate()
             if viewer_log:viewer_log.close()
+            source_publisher.finish()  # do not block on GitHub/network failures
             if build_workspace is not None:build_workspace.cleanup()
 
 def main(argv=None):

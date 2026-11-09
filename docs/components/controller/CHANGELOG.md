@@ -1,3 +1,9 @@
+## [0.4.23] - 2026-11-09
+
+- **Changed:** Compiled controller version banner identifies v0.4.9.28, while the hardware-neutral native source preservation functionality remains in the independently maintained analysis integration component. No CPU, game or console instruction semantics are embedded in this version change.
+- **Validation:** Existing compiled controller tests and new source synchronization Git tests are required on owner Windows; Linux synthetic tests cannot qualify production gameplay, audio or hardware fidelity.
+- **Compatibility:** Native module, CPU and machine plugin ABIs remain unchanged. Runtime activation is expressly outside the v28 source-only release scope.
+
 ## [0.4.22 incremental translation orchestration] — 2026-11-08 (source-only)
 
 - The generic controller forwards an exact source-/bank-/instruction-verified coverage-exclusion manifest to the native translation plugin; it does not duplicate Z80 instruction semantics. Cumulative consolidation and per-ROM source Git history remain controller-owned orchestration layers, separate from individual CPU and system plugins.

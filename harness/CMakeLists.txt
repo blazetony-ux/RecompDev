@@ -638,3 +638,16 @@ if(Python3_Interpreter_FOUND)
  set_tests_properties(v04927_interrupted_session_incremental_consolidation PROPERTIES TIMEOUT 220 RUN_SERIAL TRUE
   ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1" WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/..")
 endif()
+
+# v0.4.9.28: verify real Git subtree preservation, remote publication,
+# offline pending retries and exact per-ROM source-history restoration.
+if(Python3_Interpreter_FOUND)
+ add_test(NAME v04928_generated_source_remote_lifecycle COMMAND "${Python3_EXECUTABLE}"
+  -B -m unittest analysis_integration.tests.test_v04928_generated_source_sync)
+ set_tests_properties(v04928_generated_source_remote_lifecycle PROPERTIES
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/.." ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+ add_test(NAME v04928_installer_publish_restore_policy COMMAND "${Python3_EXECUTABLE}"
+  -B -m unittest analysis_integration.tests.test_v04928_installer_contract)
+ set_tests_properties(v04928_installer_publish_restore_policy PROPERTIES
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/.." ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+endif()

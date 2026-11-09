@@ -1,5 +1,12 @@
 # release_installer — component changelog
 
+## [1.3.0] - 2026-11-09
+
+- **Changed:** Following verified local install, automatically restore per-ROM generated source from configured shared `main` checkout. An optional `-PublishOrigin` flag atomically pushes the canonical controller main and new release tag after the verified Git commit, annotated tag and rollback bundle.
+- **Validation:** Local static contract and disposable Git tests exercise ordering and restore, with owner Windows PowerShell Validate/Install and remote publication still required; the protected 642 historical files are not modified.
+- **Compatibility:** Infrastructure-source promotion continues to leave active executable and DLLs unchanged. Remote failure is reported pending and never triggers destructive Git force-push, source rollback or gameplay claims.
+
+
 ## [1.2.1] - 2026-11-07
 
 - **Changed:** Source-only `Validate` checkpoints can use the exact, verified `main` baseline as parent when no `dev/v0.4.9.17` branch was created by an `Install`-only promotion. Reject this parent for gameplay/runtime release tracks or mismatched baseline hashes.

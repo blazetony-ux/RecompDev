@@ -1,3 +1,9 @@
+## Generated-source preservation (v0.4.9.28 candidate)
+
+The CPU-neutral `generated_source_sync.py` manages a private, Git-backed generated-source remote independently of the RecompDev controller repository. Original local `gs/<rom SHA256>` Git commits are immutable provenance; unsquashed subtrees map those histories beneath `generated/roms/<sha>` on one remote `main` branch, and `generated/provenance/<sha>.json` points to the original source commit/tree for exact restoration. The system refuses dirty, divergent, symlinked, unexpected or binary source files. Verified activation receives immediate local Git commits and queues asynchronous remote backup; a failed push leaves a durable pending marker for a later retry, never blocks gameplay.
+
+The owner must configure an existing private shared clone or allow the installer to detect a sibling `RecompDev-plugins`. `setup`, `status`, `publish`, `restore-all` provide diagnostic entrypoints. The installed release restores per-ROM Git history from the remote before relying on the saved generated source to rebuild compatible native DLLs; no binary DLL, ROM or hardcoded game-specific code is published. New hardware/CPU implementations use the same identities and transport.
+
 ## v0.4.9.16 — cumulative recovery history
 
 **Latest v0.4.9.23 contract:** COMPAT-023: the approved exact Windows `ESC[2K\r` Rizin console prefix is a recognized array boundary, without permitting generic CR or unknown ANSI. Audit hashes original bytes and records hypotheses, never verified code.

@@ -1,3 +1,7 @@
+## Post-install generated-source restore and optional origin publication (v28 candidate)
+
+On `-Mode Install`, after successful local Git/tag/bundle verification, the installer configures the sibling shared generated-source checkout if needed, fetches its `origin/main`, and restores the exact independently versioned per-ROM source Git histories. Network and divergence failures are reported pending but cannot roll back a valid local source release. Optional `-PublishOrigin` publishes the controller `main` and only its new annotated tag atomically after the release transaction. These phases never turn a source-only promotion into DLL activation and never push generated game C++ into the controller repository. Windows end-to-end acceptance is pending.
+
 ## v0.4.9.16 — single-ZIP development checkpoint
 
 `release_installer` 1.1.0 supports one SHA-256-pinned release ZIP with a package-internal installer. `Validate` now creates a `dev` checkpoint using an isolated Git index **only after** full tests, preserving the clean main checkout and active binaries. Use the package-pinned installer to enable the new feature while main still contains the v0.4.9.9 root installer. Windows PowerShell gate pending; no auto-push to GitHub. See [release](../../releases/v0.4.9.16.md).

@@ -1,3 +1,11 @@
+## v0.4.9.28 candidate — remote publishing and generated-source restore
+
+After the validated **local** release has produced its Git commit, immutable annotated tag and SHA-verified rollback bundle, the installer may optionally publish the new `RecompDev` `main` and **only its new tag** to `origin` via `-PublishOrigin`. This is atomic, never forced, and explicitly reports pending if remote history diverges or GitHub is unavailable. `-Mode Validate` never pushes either repository.
+
+When `-Mode Install` succeeds, whether it is a source-only infrastructure promotion or a separately qualified runtime promotion, the same installer looks for `%RECOMPDEV_HOME%\generated-source-sync.json` or the sibling `C:\Projects\RecompDev-plugins` shared checkout. It configures the existing clean checkout, fetches its private `origin/main` and restores SHA-identified original per-ROM Git histories from source commit provenance. Dirty or divergent per-ROM histories are never overwritten; GitHub outages report pending without rolling back the release. New verified game-code checkpoints are queued for nonblocking publication on subsequent v28 live sessions. No ROM bytes, executable DLLs, cached binaries or secrets are uploaded.
+
+The private GitHub account and remote URL are deliberately not hardcoded into RecompDev. `analysis_integration/generated_source_sync.py setup --home <HOME> --repository <EXISTING_CLEAN_SHARED_CLONE>` is a one-time configuration, normally performed automatically by installation if the clone is alongside RecompDev. `status`, `publish` and `restore-all` are manual diagnostic/retry options if GitHub is unavailable. Existing per-game branches remain until the owner validates the shared-main history. Windows PowerShell/CTest gates are **BLOCKED pending owner validation** for v28.
+
 # RecompDev — permanent Git-managed release process (protocol v1)
 
 **Effective design:** v0.4.9.8 installable native-discovery release; owner Install-mode result pending. **Validated local owner baseline:** workspace/v0.4.9.6 (`7243e62851684477764117398b48ee335673eac2`). The v0.4.9.7 candidate was **never installed**.

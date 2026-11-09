@@ -143,7 +143,7 @@ static fs::path project_root(fs::path exe){
     throw std::runtime_error("RecompDev source checkout not found; runtime needs source-root.txt");
 }
 static void usage(){
-    std::cout<<"RecompDev v0.4.9.27 native controller (compiled job lifecycle + plugin discovery)\n"
+    std::cout<<"RecompDev v0.4.9.28 native controller (compiled job lifecycle + plugin discovery)\n"
       "Usage: RecompDev.exe --rom FILE --stage discover|prepare|recover [options]\n"
       "  --steps N --frames N --max-recoveries N --timeout N --capture-hardware\n"
       "  --auto-continue --max-rounds N (continue source-verified recovery in bounded batches)\n"

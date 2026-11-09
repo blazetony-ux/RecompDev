@@ -7,6 +7,7 @@ param(
     [Parameter(Mandatory=$true)][string]$Package,
     [Parameter(Mandatory=$true)][ValidatePattern('^[0-9a-fA-F]{64}$')][string]$ExpectedSha256,
     [ValidateSet('Validate','Install')][string]$Mode='Validate',
+    [switch]$PublishOrigin,
     [string]$Source='C:\Projects\RecompDev'
 )
 Set-StrictMode -Version Latest
@@ -260,6 +261,7 @@ New-Item -ItemType Directory -Path $job,$payload,$logDir,$backup -Force | Out-Nu
 Start-Transcript -Path $transcript -ErrorAction Stop | Out-Null
 try {
   Write-Host 'RECOMPDEV_RELEASE_PROTOCOL=v1'
+  Assert (-not $PublishOrigin -or $Mode -eq 'Install') '-PublishOrigin requires -Mode Install'
   Write-Host "RECOMPDEV_RELEASE_MODE=$Mode"
   Assert (Test-Path -LiteralPath $Source -PathType Container) 'RecompDev source checkout not found'
   Assert (Test-Path -LiteralPath $Package -PathType Leaf) 'Release ZIP not found'
@@ -564,8 +566,79 @@ try {
   }
   if(-not $changedSource -and -not $runtimeTouched){Write-Host 'RECOMPDEV_ACTIVE_RUNTIME_UNCHANGED=TRUE'}
   throw
-} finally {
+ } finally {
   Write-Host "RECOMPDEV_RELEASE_EVIDENCE=$job"
   Write-Host "RECOMPDEV_RELEASE_LOG=$transcript"
+  # Installation's remote publication and generated-history restoration run
+  # ONLY after local commit, immutable tag and rollback bundle verification.
+  if(-not ($Mode -eq 'Install' -and $releaseOk)){Stop-Transcript | Out-Null}
+}
+
+if($Mode -eq 'Install' -and $releaseOk){
+  # Source-only and runtime releases must both preserve per-game generated Git
+  # histories. Never allow a GitHub outage to undo a verified local release.
+  Write-Host 'RECOMPDEV_PHASE=GENERATED_SOURCE_RESTORE_AFTER_INSTALL'
+  try {
+    $syncScript=Join-Path $Source 'analysis_integration\generated_source_sync.py'
+    Assert (Test-Path -LiteralPath $syncScript -PathType Leaf) 'Generated source sync helper not installed'
+    $generatedHome=if($env:RECOMPDEV_HOME){$env:RECOMPDEV_HOME}else{Join-Path $env:LOCALAPPDATA 'RecompDev'}
+    $settingsFile=Join-Path $generatedHome 'generated-source-sync.json'
+    $defaultShared=Join-Path $projectParent 'RecompDev-plugins'
+    if(-not (Test-Path -LiteralPath $settingsFile -PathType Leaf)){
+      if(Test-Path -LiteralPath (Join-Path $defaultShared '.git') -PathType Container){
+        & $python $syncScript setup --home $generatedHome --repository $defaultShared
+        Assert ($LASTEXITCODE -eq 0) 'Generated source synchroniser setup failed'
+      }else{
+        Write-Host 'RECOMPDEV_GENERATED_SOURCE_RESTORE=SKIPPED_REPOSITORY_NOT_CONFIGURED'
+      }
+    }
+    if(Test-Path -LiteralPath $settingsFile -PathType Leaf){
+      & $python $syncScript restore-all --home $generatedHome
+      Assert ($LASTEXITCODE -eq 0) 'Generated source restore incomplete'
+      Write-Host 'RECOMPDEV_GENERATED_SOURCE_RESTORE=VERIFIED'
+      # The first v28 installation migrates the two pre-v28 unsquashed ROM
+      # subtrees and publishes SHA-qualified source provenance on the one main
+      # branch. Failure stays pending; the restored local history is safe.
+      & $python $syncScript publish --home $generatedHome
+      if($LASTEXITCODE -ne 0){Write-Host 'RECOMPDEV_GENERATED_SOURCE_PUBLICATION=PENDING_RETRY'}
+      else{Write-Host 'RECOMPDEV_GENERATED_SOURCE_PUBLICATION=VERIFIED'}
+    }
+  }catch{
+    Write-Host 'RECOMPDEV_GENERATED_SOURCE_RESTORE=PENDING_RETRY_LOCAL_RELEASE_UNCHANGED'
+    Write-Host ("RECOMPDEV_GENERATED_SOURCE_RESTORE_REASON="+$_.Exception.Message)
+  }
+
+  # Never force-push or publish any game-derived source to the public
+  # controller repository. This phase publishes only the controller release.
+  if($PublishOrigin){
+    Write-Host 'RECOMPDEV_PHASE=ORIGIN_PUBLISH_AFTER_LOCAL_COMMIT_TAG_BACKUP'
+    try {
+      Assert ($madeCommit -and $madeTag -and $newHead) 'Release commit/tag missing before remote publication'
+      $branch=(& $git -C $Source symbolic-ref --short HEAD | Out-String).Trim()
+      Assert ($LASTEXITCODE -eq 0 -and $branch -eq 'main') 'Remote publishing requires canonical main'
+      $current=(& $git -C $Source rev-parse HEAD | Out-String).Trim().ToLowerInvariant()
+      Assert ($LASTEXITCODE -eq 0 -and $current -eq $newHead.ToLowerInvariant()) 'HEAD changed before publication'
+      $tagCommit=(& $git -C $Source rev-list -n 1 $tag | Out-String).Trim().ToLowerInvariant()
+      Assert ($LASTEXITCODE -eq 0 -and $tagCommit -eq $current) 'Release tag no longer points to HEAD'
+      Assert ((& $git -C $Source status --porcelain --untracked-files=all | Out-String).Trim() -eq '') 'Source checkout dirty'
+      $remoteTag=(& $git -C $Source ls-remote --tags origin ('refs/tags/'+$tag) | Out-String).Trim()
+      Assert ($LASTEXITCODE -eq 0 -and -not $remoteTag) 'Release tag already exists on origin'
+      Run $git @('-C',$Source,'push','--atomic','origin',
+        'HEAD:refs/heads/main',('refs/tags/'+$tag+':refs/tags/'+$tag)) 'Atomic origin push failed'
+      $remoteRefs=@(& $git -C $Source ls-remote origin 'refs/heads/main' ('refs/tags/'+$tag+'^{}'))
+      Assert ($LASTEXITCODE -eq 0) 'Remote verification failed'
+      $mainRef=($remoteRefs | Where-Object { $_ -match '[\s]refs/heads/main$' } | Select-Object -First 1)
+      $peeledRef=($remoteRefs | Where-Object { $_ -match ('[\s]refs/tags/'+[regex]::Escape($tag)+'\^\{\}$') } | Select-Object -First 1)
+      Assert ($mainRef -and $peeledRef) 'Missing origin main or release tag'
+      Assert (($mainRef -split '\s+')[0].ToLowerInvariant() -eq $current) 'Origin main mismatch'
+      Assert (($peeledRef -split '\s+')[0].ToLowerInvariant() -eq $current) 'Origin tag mismatch'
+      Write-Host 'RECOMPDEV_REMOTE_PROMOTION=PUBLISHED'
+      Write-Host "RECOMPDEV_REMOTE_MAIN_COMMIT=$current"
+      Write-Host "RECOMPDEV_REMOTE_TAG=$tag"
+    } catch {
+      Write-Host 'RECOMPDEV_REMOTE_PROMOTION=PENDING_LOCAL_RELEASE_REMAINS_INSTALLED'
+      Write-Host ("RECOMPDEV_REMOTE_FAILURE="+$_.Exception.Message)
+    }
+  }
   Stop-Transcript | Out-Null
 }
