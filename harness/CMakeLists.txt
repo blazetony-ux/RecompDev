@@ -651,3 +651,19 @@ if(Python3_Interpreter_FOUND)
  set_tests_properties(v04928_installer_publish_restore_policy PROPERTIES
   WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/.." ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
 endif()
+
+# v0.4.9.29: real Git retry + staged, hash-verified *non-active* runtime image.
+if(Python3_EXECUTABLE)
+ add_test(NAME v04929_generated_source_retry_lifecycle COMMAND "${Python3_EXECUTABLE}"
+  -B -m unittest analysis_integration.tests.test_v04929_operational_lifecycle)
+ set_tests_properties(v04929_generated_source_retry_lifecycle PROPERTIES
+  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/..")
+ add_test(NAME v04929_runtime_image_staging_contract COMMAND "${Python3_EXECUTABLE}"
+  -B -m unittest analysis_integration.tests.test_v04929_runtime_stage)
+ set_tests_properties(v04929_runtime_image_staging_contract PROPERTIES
+  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/..")
+ add_test(NAME v04929_installer_image_queue_policy COMMAND "${Python3_EXECUTABLE}"
+  -B -m unittest analysis_integration.tests.test_v04929_installer_policy)
+ set_tests_properties(v04929_installer_image_queue_policy PROPERTIES
+  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/..")
+endif()

@@ -1,3 +1,43 @@
+# RecompDev authoritative engineering roadmap
+
+**Planning baseline:** `workspace/v0.4.9.28` (Git commit `724d190eeb0928ebab4e242e9aba4d2cef016505`), promoted 2026-11-09. This is a roadmap, not a claim that future capabilities exist. **Project rule:** controller, artifact store, source history, native backends and exporter must remain hardware-neutral; CPU/ISA, machine, video, audio, input and timing live in interchangeable plugins. SMS/Z80 is a reference implementation, never a special case in controller logic. Frozen `legacy/` (581 files) and `baselines/` (61 files) must remain unchanged.
+
+## Priority order and release targets
+
+| Priority | Version (proposed) | Feature | Concrete acceptance requirement |
+| --- | --- | --- | --- |
+| P0 | **v0.4.9.29** | Operational Git/runtime lifecycle | Queued game source survives GitHub failures and is retried automatically; clean exact commit restoration; reproducible hash-verified staged native runtime; staged image never replaces unqualified active binaries; rollback deployment mechanism remains a release qualification gate |
+| P0 | **v0.4.9.30** | Universal standalone export contract | Versioned CPU-neutral artifact/loader ABI; manifest binds native modules, machine plugins, required authorised data, ABI/toolchain hashes; no SMS assumptions in controller/exporter |
+| P0 | **v0.4.9.31** | First standalone Windows application | Licensed/authorised game or synthetic ROM builds to an EXE that runs without external ROM, RecompDev controller, or installed compiler; prove offline machine on clean Windows environment |
+| P1 | **v0.4.9.32** | Native coverage and codegen performance | Track reached/unreached blocks; source-attested coverage; reduced C++/object relink overhead; no silent interpreter fallback |
+| P1 | **v0.4.9.33+** | Multi-CPU scheduler and new CPU plugin families | Plugin-bound Motorola 68000+Z80 coordinated execution for Mega Drive; later MIPS R3000A for PS1 and machine services through same host and artifact interfaces |
+| P1 | Continuing | Correctness: video/audio/input and hardware parity | Independent source/input-aligned video and audio references, explicitly differentiated from self-determinism; preserve current runnable preview despite unverified parity |
+| P2 | Continuing | Desktop workflow | Unified controller UI for hardware profiles, source history, runtime staging, coverage, native export, Git status and failures |
+
+## v0.4.9.29 — implementation scope and release gates
+
+The detailed [pre-build contract](PREBUILD-v0.4.9.29-OPERATIONAL-LIFECYCLE.md) and [candidate release record](../releases/v0.4.9.29.md) govern this version.
+
+**Implemented in current candidate:** bounded automatic retry of pending generated C++ Git checkpoints while a game remains open; startup resumption even without a new instruction; explicit `retry-pending` and truthful machine-readable queue status; guarded end-of-session pending diagnostics; normal shared-main unsquashed source history and exact reinstallation restore; a native runtime image stager verifying each built executable/DLL against the installer SHA-256 inventory, writing only to an external immutable candidate directory. The installer runs this stage/verify gate as part of Windows validation, then reports any pending upload accurately after install. New automated regressions exercise real offline/online Git recovery, source ancestry, malformed queues, staging tamper and non-overwrite of active runtime.
+
+**Not implemented/approved:** switching the active runtime to the staged image, a rollback-capable active-slot transaction, independent audio/hardware parity, native standalone export or a guarantee of immediate GitHub publication at process exit. These remain explicitly **BLOCKED** release gates. v29 is a **candidate**, not an approved installation; no production binaries or Git tags are changed by constructing this package. Real Windows 94 CTests and a live unattended retry/restart acceptance are required before any promotion.
+
+## Universal export contract: next milestone
+
+The exporter consumes SHA-pinned, platform-independent native module sets and a versioned hardware plugin manifest; the machine adapter supplies authorised program/data memory, interrupts, video, audio, input and timing. It must build an autonomous host executable and support conditional coverage explicitly: fully native or a documented unsupported-code failure, never mislabelled complete recompilation. The first target is Windows x86-64, but neither artifact identity nor high-level interfaces contain Z80/SMS-specific assumptions. Do not package copyrighted ROM bytes unless authorised.
+
+## Acceptance and non-regression rules
+
+1. Full Windows native toolchain + required CTests, 642 immutable historical SHA-256 checks, documentation and Python tests. A full Linux suite cannot replace Windows acceptance.
+2. Git source `main` and immutable annotated tag plus independently verified rollback bundle; optional atomic `-PublishOrigin`, with no force push or game code in the public controller repository.
+3. Generated source retains original per-ROM commit ancestry, exactly restores existing histories, never overwrites newer local commits, and records network failure as pending until verified remote publication.
+4. Native modules and artifacts are SHA- and ABI-qualified, with incompatible DLLs rebuilt from C++ rather than trusted silently. Runtime activation requires explicit independent qualification, backout and runtime lockfile integrity.
+5. Real interactive play on more than one game is a separate gate from deterministic replay; scrolling, audio and hardware parity are explicitly verified or reported unverified.
+
+---
+
+## Historical planning notes (superseded by the priority table above)
+
 ## v0.4.9.25 — hardware-neutral portable artifacts
 
 This source-only infrastructure release provides a generic independently compiled artifact API, content SHA-256 storage, immutable source-attested portable capsules and automatic legacy migration. It does not grant semantic authority to artifacts and does not load old native binaries. **Next:** finish compiler/host/ABI-keyed native machine-code retention, active plugin dispatch through the artifact API, full guest-state checkpoints or live native code hot-load, cross-platform/Mega Drive/PS1 execution and independent gameplay parity.

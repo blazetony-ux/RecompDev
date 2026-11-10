@@ -411,6 +411,15 @@ try {
     [IO.File]::WriteAllText($auxiliaryFile,($auxiliary|ConvertTo-Json -Depth 5),[Text.UTF8Encoding]::new($false))
     Write-Host "RECOMPDEV_AUXILIARY_BINARY_HASHES=$auxiliaryFile"
   }
+  # v29 preflight: stage a complete immutable SHA-256-verifiable candidate
+  # runtime image outside RecompDev-Runtime. Not an approval to activate it.
+  $stageHelper=Join-Path $staged 'analysis_integration\runtime_stage.py'
+  Assert (Test-Path -LiteralPath $stageHelper -PathType Leaf) 'Runtime stage helper missing'
+  $stageImage=Join-Path $job 'native-runtime-staged-image'
+  Run $python @('-B',$stageHelper,'stage','--inventory',$inventoryFile,'--destination',$stageImage,'--release',$release) 'Runtime staging failed'
+  Run $python @('-B',$stageHelper,'verify','--destination',$stageImage,'--inventory',$inventoryFile) 'Runtime stage hash verification failed'
+  Write-Host "RECOMPDEV_RUNTIME_IMAGE=$stageImage"
+  Write-Host 'RECOMPDEV_RUNTIME_IMAGE_STATUS=VERIFIED_NOT_ACTIVATED'
   Write-Host 'RECOMPDEV_TESTS=PASS'
   if($Mode -eq 'Validate'){
     Write-Host 'RECOMPDEV_PHASE=DEV_CHECKPOINT'
@@ -600,7 +609,19 @@ if($Mode -eq 'Install' -and $releaseOk){
       # subtrees and publishes SHA-qualified source provenance on the one main
       # branch. Failure stays pending; the restored local history is safe.
       & $python $syncScript publish --home $generatedHome
-      if($LASTEXITCODE -ne 0){Write-Host 'RECOMPDEV_GENERATED_SOURCE_PUBLICATION=PENDING_RETRY'}
+      $publishExit=$LASTEXITCODE
+      $statusLines=@(& $python $syncScript status --home $generatedHome)
+      $statusExit=$LASTEXITCODE
+      $pendingCount=-1
+      if($statusExit -eq 0){
+        $line=@($statusLines | Where-Object {$_ -like 'RECOMPDEV_GENERATED_SOURCE_SYNC=*'} | Select-Object -Last 1)
+        if($line.Count -eq 1){
+          $statusDoc=($line[0].Substring('RECOMPDEV_GENERATED_SOURCE_SYNC='.Length) | ConvertFrom-Json)
+          $pendingCount=[int]$statusDoc.pending
+        }
+      }
+      Write-Host "RECOMPDEV_GENERATED_SOURCE_PENDING=$pendingCount"
+      if($publishExit -ne 0 -or $pendingCount -ne 0){Write-Host 'RECOMPDEV_GENERATED_SOURCE_PUBLICATION=PENDING_RETRY'}
       else{Write-Host 'RECOMPDEV_GENERATED_SOURCE_PUBLICATION=VERIFIED'}
     }
   }catch{

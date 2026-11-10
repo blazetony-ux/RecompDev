@@ -1,5 +1,11 @@
 # RecompDev workspace changelog
 
+## [workspace/v0.4.9.29] - 2026-11-10 — operational sync retry and immutable runtime staging (SOURCE-ONLY PROMOTION)
+
+- **Changed:** Durable generated-native-source pending queue now gets periodic bounded automatic retry during a game session, resumes on next startup even with no new module, and exposes `retry-pending` and explicit terminal/pending status. Existing shared-main unsquashed subtree source provenance and conflict safeguards remain intact.
+- **Runtime:** A separate native image stager verifies every build binary against the installer inventory, creates a new immutable SHA-attested image outside the active runtime and refuses overwrite/tamper. Installer runs stage/verify during validation and records pending source backups accurately after an approved install. No unqualified native binaries are activated.
+- **Owner Windows evidence and source-only decision (2026-11-10):** 94/94 CTests, 47/47 Python tests, 642/642 preserved historical files, independent 5/5 retry lifecycle tests, production empty-queue retry and all five staged binary hashes passed. Owner explicitly requested source-only installation; this promotion authorises only Git main/tag updates and no runtime activation. A real unattended GitHub outage/restart exercise, fresh-home restoration, real-game 2,400-frame run and runtime activation/rollback are NOT claimed complete and remain future acceptance work. [Roadmap](docs/project/ROADMAP.md), [prebuild](docs/project/PREBUILD-v0.4.9.29-OPERATIONAL-LIFECYCLE.md), [release](docs/releases/v0.4.9.29.md).
+
 ## [workspace/v0.4.9.28] - 2026-11-09 — owner-accepted generated-source remote preservation (SOURCE-ONLY PROMOTION)
 
 - **Changed:** The universal generated-source workflow checkpoints every guest-confirmed new native-code region in its isolated ROM-SHA Git history, then queues best-effort nonblocking publication to a single shared `RecompDev-plugins/main` branch. Unsquashed Git subtrees preserve actual game-specific commit graphs; no per-ROM remote branches or DLL binaries are created. SHA-indexed provenance allows exact per-game Git history recovery after upgrade/reinstall.

@@ -1,17 +1,17 @@
 {
   "components": {
     "analysis_integration": {
-      "description": "Hardware-neutral verified generated-native-source Git checkpoints, shared-main subtree publication and exact per-ROM Git-history restore with offline retry; independent of CPU and machine plugins.",
+      "description": "ISA-agnostic generated native-source Git publication, durable auto-retry and exact per-ROM restore; includes SHA-verified non-active runtime-image staging.",
       "kind": "tooling",
       "scope": "production-workflow",
-      "version": "0.3.7"
+      "version": "0.3.8"
     },
     "controller": {
-      "description": "Universal compiled native orchestration entrypoint; v28 version reporting, with replaceable machine/CPU plugins and controller-owned generated-source sync in Python live adapter.",
+      "description": "Universal compiled orchestration controller with v29 version/evidence, independent ISA/machine plugins, and lifecycle operations delegated to tooling.",
       "kind": "controller",
       "scope": "production-entrypoint",
       "target": "RecompDev",
-      "version": "0.4.23"
+      "version": "0.4.24"
     },
     "controller_diagnostics": {
       "description": "Authenticated localhost v1 watch_summary whitelist and separate intentional live display instruction sampling vs actual broker/display drops and on-disk capture truncation.",
@@ -220,10 +220,10 @@
       "version": "0.1.1"
     },
     "release_installer": {
-      "description": "Independent hashed source release validation, rollback, optional atomic main/tag origin publishing and post-install per-ROM generated-source history restoration without runtime bypass.",
+      "description": "Git-governed staged validation, immutable release tags/backups, remote publish, generated-source recovery status and non-active native image hash preflight.",
       "kind": "tooling",
       "scope": "workspace",
-      "version": "1.3.0"
+      "version": "1.3.1"
     },
     "runtime_host_integration": {
       "description": "Generated native interactive app uses dynamic native code module dispatch and retains older static generated app compatibility via explicit build flag. Same-process host continuation tested headlessly; real Windows live recovery blocked.",
@@ -257,5 +257,5 @@
     }
   },
   "schema": "recompdev-components-v1",
-  "workspace_release": "v0.4.9.28"
+  "workspace_release": "v0.4.9.29"
 }

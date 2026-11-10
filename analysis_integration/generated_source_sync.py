@@ -23,6 +23,8 @@ import time
 import threading
 
 SCHEMA = 'recompdev.generated-source-sync.v1'
+# v29: periodic automatic retry remains independent of guest execution timing.
+RETRY_DELAYS = (10, 30, 60, 120, 300)
 PROVENANCE = 'recompdev.generated-source-provenance.v1'
 SHA256 = re.compile(r'^[a-f0-9]{64}$')
 COMMIT = re.compile(r'^[a-f0-9]{40,64}$')
@@ -238,6 +240,45 @@ def clear_pending(home: Path, sha: str, commit: str) -> None:
             p.unlink()
 
 
+def pending_items(home: Path) -> dict[str, str]:
+    """Validate durable queue entries; never silently discard corrupted work."""
+    folder = home / 'gsync' / 'pending'
+    if folder.is_symlink():
+        raise SyncError('SYNC_PENDING_DIRECTORY_UNSAFE')
+    if not folder.exists():
+        return {}
+    if not folder.is_dir():
+        raise SyncError('SYNC_PENDING_DIRECTORY_INVALID')
+    result: dict[str, str] = {}
+    for path in sorted(folder.iterdir()):
+        if (path.is_symlink() or not path.is_file() or
+                not path.name.endswith('.json') or path.stat().st_size > 4096):
+            raise SyncError('SYNC_PENDING_ENTRY_UNSAFE')
+        sha = path.name[:-5]
+        if not SHA256.fullmatch(sha):
+            raise SyncError('SYNC_PENDING_IDENTITY_INVALID')
+        doc = json.loads(path.read_text(encoding='utf-8'))
+        if (doc.get('rom_sha256') != sha or not isinstance(doc.get('source_commit'), str) or
+                not COMMIT.fullmatch(doc['source_commit'])):
+            raise SyncError('SYNC_PENDING_RECORD_INVALID')
+        result[sha] = doc['source_commit']
+    return result
+
+
+def retry_pending(home: Path, *, repository: Path | None = None) -> dict:
+    """Retry only when durable work exists. An outage is never reported as success."""
+    items = pending_items(home)
+    if not items:
+        return {'status': 'UP_TO_DATE', 'pending': 0}
+    # Reuse unsquashed subtree publication and all the original Git protections;
+    # it coalesces multiple games into one shared main push.
+    result = publish(home, repository=repository)
+    remaining = pending_items(home)
+    if remaining:
+        raise SyncError('SYNC_RETRY_INCOMPLETE: ' + str(len(remaining)) + ' pending')
+    return dict(result, pending=0, retried=len(items))
+
+
 def _check_shared(repo: Path) -> None:
     if repo.is_symlink() or not (repo / '.git').is_dir():
         raise SyncError('SYNC_SHARED_REPO_UNSAFE')
@@ -450,25 +491,28 @@ def restore_all(home: Path, *, repository: Path | None = None) -> dict:
 
 
 class AutoPublisher:
-    """Best-effort coalesced background sync; gameplay never awaits GitHub.
+    """Nonblocking guest-independent publisher with bounded offline retries.
 
-    Git checkpoints and their pending markers are committed synchronously. The
-    worker is a daemon so a network outage cannot block guest closure; pending
-    markers will be retried on the next session or installation.
+    Source Git commits and queue markers are synchronous/durable.  The daemon
+    coalesces multiple new modules and retries periodically while the game is
+    open; an unfinished upload remains queued on process exit or shutdown.
     """
-    def __init__(self, home: Path):
+    def __init__(self, home: Path, retry_delays: tuple[int, ...] = RETRY_DELAYS):
         self.home = home
+        self.retry_delays = retry_delays
         try:
             self.enabled = settings(home) is not None
         except (SyncError, OSError, ValueError) as error:
             self.enabled = False
             print('RECOMPDEV_GENERATED_SYNC_WARNING=' + str(error)[:180], flush=True)
         self.wake = threading.Event()
+        self.stop = threading.Event()
         self.thread = None
         if self.enabled:
             self.thread = threading.Thread(target=self._worker, name='RecompDevGeneratedSourceSync', daemon=True)
             self.thread.start()
-            # Retry any outstanding source checkpoints automatically on launch.
+            # v29: recover the last session's pending marker even when this
+            # session never discovers another instruction.
             self.wake.set()
 
     def queued(self, sha: str, commit: str) -> None:
@@ -479,25 +523,41 @@ class AutoPublisher:
         print('RECOMPDEV_GENERATED_SYNC=QUEUED', flush=True)
 
     def _worker(self):
-        while True:
-            self.wake.wait()
+        failures = 0
+        delay = None
+        while not self.stop.is_set():
+            self.wake.wait(timeout=delay)
             self.wake.clear()
+            if self.stop.is_set():
+                break
             try:
-                result = publish(self.home)
-                print('RECOMPDEV_GENERATED_SYNC=' + result['status'], flush=True)
+                result = retry_pending(self.home)
+                if result['status'] != 'UP_TO_DATE':
+                    print('RECOMPDEV_GENERATED_SYNC=' + result['status'], flush=True)
+                failures = 0
+                delay = None
             except (SyncError, OSError, ValueError, subprocess.TimeoutExpired) as error:
+                failures += 1
+                delay = self.retry_delays[min(failures - 1, len(self.retry_delays) - 1)]
                 print('RECOMPDEV_GENERATED_SYNC=PENDING_RETRY ' + str(error)[:150], flush=True)
-            # If more commits arrived during publication, run again.
 
     def finish(self):
-        if self.thread:
-            self.wake.set()
-            self.thread.join(timeout=2)  # no waiting for network to finish
+        if not self.thread:
+            return
+        # Do not allow a Git operation to hold gameplay shutdown indefinitely.
+        self.thread.join(timeout=2)
+        try:
+            pending = len(pending_items(self.home))
+            print('RECOMPDEV_GENERATED_SYNC_FINAL=' + ('PENDING:' + str(pending) if pending else 'UP_TO_DATE'), flush=True)
+        except (SyncError, OSError, ValueError) as error:
+            print('RECOMPDEV_GENERATED_SYNC_FINAL=CHECK_REQUIRED ' + str(error)[:120], flush=True)
+        self.stop.set()
+        self.wake.set()
 
 
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('action', choices=('setup', 'publish', 'restore-all', 'status'))
+    p.add_argument('action', choices=('setup', 'publish', 'restore-all', 'retry-pending', 'status'))
     p.add_argument('--home', type=Path, default=home_default())
     p.add_argument('--repository', type=Path)
     p.add_argument('--rom-sha')
@@ -512,11 +572,14 @@ def main(argv=None) -> int:
             result = publish(args.home, args.rom_sha, repository=args.repository)
         elif args.action == 'restore-all':
             result = restore_all(args.home, repository=args.repository)
+        elif args.action == 'retry-pending':
+            result = retry_pending(args.home, repository=args.repository)
         else:
             repo = settings(args.home)
-            pending = list((args.home / 'gsync' / 'pending').glob('*.json')) if (args.home / 'gsync' / 'pending').is_dir() else []
+            pending = pending_items(args.home)
             result = {'status': 'CONFIGURED' if repo else 'DISABLED',
-                      'repository': str(repo) if repo else None, 'pending': len(pending)}
+                      'repository': str(repo) if repo else None, 'pending': len(pending),
+                      'pending_roms': sorted(sha[:12] for sha in pending)}
         print('RECOMPDEV_GENERATED_SOURCE_SYNC=' + json.dumps(result, sort_keys=True), flush=True)
         if result['status'] == 'DISABLED_NO_REPOSITORY_CONFIGURED':
             return 3

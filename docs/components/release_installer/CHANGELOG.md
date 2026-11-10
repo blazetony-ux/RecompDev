@@ -1,3 +1,9 @@
+## [1.3.1] - 2026-11-09
+
+- **Changed:** After native compiler/CTest gates, the installer now creates and verifies an immutable SHA-256 native runtime image within its external validation transaction, without changing installed binaries. Following an approved source installation it queries the generated-source queue and reports pending count; it no longer calls publication verified when durable source updates still await GitHub.
+- **Validation:** New staging regressions reject changed DLL bytes, missing controller, repeat writes and active-runtime mutations; real Windows PowerShell transaction must confirm full native image staging and 94/94 CTests. An offline GitHub failure remains pending and does not abort locally verified release governance.
+- **Compatibility:** Same release protocol v1, canonical source-only guard, SHA-pinned ZIP, local immutable tags and verified rollback bundle. No runtime activation, forced Git push, source-history deletion or ROM-data packaging is added.
+
 # release_installer — component changelog
 
 ## [1.3.0] - 2026-11-09

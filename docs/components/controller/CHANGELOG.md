@@ -1,3 +1,9 @@
+## [0.4.24] - 2026-11-09
+
+- **Changed:** Compiled controller and live session evidence identify the v0.4.9.29 operational lifecycle candidate. Native game recompilation still delegates generated-source Git queue processing to the independent tooling module; controller does not embed Master System or Z80-specific repository rules.
+- **Validation:** Existing compiled controller 91-test suite is retained, with three additional v29 native CTest registrations for genuine Git automatic retry and runtime staging. Full MSVC validation and owner gameplay acceptance are mandatory before any tag or source promotion.
+- **Compatibility:** CPU, machine, translator, native-module and source-artifact interfaces remain unchanged. Active compiled Windows runtime is not replaced by the source-only v29 candidate.
+
 ## [0.4.23] - 2026-11-09
 
 - **Changed:** Compiled controller version banner identifies v0.4.9.28, while the hardware-neutral native source preservation functionality remains in the independently maintained analysis integration component. No CPU, game or console instruction semantics are embedded in this version change.

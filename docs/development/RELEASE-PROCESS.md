@@ -1,3 +1,7 @@
+## v0.4.9.29 candidate — immutable runtime preflight and retry transparency
+
+The Git-managed SHA-pinned installer (`-ExpectedSha256`) must first run `-Mode Validate`. Along with the normal native build, 94 CTests and 642 historical-file checks, it now stages every generated executable/DLL in an **external, hash-verified, non-active runtime image** and writes `RECOMPDEV_RUNTIME_IMAGE_STATUS=VERIFIED_NOT_ACTIVATED`. This does not activate a compiled native runtime. After any future approved `-Mode Install`, the installer reports the number of pending generated-source Git commits and must not claim GitHub `VERIFIED` when that number is nonzero. There is no source-only bypass to active runtime deployment. This follows [authoritative roadmap](../project/ROADMAP.md) and [v29 prebuild](../project/PREBUILD-v0.4.9.29-OPERATIONAL-LIFECYCLE.md).
+
 ## v0.4.9.28 candidate — remote publishing and generated-source restore
 
 After the validated **local** release has produced its Git commit, immutable annotated tag and SHA-verified rollback bundle, the installer may optionally publish the new `RecompDev` `main` and **only its new tag** to `origin` via `-PublishOrigin`. This is atomic, never forced, and explicitly reports pending if remote history diverges or GitHub is unavailable. `-Mode Validate` never pushes either repository.

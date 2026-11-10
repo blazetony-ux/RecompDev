@@ -1,3 +1,9 @@
+## [0.3.8] - 2026-11-09
+
+- **Changed:** Versioned generated-source synchroniser now retries durable pending per-ROM source checkpoints periodically during live gameplay and immediately on later game startup even without further discoveries, reports queue state at session finish, and exposes `retry-pending`. Adds SHA-256-locked immutable non-active native runtime-image stage/verify utility; neither path depends on Z80 or SMS internals.
+- **Validation:** Real disposable Git tests simulate unavailable origin then restored network access and automatic no-new-module retry, verify source commit ancestry and invalid queue rejection, plus runtime-image hash/tamper and active-runner non-interference tests. Windows MSVC and live real-GitHub qualification are still required before production promotion.
+- **Compatibility:** Existing per-ROM generated C++ and source Git commits, original plugin ABIs, ROM identity fingerprints, shared main Git topology and compiled DLL cache are retained. No source-only release changes production runtime activation or embeds ROM bytes in Git.
+
 ## [0.3.7] - 2026-11-09
 
 - **Changed:** Hardware-neutral `generated_source_sync.py` imports verified per-ROM generated C++ Git commits into the shared `RecompDev-plugins/main` branch using unsquashed Git subtrees, records original SHA/tree provenance and restores original per-ROM Git histories after an upgrade. Every confirmed new module receives a local Git checkpoint and nonblocking remote backup notification.
