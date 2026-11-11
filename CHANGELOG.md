@@ -1,5 +1,11 @@
 # RecompDev workspace changelog
 
+## [workspace/v0.4.9.33] - 2026-11-11 — APPEND-ONLY GENERATED-SOURCE HISTORY RECONCILIATION (SOURCE-ONLY)
+
+- Restore now reconstructs original-shaped source history for verified append-only consolidated generated C++ and commits an unsquashed ancestry linkage and matching provenance pointer. Rejects modified/deleted files and divergent local source without overwriting or rewriting any commits.
+- New real-Git integration regressions cover Shinobi-style shared-only consolidation, fresh-home restoration, local divergence, and non-append-only rejection. Native runtime remains unchanged.
+
+
 ## [workspace/v0.4.9.32] - 2026-11-11 — LIVE GAME AUDIO OUTPUT (SOURCE-ONLY)
 
 - **Fixed real-game output path:** `play ROM` now delivers native guest PSG PCM through the existing Win32 speaker backend by default rather than silently discarding it. `--audio capture` records a device-independent WAV; `--audio null` is an explicit diagnostic opt-out.

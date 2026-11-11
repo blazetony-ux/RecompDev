@@ -1,3 +1,7 @@
+## v0.4.9.33 — Generated-source reconciliation
+
+- Repair append-only shared-main generated native code checkpoints by tracing the subtree history, preserving original source lineage and recording a verified provenance commit. Refuse destructive source mutations.
+
 ## [0.3.9] - 2026-11-11
 
 - **Changed:** `play ROM` no longer unconditionally passes `--audio null` to the actual native-game process. The default owner-visible live session uses the existing host `speaker` backend; `--audio capture` records WAV with no physical audio device, and `--audio null` explicitly opts out. Synthetic test sessions default to capture.

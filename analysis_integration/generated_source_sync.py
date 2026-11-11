@@ -180,7 +180,8 @@ def safe_path(relative: str) -> bool:
     if parts[0] not in SOURCE_TOP:
         return False
     if parts[0] in ('m', 'consolidated'):
-        return len(parts) >= 3 and bool(SHA256.fullmatch(parts[1])) and parts[-1].endswith(('.cpp','.json','.txt'))
+        return len(parts) >= 3 and bool(SHA256.fullmatch(parts[1])) and (parts[-1].endswith(('.cpp','.json','.txt')) or
+                                (parts[0] == 'consolidated' and parts[-1] == 'CMakeLists.txt'))
     return len(parts) == 2 and bool(re.fullmatch(r'[a-f0-9]{64}\.json', parts[1]))
 
 
@@ -396,6 +397,72 @@ def publish(home: Path, rom_sha: str | None = None, *, repository: Path | None =
         return {'status': 'PUBLISHED', 'roms': len(imported), 'main_commit': run(repo, 'rev-parse', 'HEAD')}
 
 
+def _reconcile_append_only_provenance(repo: Path, sha: str) -> bool:
+    """Recover an append-only shared subtree checkpoint without destroying history.
+
+    A live consolidation can commit generated C++ directly under the shared
+    prefix without advancing the per-ROM provenance pointer.  Recreate the
+    subtree's original-shaped history via `subtree split` and merge that commit
+    as a *parent* of shared main.  A pointer update alone is forbidden because
+    the source commit must remain reachable and its tree must equal the prefix.
+
+    Only safe appended source files are accepted. Modifications, deletions,
+    incompatible histories, or untrusted paths require manual review.
+    """
+    pointer = repo / 'generated' / 'provenance' / (sha + '.json')
+    if pointer.is_symlink() or not pointer.is_file() or pointer.stat().st_size > 8192:
+        raise SyncError('SYNC_PROVENANCE_MISSING_OR_UNSAFE')
+    doc = json.loads(pointer.read_text(encoding='utf-8'))
+    old = doc.get('source_commit')
+    if (doc.get('schema') != PROVENANCE or doc.get('rom_sha256') != sha or
+            not isinstance(old, str) or not COMMIT.fullmatch(old) or
+            doc.get('source_tree') != run(repo, 'rev-parse', old + '^{tree}')):
+        raise SyncError('SYNC_PROVENANCE_INVALID')
+    prefix = 'generated/roms/' + sha
+    current_tree = run(repo, 'rev-parse', 'HEAD:' + prefix)
+    if current_tree == doc['source_tree']:
+        return False
+    if code(repo, 'merge-base', '--is-ancestor', old, 'HEAD') != 0:
+        raise SyncError('SYNC_PROVENANCE_OLD_COMMIT_UNREACHABLE')
+    # Fail closed on changed/deleted existing files or unsafe additions.
+    changes = run(repo, 'diff-tree', '--no-commit-id', '--name-status', '-r',
+                  doc['source_tree'], current_tree)
+    added = []
+    for line in changes.splitlines():
+        columns = line.split('\t')
+        if len(columns) != 2 or columns[0] != 'A' or not safe_path(columns[1]):
+            raise SyncError('SYNC_RECONCILE_NON_APPEND_ONLY')
+        added.append(columns[1])
+    if not added:
+        raise SyncError('SYNC_RECONCILE_EMPTY_DIFFERENCE')
+    files = run(repo, 'ls-tree', '-r', '--name-only', 'HEAD:' + prefix).splitlines()
+    if len(files) > MAX_TRACKED or not files or any(not safe_path(name) for name in files):
+        raise SyncError('SYNC_RECONCILE_SOURCE_PATH_UNSAFE')
+    for name in added:
+        blob_bytes = int(run(repo, 'cat-file', '-s', 'HEAD:' + prefix + '/' + name))
+        if blob_bytes > MAX_SIZE:
+            raise SyncError('SYNC_RECONCILE_SOURCE_FILE_OVERSIZE')
+    # Every source-history commit remains reachable; never rewrite either side.
+    split = run(repo, 'subtree', 'split', '--prefix=' + prefix, 'HEAD', timeout=180).splitlines()[-1]
+    if not COMMIT.fullmatch(split) or run(repo, 'rev-parse', split + '^{tree}') != current_tree:
+        raise SyncError('SYNC_RECONCILE_SPLIT_TREE_INVALID')
+    if code(repo, 'merge-base', '--is-ancestor', old, split) != 0:
+        raise SyncError('SYNC_RECONCILE_ORIGINAL_HISTORY_NOT_PRESERVED')
+    if code(repo, 'merge-base', '--is-ancestor', split, 'HEAD') != 0:
+        run(repo, '-c', 'user.name=RecompDev Generated Source',
+            '-c', 'user.email=recompdev-generated@local.invalid',
+            'merge', '-s', 'ours', '--no-ff', '--no-edit', '-m',
+            'Preserve incremental generated source ancestry ' + sha[:12], split)
+    _verify_source_tree(repo, sha, split)
+    updated = {'schema': PROVENANCE, 'rom_sha256': sha,
+               'source_commit': split, 'source_tree': current_tree,
+               'tracked_files': len(files)}
+    pointer.write_text(json.dumps(updated, sort_keys=True, indent=2) + '\n', encoding='utf-8')
+    run(repo, 'add', '--', 'generated/provenance/' + sha + '.json')
+    _commit(repo, 'Reconcile append-only generated-source provenance ' + sha[:12])
+    return True
+
+
 def _provenance(repo: Path, sha: str) -> str:
     if not SHA256.fullmatch(sha):
         raise SyncError('SYNC_ROM_SHA_INVALID')
@@ -435,12 +502,19 @@ def restore_all(home: Path, *, repository: Path | None = None) -> dict:
         already = 0
         ahead = 0
         inferred = 0
+        reconciled = 0
         for sha in sorted(sources):
             if not SHA256.fullmatch(sha):
                 raise SyncError('SYNC_REMOTE_ROM_DIRECTORY_INVALID')
             pointer = folder / (sha + '.json')
             if pointer.exists():
+                repaired = _reconcile_append_only_provenance(repo, sha)
                 commit = _provenance(repo, sha)
+                if repaired:
+                    reconciled += 1
+                    # Preserve a durable publication request for the newly linked
+                    # source-history commit, including if the process exits now.
+                    mark_pending(home, sha, commit)
             else:
                 commit = run(repo, 'subtree', 'split', '--prefix=generated/roms/' + sha,
                              'HEAD', timeout=90).splitlines()[-1]
@@ -487,7 +561,8 @@ def restore_all(home: Path, *, repository: Path | None = None) -> dict:
             restored += 1
         return {'status': 'RESTORED' if online else 'RESTORED_FROM_LOCAL_REMOTE_OFFLINE',
                 'restored': restored, 'already': already, 'local_ahead': ahead,
-                'legacy_subtrees_inferred': inferred, 'remote_online': online}
+                'legacy_subtrees_inferred': inferred, 'reconciled': reconciled,
+                'remote_online': online}
 
 
 class AutoPublisher:
