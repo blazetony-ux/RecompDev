@@ -4,14 +4,14 @@
       "description": "ISA-agnostic generated native-source Git publication, durable auto-retry and exact per-ROM restore; includes SHA-verified non-active runtime-image staging.",
       "kind": "tooling",
       "scope": "production-workflow",
-      "version": "0.3.8"
+      "version": "0.3.9"
     },
     "controller": {
       "description": "Universal compiled orchestration controller with v29 version/evidence, independent ISA/machine plugins, and lifecycle operations delegated to tooling.",
       "kind": "controller",
       "scope": "production-entrypoint",
       "target": "RecompDev",
-      "version": "0.4.24"
+      "version": "0.4.25"
     },
     "controller_diagnostics": {
       "description": "Authenticated localhost v1 watch_summary whitelist and separate intentional live display instruction sampling vs actual broker/display drops and on-disk capture truncation.",
@@ -257,5 +257,5 @@
     }
   },
   "schema": "recompdev-components-v1",
-  "workspace_release": "v0.4.9.30"
+  "workspace_release": "v0.4.9.32"
 }

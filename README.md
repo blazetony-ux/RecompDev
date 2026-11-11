@@ -137,3 +137,7 @@ With a Windows-validated, independently built v0.4.9.19 `RecompDev.exe`, `previe
 ## v0.4.9.20 preview-to-recovery handoff (candidate)
 
 After a v0.4.9.20 `preview` emits a complete `recovery-seed.json` in its diagnostics ZIP, resume with `RecompDev.exe resume --job JOB_ID --max-cycles NEW_TOTAL --preview-stop ABSOLUTE_ZIP`. The controller checks ROM, original translated source, job/cycle, mapper and native stop before changing a job. Preview remains a separate, read-only diagnostic execution and cannot itself qualify the game. Owner v19 preview stopped at PC `0xADAF` without keypress; original older ZIP does not contain sufficient state to use as a new native recovery seed. See [v20 release](docs/releases/v0.4.9.20.md).
+
+## v0.4.9.32 — Native audio during live play
+
+`RecompDev.exe play "C:\Roms\MASTERSYSTEM\Shinobi (USA, Europe, Brazil) (En) (Rev 1).sms" --frames 2400 --max-recoveries 128` now requests actual speaker audio. Use `--audio capture` to save WAV without a speaker; `--audio null` intentionally silences output. The session JSON records actual PCM samples and retained WAV provenance when available. Audio/gameplay parity remains unverified.

@@ -675,3 +675,11 @@ if(Python3_EXECUTABLE)
  set_tests_properties(v04930_recovery_frontier_contract PROPERTIES
   WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/.." ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
 endif()
+
+# v0.4.9.32: live PSG audio delivery and evidence contracts.
+if(Python3_EXECUTABLE)
+ add_test(NAME v04932_live_audio_delivery COMMAND "${Python3_EXECUTABLE}"
+  -B -m unittest analysis_integration.tests.test_v04932_live_audio)
+ set_tests_properties(v04932_live_audio_delivery PROPERTIES
+  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/.." ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+endif()

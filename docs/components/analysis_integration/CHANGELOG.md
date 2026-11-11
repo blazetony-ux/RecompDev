@@ -1,3 +1,10 @@
+## [0.3.9] - 2026-11-11
+
+- **Changed:** `play ROM` no longer unconditionally passes `--audio null` to the actual native-game process. The default owner-visible live session uses the existing host `speaker` backend; `--audio capture` records WAV with no physical audio device, and `--audio null` explicitly opts out. Synthetic test sessions default to capture.
+- **Added:** Fail-closed native audio mode and PCM metric checks, SHA-256 of an actually emitted WAV, and truthful zero/nonzero sample reporting in the immutable session record. Audio/hardware parity is never asserted from nonzero PCM alone.
+- **Validation:** Nine Python regression tests plus Windows-registered CTest. Native speaker use and PSG timing/hardware parity require real Windows evidence.
+- **Compatibility:** No changes to the controller, CPU/machine plugin or native-game ABI. Production runtime activation remains prohibited by source-only promotion.
+
 ## [0.3.8] - 2026-11-09
 
 - **Changed:** Versioned generated-source synchroniser now retries durable pending per-ROM source checkpoints periodically during live gameplay and immediately on later game startup even without further discoveries, reports queue state at session finish, and exposes `retry-pending`. Adds SHA-256-locked immutable non-active native runtime-image stage/verify utility; neither path depends on Z80 or SMS internals.

@@ -18,6 +18,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import wave
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from analysis_integration.cli import checked_process, app_stop_seed, RecoveryBlocked
@@ -33,6 +34,44 @@ SCHEMA='recompdev.native.live.session.v1'
 RESPONSE_SCHEMA='recompdev.native.live.response.v1'
 MAX_RECOVERIES=512
 MAX_TELEMETRY=12*1024*1024
+
+# The owner-visible live game must not silently discard generated PCM.
+# Capture remains available for systems with no physical audio device and
+# for deterministic diagnostics; headless synthetic tests select capture.
+LIVE_AUDIO_BACKENDS=('speaker','capture','null')
+def live_audio_backend(option:str,synthetic_test:bool=False)->str:
+    audio = ('capture' if synthetic_test else 'speaker') if option=='auto' else option
+    if audio not in LIVE_AUDIO_BACKENDS:
+        raise RecoveryBlocked('LIVE_AUDIO_BACKEND_INVALID')
+    if synthetic_test and audio=='speaker':
+        raise RecoveryBlocked('SYNTHETIC_TEST_REQUIRES_NO_AUDIO_DEVICE')
+    return audio
+
+def record_audio_evidence(native:dict,game_output:Path,requested:str)->dict:
+    """Report observed PCM separately from hardware/audio parity claims."""
+    backend=native.get('audio_backend')
+    if backend!=requested:
+        raise RecoveryBlocked('NATIVE_AUDIO_BACKEND_MISMATCH')
+    samples=native.get('audio_samples'); nonzero=native.get('audio_nonzero_samples')
+    if type(samples) is not int or type(nonzero) is not int or not 0<=nonzero<=samples:
+        raise RecoveryBlocked('NATIVE_AUDIO_METRICS_INVALID')
+    result={'backend':backend,'samples':samples,'nonzero_samples':nonzero,
+            'audible_pcm_observed':nonzero>0,'hardware_parity_qualified':False}
+    wav=Path(str(game_output)+'.wav')
+    if backend!='null' and samples>0:
+        if not wav.is_file() or wav.stat().st_size<44:
+            raise RecoveryBlocked('NATIVE_AUDIO_WAV_MISSING')
+        try:
+            with wave.open(str(wav),'rb') as pcm:
+                if pcm.getsampwidth()!=2 or pcm.getframerate()!=44100 or pcm.getnchannels()!=1 or pcm.getnframes()!=samples:
+                    raise RecoveryBlocked('NATIVE_AUDIO_WAV_METRICS_MISMATCH')
+        except (wave.Error,EOFError) as exc:
+            raise RecoveryBlocked('NATIVE_AUDIO_WAV_INVALID') from exc
+        result['wav_sha256']=sha(wav)
+        result['wav_bytes']=wav.stat().st_size
+    if backend=='null' and nonzero:
+        raise RecoveryBlocked('NATIVE_NULL_AUDIO_NONZERO')
+    return result
 
 def sha(path:Path)->str:
     h=hashlib.sha256()
@@ -294,6 +333,7 @@ def run(opts):
         raise RecoveryBlocked('ROM_SIZE_UNSUPPORTED')
     source=Path(opts.source_root).resolve(strict=True)
     exe=Path(opts.controller_exe).resolve(strict=True)
+    audio_backend=live_audio_backend(opts.audio,test)
     sha_rom=sha(rom)
     home=original_home()
     config=get_config(source,home,test)
@@ -315,7 +355,8 @@ def run(opts):
     report={'schema':SCHEMA,'release':'workspace/v0.4.9.29','rom_sha256':sha_rom,
             'target_frames':opts.frames,'status':'INITIALIZING','same_guest_process':True,
             'window_qualified':False,'semantic_parity_qualified':False,
-            'hot_activations':[],'source_root':str(source),'session':str(session)}
+            'hot_activations':[],'source_root':str(source),'session':str(session),
+            'audio_backend_requested':audio_backend}
     def snapshot():
         temp=session/'session.json.pending';temp.write_text(json.dumps(report,indent=2,sort_keys=True)+'\n');os.replace(temp,session/'session.json')
     def notice(broker,msg):
@@ -438,7 +479,7 @@ def run(opts):
             notice(broker,'Native code ready - launching persistent game session')
             game_log=(session/'native-game.log').open('xb')
             app_args=[str(app),str(rom),str(session/'game'),str(opts.frames),str(opts.steps),
-                      '--video',opts.video,'--audio','null','--input',opts.input,
+                      '--video',opts.video,'--audio',audio_backend,'--input',opts.input,
                       '--live-control',str(control),'--live-max-recoveries',str(opts.max_recoveries),
                       '--live-wait-seconds',str(min(7200,opts.timeout*4))]
             if preloaded:app_args+=['--preload-module',str(preloaded)]
@@ -668,6 +709,8 @@ def run(opts):
                 raise RecoveryBlocked('NATIVE_ACTIVATIONS_UNACKNOWLEDGED')
             if activated_count!=native.get('hot_activations'):
                 raise RecoveryBlocked('NATIVE_ACTIVATION_RECEIPT_COUNT_MISMATCH')
+            report['audio_evidence']=record_audio_evidence(native,session/'game',audio_backend)
+            log_status('AUDIO_PCM_NONZERO',report['audio_evidence']['nonzero_samples'])
             report['window_launch_attempted']=os.name=='nt' and opts.video=='window' and not opts.no_monitor
             # A process launch does not prove that either Win32 window was visible,
             # responsive, or continuously rendered during a recovery.
@@ -739,6 +782,8 @@ def main(argv=None):
     p.add_argument('--max-recoveries',type=int,default=512)
     p.add_argument('--timeout',type=int,default=900)
     p.add_argument('--video',default='window');p.add_argument('--input',default='live')
+    p.add_argument('--audio',choices=('auto','speaker','capture','null'),default='auto',
+                   help='speaker for live game (default), capture for WAV without sound device, null only for diagnostic silence')
     p.add_argument('--hold-window',action='store_true')
     p.add_argument('--no-monitor',action='store_true')
     p.add_argument('--test-export');p.add_argument('--test-bank-export');p.add_argument('--allow-synthetic-test-export',action='store_true')

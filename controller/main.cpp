@@ -143,14 +143,14 @@ static fs::path project_root(fs::path exe){
     throw std::runtime_error("RecompDev source checkout not found; runtime needs source-root.txt");
 }
 static void usage(){
-    std::cout<<"RecompDev v0.4.9.30 native controller (compiled job lifecycle + plugin discovery)\n"
+    std::cout<<"RecompDev v0.4.9.32 native controller (compiled job lifecycle + plugin discovery)\n"
       "Usage: RecompDev.exe --rom FILE --stage discover|prepare|recover [options]\n"
       "  --steps N --frames N --max-recoveries N --timeout N --capture-hardware\n"
       "  --auto-continue --max-rounds N (continue source-verified recovery in bounded batches)\n"
       "  --catalogue FILE --out DIR --ghidra FILE --export FILE --budget N\n"
       "  --analyze-evidence DIR [--out DIR] [--reference-image PNG] [--reference-session JSON]\n"
       "  --plugins | --verify | --status | --help\n"
-      "  play ROM [--frames 2400] [--max-recoveries 128] (one native live session, Windows monitor + display)\n"
+      "  play ROM [--frames 2400] [--max-recoveries 128] [--audio speaker|capture|null] (one native live session, Windows monitor + display)\n"
       "  run ROM --auto-native [--target-frames 2400] (alias for play)\n"
       "  run --rom FILE [--logging debug|info|warning|error] [--max-cycles N] [--no-auto-history] (legacy bounded)\n"
       "  cache --rom FILE (portable artifact-store lookup, then legacy-history lookup)\n"

@@ -1,5 +1,11 @@
 # RecompDev workspace changelog
 
+## [workspace/v0.4.9.32] - 2026-11-11 — LIVE GAME AUDIO OUTPUT (SOURCE-ONLY)
+
+- **Fixed real-game output path:** `play ROM` now delivers native guest PSG PCM through the existing Win32 speaker backend by default rather than silently discarding it. `--audio capture` records a device-independent WAV; `--audio null` is an explicit diagnostic opt-out.
+- **Added verifiable result:** session evidence records the requested backend, nonzero and total PCM samples, and SHA-256 of actually produced WAV audio; fail closed for missing/mismatched output. Test mode defaults to capture.
+- **Validation limits:** Linux tests and build do not prove correct sound, PSG hardware timing, input or visuals on Windows; independent parity remains BLOCKED. [Release notes](docs/releases/v0.4.9.32.md).
+
 ## [workspace/v0.4.9.30] - 2026-11-10 — native live-recovery frontier lifecycle (PARTIAL IMPLEMENTATION)
 
 - **Added:** CPU/machine-neutral `RecoveryFrontiers` with source-attested execution-frontier identity, bounded per-session request count, duplicate-gap detection, and guest-acknowledgement-only completion. No Z80 instructions, SMS bank layout or fixed-width guest addresses in this controller service.

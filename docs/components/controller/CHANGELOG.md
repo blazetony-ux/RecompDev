@@ -1,3 +1,9 @@
+## [0.4.25] - 2026-11-11
+
+- **Changed:** Compiled controller banner identifies v0.4.9.32 and documents live play audio routing through interchangeable native-host backends; audio selection lives in the existing session adapter, not the hardware-neutral controller.
+- **Validation:** Linux compiled controller and new Python audio contract passed. Owner Windows MSVC and full CTest are still needed; real Win32 sound hardware parity remains unverified.
+- **Compatibility:** Existing CPU/machine/plugin ABIs and native state continuity unchanged. This source-only release does not activate the runtime.
+
 ## [0.4.24] - 2026-11-09
 
 - **Changed:** Compiled controller and live session evidence identify the v0.4.9.29 operational lifecycle candidate. Native game recompilation still delegates generated-source Git queue processing to the independent tooling module; controller does not embed Master System or Z80-specific repository rules.
