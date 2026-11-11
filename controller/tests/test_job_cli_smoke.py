@@ -14,7 +14,7 @@ with tempfile.TemporaryDirectory(prefix='recompdev-controller-cli-') as tmp:
     gh.write_bytes(b'fixture');rz.write_bytes(b'fixture')
     env={**os.environ,'RECOMPDEV_HOME':str(home)}
     def call(*args):return subprocess.run([str(exe),*args],capture_output=True,text=True,env=env,timeout=20)
-    p=call('--version');assert p.returncode==0 and 'RecompDev 0.4.9.27' in p.stdout,(p.stdout,p.stderr)
+    p=call('--version');assert p.returncode==0 and 'RecompDev 0.4.9.30' in p.stdout,(p.stdout,p.stderr)
     p=call('status');assert p.returncode==2 and 'JOB_FILE_MISSING_OR_TOO_LARGE' in p.stderr,(p.stdout,p.stderr)
     p=call('configure','--ghidra',str(gh),'--rizin',str(rz),'--workspace',str(root/'workspace'),'--logging','info')
     assert p.returncode==0 and 'RECOMPDEV_CONFIGURATION=VERIFIED' in p.stdout,(p.stdout,p.stderr)

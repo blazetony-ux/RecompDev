@@ -667,3 +667,11 @@ if(Python3_EXECUTABLE)
  set_tests_properties(v04929_installer_image_queue_policy PROPERTIES
   WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/..")
 endif()
+
+# v0.4.9.30: CPU/machine-neutral live-recovery frontier accounting.
+if(Python3_EXECUTABLE)
+ add_test(NAME v04930_recovery_frontier_contract COMMAND "${Python3_EXECUTABLE}"
+  -B -m unittest analysis_integration.tests.test_v04930_recovery_frontier)
+ set_tests_properties(v04930_recovery_frontier_contract PROPERTIES
+  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/.." ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+endif()

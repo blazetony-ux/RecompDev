@@ -1,5 +1,13 @@
 # RecompDev workspace changelog
 
+## [workspace/v0.4.9.30] - 2026-11-10 — native live-recovery frontier lifecycle (PARTIAL IMPLEMENTATION)
+
+- **Added:** CPU/machine-neutral `RecoveryFrontiers` with source-attested execution-frontier identity, bounded per-session request count, duplicate-gap detection, and guest-acknowledgement-only completion. No Z80 instructions, SMS bank layout or fixed-width guest addresses in this controller service.
+- **Changed:** Single-process `play` session uses shared frontier lifecycle tracking rather than ad-hoc `seen` set; recognizes verified native activation acknowledgements, and reports request and verification separately rather than announcing resume when a module is merely offered.
+- **Tests:** Nine new portable regression tests; CTest `v04930_recovery_frontier_contract`. Also corrects the compiled CLI version string.
+- **Not yet qualified:** The Shinobi untranslated-instruction issue is not confirmed resolved. Full automated dynamic translation, actual guest continuation, gameplay parity and Windows native build/CTest must be proven on the owner's system before declaring the entire v0.4.9.30 objective complete. Existing hot-activation infrastructure is reused, not rewritten.
+
+
 ## [workspace/v0.4.9.29] - 2026-11-10 — operational sync retry and immutable runtime staging (SOURCE-ONLY PROMOTION)
 
 - **Changed:** Durable generated-native-source pending queue now gets periodic bounded automatic retry during a game session, resumes on next startup even with no new module, and exposes `retry-pending` and explicit terminal/pending status. Existing shared-main unsquashed subtree source provenance and conflict safeguards remain intact.

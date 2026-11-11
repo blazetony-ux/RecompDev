@@ -27,6 +27,7 @@ from controller.diagnostics import ControllerDiagnostics
 from execution_monitor.job_preview import launch_viewer
 from analysis_integration import native_library as library
 from analysis_integration import generated_source_sync as source_sync
+from analysis_integration.recovery_frontier import RecoveryFrontiers
 
 SCHEMA='recompdev.native.live.session.v1'
 RESPONSE_SCHEMA='recompdev.native.live.response.v1'
@@ -446,7 +447,8 @@ def run(opts):
                 creationflags=getattr(subprocess,'CREATE_NEW_PROCESS_GROUP',0))
             report['game_pid']=game.pid;report['status']='EXECUTING';snapshot()
             log_status('GAME_PROCESS',game.pid)
-            seen=set();seeds=[];banks=[];monitor_events=[];telemetry_pos=0;index=1
+            frontiers=RecoveryFrontiers(opts.max_recoveries)
+            seeds=[];banks=[];monitor_events=[];telemetry_pos=0;index=1
             pending_cache={}
             activated_count=0
             report['cached_activations']=0
@@ -466,6 +468,7 @@ def run(opts):
                             item['candidate'],item['source'],item['emitted'])
                         library.save_generated(generated_history,item['key'],capsule,
                             item['bank_exports'],item['seeds'])
+                    frontiers.confirm(seq,item['frontier'])
                     report['hot_activations'][seq-1]['activation_confirmed']=True
                     report['cached_activations']+=1
                     activated_count+=1
@@ -555,10 +558,11 @@ def run(opts):
                 if len(raw)>8192:raise RecoveryBlocked('LIVE_REQUEST_TOO_LARGE')
                 data=json.loads(raw)
                 seed=validate_stop(data,rom,sha_rom)
-                key=(seed['pc'],seed['physical_offset'],tuple(seed['mapper']))
-                if key in seen:raise RecoveryBlocked('REPEATED_LIVE_GAP_NO_NEW_CODE')
-                if index>opts.max_recoveries:raise RecoveryBlocked('LIVE_RECOVERY_LIMIT')
-                seen.add(key)
+                # CPU-neutral attempt accounting; ROM/mapping validation was
+                # performed by validate_stop through the machine adapter.
+                attempt_index, frontier=frontiers.request(seed)
+                if attempt_index!=index:raise RecoveryBlocked('RECOVERY_SEQUENCE_INVALID')
+                log_status('RECOVERY_REQUESTED',index)
                 position=seed['pc']; notice(broker,'Paused guest at PC 0x%04X - compiling verified native code'%position)
                 # Keep exact original request immutable; the native source
                 # discovery independently verifies ROM/mapper/PC at this stop.
@@ -633,7 +637,7 @@ def run(opts):
                 report['hot_activations'].append({'sequence':index,'pc':seed['pc'],'physical_offset':seed['physical_offset'],
                    'observed_frame':data.get('guest_frames'),'emitted':new_emitted,'cache':cache_status,
                    'module_sha256':module_digest,'activation_confirmed':False})
-                pending_cache[index]={'key':key_hash,'candidate':candidate,'source':translated_source,
+                pending_cache[index]={'key':key_hash,'frontier':frontier,'candidate':candidate,'source':translated_source,
                     'emitted':new_emitted,'coverage':new_coverage,'module_sha256':module_digest,
                     'request_sha256':hashlib.sha256(raw).hexdigest(),
                     # Older evidence is already immutable in generated history.
@@ -642,7 +646,7 @@ def run(opts):
                     # quadratically during long real-ROM sessions.
                     'bank_exports':([banks[-1]] if banks and not cached else []),
                     'seeds':[request]}
-                snapshot();notice(broker,'Module %d verified - resuming same game process'%index)
+                snapshot();notice(broker,'Module %d offered - awaiting guest activation receipt'%index)
                 index+=1
             collect_acks()
             telemetry_pos=drain_telemetry(control/'telemetry.jsonl',telemetry_pos,broker,monitor_events,2048)
