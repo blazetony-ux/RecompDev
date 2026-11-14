@@ -4,6 +4,12 @@
 - **Validation:** Linux compiled controller and new Python audio contract passed. Owner Windows MSVC and full CTest are still needed; real Win32 sound hardware parity remains unverified.
 - **Compatibility:** Existing CPU/machine/plugin ABIs and native state continuity unchanged. This source-only release does not activate the runtime.
 
+## [0.4.26] - 2026-11-14
+
+- **Changed:** Native controller exposes a CPU-neutral `export build` / `export verify` / `export demo` command, forwarded to the standalone export component without adding ISA, memory mapping or game rules. The executable's version is configured from the authoritative workspace registry rather than a separate hardcoded string.
+- **Validation:** Linux compiled controller returns the current registry identity; a version contract and end-to-end standalone game-export test run through CTest, with full owner MSVC still a required acceptance gate.
+- **Compatibility:** Existing `play`, `run`, `preview`, `plugin` and native-stage CLI routing remains unchanged. CPU/machine plugin binary ABIs and production active runtime are untouched; standalone gameplay remains unqualified.
+
 ## [0.4.24] - 2026-11-09
 
 - **Changed:** Compiled controller and live session evidence identify the v0.4.9.29 operational lifecycle candidate. Native game recompilation still delegates generated-source Git queue processing to the independent tooling module; controller does not embed Master System or Z80-specific repository rules.

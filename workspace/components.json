@@ -1,17 +1,17 @@
 {
   "components": {
     "analysis_integration": {
-      "description": "ISA-agnostic generated native-source Git publication, durable auto-retry and exact per-ROM restore; includes SHA-verified non-active runtime-image staging.",
+      "description": "ISA-agnostic generated native source retention, durable source restore, source-reconciled Git publication, live recovery and registry-derived evidence release identity.",
       "kind": "tooling",
       "scope": "production-workflow",
-      "version": "0.3.9"
+      "version": "0.3.10"
     },
     "controller": {
-      "description": "Universal compiled orchestration controller with v29 version/evidence, independent ISA/machine plugins, and lifecycle operations delegated to tooling.",
+      "description": "Compiled CPU-neutral native controller with version derived from authoritative registry and standalone export command delegated to a versioned source adapter.",
       "kind": "controller",
       "scope": "production-entrypoint",
       "target": "RecompDev",
-      "version": "0.4.25"
+      "version": "0.4.26"
     },
     "controller_diagnostics": {
       "description": "Authenticated localhost v1 watch_summary whitelist and separate intentional live display instruction sampling vs actual broker/display drops and on-disk capture truncation.",
@@ -237,6 +237,12 @@
       "scope": "production-video-integration",
       "version": "0.1.0"
     },
+    "standalone_export": {
+      "description": "Versioned source-adapter interface and fail-closed rights-confirmed self-contained native application exporter with embedded authorised game data, reproducible hash receipts, isolated launch and coverage/parity qualification boundaries.",
+      "kind": "tooling",
+      "scope": "production-workflow",
+      "version": "0.1.0"
+    },
     "state_observer": {
       "description": "Generic source-only read-only guest memory-region observation API with provider-described address spaces, byte orders, clock domains, bounded delta journaling and offline candidate correlation; no CPU/console/game dependency",
       "kind": "tooling",
@@ -257,5 +263,5 @@
     }
   },
   "schema": "recompdev-components-v1",
-  "workspace_release": "v0.4.9.33"
+  "workspace_release": "v0.4.9.34"
 }

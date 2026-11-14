@@ -2,6 +2,7 @@
 #include "native_execute.hpp"
 #include "native_translate.hpp"
 #include "native_job.hpp"
+#include "recompdev_version_config.h"
 // RecompDev v0.4.8: native P-code translation and game execution and discovery controller with explicit legacy fallback.
 // The preserved Python analysis/recovery services are deliberately retained.
 // No shell invocation: all forwarded arguments remain literal even with spaces.
@@ -143,13 +144,16 @@ static fs::path project_root(fs::path exe){
     throw std::runtime_error("RecompDev source checkout not found; runtime needs source-root.txt");
 }
 static void usage(){
-    std::cout<<"RecompDev v0.4.9.33 native controller (compiled job lifecycle + plugin discovery)\n"
+    std::cout<<"RecompDev "<<RECOMPDEV_WORKSPACE_RELEASE<<" native controller (compiled job lifecycle + plugin discovery)\n"
       "Usage: RecompDev.exe --rom FILE --stage discover|prepare|recover [options]\n"
       "  --steps N --frames N --max-recoveries N --timeout N --capture-hardware\n"
       "  --auto-continue --max-rounds N (continue source-verified recovery in bounded batches)\n"
       "  --catalogue FILE --out DIR --ghidra FILE --export FILE --budget N\n"
       "  --analyze-evidence DIR [--out DIR] [--reference-image PNG] [--reference-session JSON]\n"
       "  --plugins | --verify | --status | --help\n"
+      "  export build --project DIR --source-data FILE --out DIR --rights-confirmed (verified standalone native application)\n"
+      "  export verify --bundle DIR [--expected-manifest-sha256 SHA] (offline integrity check)\n"
+      "  export demo --out DIR (rights-cleared synthetic native executable smoke)\n"
       "  play ROM [--frames 2400] [--max-recoveries 128] [--audio speaker|capture|null] (one native live session, Windows monitor + display)\n"
       "  run ROM --auto-native [--target-frames 2400] (alias for play)\n"
       "  run --rom FILE [--logging debug|info|warning|error] [--max-cycles N] [--no-auto-history] (legacy bounded)\n"
@@ -189,14 +193,14 @@ int main(int argc,char** argv)
 #endif
           )){usage();return 0;}
 #ifdef _WIN32
-        if(equals(argv[1],L"--version")){std::cout<<"RecompDev 0.4.9.30\n";return 0;}
+        if(equals(argv[1],L"--version")){std::cout<<"RecompDev "<<RECOMPDEV_VERSION_NUMBER<<"\n";return 0;}
         if(equals(argv[1],L"plugin"))op="plugin-manager";
         if(equals(argv[1],L"--plugins"))op="plugins";
         if(equals(argv[1],L"--verify"))op="verify";
         if(equals(argv[1],L"--status"))op="status";
         if(equals(argv[1],L"--analyze-evidence"))op="review-evidence";
 #else
-        if(equals(argv[1],"--version")){std::cout<<"RecompDev 0.4.9.30\n";return 0;}
+        if(equals(argv[1],"--version")){std::cout<<"RecompDev "<<RECOMPDEV_VERSION_NUMBER<<"\n";return 0;}
         if(equals(argv[1],"plugin"))op="plugin-manager";
         if(equals(argv[1],"--plugins"))op="plugins";
         if(equals(argv[1],"--verify"))op="verify";
@@ -229,6 +233,21 @@ int main(int argc,char** argv)
            return native_execute?rd_native_execute(args,self_path()):native_translate?rd_native_translate(args,self_path()):rd_native_discover(args,self_path());
         }
         fs::path root=project_root(self_path());
+        // v34: exporter contract is CPU/machine-neutral orchestration. The
+        // chosen source adapter owns project-specific native code/data staging.
+#ifdef _WIN32
+        if(equals(argv[1],L"export")){
+            std::vector<std::wstring> forwarded={(root/L"standalone_export"/L"exporter.py").wstring()};
+            for(int i=2;i<argc;++i)forwarded.emplace_back(argv[i]);
+            return spawn(root,forwarded);
+        }
+#else
+        if(equals(argv[1],"export")){
+            std::vector<std::string> forwarded={(root/"standalone_export"/"exporter.py").string()};
+            for(int i=2;i<argc;++i)forwarded.emplace_back(argv[i]);
+            return spawn(root,forwarded);
+        }
+#endif
         // The owner-facing one-command route is independent of the old
         // headless run/resume workflow. No controller-specific ROM logic.
 #ifdef _WIN32

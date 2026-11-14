@@ -174,6 +174,15 @@ add_executable(RecompDev ../controller/main.cpp ../controller/native_execute.cpp
 target_include_directories(RecompDev PRIVATE include ../translation_pcode/include)
 target_link_libraries(RecompDev PRIVATE rd_native_game_runner)
 # Resolve exactly the Python interpreter used by the tests, not an ambiguous py.exe shim.
+file(READ "${CMAKE_SOURCE_DIR}/../workspace/components.json" _recompdev_components)
+string(REGEX MATCH "\"workspace_release\"[ \t]*:[ \t]*\"([^\"]+)\"" _recompdev_version_match "${_recompdev_components}")
+if(NOT _recompdev_version_match)
+  message(FATAL_ERROR "workspace/components.json does not define a valid release")
+endif()
+set(RECOMPDEV_WORKSPACE_RELEASE "workspace/${CMAKE_MATCH_1}")
+string(REGEX REPLACE "^v" "" RECOMPDEV_VERSION_NUMBER "${CMAKE_MATCH_1}")
+configure_file("${CMAKE_SOURCE_DIR}/../controller/recompdev_version_config.h.in"
+               "${CMAKE_CURRENT_BINARY_DIR}/recompdev_version_config.h" @ONLY)
 configure_file("${CMAKE_SOURCE_DIR}/../controller/recompdev_python_config.h.in"
                "${CMAKE_CURRENT_BINARY_DIR}/recompdev_python_config.h" @ONLY)
 target_include_directories(RecompDev PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
@@ -689,4 +698,26 @@ if(Python3_EXECUTABLE)
   -B -m unittest analysis_integration.tests.test_v04933_provenance_reconciliation)
  set_tests_properties(v04933_generated_source_provenance_reconcile PROPERTIES
   WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/..")
+endif()
+
+# v0.4.9.34: a source-attested native synthetic program MUST compile and run
+# independently of its original source ROM file, Python and controller.
+# Test owns the synthetic authored input; no third-party ROM is bundled.
+if(Python3_Interpreter_FOUND)
+ add_test(NAME v04934_standalone_native_export COMMAND "${Python3_EXECUTABLE}"
+  "${CMAKE_SOURCE_DIR}/../standalone_export/tests/test_v04934_export.py")
+ set_tests_properties(v04934_standalone_native_export PROPERTIES TIMEOUT 300
+  ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+ add_test(NAME v04934_controller_release_identity COMMAND "${Python3_EXECUTABLE}"
+  "${CMAKE_SOURCE_DIR}/../standalone_export/tests/test_v04934_version.py"
+  "$<TARGET_FILE:RecompDev>" "${CMAKE_SOURCE_DIR}/..")
+ set_tests_properties(v04934_controller_release_identity PROPERTIES
+  ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+endif()
+if(Python3_Interpreter_FOUND)
+ add_test(NAME v04934_controller_demo_export COMMAND "${Python3_EXECUTABLE}"
+  "${CMAKE_SOURCE_DIR}/../standalone_export/tests/test_v04934_controller_demo.py"
+  "$<TARGET_FILE:RecompDev>")
+ set_tests_properties(v04934_controller_demo_export PROPERTIES TIMEOUT 300
+  ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
 endif()

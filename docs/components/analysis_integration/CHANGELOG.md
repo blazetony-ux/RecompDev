@@ -1,3 +1,9 @@
+## [0.3.10] - 2026-11-14
+
+- **Changed:** Live session evidence location and top-level release marker are read from the same workspace component release registry used at build configuration, eliminating stale `v0.4.9.29` for new sessions. Historical evidence and source hashes are never relabelled or modified.
+- **Validation:** Registry identity regression checks source-bound folder names and metadata for the candidate release; native and Windows live sessions remain distinct acceptance tasks. No ROM content is copied to the public repository.
+- **Compatibility:** No CPU/machine/runtime ABI or generated-native-source changes. v29-v33 evidence remains stored immutably under its original paths, including previously mislabelled records.
+
 ## v0.4.9.33 — Generated-source reconciliation
 
 - Repair append-only shared-main generated native code checkpoints by tracing the subtree history, preserving original source lineage and recording a verified provenance commit. Refuse destructive source mutations.

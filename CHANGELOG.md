@@ -1,5 +1,11 @@
 # RecompDev workspace changelog
 
+## [workspace/v0.4.9.34] - 2026-11-14 — STANDALONE NATIVE EXPORT MVP (SOURCE-ONLY)
+
+- **Major new capability:** `RecompDev.exe export demo` exposes a rights-cleared compiled-controller demonstration, while `export build` creates a self-contained native application from source-attested generated C++ with explicitly authorised source-data embedding; separate `export verify` checks executable SHA and package structure. Compiled output runs without controller, ROM file path, Python or compiler. The first source adapter handles existing generated-native-project shape, separate from CPU/machine-neutral packaging.
+- **Executable acceptance:** original source-attested synthetic loop translated to native C++ ran in an isolated source-free directory, reaching frame budget; pre-existing six-instruction fixture continues to reject untranslated bank execution. Negative contracts reject mismatch, tamper, rights omission, and dangerous overwrites. Windows/MSVC and full gameplay parity still BLOCKED.
+- **Correctness cleanup included:** controller version and live evidence release identity now derive from the authoritative version registry, not stale source literals. All frozen and generated Git histories remain unchanged. [Release record](docs/releases/v0.4.9.34.md).
+
 ## [workspace/v0.4.9.33] - 2026-11-11 — APPEND-ONLY GENERATED-SOURCE HISTORY RECONCILIATION (SOURCE-ONLY)
 
 - Restore now reconstructs original-shaped source history for verified append-only consolidated generated C++ and commits an unsquashed ancestry linkage and matching provenance pointer. Rejects modified/deleted files and divergent local source without overwriting or rewriting any commits.

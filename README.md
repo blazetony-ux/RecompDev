@@ -2,6 +2,19 @@
 
 This functional update adds automatic retry of verified generated C++ Git checkpoints, truthful pending sync telemetry and SHA-verified immutable *non-active* runtime staging. The [roadmap](docs/project/ROADMAP.md), [v29 implementation contract](docs/project/PREBUILD-v0.4.9.29-OPERATIONAL-LIFECYCLE.md) and [release notes](docs/releases/v0.4.9.29.md) ship in the same ZIP. Based on promoted `workspace/v0.4.9.28`, this owner-requested package is eligible for **source-only Git main/tag installation** via the SHA-pinned permanent installer `-Mode Install` (first use `-Mode Validate`). No new active EXE/DLL deployment is authorised; live GitHub outage/restart, isolated fresh-home restore, real-game 2,400-frame and runtime rollback/parity tests are not claimed completed.
 
+## Standalone native export (v0.4.9.34 MVP)
+
+Run `RecompDev.exe export demo --out C:\Projects\RecompDev-Exports\SyntheticDemo` to build a rights-cleared native-loop demonstration immediately, then `RecompDev.exe export verify --bundle C:\Projects\RecompDev-Exports\SyntheticDemo` to verify the isolated executable. This demo proves export mechanics, not real-game graphics or parity.
+
+The compiled `RecompDev.exe export` command can now turn a **source-attested generated-native project** into a standalone executable with its explicitly authorised source/game data embedded. The CPU-neutral packaging service calls a versioned nativepilot project adapter, compiles a host-native binary and verifies an isolated launch. **The output does not need an external original ROM file, controller, Python or compiler at runtime.**
+
+```powershell
+& $exe export build --project 'C:\path\to\generated-native-project' --source-data 'C:\path\to\authorised-game.sms' --out 'C:\Projects\RecompDev-Exports\Game1' --rights-confirmed
+& $exe export verify --bundle 'C:\Projects\RecompDev-Exports\Game1'
+```
+
+The project must already contain a supported, source-attested generated C++ native application; RecompDev cannot yet produce a complete standalone game from arbitrary raw ROMs through one command. A successful export records `coverage_qualification: NOT_ESTABLISHED` and `hardware_parity: NOT_TESTED`; an unhandled execution path stops instead of executing through a hidden interpreter. The new fixture demonstration used authored rights-cleared bytes. Do not export or distribute third-party game data without appropriate authorisation. See [export contract](docs/components/standalone_export/README.md) and [release acceptance](docs/releases/v0.4.9.34.md).
+
 ## v0.4.9.28 — automatic generated-source Git backup and restoration (owner-accepted source-only promotion)
 
 The released v0.4.9.27 source baseline is `3db4190043136514fe8f68be0f35aa383951778f` and its `workspace/v0.4.9.27` Git tag is on the owner's `origin/main`. The working native preview remains build-transaction software, **not an audio/hardware-parity-qualified installed production runtime**. The owner confirmed working Fantasy Zone/Shinobi scrolling and basic controls, and pushed both generated-source repositories to the private shared `RecompDev-plugins/main` through unsquashed subtree imports.

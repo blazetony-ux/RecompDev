@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""v0.4.9.29 controller-owned, single-process native gameplay recovery.
+"""Controller-owned, single-process native gameplay recovery.
 
 The guest owns its state and window. This controller owns source-attested
 translation, compilation, diagnostics, and module approval. A missing-code
@@ -337,7 +337,8 @@ def run(opts):
     sha_rom=sha(rom)
     home=original_home()
     config=get_config(source,home,test)
-    evidence_base=evidence_root(source,config)/'v0.4.9.29'
+    from workspace.release_identity import release as current_release, evidence_version
+    evidence_base=evidence_root(source,config)/evidence_version(source)
     target=evidence_base/'live'
     # Durable artifacts belong to a compact independent per-user store, not
     # deeply nested evidence paths that exceed Win32 MAX_PATH during Git/copy.
@@ -352,7 +353,7 @@ def run(opts):
     session.mkdir(mode=0o700,parents=False,exist_ok=False)
     control=session/'control';control.mkdir();(control/'modules').mkdir()
     (session/'compilations').mkdir()
-    report={'schema':SCHEMA,'release':'workspace/v0.4.9.29','rom_sha256':sha_rom,
+    report={'schema':SCHEMA,'release':current_release(source),'rom_sha256':sha_rom,
             'target_frames':opts.frames,'status':'INITIALIZING','same_guest_process':True,
             'window_qualified':False,'semantic_parity_qualified':False,
             'hot_activations':[],'source_root':str(source),'session':str(session),

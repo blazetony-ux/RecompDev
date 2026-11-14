@@ -1,3 +1,23 @@
+# RecompDev product recovery — standalone-first roadmap update (2026-11-14)
+
+**Current source milestone:** `workspace/v0.4.9.34` (candidate; owner Windows MSVC and clean-machine qualification still required). The original v29-v33 version-number targets below are historical planning intentions, not evidence that the export milestones were delivered by those numbered releases.
+
+**One-sentence product objective:** import an authorised game, detect its machine and CPU requirements, obtain source-attested native code, link appropriate interchangeable machine/host plugins, and export a self-contained native application verified outside the development toolchain. Controller, artifact store, exporter and native host remain hardware-neutral. ISA/CPU/machine state, VDP, PSG, input and timing remain separately versioned interfaces and plugins. Master System/Z80 is a reference adapter, never a universal-controller special case.
+
+## Current milestone ledger (acceptance, not calendar versions)
+
+| Gate | Deliverable and auditable acceptance | Status after v0.4.9.34 source candidate |
+| --- | --- | --- |
+| **P0-A: One independent native executable** | An authorised source-verified fixture is compiled and runs without original binary on disk, controller, compiler or Python; binary and input provenance are hash-pinned. | **Locally demonstrated on Linux**, synthetic looping Z80 fixture + six-instruction partial-code stop; Windows and clean-machine verification **BLOCKED**. |
+| **P0-B: Versioned universal export contract** | CPU-neutral manifest/loader semantics, adapter registry, runtime plugin and authorised data SHA/ABI pinned. A newly generated project is exportable without game-specific controller branches. | **PARTIAL**: generic v1 exporter + first source adapter + attested data embedding + SHA-receipt and isolated launch. Native plugin dynamic loader ABI and multiple machine adapters remain **BLOCKED**. |
+| **P0-C: Supported real-game output** | Export a source-attested licensed game with meaningful native coverage, input/video/audio, and no compiler/controller/ROM file at launch. | **BLOCKED**: native-play Shinobi evidence is not standalone exported and gameplay parity unverified. |
+| **P1-D: Second CPU family** | Another independently built CPU/machine adapter uses unchanged exporter, controller and host manifest interface. | **BLOCKED**: no active 68000+Z80 scheduler or PS1 MIPS service qualified. |
+| **P1-E: Hardware parity and usability** | Aligned independent input/video/audio/timing reference tests on multiple games; integrated desktop workflow after core CLI path works. | **BLOCKED**: source-bound native execution and PCM capture alone do not qualify hardware correctness. |
+
+**Release discipline:** no infrastructure-only release as a substitute for progress on the blocked gates. Each candidate must preserve 642 immutable historical files, unsquashed generated source histories, active-runtime lockfiles and existing controller commands. It must pass source, docs, Windows compiler, full CTests, offline executable launch and negative coverage/rights/ABI tests before promotion. A fixture-generated EXE is product progress but not a claim of automatic universal recompilation or real-game parity.
+
+---
+
 # RecompDev authoritative engineering roadmap
 
 **Planning baseline:** `workspace/v0.4.9.28` (Git commit `724d190eeb0928ebab4e242e9aba4d2cef016505`), promoted 2026-11-09. This is a roadmap, not a claim that future capabilities exist. **Project rule:** controller, artifact store, source history, native backends and exporter must remain hardware-neutral; CPU/ISA, machine, video, audio, input and timing live in interchangeable plugins. SMS/Z80 is a reference implementation, never a special case in controller logic. Frozen `legacy/` (581 files) and `baselines/` (61 files) must remain unchanged.
