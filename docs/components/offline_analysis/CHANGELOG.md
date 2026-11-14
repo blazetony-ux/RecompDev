@@ -1,5 +1,13 @@
 # offline_analysis — component changelog
 
+## [0.4.0] - 2026-11-14
+
+- **Changed:** CPU semantics now preserve Z80 SP/register facts through IM1 and appropriate ED forms, precisely handle CB bit/memory operations, known high/low register bytes, ADD HL,rr, and eight block-I/O instructions. B=0 repeat-I/O counts 256; BC=0 LDIR counts 65536. Do not conflate I/O with a RAM-mapper write; remaining unknown ED forms produce explicit blockers. Expand separate M68000 LEA/MOVEA/ADDQ/CLR/TST constants and MIPS register ALU/shift/SLTI constants with ADDI overflow rejection.
+- **Native source:** Extend the independent CPU `lift_probe` optional protocol to safe, exact register `set/add/and/or/xor` arithmetic in synthetic-state generated C++ for two families; output tracks arithmetic effects without source image at runtime. Unsupported operations or speculative bytes are rejected; no hardware, interrupts, flags or gameplay parity.
+- **Validation:** 12 authored cross-ISA semantics tests, 4 compiler/tamper tests and compiled-controller two-family test. Source-byte-attested real Shinobi scan 565 candidates vs v37 130, with 77 unresolved. The test ROM remains on the owner's machine, never in source packages. Owner Windows 111 CTests and 642 historical hashes mandatory.
+- **Compatibility:** Keep ANALYSIS_ABI=2, report schema v1 and compiled-controller interface unchanged; this is not a universal semantic translator.
+
+
 ## [0.3.0] - 2026-11-14
 
 - **Changed:** Tighten CPU/machine memory-write precision for safe known Z80 stack/register-indexed and counted-copy ranges while preserving explicitly unknown mapper/control aliases. Add conservative intersection joins for speculative call continuations, M68000 SP/exception-return handling and MIPS conditional link distinction; format/ISA/machine separation unchanged.

@@ -1,5 +1,13 @@
 # RecompDev workspace changelog
 
+## [workspace/v0.4.9.38] - 2026-11-14 — UNIVERSAL OFFLINE ISA SEMANTICS AND LIMITED NATIVE STATE EXECUTION (SOURCE-ONLY)
+
+- **Implemented:** CPU-provider Z80 IM/ED/CB and partial-byte arithmetic effects without discarding known SP or falsely writing mapper memory; independently added Motorola 68000 LEA/MOVEA/ADDQ and MIPS ALU/shift constants with conservative signed-overflow frontiers.
+- **Verified local real-ROM evidence:** 565 decoded candidates, 77 unresolved; byte-attested comparison with owner-installed v37: 130 retained, 435 new, zero missing, 106 reclassified. Not executable coverage, complete semantics, game parity or standalone output.
+- **Source/native proof:** CPU-provider-owned register arithmetic in generated C++ for two independent authored ISA fixtures, source-hash attested and still fail-closed on untranslatable instructions; no game-image embedding.
+- **Windows gate:** 111 CTests, historical 642 original-file preservation, governance, source-only Git promotion and rollback evidence. [Release record](docs/releases/v0.4.9.38.md).
+
+
 ## [workspace/v0.4.9.37] - 2026-11-14 — PRECISE UNIVERSAL OFFLINE FLOW AND SOURCE-HASHED NATIVE HANDOFF (SOURCE-ONLY)
 
 - **Implemented:** CPU-described precise stack, indexed and bounded copy write ranges; platform-mapper handling isolated to machine providers; abstract-state fact joins restricted to speculative contexts; corrected MIPS link-branch and M68000 exception/stack handling.

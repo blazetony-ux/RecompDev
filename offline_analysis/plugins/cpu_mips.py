@@ -25,8 +25,12 @@ def decode(fetch,pc):
             # Only constant-fold operations with fully verified operand interpretation.
             if fn in (0,2,3) and rs==0:
                 return Instruction(4,mnemonic='SHIFT',effects={'constant_op':('shift',rs,rt,(w>>11)&31,(w>>6)&31,fn)})
-            if fn in (33,37):
-                return Instruction(4,mnemonic='ADDU/OR',effects={'constant_op':('addu' if fn==33 else 'or',rs,rt,(w>>11)&31,0,fn)})
+            if fn in (33,35,36,37,38,39,42,43):
+                return Instruction(4,mnemonic='MIPS_REGISTER_ALU',
+                                   effects={'constant_op':('alu',rs,rt,(w>>11)&31,0,fn)})
+            if fn in (4,6,7):
+                return Instruction(4,mnemonic='MIPS_VARIABLE_SHIFT',
+                                   effects={'constant_op':('variable_shift',rs,rt,(w>>11)&31,0,fn)})
             return Instruction(4,mnemonic='SPECIAL',effects={'clear_reg':('R'+str((w>>11)&31),)})
         raise Unresolved('UNSUPPORTED_MIPS_SPECIAL_FUNCTION')
     if op in (1,4,5,6,7):
@@ -41,7 +45,7 @@ def decode(fetch,pc):
         raise Unresolved('UNSUPPORTED_MIPS_RESERVED_LUI_ENCODING')
     if op in (8,9,10,11,12,13,14,15,32,33,34,35,36,37,38,39,40,41,42,43,46):
         eff={'clear_reg':('R'+str(rt),)}
-        if op in (8,9,12,13,14,15):eff={'immediate_op':(op,rs,rt,w&65535)}
+        if op in (8,9,10,11,12,13,14,15):eff={'immediate_op':(op,rs,rt,w&65535)}
         return Instruction(4,effects=eff,mnemonic='MIPS_32BIT_WORD')
     raise Unresolved('UNSUPPORTED_MIPS_OPCODE')
 
@@ -59,10 +63,20 @@ def advance(ins,state:AbstractFacts):
         if op==15:value=(imm<<16)&0xffffffff
         elif src is not None:
             signed=imm-65536 if imm&32768 else imm
-            if op in (8,9):value=(src+signed)&0xffffffff
+            if op in (8,9):
+                total=(src if src<0x80000000 else src-0x100000000)+signed
+                # Signed ADDI overflows trap; silently wrapping and following
+                # the next instruction would invent an execution path.
+                if op==8 and not -0x80000000<=total<=0x7fffffff:
+                    raise Unresolved('MIPS_ADDI_OVERFLOW_EXCEPTION_UNQUALIFIED')
+                value=total&0xffffffff
+            elif op==10:value=int((src if src<0x80000000 else src-0x100000000)<signed)
+            elif op==11:value=int(src<(signed&0xffffffff))
             elif op==12:value=src&imm
             elif op==13:value=src|imm
             elif op==14:value=src^imm
+        elif op==8:
+            raise Unresolved('MIPS_ADDI_POSSIBLE_OVERFLOW_UNQUALIFIED')
         clear.add(r)
         if value is not None:new[r]=value
     if 'constant_op' in e:
@@ -72,8 +86,19 @@ def advance(ins,state:AbstractFacts):
         if op=='shift' and v is not None:
             new[r]=((v<<shift) if fn==0 else (v>>shift) if fn==2 else
                     ((v if v<0x80000000 else v-0x100000000)>>shift))&0xffffffff
-        elif op=='addu' and l is not None and v is not None:new[r]=(l+v)&0xffffffff
-        elif op=='or' and l is not None and v is not None:new[r]=l|v
+        elif op=='variable_shift' and l is not None and v is not None:
+            sh=l&31
+            new[r]=((v<<sh) if fn==4 else (v>>sh) if fn==6 else
+                    ((v if v<0x80000000 else v-0x100000000)>>sh))&0xffffffff
+        elif op=='alu' and l is not None and v is not None:
+            signed_l=l if l<0x80000000 else l-0x100000000
+            signed_r=v if v<0x80000000 else v-0x100000000
+            new[r]={33:lambda:(l+v)&0xffffffff,
+                    35:lambda:(l-v)&0xffffffff,36:lambda:l&v,
+                    37:lambda:l|v,38:lambda:l^v,
+                    39:lambda:(~(l|v))&0xffffffff,
+                    42:lambda:int(signed_l<signed_r),
+                    43:lambda:int(l<v)}[fn]()
     clear.discard('R0');new.pop('R0',None)
     return state.change(set_values=new,clear=tuple(clear))
 

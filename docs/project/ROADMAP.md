@@ -1,3 +1,13 @@
+# v0.4.9.38 — evidence-backed universal offline semantics and native-state witness (2026-11-14)
+
+**Owner-installed baseline:** workspace/v0.4.9.37, commit `251f0210f74df1599ca3281ba977179d097553d1`, full 108/108 Windows CTests and 642 original files unchanged. v38 is a source-promotion **candidate**, not a newly qualified game runtime. Architecture remains controller-neutral: new CPU/ROM/machine behaviour exists only in interchangeable providers. [v38 release details](../releases/v0.4.9.38.md) and [provider contract](../components/offline_analysis/README.md).
+
+**P0 now delivered:** correct conservative Z80 IM, CB, byte-pair, 16-bit arithmetic and repeat-I/O effects; safer independent 68000 and MIPS constant effects; three cross-system acceptance registrations and a source-attested native arithmetic/control-flow C++ proof for two ISA plugins. The supplied Shinobi 256 KiB source, SHA256 `dac4f1dc...411e47`, statically reports 565 candidates vs v37 130 (435 newly discovered byte locations, 0 lost), but 77 unresolved frontiers. **This is measurable candidate recovery, not verified executable coverage.** Release only after owner Windows 111/111 and preservation gates; no ROM redistribution.
+
+**Next P0 objective after v38 validation:** qualify decoded code/data and abstract-path confidence with an independent instruction oracle, resolve indirect jump tables and cross-bank mapper state, expand full instruction semantics and port the same IR into existing production native translation and standalone export. Native witness has synthetic register initialization and no hardware, RAM or flags; **full-game recompilation is still blocked**. Maintain test matrices for independent Z80, 68000 and MIPS targets; adding new hardware requires plugins, not controller special cases.
+
+---
+
 # v0.4.9.37 universal offline recovery and native-source handoff (2026-11-14)
 
 **Installed baseline:** owner Windows `workspace/v0.4.9.36`, 104/104 CTests, 642 historical SHA-256 immutable source files intact; authentic Shinobi offline scan 130 static instruction candidates, 20 unresolved, no gameplay. **v0.4.9.37 proposed source promotion** extends hardware-neutral analysis with precise alias-aware memory effects, safe speculative fact joining and source-verified regression comparison, plus a strictly limited compiled native-control-flow proof adapter from two different ISA providers. Owner Windows **108 CTests** remain mandatory before installation; production runtime stays unchanged.

@@ -37,7 +37,7 @@ def _destinations(effect,registers):
     count=effect.get('mem_count',effect.get('mem_width',1))
     if effect.get('copy_count_from'):
         count=registers.get(effect['copy_count_from'])
-        if count==0:count=65536
+        if count==0:count=256 if effect.get('repeat_counter_bits')==8 else 65536
     if not isinstance(count,int) or count<1 or count>65536:return None
     direction=effect.get('mem_direction',1)
     # Only four bytes can affect the SMS mapper. Constant-time alias test

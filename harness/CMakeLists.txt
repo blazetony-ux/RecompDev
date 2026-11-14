@@ -772,3 +772,21 @@ if(Python3_Interpreter_FOUND)
  set_tests_properties(v04937_compiled_controller_offline_native_handoff PROPERTIES TIMEOUT 180
   ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
 endif()
+
+# v0.4.9.38: independently implemented cross-ISA constant effects and
+# source-hashed native register/branch execution through the unchanged controller.
+if(Python3_Interpreter_FOUND)
+ add_test(NAME v04938_cross_isa_instruction_semantics COMMAND "${Python3_EXECUTABLE}" -B
+  "${CMAKE_SOURCE_DIR}/../offline_analysis/tests/test_v04938_semantics.py")
+ set_tests_properties(v04938_cross_isa_instruction_semantics PROPERTIES TIMEOUT 120
+  ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+ add_test(NAME v04938_attested_native_register_execution COMMAND "${Python3_EXECUTABLE}" -B
+  "${CMAKE_SOURCE_DIR}/../offline_analysis/tests/test_v04938_native_state.py")
+ set_tests_properties(v04938_attested_native_register_execution PROPERTIES TIMEOUT 240
+  ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+ add_test(NAME v04938_compiled_controller_state_handoff COMMAND "${Python3_EXECUTABLE}" -B
+  "${CMAKE_SOURCE_DIR}/../offline_analysis/tests/test_v04938_controller.py"
+  "$<TARGET_FILE:RecompDev>")
+ set_tests_properties(v04938_compiled_controller_state_handoff PROPERTIES TIMEOUT 180
+  ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+endif()

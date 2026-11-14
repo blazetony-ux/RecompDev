@@ -1,3 +1,7 @@
+## v0.4.9.38 — Universal offline semantics and limited native register execution (source candidate)
+
+The compiled controller still exposes one hardware-neutral `analyze` / `analyze-native` workflow. Interchangeable Z80, M68000 and MIPS providers gain independently tested register and control-flow effects, while machine mapper rules remain separate. In the local source-bound Shinobi scan, 435 *additional static byte-decoded candidates* are identified relative to v37 (565 total; 77 unresolved): **candidate discovery is not proven gameplay or native-game coverage**. The existing native handoff can now compile selected register arithmetic and control flow for independently authored Z80 and 68000 fixtures, but remains a synthetic-state control-flow probe, not a complete CPU or game runtime. Installer must pass all **111 Windows CTests** and protect 642 originals; active production runtime remains unchanged. [Release record](docs/releases/v0.4.9.38.md).
+
 ## v0.4.9.37 — Precision offline discovery, comparison and native handoff (source candidate)
 
 Universal `RecompDev analyze --rom FILE --out DIR --budget 40000 [--compare-to PRIOR_EVIDENCE_DIR]` now tracks more precise stack, indexed and counted-write effects through independent CPU and machine providers. On the real Shinobi ROM the initial v37 run retained 130 candidates and reduced unresolved findings to 18 (from v36's 20); no extra native game code was established. Repeated `--compare-to` flags produce source-hash-pinned v35/v36/v37 candidate-difference evidence.

@@ -62,6 +62,7 @@ def prepare(source:Path,analysis:Path,output:Path,*,rights_confirmed=False)->dic
     lift=getattr(cpu,'lift_probe',None)
     if not callable(lift):raise AnalysisFailure('PROBE_CPU_LIFTER_UNAVAILABLE')
     bypc={};excluded={'speculative':0,'unsupported':0,'ambiguous':0}
+    register_widths={}
     for row in rows:
         if row.get('classification')!='STATIC_DECODE_CANDIDATE_NOT_SEMANTICALLY_QUALIFIED':
             excluded['speculative']+=1;continue
@@ -73,26 +74,61 @@ def prepare(source:Path,analysis:Path,output:Path,*,rights_confirmed=False)->dic
         op=lift(raw,pc)
         if op is None:
             excluded['unsupported']+=1;continue
-        if type(op)!=dict or op.get('kind') not in ('next','jump','stop'):
+        if type(op)!=dict or op.get('kind') not in ('next','jump','stop','reg'):
             raise AnalysisFailure('PROBE_LIFTER_CONTRACT_INVALID')
-        target=pc+size if op['kind']=='next' else op.get('target')
+        if op['kind']=='reg':
+            reg=op.get('register');width=op.get('width')
+            if (type(reg)!=str or not re.fullmatch('[A-Z][A-Z0-9]{0,7}',reg) or
+                type(width)!=int or width not in (8,16,32) or
+                op.get('op') not in ('set','add','and','or','xor') or
+                type(op.get('value'))!=int or not -0x100000000<=op['value']<0x100000000):
+                raise AnalysisFailure('PROBE_REGISTER_LIFTER_CONTRACT_INVALID')
+            if reg in register_widths and register_widths[reg]!=width:
+                raise AnalysisFailure('PROBE_REGISTER_WIDTH_CONFLICT')
+            register_widths[reg]=width
+        elif set(op)-{'kind','target'}:
+            raise AnalysisFailure('PROBE_LIFTER_UNEXPECTED_FIELDS')
+        target=pc+size if op['kind'] in ('next','reg') else op.get('target')
         if op['kind']=='jump' and (type(target)!=int or target<0 or target>0xffffffff):
             raise AnalysisFailure('PROBE_LIFTER_TARGET_INVALID')
-        if pc in bypc and bypc[pc]!=(off,size,op['kind'],target):
+        frozen=(off,size,op['kind'],target,
+                tuple(sorted((k,v) for k,v in op.items() if k!='kind')))
+        if pc in bypc and bypc[pc]!=frozen:
             excluded['ambiguous']+=1
             bypc[pc]=None
         elif pc not in bypc:
-            bypc[pc]=(off,size,op['kind'],target)
+            bypc[pc]=frozen
     usable=sorted((pc,item) for pc,item in bypc.items() if item is not None)
     if not usable:raise AnalysisFailure('PROBE_NO_SUPPORTED_NON_SPECULATIVE_INSTRUCTIONS')
     entry=next((v['pc'] for v in report.get('entry_points',[]) if v['reason'] in ('reset','reset-vector','ps-x-exe-entry')),None)
     if type(entry)!=int or entry not in bypc or bypc[entry] is None:
         raise AnalysisFailure('PROBE_ENTRY_IS_NOT_LIFTABLE')
     cases=[]
-    for pc,(off,size,kind,target) in usable:
-        statement=('status="HALTED";break;' if kind=='stop' else
-                   'pc='+str(target)+'u;break;')
+    reg_names=sorted(register_widths)
+    reg_ids={name:'r'+str(i) for i,name in enumerate(reg_names)}
+    state_operations=0
+    for pc,(off,size,kind,target,frozen) in usable:
+        if kind=='stop':statement='status="HALTED";break;'
+        elif kind=='reg':
+            effect=dict(frozen)
+            name=effect['register'];width=effect['width']
+            mask=(1<<width)-1
+            value=effect['value']&mask
+            var=reg_ids[name]
+            op=effect['op']
+            if op=='set':statement=f'{var}={value}u;'
+            else:
+                symbol={'add':'+','and':'&','or':'|','xor':'^'}[op]
+                statement=f'{var}=({var}{symbol}{value}u)&{mask}u;'
+            statement+=f'pc={target}u;break;'
+            state_operations+=1
+        else:statement='pc='+str(target)+'u;break;'
         cases.append(f'    case {pc}u: {statement}')
+    register_declarations=' '.join('std::uint32_t '+reg_ids[name]+'=0u;' for name in reg_names)
+    register_format=','.join('\"'+name+'\":%u' for name in reg_names)
+    register_arguments=''.join(','+reg_ids[name] for name in reg_names)
+    format_text='RECOMPDEV_OFFLINE_NATIVE_PROBE={"status":"%s","native_steps":%llu,"pc":%u,"registers":{'+register_format+'}}\n'
+    print_statement=' std::printf('+json.dumps(format_text)+',status,steps,pc'+register_arguments+');'
     content='''// RecompDev offline native control-flow probe. Source-attested only.
 // Generated from independently selected CPU plugin; NO emulation/runtime parity.
 #include <cstdint>
@@ -103,6 +139,7 @@ int main(int argc,char** argv){
  if(argc>1){char* end=nullptr;budget=std::strtoull(argv[1],&end,10);
    if(!end||*end||budget<1||budget>1000000)return 3;}
  std::uint32_t pc=ENTRYu; unsigned long long steps=0;
+ REGISTER_DECLARATIONS
  const char* status="STEP_BUDGET_REACHED";
  for(;steps<budget;){
   bool stop=false;
@@ -114,10 +151,12 @@ CASES
   ++steps;
   if(status[0]=='H')break;
  }
- std::printf("RECOMPDEV_OFFLINE_NATIVE_PROBE={\\"status\\":\\"%s\\",\\"native_steps\\":%llu,\\"pc\\":%u}\\n",status,steps,pc);
+ PRINT_RECEIPT
  return status[0]=='U'?2:0;
 }
-'''.replace('ENTRY',str(entry)).replace('CASES','\n'.join(cases))
+'''.replace('ENTRY',str(entry)).replace('CASES','\n'.join(cases)).replace(
+        'REGISTER_DECLARATIONS',register_declarations).replace(
+        'PRINT_RECEIPT',print_statement)
     cmake='''cmake_minimum_required(VERSION 3.17)
 project(RecompDevOfflineNativeProbe LANGUAGES CXX)
 add_executable(RecompDevOfflineNativeProbe native_probe.cpp)
@@ -133,6 +172,8 @@ endif()
               'source_sha256':sha(data),'analysis_manifest_sha256':sha(_inside_report(Path(analysis),'analysis.json').read_bytes()),
               'profile':report['profile'],'cpu':report['cpu'],'machine':report['machine'],
               'entry':entry,'lifted_instructions':len(usable),'excluded':excluded,
+              'state_operations_lifted':state_operations,'tracked_registers':reg_names,
+              'register_initialization':'SYNTHETIC_ZERO_NOT_SOURCE_MACHINE_STATE',
               'native_execution_parity':False,'gameplay_qualified':False,
               'full_cpu_semantics':False,'runtime_hardware_services':False,
               'external_game_data_embedded':False,'rights_confirmed':True}

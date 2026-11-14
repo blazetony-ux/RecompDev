@@ -68,10 +68,10 @@
       "version": "0.2.1"
     },
     "offline_analysis": {
-      "description": "Universal offline source-hashed abstract analysis with precise CPU-described memory effects and mapper-neutral control-flow joins, versioned regression comparisons and optional guarded two-CPU C++ control-flow probe handoff; no gameplay or full CPU correctness claimed.",
+      "description": "Hardware-neutral static/abstract ROM analysis with independently replaceable CPU/machine providers; expanded Z80 block-I/O, precise partial-register constants, M68000/MIPS analysis and SHA-attested two-ISA native C++ register/control-flow probe. Full semantic correctness and playable-game qualification remain blocked.",
       "kind": "tooling",
       "scope": "production-workflow",
-      "version": "0.3.0"
+      "version": "0.4.0"
     },
     "parity_validation": {
       "description": "Independent CPU/machine-neutral native C++ comparator for source/input-bound video frame fingerprints and optional audio/state SHA-256. Never asserts gameplay parity or reference independence; candidate fingerprints are generated from native preview with missing input/audio/state explicitly unqualified.",
@@ -269,5 +269,5 @@
     }
   },
   "schema": "recompdev-components-v1",
-  "workspace_release": "v0.4.9.37"
+  "workspace_release": "v0.4.9.38"
 }

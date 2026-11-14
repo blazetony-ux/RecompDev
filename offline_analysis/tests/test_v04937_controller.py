@@ -22,7 +22,7 @@ class ControllerHandoff(unittest.TestCase):
             receipt=json.loads((analysis/'analysis.json').read_text())
             self.assertEqual(receipt['source_sha256'],hashlib.sha256(data).hexdigest())
             self.assertFalse(receipt['launches_game'])
-            self.assertTrue(receipt['release'].endswith('0.4.9.37'))
+            self.assertEqual(receipt['release'],'workspace/'+json.loads((ROOT/'workspace/components.json').read_text())['workspace_release'])
             b=subprocess.run([str(exe),'analyze-native','--rom',str(rom),'--analysis',str(analysis),
                               '--out',str(native),'--rights-confirmed'],
                              capture_output=True,text=True,timeout=60)
