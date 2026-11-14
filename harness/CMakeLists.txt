@@ -721,3 +721,17 @@ if(Python3_Interpreter_FOUND)
  set_tests_properties(v04934_controller_demo_export PROPERTIES TIMEOUT 300
   ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
 endif()
+
+# v0.4.9.35: interchangeable offline format/CPU/machine analysis. No
+# commercial ROM or interactive gameplay is needed to execute the fixtures.
+if(Python3_Interpreter_FOUND)
+ add_test(NAME v04935_universal_offline_analysis COMMAND "${Python3_EXECUTABLE}" -B
+  "${CMAKE_SOURCE_DIR}/../offline_analysis/tests/test_v04935_offline.py")
+ set_tests_properties(v04935_universal_offline_analysis PROPERTIES TIMEOUT 120
+  ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+ add_test(NAME v04935_controller_offline_dispatch COMMAND "${Python3_EXECUTABLE}" -B
+  "${CMAKE_SOURCE_DIR}/../offline_analysis/tests/test_v04935_controller.py"
+  "$<TARGET_FILE:RecompDev>")
+ set_tests_properties(v04935_controller_offline_dispatch PROPERTIES TIMEOUT 180
+  ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+endif()

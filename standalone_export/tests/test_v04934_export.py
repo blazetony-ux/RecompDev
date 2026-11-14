@@ -103,8 +103,9 @@ class ExportContract(unittest.TestCase):
             verify(tampered)
 
     def test_06_release_identifier_from_registry(self):
-        self.assertEqual(release(ROOT),'workspace/v0.4.9.34')
-        self.assertEqual(evidence_version(ROOT),'v0.4.9.34')
+        configured=json.loads((ROOT/'workspace'/'components.json').read_text(encoding='utf8'))['workspace_release']
+        self.assertEqual(release(ROOT),'workspace/'+configured)
+        self.assertEqual(evidence_version(ROOT),configured)
 
 
 class NegativeBeforeBuild(unittest.TestCase):

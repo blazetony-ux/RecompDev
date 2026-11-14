@@ -1,5 +1,12 @@
 # RecompDev workspace changelog
 
+## [workspace/v0.4.9.35] - 2026-11-14 — UNIVERSAL OFFLINE WHOLE-INPUT DISCOVERY (SOURCE-ONLY)
+
+- **Changed:** `RecompDev analyze --rom FILE --out DIR` introduces a single hardware-neutral offline discovery workflow; format identification, CPU decoding and address-mapping interpretation are independently selected through the versioned `offline_analysis/profiles.json` registry. It analyses SMS/Z80 cartridges, Mega Drive/68000 cartridges and PS-X EXE/MIPS program images using a consistent command, bounded static worklist and versioned receipt.
+- **Capability:** Source-hashed instruction candidates, automatic reset/entry/vector seeding, direct control-flow exploration, SMS bank-switch tracking for constant writes, all-bank inventory and unverified orphan-bank hypotheses, and explicit unknown-indirect/mapper/unsupported-opcode gaps without executing or playing the game. Unknown formats still receive a portable `UNSUPPORTED_FORMAT` report; unsupported machine code is not guessed or auto-recompiled.
+- **Validation:** Original fixture images for three distinct CPU families and four classes of invalid code, source-preservation/overwrite/security checks and executable controller command dispatch are registered as two additional Windows CTests. Shinobi 16-bank offline inspection is an owner-supplied source test, not a bundled ROM or gameplay parity claim. Full owner Windows MSVC acceptance is mandatory.
+- **Compatibility:** Active runtime, native plugin ABIs, v0.4.9.34 standalone exporter, generated-source Git history and all 642 frozen files remain unchanged. No automatic native C++ conversion, complete ROM execution coverage, Mega Drive or PS1 gameplay, or cross-machine parity is claimed; these remain **BLOCKED**.
+
 ## [workspace/v0.4.9.34] - 2026-11-14 — STANDALONE NATIVE EXPORT MVP (SOURCE-ONLY)
 
 - **Major new capability:** `RecompDev.exe export demo` exposes a rights-cleared compiled-controller demonstration, while `export build` creates a self-contained native application from source-attested generated C++ with explicitly authorised source-data embedding; separate `export verify` checks executable SHA and package structure. Compiled output runs without controller, ROM file path, Python or compiler. The first source adapter handles existing generated-native-project shape, separate from CPU/machine-neutral packaging.

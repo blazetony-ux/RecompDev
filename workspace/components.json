@@ -7,11 +7,11 @@
       "version": "0.3.10"
     },
     "controller": {
-      "description": "Compiled CPU-neutral native controller with version derived from authoritative registry and standalone export command delegated to a versioned source adapter.",
+      "description": "Compiled platform-neutral controller with native lifecycle, standalone export and new uniform offline ROM-analysis dispatch through independently registered format/CPU/machine providers.",
       "kind": "controller",
       "scope": "production-entrypoint",
       "target": "RecompDev",
-      "version": "0.4.26"
+      "version": "0.4.27"
     },
     "controller_diagnostics": {
       "description": "Authenticated localhost v1 watch_summary whitelist and separate intentional live display instruction sampling vs actual broker/display drops and on-disk capture truncation.",
@@ -66,6 +66,12 @@
       "kind": "tooling",
       "scope": "production-diagnostics",
       "version": "0.2.1"
+    },
+    "offline_analysis": {
+      "description": "Universal offline source interrogation with independent format, CPU/ISA and machine mapping plugins; static, hash-attested CFG candidates across SMS, Mega Drive and PS-X EXE; partial coverage explicitly not gameplay or semantics qualified.",
+      "kind": "tooling",
+      "scope": "production-workflow",
+      "version": "0.1.0"
     },
     "parity_validation": {
       "description": "Independent CPU/machine-neutral native C++ comparator for source/input-bound video frame fingerprints and optional audio/state SHA-256. Never asserts gameplay parity or reference independence; candidate fingerprints are generated from native preview with missing input/audio/state explicitly unqualified.",
@@ -238,10 +244,10 @@
       "version": "0.1.0"
     },
     "standalone_export": {
-      "description": "Versioned source-adapter interface and fail-closed rights-confirmed self-contained native application exporter with embedded authorised game data, reproducible hash receipts, isolated launch and coverage/parity qualification boundaries.",
+      "description": "Versioned source-adapter interface and fail-closed rights-confirmed self-contained native application exporter with embedded authorised game data, reproducible hash receipts, isolated launch and coverage/parity qualification boundaries. Legacy export acceptance tests now use the live authoritative release identity to prevent new-version regressions.",
       "kind": "tooling",
       "scope": "production-workflow",
-      "version": "0.1.0"
+      "version": "0.1.1"
     },
     "state_observer": {
       "description": "Generic source-only read-only guest memory-region observation API with provider-described address spaces, byte orders, clock domains, bounded delta journaling and offline candidate correlation; no CPU/console/game dependency",
@@ -263,5 +269,5 @@
     }
   },
   "schema": "recompdev-components-v1",
-  "workspace_release": "v0.4.9.34"
+  "workspace_release": "v0.4.9.35"
 }

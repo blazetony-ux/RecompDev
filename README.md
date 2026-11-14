@@ -1,5 +1,10 @@
 ## v0.4.9.29 — operational native-source durability and runtime staging (SOURCE-ONLY PROMOTION)
 
+
+### Universal offline ROM interrogation — v0.4.9.35 source candidate
+
+`RecompDev.exe analyze --rom "C:\path\to\game.rom" --out "C:\path\to\new-evidence-folder" --budget 40000` is identical across registered systems. `RecompDev.exe analyze --profiles` lists supported format, ISA and machine adapters; `--profile ID` selects a registered profile but does not force unrecognised data into one. Analysis never launches gameplay. It emits source-bound `analysis.json`, `instructions.json`, `unresolved.json`, `bank-inventory.json` and unqualified `orphan-hypotheses.json`. The output's parent directory is created if needed; existing evidence directories are never overwritten. Recognised formats currently include SMS cartridges (Z80), Mega Drive cartridge headers (68000 subset), and PS-X EXE (MIPS R3000A subset). This is **not** unrestricted ROM compatibility or native C++ export: arbitrary ROM types remain `UNSUPPORTED_FORMAT`, and all decoded instructions are non-semantic static *candidates*. For plugin/mapper limits and extension contracts, see [offline discovery](docs/components/offline_analysis/README.md).
+
 This functional update adds automatic retry of verified generated C++ Git checkpoints, truthful pending sync telemetry and SHA-verified immutable *non-active* runtime staging. The [roadmap](docs/project/ROADMAP.md), [v29 implementation contract](docs/project/PREBUILD-v0.4.9.29-OPERATIONAL-LIFECYCLE.md) and [release notes](docs/releases/v0.4.9.29.md) ship in the same ZIP. Based on promoted `workspace/v0.4.9.28`, this owner-requested package is eligible for **source-only Git main/tag installation** via the SHA-pinned permanent installer `-Mode Install` (first use `-Mode Validate`). No new active EXE/DLL deployment is authorised; live GitHub outage/restart, isolated fresh-home restore, real-game 2,400-frame and runtime rollback/parity tests are not claimed completed.
 
 ## Standalone native export (v0.4.9.34 MVP)

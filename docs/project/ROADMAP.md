@@ -1,3 +1,13 @@
+# RecompDev universal offline discovery — v0.4.9.35 recovery milestone (2026-11-14)
+
+**Scope:** one immutable-input, plugin-dispatched `RecompDev analyze --rom FILE --out DIR` command and CPU-neutral versioned outputs. Master System, Mega Drive and PS-X EXE format/ISA/mapping support lives in interchangeable provider modules, **not controller code**. Unsupported ROM types report `UNSUPPORTED_FORMAT`; *unqualified* CPU opcodes, unknown banks, indirect targets and potential orphan-bank entry points are explicitly identified rather than silently accepted. Merely recognising a platform cannot establish correctness or full compatibility.
+
+**Acceptance for this source candidate:** a non-playing static analysis on three independently authored 8/16-bit/32-bit fixture formats; source bytes and plugin source hashed; directed call/branch discovery; 16-bank SMS source inventory with cautious mapping; fail-closed ambiguous/unsupported CPU instruction handling; preservation of existing v0.4.9.34 independent native exporter and 642 frozen historical files; Windows native build + **102** registered CTests before promotion. The owner's real Shinobi run provides extra source-only coverage evidence but cannot qualify gameplay.
+
+**Next blocked gates:** broaden instruction-decoding and abstract interpretation per ISA, trusted automatic indirect/jump-table and bank-switch discovery, offline Ghidra/Rizin P-code ingestion for each qualified image segment, generic native generation from the verified offline analysis output, native module export, multi-CPU scheduling and independent reference hardware parity. None of these gates can be asserted from 3-format recognition or static byte decoding alone. A complete whole-ROM native converter for arbitrary systems remains a **long-term ambition**, not a delivered capability.
+
+---
+
 # RecompDev product recovery — standalone-first roadmap update (2026-11-14)
 
 **Current source milestone:** `workspace/v0.4.9.34` (candidate; owner Windows MSVC and clean-machine qualification still required). The original v29-v33 version-number targets below are historical planning intentions, not evidence that the export milestones were delivered by those numbered releases.

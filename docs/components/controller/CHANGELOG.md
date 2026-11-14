@@ -4,6 +4,12 @@
 - **Validation:** Linux compiled controller and new Python audio contract passed. Owner Windows MSVC and full CTest are still needed; real Win32 sound hardware parity remains unverified.
 - **Compatibility:** Existing CPU/machine/plugin ABIs and native state continuity unchanged. This source-only release does not activate the runtime.
 
+## [0.4.27] - 2026-11-14
+
+- **Changed:** Add `RecompDev analyze` with one uniform, immutable-source, offline workflow dispatching exclusively to the `offline_analysis` component; the compiled controller contains zero CPU opcode, cartridge-format, address-map or system-specific branches for this command. Preserve all existing commands and native discovery interfaces.
+- **Validation:** Cross-platform compiled-controller fixture tests for SMS/Z80, Mega Drive/M68000 and PS-X EXE/MIPS, plus Python source-attestation, supported/unknown format, negative branch and bank-context tests; full owner Windows native CTest remains a release gate.
+- **Compatibility:** Existing v0.4.9.34 native exporter and plugin DLL contracts unchanged. Static candidates are not automatically native-compiled and do not certify guest CPU or hardware parity, which remain explicitly blocked.
+
 ## [0.4.26] - 2026-11-14
 
 - **Changed:** Native controller exposes a CPU-neutral `export build` / `export verify` / `export demo` command, forwarded to the standalone export component without adding ISA, memory mapping or game rules. The executable's version is configured from the authoritative workspace registry rather than a separate hardcoded string.

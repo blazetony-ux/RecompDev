@@ -154,6 +154,8 @@ static void usage(){
       "  export build --project DIR --source-data FILE --out DIR --rights-confirmed (verified standalone native application)\n"
       "  export verify --bundle DIR [--expected-manifest-sha256 SHA] (offline integrity check)\n"
       "  export demo --out DIR (rights-cleared synthetic native executable smoke)\n"
+      "  analyze --rom FILE --out DIR [--budget N] [--profile ID] (offline plugin-dispatched static discovery; no gameplay)\n"
+      "  analyze --profiles (list available format, CPU and machine plugin combinations)\n"
       "  play ROM [--frames 2400] [--max-recoveries 128] [--audio speaker|capture|null] (one native live session, Windows monitor + display)\n"
       "  run ROM --auto-native [--target-frames 2400] (alias for play)\n"
       "  run --rom FILE [--logging debug|info|warning|error] [--max-cycles N] [--no-auto-history] (legacy bounded)\n"
@@ -244,6 +246,22 @@ int main(int argc,char** argv)
 #else
         if(equals(argv[1],"export")){
             std::vector<std::string> forwarded={(root/"standalone_export"/"exporter.py").string()};
+            for(int i=2;i<argc;++i)forwarded.emplace_back(argv[i]);
+            return spawn(root,forwarded);
+        }
+#endif
+        // v35: exactly the same offline analysis contract for every format/ISA.
+        // Format and CPU selection is delegated to versioned plugins, not
+        // embedded as a platform switch in the controller binary.
+#ifdef _WIN32
+        if(equals(argv[1],L"analyze")){
+            std::vector<std::wstring> forwarded={(root/L"offline_analysis"/L"cli.py").wstring()};
+            for(int i=2;i<argc;++i)forwarded.emplace_back(argv[i]);
+            return spawn(root,forwarded);
+        }
+#else
+        if(equals(argv[1],"analyze")){
+            std::vector<std::string> forwarded={(root/"offline_analysis"/"cli.py").string()};
             for(int i=2;i<argc;++i)forwarded.emplace_back(argv[i]);
             return spawn(root,forwarded);
         }

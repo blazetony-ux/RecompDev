@@ -1,0 +1,23 @@
+{
+  "schema": "recompdev.offline.profiles.v1",
+  "profiles": [
+    {
+      "id": "sega-master-system",
+      "format": "offline_analysis.plugins.format_sms",
+      "cpu": "offline_analysis.plugins.cpu_z80",
+      "machine": "offline_analysis.plugins.machine_sms"
+    },
+    {
+      "id": "sega-mega-drive",
+      "format": "offline_analysis.plugins.format_megadrive",
+      "cpu": "offline_analysis.plugins.cpu_m68k",
+      "machine": "offline_analysis.plugins.machine_flat"
+    },
+    {
+      "id": "sony-psx-exe",
+      "format": "offline_analysis.plugins.format_psxexe",
+      "cpu": "offline_analysis.plugins.cpu_mips",
+      "machine": "offline_analysis.plugins.machine_flat"
+    }
+  ]
+}

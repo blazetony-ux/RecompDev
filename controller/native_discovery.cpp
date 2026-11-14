@@ -1,4 +1,5 @@
 #include "native_discovery.hpp"
+#include "recompdev_version_config.h"
 #include "evidence_index.hpp"
 #include "rd_native_discovery_v1.h"
 #include "rd_sha256.hpp"
@@ -440,8 +441,8 @@ int rd_native_discover(const std::vector<std::string>&args,const fs::path&exe_pa
  std::string srcsha=streamhash(rom);
  if(srcsha!=source_identity_before)throw std::runtime_error("SOURCE_CHANGED_DURING_DISCOVERY");
  f<<"{\n  \"schema\": \"recompdev.native.discovery.v1\",\n"
-  <<"  \"workspace_release\": \"v0.4.9.11\",\n"
-  <<"  \"controller_version\": \"0.4.8\",\n"
+  <<"  \"workspace_release\": "<<json(RECOMPDEV_WORKSPACE_RELEASE)<<",\n"
+  <<"  \"controller_version\": "<<json(RECOMPDEV_VERSION_NUMBER)<<",\n"
   <<"  \"source\": "<<json(rom.u8string())<<",\n"
   <<"  \"source_size\": "<<src.size<<",\n"
   <<"  \"source_sha256\": "<<json(srcsha)<<",\n"
