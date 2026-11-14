@@ -1,3 +1,13 @@
+# v0.4.9.36 universal abstract execution — owner-requested next build (2026-11-14)
+
+**Installed baseline:** `workspace/v0.4.9.35`, Windows 102/102 CTests and 642 immutable source files PASS, real Shinobi static scan 498 candidates / 23 unresolved findings / 26 orphan hypotheses, with *no* game launch. **v0.4.9.36 source candidate** adds hardware-neutral bounded abstract execution with versioned CPU facts, machine-only address mapping and explicit static-vs-speculative classifications, plus tests using invented Z80, 68000 and MIPS bytes. Full Windows 104-test acceptance and immutable-source preservation are mandatory before promotion.
+
+**Progress invariant:** Improving correctness may lower the number of nominal decoded candidates; do not equate byte count with verified coverage. The acceptance measure is statically resolved indirect/return paths, conservative memory effects, delay-slot correctness and source-auditable unresolved reasons across at least three distinct ISA providers. The universal controller must never contain game/CPU/console-specific opcodes or mapper addresses.
+
+**Next unblocked engineering target:** deepen ISA-specific symbolic/value semantics (flags, bounded memory ranges, indirect tables), automatically promote *verified* offline source candidates to native translation across provider ABIs, and connect them to the existing independent native exporter. Keep speculative/discovered data separate from validated code and authorise game source data explicitly.
+
+---
+
 # RecompDev universal offline discovery — v0.4.9.35 recovery milestone (2026-11-14)
 
 **Scope:** one immutable-input, plugin-dispatched `RecompDev analyze --rom FILE --out DIR` command and CPU-neutral versioned outputs. Master System, Mega Drive and PS-X EXE format/ISA/mapping support lives in interchangeable provider modules, **not controller code**. Unsupported ROM types report `UNSUPPORTED_FORMAT`; *unqualified* CPU opcodes, unknown banks, indirect targets and potential orphan-bank entry points are explicitly identified rather than silently accepted. Merely recognising a platform cannot establish correctness or full compatibility.

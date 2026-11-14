@@ -1,6 +1,6 @@
 """PS-X EXE format; PS1 CD images and arbitrary overlays are not claimed."""
 from offline_analysis.model import Image, Seed
-ANALYSIS_ABI=1
+ANALYSIS_ABI=2
 
 def inspect(data: bytes) -> Image | None:
     if not data.startswith(b'PS-X EXE') or len(data)<0x804: return None

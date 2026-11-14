@@ -1,6 +1,6 @@
 """Conservative cartridge detection and reset-vector validation."""
 from offline_analysis.model import Image, Seed
-ANALYSIS_ABI=1
+ANALYSIS_ABI=2
 
 def inspect(data: bytes) -> Image | None:
     if not (0x200 <= len(data) <= 16*1024*1024) or len(data)%2: return None

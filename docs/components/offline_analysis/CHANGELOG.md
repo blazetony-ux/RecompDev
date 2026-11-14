@@ -1,5 +1,12 @@
 # offline_analysis — component changelog
 
+## [0.2.0] - 2026-11-14
+
+- **Changed:** Introduces immutable CPU abstract-register facts, CPU-plugin `initial/key/advance/indirect` hooks and machine-only mapping state with an explicit version-2 analysis provider ABI. The universal traversal owns bounded call/return contexts; machine plugins alone interpret ROM banking and memory-mapped write addresses.
+- **Capability:** Resolves statically known Z80 HL/IX/IY branch targets and some known mapper writes; M68000 LEA/An computed jumps; MIPS LUI/ORI/ADDIU register jumps, JAL/JR-RA returns and delay-slot ordering, without playing a game. Tracks resolved sites and contexts in source-hashed evidence.
+- **Compatibility:** This replaces only offline analysis provider ABI v1; compiled/native plugin ABIs, gameplay runtime, frozen sources and generated game Git histories are unchanged. Unknown callee fallthrough is marked speculative instead of endorsed as reachable; indirect targets are never guessed; unsupported instruction lengths remain blocked; return-depth, worklist and register-context bounds are enforced. Source bytes, frozen histories, main/native Git and runtime activation remain protected.
+- **Validation:** 16 new authored cross-ISA abstract-flow cases and a compiled-controller three-format end-to-end test, plus all v35 contracts and historical suites. No whole-game translation, user-ROM gameplay parity or generated native standalone export is asserted.
+
 ## [0.1.0] - 2026-11-14
 
 - **Changed:** Introduced an independent CPU- and machine-neutral offline whole-ROM interrogation engine and versioned provider registry, with interchangeable file format, instruction-decoding and memory mapping implementations. The initial providers support static decoding of SMS/Z80, Mega Drive/M68000 and PS-X EXE/MIPS fixtures without any game execution.

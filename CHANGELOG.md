@@ -1,5 +1,12 @@
 # RecompDev workspace changelog
 
+## [workspace/v0.4.9.36] - 2026-11-14 — UNIVERSAL BOUNDED ABSTRACT FLOW (SOURCE-ONLY)
+
+- **Implemented:** ISA-neutral bounded abstract control-flow interpreter with separate CPU fact providers, machine address mapping and source format plugins. Resolves known Z80 register jumps, M68000 LEA/An jumps, MIPS register jumps and call/return paths across all three fixtures; MIPS delay-slot target/side-effect ordering is enforced.
+- **Evidence:** Source hashes, individual instruction classifications and a new `abstract_execution` counter block distinguish deduced return/indirect targets from speculative callee fallthrough. ABI v2 prevents stale analysis plugins. Unsupported code/ROMs remain explicit, with no inferred game playability.
+- **Acceptance:** Two new Windows CTests bring the mandatory suite to 104, plus preserved v35 and standalone-export tests, 642 frozen-source records and native build. Windows owner acceptance is pending; this is not a native runtime release. [Release record](docs/releases/v0.4.9.36.md).
+
+
 ## [workspace/v0.4.9.35] - 2026-11-14 — UNIVERSAL OFFLINE WHOLE-INPUT DISCOVERY (SOURCE-ONLY)
 
 - **Changed:** `RecompDev analyze --rom FILE --out DIR` introduces a single hardware-neutral offline discovery workflow; format identification, CPU decoding and address-mapping interpretation are independently selected through the versioned `offline_analysis/profiles.json` registry. It analyses SMS/Z80 cartridges, Mega Drive/68000 cartridges and PS-X EXE/MIPS program images using a consistent command, bounded static worklist and versioned receipt.

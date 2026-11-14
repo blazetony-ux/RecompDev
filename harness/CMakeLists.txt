@@ -735,3 +735,18 @@ if(Python3_Interpreter_FOUND)
  set_tests_properties(v04935_controller_offline_dispatch PROPERTIES TIMEOUT 180
   ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
 endif()
+
+# v0.4.9.36: bounded CPU-neutral abstract interpreter with three ISA fact
+# providers, mapper source effects and independently audited speculation.
+# Both tests use only original synthetic fixtures, no game or ROM binaries.
+if(Python3_Interpreter_FOUND)
+ add_test(NAME v04936_cross_isa_abstract_flow COMMAND "${Python3_EXECUTABLE}" -B
+  "${CMAKE_SOURCE_DIR}/../offline_analysis/tests/test_v04936_abstract.py")
+ set_tests_properties(v04936_cross_isa_abstract_flow PROPERTIES TIMEOUT 120
+  ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+ add_test(NAME v04936_compiled_controller_abstract_dispatch COMMAND "${Python3_EXECUTABLE}" -B
+  "${CMAKE_SOURCE_DIR}/../offline_analysis/tests/test_v04936_controller.py"
+  "$<TARGET_FILE:RecompDev>")
+ set_tests_properties(v04936_compiled_controller_abstract_dispatch PROPERTIES TIMEOUT 180
+  ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+endif()

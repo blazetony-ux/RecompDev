@@ -1,3 +1,7 @@
+## v0.4.9.36 — Universal offline abstract discovery (source candidate)
+
+`RecompDev analyze --rom FILE --out DIR --budget 40000` now carries bounded abstract register facts and call/return contexts across interchangeable format, CPU and machine plugins. It can resolve selected Z80, 68000 and MIPS register-indirect destinations without launching gameplay, and records speculative call continuations separately from ordinary static candidates. This is **not** full ROM-to-native conversion or gameplay parity; see [v36 release](docs/releases/v0.4.9.36.md) and [provider contract](docs/components/offline_analysis/README.md). Owner Windows MSVC + 104 CTests and the immutable 642-file history gate remain mandatory.
+
 ## v0.4.9.29 — operational native-source durability and runtime staging (SOURCE-ONLY PROMOTION)
 
 

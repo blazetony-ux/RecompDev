@@ -3,8 +3,8 @@
 Variable-length instructions not covered here are recorded UNRESOLVED, not
 mistaken for one-word instructions. This is NOT a full 68000 decoder.
 """
-from offline_analysis.model import Instruction, Unresolved
-ANALYSIS_ABI=1
+from offline_analysis.model import Instruction, Unresolved,AbstractFacts
+ANALYSIS_ABI=2
 
 def decode(fetch,pc):
     if pc&1:raise Unresolved('M68000_UNALIGNED_PC')
@@ -36,8 +36,27 @@ def decode(fetch,pc):
         if cond==0:return Instruction(length,'jump',target,mnemonic='BRA')
         if cond==1:return Instruction(length,'call',target,mnemonic='BSR')
         return Instruction(length,'branch',target,True,mnemonic='Bcc')
-    if w&0xf100==0x7000:return Instruction(2,mnemonic='MOVEQ')
+    if w&0xf100==0x7000:
+        imm=w&255;imm=imm-256 if imm&128 else imm
+        return Instruction(2,mnemonic='MOVEQ',effects={'reg_set':('D'+str((w>>9)&7),imm&0xffffffff)})
+    if w&0xf1ff==0x41f9: # LEA absolute long, An
+        dest='A'+str((w>>9)&7)
+        value=int.from_bytes(fetch(pc+2,4),'big')
+        return Instruction(6,mnemonic='LEA_ABSL',effects={'reg_set':(dest,value)})
+    if (w&0xfff8) in (0x4e90,0x4ed0):
+        return Instruction(2,'call' if w&0xfff8==0x4e90 else 'indirect',
+                           effects={'indirect_reg':'A'+str(w&7)},mnemonic='JSR/JMP_An')
     if w in (0x4e70,0x4e76):return Instruction(2,'stop',mnemonic='RESET/TRAPV')
     if 0x4e40<=w<=0x4e4f:return Instruction(2,'indirect',mnemonic='TRAP_VECTOR')
     # Never guess the instruction length of an unknown 68000 instruction.
     raise Unresolved('M68000_INSTRUCTION_LENGTH_UNVERIFIED')
+
+
+def initial(image):return AbstractFacts()
+def key(state):return state.pairs
+def advance(ins,state):
+    reg=ins.effects.get('reg_set')
+    return state.change(set_values={reg[0]:reg[1]}) if reg else state
+def indirect(ins,state):
+    reg=ins.effects.get('indirect_reg')
+    return state.get(reg) if reg else None

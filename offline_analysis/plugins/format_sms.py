@@ -1,6 +1,6 @@
 """SMS cartridge detection only. Mapper and ISA remain independent plugins."""
 from offline_analysis.model import Image, Seed
-ANALYSIS_ABI=1
+ANALYSIS_ABI=2
 
 def inspect(data: bytes) -> Image | None:
     if len(data) < 0x8000 or len(data) % 0x4000 != 0 or len(data) > 4*1024*1024:

@@ -6,6 +6,7 @@ semantic, reachability and gameplay qualification are explicitly unavailable.
 """
 from __future__ import annotations
 import collections
+from dataclasses import replace
 import hashlib
 import importlib
 import json
@@ -28,6 +29,11 @@ MAX_BUDGET=100000
 class AnalysisFailure(Exception):pass
 
 def _hash(data:bytes)->str:return hashlib.sha256(data).hexdigest()
+
+def release_identity():
+    # One source of truth; old scan receipts must not retain a hard-coded release.
+    from workspace.release_identity import release
+    return release(ROOT)
 
 def _read_json(path):return json.loads(path.read_text(encoding='utf8'))
 
@@ -72,68 +78,156 @@ def _fetch(data,image,machine,state,addr,n):
     return bytes(r)
 
 def _one_pass(data,image,cpu,machine,budget):
-    todo=collections.deque((s.pc,machine.initial(image),False,s.reason) for s in image.entries)
+    """One hardware-neutral abstract traversal over CPU facts + machine mapping.
+
+    CPU providers alone interpret register constants/indirect targets; machine
+    providers alone interpret physical addresses and memory mapping. Bounded
+    call contexts recover returns. Unknown callees retain a separately marked
+    speculative continuation rather than silently claiming reachability.
+    """
+    MAX_RETURN_DEPTH=16
+    MAX_CONTEXTS_PER_PC=96
+    # pc, machine state, CPU abstract facts, return stack, seed, speculative
+    todo=collections.deque((s.pc,machine.initial(image),cpu.initial(image),(),s.reason,False)
+                           for s in image.entries)
     seen=set();visits=collections.Counter()
     records={};gaps=[];gap_seen=set();edges=0
+    resolved_returns=set();resolved_indirect=set();delay_slots=set()
+    def record(pc,physical,ins,raw,seed,speculative):
+        ident=(pc,physical)
+        row={'pc':pc,'physical':physical,'length':ins.length,
+             'bytes_sha256':_hash(raw),'flow':ins.flow,'target':ins.target,
+             'mnemonic':ins.mnemonic,'seed':seed,
+             'classification':('SPECULATIVE_CALL_CONTINUATION_NOT_REACHABILITY_PROOF'
+                               if speculative else 'STATIC_DECODE_CANDIDATE_NOT_SEMANTICALLY_QUALIFIED')}
+        old=records.get(ident)
+        if old is not None and (old['length'],old['bytes_sha256'])!=(row['length'],row['bytes_sha256']):
+            _record_gap(gaps,gap_seen,pc,'DECODE_CONFLICT_FOR_PHYSICAL_OFFSET')
+            return False
+        if old is None or (old['classification'].startswith('SPECULATIVE') and not speculative):
+            records[ident]=row
+        return True
+    def decode(pc,ms,regs,seed,speculative):
+        physical=machine.resolve(image,pc,ms)
+        ins=cpu.decode(lambda address,n:_fetch(data,image,machine,ms,address,n),pc)
+        if (not isinstance(ins,Instruction) or type(ins.length)!=int or not 1<=ins.length<=16 or
+            ins.flow not in ('next','jump','branch','call','return','indirect','stop') or
+            ins.delay_slots not in (0,1)):
+            raise Unresolved('CPU_DECODE_ABI_INVALID')
+        raw=_fetch(data,image,machine,ms,pc,ins.length)
+        if not record(pc,physical,ins,raw,seed,speculative):
+            raise Unresolved('DECODE_CONFLICT_FOR_PHYSICAL_OFFSET')
+        return ins
+    def add(pc,ms,regs,returns,seed,speculative):
+        nonlocal edges
+        todo.append((pc,ms,regs,returns,seed,speculative));edges+=1
     while todo and len(seen)<budget:
-        pc,state,delay_only,seed=todo.popleft()
-        key=(pc,machine.key(state),delay_only)
+        pc,ms,regs,returns,seed,speculative=todo.popleft()
+        key=(pc,machine.key(ms),cpu.key(regs),returns,speculative)
         if key in seen:continue
         seen.add(key)
-        visits[pc]+=1
-        if visits[pc]>64:
-            _record_gap(gaps,gap_seen,pc,'ABSTRACT_CONTEXT_LIMIT')
-            continue
+        context_key=(pc,machine.key(ms))
+        visits[context_key]+=1
+        if visits[context_key]>MAX_CONTEXTS_PER_PC:
+            _record_gap(gaps,gap_seen,pc,'ABSTRACT_CONTEXT_LIMIT');continue
         try:
-            physical=machine.resolve(image,pc,state)
-            ins=cpu.decode(lambda addr,n:_fetch(data,image,machine,state,addr,n),pc)
-            if (not isinstance(ins,Instruction) or type(ins.length)!=int or not 1<=ins.length<=16 or
-                ins.flow not in ('next','jump','branch','call','return','indirect','stop') or
-                ins.delay_slots not in (0,1)):
-                raise Unresolved('CPU_DECODE_ABI_INVALID')
-            b=_fetch(data,image,machine,state,pc,ins.length)
-            # Disallow decode ambiguities that overlap different source bytes at
-            # the same physical position. This is a reportable conflict, not a
-            # justification to discard the previously verified exact source.
-            ident=(pc,physical)
-            row={'pc':pc,'physical':physical,'length':ins.length,
-                 'bytes_sha256':_hash(b),'flow':ins.flow,'target':ins.target,
-                 'mnemonic':ins.mnemonic,'seed':seed,
-                 'classification':'STATIC_DECODE_CANDIDATE_NOT_SEMANTICALLY_QUALIFIED'}
-            old=records.get(ident)
-            if old is not None and (old['length'],old['bytes_sha256'])!=(row['length'],row['bytes_sha256']):
-                _record_gap(gaps,gap_seen,pc,'DECODE_CONFLICT_FOR_PHYSICAL_OFFSET')
-                continue
-            if old is None:records[ident]=row
-            next_state,warnings=machine.transition(image,ins,state)
-            for warning in warnings:
-                _record_gap(gaps,gap_seen,pc,warning)
+            ins=decode(pc,ms,regs,seed,speculative)
+            # Targets of computed branches are read before the delay slot:
+            # instructions inside that slot may overwrite the source register.
+            indirect_target=(cpu.indirect(ins,regs) if ins.flow in ('indirect','return','call')
+                             and ins.target is None else None)
+            next_ms,warnings=machine.transition(image,ins,ms,regs)
+            next_regs=cpu.advance(ins,regs)
+            other_ms=other_regs=None
+            if ins.conditional and ins.flow in ('call','return'):
+                # Untaken conditional CALL/RET must not change the emulated
+                # stack or link register. Never borrow its taken-path facts.
+                neutral={k:v for k,v in ins.effects.items()
+                         if k not in ('stack_push','stack_pop','link_reg')}
+                other_ins=replace(ins,effects=neutral)
+                other_ms,other_warn=machine.transition(image,other_ins,ms,regs)
+                other_regs=cpu.advance(other_ins,regs)
+                for reason in other_warn:_record_gap(gaps,gap_seen,pc,reason)
+            for reason in warnings:_record_gap(gaps,gap_seen,pc,reason)
+            after=pc+ins.length
+            if ins.delay_slots:
+                slot=decode(after,next_ms,next_regs,'delay-slot',speculative)
+                if slot.delay_slots or slot.flow!='next':
+                    _record_gap(gaps,gap_seen,after,'CONTROL_TRANSFER_OR_STOP_IN_DELAY_SLOT')
+                    continue
+                delay_slots.add(after)
+                slot_ms,slot_warnings=machine.transition(image,slot,next_ms,next_regs)
+                for reason in slot_warnings:_record_gap(gaps,gap_seen,after,reason)
+                next_regs=cpu.advance(slot,next_regs)
+                next_ms=slot_ms
+                if other_ms is not None:
+                    # A different machine mapping for the alternate path
+                    # invalidates a shared delay-slot assumption.
+                    other_slot=cpu.decode(lambda address,n:_fetch(data,image,machine,other_ms,address,n),after)
+                    if other_slot.length!=slot.length or other_slot.flow!='next':
+                        raise Unresolved('CONDITIONAL_DELAY_SLOT_CONTEXT_CONFLICT')
+                    other_ms,other_warn=machine.transition(image,other_slot,other_ms,other_regs)
+                    other_regs=cpu.advance(other_slot,other_regs)
+                    for reason in other_warn:_record_gap(gaps,gap_seen,after,reason)
+                after+=slot.length
         except Unresolved as exc:
             _record_gap(gaps,gap_seen,pc,exc.reason)
             continue
-        # Delay slot is decoded exactly once, without incorrectly following its
-        # own fallthrough independently of the branch that executed it.
-        after=pc+ins.length
-        if ins.delay_slots:
-            todo.append((after,state,True,'delay-slot'))
-            edges+=1
-            after+=ins.length*ins.delay_slots
-        if delay_only:continue
-        if ins.flow in ('next','branch','call') or (ins.flow=='return' and ins.conditional):
-            next_seed='call-continuation-hypothesis' if ins.flow=='call' else 'static-fallthrough'
-            todo.append((after,next_state,False,next_seed));edges+=1
-        if ins.flow in ('jump','branch','call'):
-            if ins.target is None:
-                _record_gap(gaps,gap_seen,pc,'UNRESOLVED_DIRECT_BRANCH')
+        if ins.flow=='stop':continue
+        if ins.flow in ('next','branch'):
+            add(after,next_ms,next_regs,returns,'static-fallthrough',speculative)
+        if ins.flow in ('jump','branch','call','indirect'):
+            target=ins.target if ins.target is not None else indirect_target
+            if target is None:
+                _record_gap(gaps,gap_seen,pc,'INDIRECT_TARGET_UNRESOLVED' if
+                            ins.flow in ('indirect','call') else 'UNRESOLVED_DIRECT_BRANCH')
+            elif ins.flow=='call':
+                if len(returns)>=MAX_RETURN_DEPTH:
+                    _record_gap(gaps,gap_seen,pc,'RETURN_STACK_BOUND_EXCEEDED')
+                else:
+                    add(target,next_ms,next_regs,returns+(after,),'call-target',speculative)
+                    if indirect_target is not None:resolved_indirect.add(pc)
             else:
-                todo.append((ins.target,next_state,False,'direct-control-flow'))
-                edges+=1
-        if ins.flow=='indirect':_record_gap(gaps,gap_seen,pc,'INDIRECT_TARGET_UNRESOLVED')
-        if ins.flow=='return':_record_gap(gaps,gap_seen,pc,'RETURN_TARGET_NOT_STOCKED')
+                add(target,next_ms,next_regs,returns,
+                    'abstract-register-target' if indirect_target is not None else 'direct-control-flow',
+                    speculative)
+                if indirect_target is not None:resolved_indirect.add(pc)
+        if ins.flow=='call':
+            # A callee might fail to return or change any known state. Explore
+            # caller continuation as a clearly marked *hypothesis* (not an
+            # endorsed reachable edge). No CPU constant survives this fallback.
+            if ins.conditional:
+                add(after,other_ms,other_regs,returns,'conditional-call-not-taken',speculative)
+            else:
+                add(after,next_ms,cpu.initial(image),returns,
+                    'unverified-callee-continuation',True)
+        if ins.flow=='return':
+            if ins.conditional:
+                add(after,other_ms,other_regs,returns,'conditional-return-not-taken',speculative)
+            if returns:
+                expected=returns[-1]
+                if indirect_target is not None and expected!=indirect_target:
+                    _record_gap(gaps,gap_seen,pc,'LINK_REGISTER_RETURN_MISMATCH')
+                    add(indirect_target,next_ms,next_regs,returns,'link-register-target',True)
+                else:
+                    resolved_returns.add(pc)
+                    add(expected,next_ms,next_regs,returns[:-1],'matched-call-return',speculative)
+            elif indirect_target is not None:
+                resolved_indirect.add(pc)
+                add(indirect_target,next_ms,next_regs,returns,'register-return-target',True)
+            else:
+                _record_gap(gaps,gap_seen,pc,'RETURN_TARGET_NOT_STOCKED')
     if todo:_record_gap(gaps,gap_seen,todo[0][0],'WORKLIST_BUDGET_EXHAUSTED')
     results=sorted(records.values(),key=lambda r:(r['physical'],r['pc']))
     gaps.sort(key=lambda r:(r['pc'],r['reason']))
-    return results,gaps,edges
+    evidence={'resolved_return_sites':len(resolved_returns),
+              'resolved_indirect_sites':len(resolved_indirect),
+              'delay_slots_decoded':len(delay_slots),
+              'speculative_instruction_candidates':sum(x['classification'].startswith('SPECULATIVE') for x in results),
+              'abstract_contexts_visited':len(seen),
+              'max_call_depth':MAX_RETURN_DEPTH,
+              'provider_abstract_state_abi':ANALYSIS_ABI}
+    return results,gaps,edges,evidence
 
 def _candidates(data,image,cpu,machine,max_probes=512):
     """Look at possible orphan-bank entry bytes without blessing them as code."""
@@ -173,7 +267,7 @@ def interrogate(source:Path,output:Path,*,budget:int=40000,profile:str|None=None
     if profile is not None and not any(d['id']==profile for d in profiles):
         raise AnalysisFailure('UNKNOWN_REQUESTED_PROFILE')
     if len(selected)>1:raise AnalysisFailure('AMBIGUOUS_FORMAT_PROVIDERS')
-    report={'schema':'recompdev.offline.analysis.v1','release':'workspace/v0.4.9.35',
+    report={'schema':'recompdev.offline.analysis.v1','release':release_identity(),
             'source_sha256':original,'source_bytes':len(data),
             'launches_game':False,'requires_gameplay_discovery':False,
             'semantic_parity_qualified':False,'whole_game_code_coverage_qualified':False,
@@ -187,10 +281,10 @@ def interrogate(source:Path,output:Path,*,budget:int=40000,profile:str|None=None
     else:
         desc,image,format_meta=selected[0]
         cpu,cpu_meta=_plugin(desc['cpu']);machine,machine_meta=_plugin(desc['machine'])
-        if not all(callable(getattr(cpu,k,None)) for k in ('decode',)) or not all(
+        if not all(callable(getattr(cpu,k,None)) for k in ('decode','initial','key','advance','indirect')) or not all(
                 callable(getattr(machine,k,None)) for k in ('initial','key','resolve','transition','inventory','probes')):
             raise AnalysisFailure('PLUGIN_CONTRACT_METHOD_MISSING')
-        instructions,gaps,edges=_one_pass(data,image,cpu,machine,budget)
+        instructions,gaps,edges,abstract_evidence=_one_pass(data,image,cpu,machine,budget)
         hypotheses=_candidates(data,image,cpu,machine)
         inventory=machine.inventory(image,data)
         visited_offsets=set()
@@ -207,7 +301,8 @@ def interrogate(source:Path,output:Path,*,budget:int=40000,profile:str|None=None
                       decoded_candidates=len(instructions),static_candidate_bytes=len(visited_offsets),
                       total_source_bytes=len(data),unresolved=len(gaps),control_flow_edges=edges,
                       possible_orphan_entries=len(hypotheses),instruction_budget=budget,
-                      status_note='Bytes and lengths attested; static CFG is not proof of reachability or semantics.')
+                      abstract_execution=abstract_evidence,
+                      status_note='Bounded abstract CFG with speculation explicitly classified; no reachability, semantics or gameplay qualification.')
     # Re-read before publishing any report. Never write to the input file.
     if _hash(source.read_bytes())!=original:raise AnalysisFailure('SOURCE_CHANGED_DURING_OFFLINE_ANALYSIS')
     output.parent.mkdir(parents=True,exist_ok=True)

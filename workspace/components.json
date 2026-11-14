@@ -68,10 +68,10 @@
       "version": "0.2.1"
     },
     "offline_analysis": {
-      "description": "Universal offline source interrogation with independent format, CPU/ISA and machine mapping plugins; static, hash-attested CFG candidates across SMS, Mega Drive and PS-X EXE; partial coverage explicitly not gameplay or semantics qualified.",
+      "description": "Hardware-neutral bounded offline abstract execution with independent CPU constant-fact plugins and mapper providers, call/return and indirect-target inference, delay-slot ordering, source hashes, explicit speculative candidates, and unqualified-code honesty across Z80, M68000, and MIPS.",
       "kind": "tooling",
       "scope": "production-workflow",
-      "version": "0.1.0"
+      "version": "0.2.0"
     },
     "parity_validation": {
       "description": "Independent CPU/machine-neutral native C++ comparator for source/input-bound video frame fingerprints and optional audio/state SHA-256. Never asserts gameplay parity or reference independence; candidate fingerprints are generated from native preview with missing input/audio/state explicitly unqualified.",
@@ -269,5 +269,5 @@
     }
   },
   "schema": "recompdev-components-v1",
-  "workspace_release": "v0.4.9.35"
+  "workspace_release": "v0.4.9.36"
 }

@@ -1,1 +1,1 @@
-"""RecompDev v0.4.9.35 universal offline analysis; v1 static-only contract."""
+"""Universal offline analysis: v2 ISA abstract-value and machine mapping ABI."""
