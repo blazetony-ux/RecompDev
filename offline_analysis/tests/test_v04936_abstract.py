@@ -133,10 +133,10 @@ class CrossIsa(unittest.TestCase):
         reasons=[x['reason'] for x in gaps]
         self.assertIn('MAPPER_CONTROL_WRITE_INVALIDATES_ROM_WINDOW',reasons)
         self.assertIn('ROM_BANK_CONTEXT_UNRESOLVED',reasons)
-    def test_z80_indexed_write_conservatively_invalidates_mapping(self):
+    def test_z80_known_indexed_write_safe_range_preserves_mapping(self):
         a=self.sms();a[0x100:0x10b]=bytes.fromhex('dd 21 00 ff dd 36 fc 01 c3 00 40')
         _,_,gaps,_=self.scan(a)
-        self.assertIn('UNKNOWN_MEMORY_WRITE_MAY_TOUCH_MAPPER',[x['reason'] for x in gaps])
+        self.assertNotIn('UNKNOWN_MEMORY_WRITE_MAY_TOUCH_MAPPER',[x['reason'] for x in gaps])
     def test_mips_reserved_lui_not_falsely_const_folded(self):
         a=self.psx();a[0x800:0x804]=(0x3c288001).to_bytes(4,'little')
         _,ins,gaps,_=self.scan(a)

@@ -23,40 +23,62 @@ def resolve(image,pc,state):
     if offset>=image.data_length:raise Unresolved('ROM_BANK_OUTSIDE_SOURCE')
     return offset
 
+def _destinations(effect,registers):
+    """Return definitely-written 16-bit addresses, or None if not provable.
+
+    Bounded by Z80's 16-bit BC and pointer wrap. This provider alone owns
+    mapper register addresses; CPU decoders only declare memory effects.
+    """
+    address=effect.get('mem_addr')
+    if address is None and 'mem_addr_from' in effect:
+        address=registers.get(effect['mem_addr_from'])
+    if address is None:return None
+    address=(address+effect.get('mem_displacement',0))&0xffff
+    count=effect.get('mem_count',effect.get('mem_width',1))
+    if effect.get('copy_count_from'):
+        count=registers.get(effect['copy_count_from'])
+        if count==0:count=65536
+    if not isinstance(count,int) or count<1 or count>65536:return None
+    direction=effect.get('mem_direction',1)
+    # Only four bytes can affect the SMS mapper. Constant-time alias test
+    # even for the BC=0 / 65536-copy wraparound case.
+    impacted=[target for target in range(0xfffc,0x10000)
+              if (((target-address)*direction)&0xffff) < count]
+    return impacted,count
+
 def transition(image,ins,state,registers:AbstractFacts):
     effect=ins.effects;banks=list(state.banks);reasons=[]
-    addr=effect.get('mem_addr')
-    if addr is None and 'mem_addr_from' in effect:
-        addr=registers.get(effect['mem_addr_from'])
     if effect.get('unknown_memory_write') or 'mem_addr' in effect:
-        # A write whose address is unknown could touch a mapper register.
-        if addr is None or effect.get('repeat_write'):
+        destinations=_destinations(effect,registers)
+        if destinations is None:
             banks=[None,None,None]
             reasons.append('UNKNOWN_MEMORY_WRITE_MAY_TOUCH_MAPPER')
         else:
-            width=effect.get('mem_width',1)
-            for i in range(width):
-                dest=(addr+i)&0xffff
-                # 0xFFFC is cartridge-RAM enable/control; code mapping can
-                # change even though it is not a simple ROM bank selector.
+            impacted,width=destinations
+            for dest in impacted:
                 if dest==0xfffc:
                     banks=[None,None,None]
                     reasons.append('MAPPER_CONTROL_WRITE_INVALIDATES_ROM_WINDOW')
-                    continue
-                if not 0xfffd<=dest<=0xffff:continue
-                index=dest-0xfffd
-                source=effect.get('mem_value_from')
-                value=registers.get(source) if source is not None else effect.get('mem_value')
-                if value is None:
-                    banks[index]=None;reasons.append('BANK_REGISTER_VALUE_UNRESOLVED')
-                else:
-                    banks[index]=value%max(1,image.data_length//0x4000)
+                elif 0xfffd<=dest<=0xffff:
+                    index=dest-0xfffd
+                    # Multi-byte stores, block copies and computed stores
+                    # cannot infer their payload from an unrelated register.
+                    source=effect.get('mem_value_from')
+                    known=registers.get(source) if source else effect.get('mem_value')
+                    if width>1 or effect.get('block_copy'):known=None
+                    if known is None:
+                        banks[index]=None
+                        reasons.append('BANK_REGISTER_VALUE_UNRESOLVED')
+                    else:
+                        banks[index]=known%max(1,image.data_length//0x4000)
     if effect.get('stack_push'):
         sp=registers.get('SP')
-        if sp is None or any(((sp-d)&0xffff) in range(0xfffc,0x10000) for d in (1,2)):
+        # Stack writes use SP-1 and SP-2, even when the updated CPU facts
+        # reflect the decremented SP. A known safe stack never affects mapper.
+        if sp is None or any(((sp-d)&0xffff)>=0xfffc for d in (1,2)):
             banks=[None,None,None]
             reasons.append('STACK_WRITE_MAY_CHANGE_MAPPER')
-    return State(tuple(banks)),tuple(reasons)
+    return State(tuple(banks)),tuple(sorted(set(reasons)))
 
 def inventory(image,data):
     return [{'id':f'bank-{i:03}', 'start':i*0x4000,'bytes':0x4000,

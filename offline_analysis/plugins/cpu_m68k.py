@@ -10,19 +10,23 @@ def decode(fetch,pc):
     if pc&1:raise Unresolved('M68000_UNALIGNED_PC')
     w=int.from_bytes(fetch(pc,2),'big')
     if w==0x4e71:return Instruction(2,mnemonic='NOP')
-    if w in (0x4e75,0x4e73,0x4e77):return Instruction(2,'return',mnemonic='RTS/RTE/RTR')
+    if w==0x4e75:return Instruction(2,'return',mnemonic='RTS',effects={'stack_bytes':4})
+    if w in (0x4e73,0x4e77):raise Unresolved('M68000_EXCEPTION_RETURN_CONTEXT_UNQUALIFIED')
     if w==0x4e72:return Instruction(4,'stop',mnemonic='STOP')
     if w in (0x4ef9,0x4eb9):
         target=int.from_bytes(fetch(pc+2,4),'big')
-        return Instruction(6,'call' if w==0x4eb9 else 'jump',target,mnemonic='JSR/JMP_ABSL')
+        return Instruction(6,'call' if w==0x4eb9 else 'jump',target,
+                           effects={'stack_bytes':-4} if w==0x4eb9 else {},mnemonic='JSR/JMP_ABSL')
     if w in (0x4ef8,0x4eb8):
         value=int.from_bytes(fetch(pc+2,2),'big')
         if value&0x8000:value-=0x10000
-        return Instruction(4,'call' if w==0x4eb8 else 'jump',value&0xffffffff,mnemonic='JSR/JMP_ABSW')
+        return Instruction(4,'call' if w==0x4eb8 else 'jump',value&0xffffffff,
+                           effects={'stack_bytes':-4} if w==0x4eb8 else {},mnemonic='JSR/JMP_ABSW')
     if w in (0x4efa,0x4eba):
         disp=int.from_bytes(fetch(pc+2,2),'big')
         if disp&0x8000:disp-=0x10000
-        return Instruction(4,'call' if w==0x4eba else 'jump',(pc+2+disp)&0xffffffff,mnemonic='JSR/JMP_PC')
+        return Instruction(4,'call' if w==0x4eba else 'jump',(pc+2+disp)&0xffffffff,
+                           effects={'stack_bytes':-4} if w==0x4eba else {},mnemonic='JSR/JMP_PC')
     if (w&0xf000)==0x6000:
         cond=(w>>8)&15;lo=w&255
         if lo==0:
@@ -34,7 +38,7 @@ def decode(fetch,pc):
             disp=lo-256 if lo&0x80 else lo;length=2
         target=(pc+2+disp)&0xffffffff
         if cond==0:return Instruction(length,'jump',target,mnemonic='BRA')
-        if cond==1:return Instruction(length,'call',target,mnemonic='BSR')
+        if cond==1:return Instruction(length,'call',target,effects={'stack_bytes':-4},mnemonic='BSR')
         return Instruction(length,'branch',target,True,mnemonic='Bcc')
     if w&0xf100==0x7000:
         imm=w&255;imm=imm-256 if imm&128 else imm
@@ -45,18 +49,41 @@ def decode(fetch,pc):
         return Instruction(6,mnemonic='LEA_ABSL',effects={'reg_set':(dest,value)})
     if (w&0xfff8) in (0x4e90,0x4ed0):
         return Instruction(2,'call' if w&0xfff8==0x4e90 else 'indirect',
-                           effects={'indirect_reg':'A'+str(w&7)},mnemonic='JSR/JMP_An')
+                           effects={'indirect_reg':'A'+str(w&7),
+                                    **({'stack_bytes':-4} if w&0xfff8==0x4e90 else {})},mnemonic='JSR/JMP_An')
     if w in (0x4e70,0x4e76):return Instruction(2,'stop',mnemonic='RESET/TRAPV')
     if 0x4e40<=w<=0x4e4f:return Instruction(2,'indirect',mnemonic='TRAP_VECTOR')
     # Never guess the instruction length of an unknown 68000 instruction.
     raise Unresolved('M68000_INSTRUCTION_LENGTH_UNVERIFIED')
 
 
-def initial(image):return AbstractFacts()
+def initial(image):
+    sp=image.details.get('initial_sp')
+    return AbstractFacts((('A7',sp&0xffffffff),)) if type(sp)==int else AbstractFacts()
 def key(state):return state.pairs
 def advance(ins,state):
-    reg=ins.effects.get('reg_set')
-    return state.change(set_values={reg[0]:reg[1]}) if reg else state
+    effect=ins.effects
+    changes={}
+    reg=effect.get('reg_set')
+    if reg:changes[reg[0]]=reg[1]
+    clear=[]
+    if 'stack_bytes' in effect:
+        old=state.get('A7');clear.append('A7')
+        if old is not None:changes['A7']=(old+effect['stack_bytes'])&0xffffffff
+    return state.change(set_values=changes,clear=tuple(clear))
 def indirect(ins,state):
     reg=ins.effects.get('indirect_reg')
     return state.get(reg) if reg else None
+
+def lift_probe(raw:bytes,pc:int):
+    """Proof-only NOP/BRA/STOP 68000 control flow, not machine semantics."""
+    if raw==b'\x4e\x71':return {'kind':'next'}
+    if len(raw)==4 and raw[:2]==b'\x4e\x72':return {'kind':'stop'}
+    if raw and raw[0]==0x60:
+        if len(raw)==2 and raw[1]!=0:
+            disp=raw[1]-256 if raw[1]&0x80 else raw[1]
+        elif len(raw)==4 and raw[1]==0:
+            disp=int.from_bytes(raw[2:],'big',signed=True)
+        else:return None
+        return {'kind':'jump','target':(pc+2+disp)&0xffffffff}
+    return None

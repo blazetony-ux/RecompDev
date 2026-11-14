@@ -13,6 +13,7 @@ def main(argv=None):
     parser.add_argument('--out',type=Path)
     parser.add_argument('--budget',type=int,default=40000)
     parser.add_argument('--profile',default=None,help='Select a registered format plugin; no forced reinterpretation')
+    parser.add_argument('--compare-to',type=Path,default=None,action='append',help='Previous evidence directory for source-hash-matched regression comparison')
     parser.add_argument('--profiles',action='store_true',help='List registered profiles without running a game')
     a=parser.parse_args(argv)
     if a.profiles:
@@ -20,7 +21,7 @@ def main(argv=None):
         return 0
     if a.rom is None or a.out is None:parser.error('--rom and --out are both required')
     try:
-        result=interrogate(a.rom,a.out,budget=a.budget,profile=a.profile)
+        result=interrogate(a.rom,a.out,budget=a.budget,profile=a.profile,compare_to=a.compare_to)
         print('RECOMPDEV_OFFLINE_ANALYSIS='+json.dumps({'status':result['status'],
               'source_sha256':result['source_sha256'],'profile':result.get('profile'),
               'static_candidates':result.get('decoded_candidates',0),

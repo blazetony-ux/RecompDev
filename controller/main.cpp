@@ -156,6 +156,7 @@ static void usage(){
       "  export demo --out DIR (rights-cleared synthetic native executable smoke)\n"
       "  analyze --rom FILE --out DIR [--budget N] [--profile ID] (offline plugin-dispatched static discovery; no gameplay)\n"
       "  analyze --profiles (list available format, CPU and machine plugin combinations)\n"
+      "  analyze-native --rom FILE --analysis DIR --out DIR --rights-confirmed (minimal native control-flow probe; NOT a game exporter)\n"
       "  play ROM [--frames 2400] [--max-recoveries 128] [--audio speaker|capture|null] (one native live session, Windows monitor + display)\n"
       "  run ROM --auto-native [--target-frames 2400] (alias for play)\n"
       "  run --rom FILE [--logging debug|info|warning|error] [--max-cycles N] [--no-auto-history] (legacy bounded)\n"
@@ -262,6 +263,21 @@ int main(int argc,char** argv)
 #else
         if(equals(argv[1],"analyze")){
             std::vector<std::string> forwarded={(root/"offline_analysis"/"cli.py").string()};
+            for(int i=2;i<argc;++i)forwarded.emplace_back(argv[i]);
+            return spawn(root,forwarded);
+        }
+#endif
+        // v37: generic, strict source-attested offline-to-native proof handoff.
+        // The actual CPU lifter remains in the interchangeable provider.
+#ifdef _WIN32
+        if(equals(argv[1],L"analyze-native")){
+            std::vector<std::wstring> forwarded={(root/L"offline_analysis"/L"native_probe.py").wstring()};
+            for(int i=2;i<argc;++i)forwarded.emplace_back(argv[i]);
+            return spawn(root,forwarded);
+        }
+#else
+        if(equals(argv[1],"analyze-native")){
+            std::vector<std::string> forwarded={(root/"offline_analysis"/"native_probe.py").string()};
             for(int i=2;i<argc;++i)forwarded.emplace_back(argv[i]);
             return spawn(root,forwarded);
         }

@@ -1,3 +1,24 @@
+# v0.4.9.37 universal offline recovery and native-source handoff (2026-11-14)
+
+**Installed baseline:** owner Windows `workspace/v0.4.9.36`, 104/104 CTests, 642 historical SHA-256 immutable source files intact; authentic Shinobi offline scan 130 static instruction candidates, 20 unresolved, no gameplay. **v0.4.9.37 proposed source promotion** extends hardware-neutral analysis with precise alias-aware memory effects, safe speculative fact joining and source-verified regression comparison, plus a strictly limited compiled native-control-flow proof adapter from two different ISA providers. Owner Windows **108 CTests** remain mandatory before installation; production runtime stays unchanged.
+
+**Real-ROM result:** v37 source-only Shinobi scan identifies 130 candidates, 18 unresolved. v36-to-v37: 130 retained, zero new, zero dropped. v35-to-v37: 368 missing, 106 reclassified. These are static candidate inventories, *not established coverage*. This release does **not** claim successful autonomous conversion of a full game. The native probe has no CPU flags, data RAM, video/audio, input, interrupts or gameplay and MUST NOT be wired in as a replacement for the existing v34 standalone-game exporter.
+
+## Next delivery priorities after v37
+
+| Priority | Objective | Testable acceptance | Status |
+| --- | --- | --- | --- |
+| P0 | More dependable *real-ROM* offline reachability | New source-byte-proven executable regions from multiple physical bank contexts, independently audited; no invented code or game-specific hacks | BLOCKED, no new Shinobi candidates in v37 |
+| P0 | Per-CPU semantic/flag/value transfer and indirect jump tables | Z80, 68000 and MIPS provider fixtures with authoritative differential disassembly/interpretation and bounded control-state merges | PARTIAL, no full ISA coverage |
+| P0 | General offline-to-production-native translation bridge | Source+IR+CPU+machine+mapper-attested instructions feed the existing P-code/native module translator; unsupported paths halt clearly; CPU-neutral schema across providers | BLOCKED, v37 only demonstrates minimal native control-flow probe |
+| P0 | Independent game runtime | Existing standalone exporter consumes verified new source and pluggable device/memory services; no ROM/controller/compile dependencies at launch | BLOCKED for real games |
+| P1 | Operator and source governance | Hash-attested v35/v36/v37 diffs; optional origin publish checks fast-forward and verifies refs; generated per-ROM Git histories never overwrite | First implementation in v37, Windows acceptance pending |
+| P1 | True cross-system qualification | At least two supported real games per platform, and later Mega Drive dual-CPU/PS1 hardware/BIOS/overlay paths under plugins | BLOCKED |
+
+**Architecture requirement remains unchanged:** the universal controller must never encode Z80, Master System, Shinobi, 68000 or MIPS opcodes or address-map constants. Format/ISA/machine/translator/native-host providers are independently swappable. Unknown ROMs return an explicit unsupported result, not a guessed or emulated code path. Preserve historical sources and all game-derived native Git history.
+
+---
+
 # v0.4.9.36 universal abstract execution — owner-requested next build (2026-11-14)
 
 **Installed baseline:** `workspace/v0.4.9.35`, Windows 102/102 CTests and 642 immutable source files PASS, real Shinobi static scan 498 candidates / 23 unresolved findings / 26 orphan hypotheses, with *no* game launch. **v0.4.9.36 source candidate** adds hardware-neutral bounded abstract execution with versioned CPU facts, machine-only address mapping and explicit static-vs-speculative classifications, plus tests using invented Z80, 68000 and MIPS bytes. Full Windows 104-test acceptance and immutable-source preservation are mandatory before promotion.

@@ -38,7 +38,7 @@ class Dispatch(unittest.TestCase):
                 report=json.loads((out/'analysis.json').read_text())
                 self.assertEqual(report['profile'],profile)
                 self.assertEqual(report['source_sha256'],hashlib.sha256(data).hexdigest())
-                self.assertTrue(report['release'].endswith('0.4.9.36'))
+                self.assertEqual(report['release'],'workspace/'+json.loads((ROOT/'workspace'/'components.json').read_text())['workspace_release'])
                 self.assertEqual(report['abstract_execution']['provider_abstract_state_abi'],2)
                 self.assertGreaterEqual(report['abstract_execution']['resolved_indirect_sites'],1)
                 self.assertFalse(report['launches_game'])

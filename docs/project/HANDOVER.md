@@ -1,3 +1,15 @@
+## 2026-11-14 — v0.4.9.37 source candidate: precise universal offline flow and CPU-native proof
+
+**Owner-installed baseline:** `workspace/v0.4.9.36`, commit `01ec528fb7bb2bf92fbaa43a53834d7fa0ad0ab1`, with 104/104 owner Windows CTests, 642/642 frozen sources preserved, generated-source publication verified and active runtime unchanged. v37 is **not installed** until the owner validates its SHA-pinned source ZIP and completes all 108 MSVC Windows CTests. Its source-only installer must never activate an unqualified runtime.
+
+**What changed:** the same independent format/ISA/machine analysis provider chain tracks known safe indexed, stack and repeated memory writes more exactly; conservative joins on speculative call continuations and corrected MIPS branch-link/68000 exception semantics remain explicitly unqualified. New `--compare-to` flags report byte-identity and confidence-class changes across old scans. `analyze-native` is a strictly limited source-hash-attested control-flow **probe** that compiles and runs small CPU-plugin-supported authored loops, not a real game translation or integration with the existing v34 game exporter. The generic controller knows no title/CPU/console opcodes. Real Shinobi offline development scan: **130 candidates, 18 unresolved (v36: 130/20)**; no new instructions have been established. Do not claim complete ROM recovery, semantically correct execution, hardware parity, new Mega Drive/PS1 game capability, or an actual playable standalone ROM conversion.
+
+**Git:** owner `RecompDev` main/tag currently remain separate from automatically published per-ROM generated-source histories. Existing installer opt-in `-PublishOrigin` is retained, adding a remote-main ancestor gate and verified publication evidence to the updated script; the v36 installer running v37's transaction is not retroactively rewritten. Never force-push, publish generated copyrighted source to the public repo or override remote divergence. See [v37 release](../releases/v0.4.9.37.md), [provider documentation](../components/offline_analysis/README.md), [roadmap](ROADMAP.md).
+
+**Next gate:** actively improve real-ROM code discovery via richer flags/memory/jump-table semantics under plugins, then admit *verified* offline code into the existing general native P-code translator and the production standalone exporter with independent input/video/audio comparisons. Do not add a competing game-native exporter or rename the bounded native probe as game recompilation. Preserve all 642 original files, active runtime and source-attested per-ROM code histories.
+
+---
+
 ## 2026-11-14 — v0.4.9.36 source candidate: cross-ISA abstract offline flow
 
 **Authoritative installed source baseline:** v0.4.9.35 at `eefaeaad4dfaf466f77642363e71c1ba2d3d8553`, Windows **102/102 CTests PASS**, 642 protected historical files unchanged, non-active native runtime and source Git publication verified. Owner real Shinobi offline command completed without gameplay (498 instruction candidates, 23 unresolved and 26 unverified orphan-bank entry hypotheses). This does not qualify coverage or game parity.

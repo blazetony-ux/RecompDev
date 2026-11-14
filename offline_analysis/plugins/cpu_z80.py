@@ -32,12 +32,20 @@ def decode(fetch,pc):
         e=fetch(op_pc+1,1)[0]
         n=4 if e in _ED16 else 2
         fetch(op_pc,n)
-        if e in (0x45,0x4d):return Instruction(n,'return',mnemonic='RETN/RETI',effects={'stack_pop':True})
+        if e in (0x45,0x4d):return Instruction(n,'return',mnemonic='RETN/RETI',effects={'stack_pop':True,'interrupt_return':True})
         if e in (0x67,0x6f):
             return Instruction(n,mnemonic='RRD/RLD',
                                effects={'unknown_memory_write':True,'mem_addr_from':'HL','clear_a':True})
         if e in (0xa0,0xa8,0xb0,0xb8):
-            return Instruction(n,mnemonic='ED_BLOCK_COPY',effects={'unknown_memory_write':True,'mem_addr_from':'DE','repeat_write':e in (0xb0,0xb8),'clear_hl':True,'clear_de':True})
+            # LDI/LDD/LDIR/LDDR write a counted destination interval. The
+            # machine plugin tests that interval for mapper overlap. Unknown
+            # BC/DE remain unknown, including BC=0's 65536-step repeat.
+            return Instruction(n,mnemonic='ED_BLOCK_COPY',effects={
+                'unknown_memory_write':True,'mem_addr_from':'DE',
+                'copy_count_from':'BC' if e in (0xb0,0xb8) else None,
+                'mem_count':None if e in (0xb0,0xb8) else 1,
+                'mem_direction':-1 if e in (0xa8,0xb8) else 1,
+                'block_copy':True})
         if e in _ED16 and e&8==0:
             addr=int.from_bytes(fetch(op_pc+2,2),'little')
             return Instruction(n,mnemonic='ED_MEM_WRITE',effects={'mem_addr':addr,'mem_width':2})
@@ -62,6 +70,8 @@ def decode(fetch,pc):
     if opcode==0x11 and imm is not None:effects['set_de']=imm
     if opcode==0x23 and prefix is None:effects['adjust_hl']=1
     if opcode==0x2b and prefix is None:effects['adjust_hl']=-1
+    if opcode==0x03:effects['adjust_bc']=1
+    if opcode==0x0b:effects['adjust_bc']=-1
     if opcode==0x13:effects['adjust_de']=1
     if opcode==0x1b:effects['adjust_de']=-1
     if prefix is None and opcode in (0x2a,0xe1,0xeb,0x09,0x19,0x29,0x39,0x24,0x25,0x2c,0x2d,0x26,0x2e):
@@ -82,13 +92,17 @@ def decode(fetch,pc):
         effects['mem_addr_from']='BC' if opcode==0x02 else 'DE'
     if opcode in (0x34,0x35) and prefix is None:
         effects['unknown_memory_write']=True;effects['mem_addr_from']='HL'
-    if opcode==0xe3:effects['unknown_memory_write']=True;effects['mem_addr_from']='SP'
+    if opcode==0xe3:effects['unknown_memory_write']=True;effects['mem_addr_from']='SP';effects['mem_width']=2
+    if opcode==0x10:effects['clear_reg']=('BC',)
     if opcode==0xf9:effects['clear_sp']=True
     if opcode in (0x33,0x3b):effects['adjust_sp']=1 if opcode==0x33 else -1
     if opcode==0xe3:effects['clear_hl']=True
     if opcode==0x08:effects['clear_a']=True
-    if opcode==0x36 and prefix is None:
-        effects['unknown_memory_write']=True;effects['mem_addr_from']='HL';effects['mem_value']=imm
+    if opcode==0x36:
+        effects['unknown_memory_write']=True
+        effects['mem_addr_from']='HL' if prefix is None else 'IX' if prefix==0xdd else 'IY'
+        effects['mem_value']=imm
+        if prefix is not None:effects['mem_displacement']=buf[leading+1]-256 if buf[leading+1]&0x80 else buf[leading+1]
     if opcode in (0x77,0x70,0x71,0x72,0x73,0x74,0x75) and prefix is None:
         effects['unknown_memory_write']=True;effects['mem_addr_from']='HL'
         if opcode==0x77:effects['mem_value_from']='A'
@@ -130,15 +144,24 @@ def decode(fetch,pc):
         effects['clear_reg']=tuple(set(effects.get('clear_reg',()))|{{0:'BC',1:'BC',2:'DE',3:'DE'}[y]})
     if prefix is None and x==0 and z in (4,5,6) and y in (0,1,2,3):
         effects['clear_reg']=tuple(set(effects.get('clear_reg',()))|{{0:'BC',1:'BC',2:'DE',3:'DE'}[y]})
-    if prefix is not None and opcode not in (0x21,0xe9):
-        effects['clear_reg']=tuple(set(effects.get('clear_reg',()))|{'IX' if prefix==0xdd else 'IY'})
+    if prefix is not None:
+        name='IX' if prefix==0xdd else 'IY'
+        if opcode in (0x23,0x2b):
+            effects['adjust_index']=(name,1 if opcode==0x23 else -1)
+        elif opcode not in (0x21,0xe9,0xe5,0xf9) and not (
+            disp or (x==1 and y not in (4,5)) or x==2):
+            # Only narrow, explicitly understood indexed forms retain IX/IY;
+            # unknown writes to IXH/IXL or indexed arithmetic drop the fact.
+            effects['clear_reg']=tuple(set(effects.get('clear_reg',()))|{name})
     # Indirect memory writes cannot certify bank persistence with the basic
     # register abstraction. A more precise CPU plugin can replace this one.
     if prefix is not None and disp and (
         (x==1 and z!=6 and y==6) or (x==0 and y==6 and z in (4,5,6))):
-        # Indexed displacement can alias mapper registers; register facts
-        # are kept independent of the mapper provider, so invalidate.
+        # A known IX/IY plus a signed displacement yields an exact write
+        # address. Otherwise the machine plugin still invalidates mapping.
         effects['unknown_memory_write']=True
+        effects['mem_addr_from']='IX' if prefix==0xdd else 'IY'
+        effects['mem_displacement']=buf[leading+1]-256 if buf[leading+1]&0x80 else buf[leading+1]
     return Instruction(length,effects=effects,mnemonic='Z80')
 
 
@@ -167,10 +190,23 @@ def advance(ins,state:AbstractFacts):
         if source is not None:update['SP']=source
     if 'set_reg' in e:update[e['set_reg']]=e['set_value']
     if 'set_a' in e:update['A']=e['set_a']
-    for reg,effect in (('HL','adjust_hl'),('DE','adjust_de')):
+    for reg,effect in (('HL','adjust_hl'),('DE','adjust_de'),('BC','adjust_bc')):
         if effect in e:
             old=state.get(reg);cleared.add(reg)
             if old is not None:update[reg]=(old+e[effect])&0xffff
+    if 'adjust_index' in e:
+        name,delta=e['adjust_index'];old=state.get(name);cleared.add(name)
+        if old is not None:update[name]=(old+delta)&0xffff
+    if e.get('block_copy'):
+        direction=e['mem_direction'];old_count=state.get('BC')
+        count=old_count if e.get('copy_count_from') and old_count is not None else (
+            e.get('mem_count') if not e.get('copy_count_from') else None)
+        if count==0 and e.get('copy_count_from'):count=65536
+        for name in ('HL','DE'):
+            old=state.get(name);cleared.add(name)
+            if old is not None and count is not None:update[name]=(old+direction*count)&0xffff
+        cleared.add('BC')
+        if old_count is not None and count is not None:update['BC']=(old_count-count)&0xffff
     if e.get('stack_push') or e.get('stack_pop'):
         old=state.get('SP');cleared.add('SP')
         if old is not None:update['SP']=(old+(-2 if e.get('stack_push') else 2))&0xffff
@@ -179,3 +215,14 @@ def advance(ins,state:AbstractFacts):
 def indirect(ins,state:AbstractFacts):
     name=ins.effects.get('indirect_reg')
     return state.get(name) if name else None
+
+def lift_probe(raw:bytes,pc:int):
+    """A *tiny* independent native-control-flow subset, never complete Z80."""
+    if raw==b'\x00':return {'kind':'next'}
+    if raw==b'\x76':return {'kind':'stop'}
+    if len(raw)==3 and raw[0]==0xc3:
+        return {'kind':'jump','target':int.from_bytes(raw[1:],'little')}
+    if len(raw)==2 and raw[0]==0x18:
+        disp=raw[1]-256 if raw[1]&0x80 else raw[1]
+        return {'kind':'jump','target':(pc+2+disp)&0xffff}
+    return None

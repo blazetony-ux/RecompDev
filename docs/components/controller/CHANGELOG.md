@@ -1,3 +1,9 @@
+## [0.4.28] - 2026-11-14
+
+- **Changed:** Generic compiled-controller `analyze-native` forwarding route consumes strict source-attested offline analysis evidence; all native control-flow lifting remains in versioned CPU providers, with zero console or CPU opcodes in the controller.
+- **Validation:** Author-owned Z80 source through compiled controller into C++ handoff; independent same command for multiple registered analysis systems remains tested; no game-runner semantics or hardware runtime promotion.
+- **Compatibility:** All existing controller verbs, live native executable routes and DLL ABIs are unchanged. Windows full release test remains required.
+
 ## [0.4.25] - 2026-11-11
 
 - **Changed:** Compiled controller banner identifies v0.4.9.32 and documents live play audio routing through interchangeable native-host backends; audio selection lives in the existing session adapter, not the hardware-neutral controller.

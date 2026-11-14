@@ -750,3 +750,25 @@ if(Python3_Interpreter_FOUND)
  set_tests_properties(v04936_compiled_controller_abstract_dispatch PROPERTIES TIMEOUT 180
   ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
 endif()
+
+# v0.4.9.37: precise memory effects, independently compiled control-flow
+# probes for two CPU families, and safe opt-in Git origin publication policy.
+if(Python3_Interpreter_FOUND)
+ add_test(NAME v04937_precise_memory_and_regression_compare COMMAND "${Python3_EXECUTABLE}" -B
+  "${CMAKE_SOURCE_DIR}/../offline_analysis/tests/test_v04937_memory.py")
+ set_tests_properties(v04937_precise_memory_and_regression_compare PROPERTIES TIMEOUT 120
+  ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+ add_test(NAME v04937_attested_native_handoff COMMAND "${Python3_EXECUTABLE}" -B
+  "${CMAKE_SOURCE_DIR}/../offline_analysis/tests/test_v04937_native_handoff.py")
+ set_tests_properties(v04937_attested_native_handoff PROPERTIES TIMEOUT 240
+  ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+ add_test(NAME v04937_origin_publication_policy COMMAND "${Python3_EXECUTABLE}" -B
+  "${CMAKE_SOURCE_DIR}/../release/tests/test_v04937_origin_publication.py")
+ set_tests_properties(v04937_origin_publication_policy PROPERTIES TIMEOUT 120
+  ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+ add_test(NAME v04937_compiled_controller_offline_native_handoff COMMAND "${Python3_EXECUTABLE}" -B
+  "${CMAKE_SOURCE_DIR}/../offline_analysis/tests/test_v04937_controller.py"
+  "$<TARGET_FILE:RecompDev>")
+ set_tests_properties(v04937_compiled_controller_offline_native_handoff PROPERTIES TIMEOUT 180
+  ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+endif()

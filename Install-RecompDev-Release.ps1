@@ -642,6 +642,12 @@ if($Mode -eq 'Install' -and $releaseOk){
       $tagCommit=(& $git -C $Source rev-list -n 1 $tag | Out-String).Trim().ToLowerInvariant()
       Assert ($LASTEXITCODE -eq 0 -and $tagCommit -eq $current) 'Release tag no longer points to HEAD'
       Assert ((& $git -C $Source status --porcelain --untracked-files=all | Out-String).Trim() -eq '') 'Source checkout dirty'
+      # v37: explicit remote ancestor policy and independently attested push.
+      # The helper can ONLY preflight/verify, never perform a push.
+      $originAudit=Join-Path $Source 'release\origin_publication.py'
+      $originEvidence=Join-Path $job 'origin-publication.json'
+      Assert (Test-Path -LiteralPath $originAudit -PathType Leaf) 'Origin publication audit helper missing'
+      Run $python @('-B',$originAudit,'preflight','--repo',$Source,'--tag',$tag,'--out',$originEvidence) 'Origin fast-forward preflight rejected publication'
       $remoteTag=(& $git -C $Source ls-remote --tags origin ('refs/tags/'+$tag) | Out-String).Trim()
       Assert ($LASTEXITCODE -eq 0 -and -not $remoteTag) 'Release tag already exists on origin'
       Run $git @('-C',$Source,'push','--atomic','origin',
@@ -653,6 +659,8 @@ if($Mode -eq 'Install' -and $releaseOk){
       Assert ($mainRef -and $peeledRef) 'Missing origin main or release tag'
       Assert (($mainRef -split '\s+')[0].ToLowerInvariant() -eq $current) 'Origin main mismatch'
       Assert (($peeledRef -split '\s+')[0].ToLowerInvariant() -eq $current) 'Origin tag mismatch'
+      Run $python @('-B',$originAudit,'verify','--repo',$Source,'--tag',$tag,'--out',$originEvidence) 'Origin hash verification rejected publication'
+      Write-Host "RECOMPDEV_ORIGIN_EVIDENCE=$originEvidence"
       Write-Host 'RECOMPDEV_REMOTE_PROMOTION=PUBLISHED'
       Write-Host "RECOMPDEV_REMOTE_MAIN_COMMIT=$current"
       Write-Host "RECOMPDEV_REMOTE_TAG=$tag"

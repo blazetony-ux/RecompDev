@@ -51,6 +51,16 @@ class AbstractFacts:
         for name,value in (set_values or {}).items():values[name]=value
         return AbstractFacts(tuple(sorted(values.items())))
 
+def join_facts(left:AbstractFacts,right:AbstractFacts)->AbstractFacts:
+    """Safe data-flow join: retain only facts equal on *every* incoming path.
+
+    Never join a machine mapping here: differing physical ROM banks must stay
+    separate contexts or explicitly become UNKNOWN via a machine provider.
+    """
+    a=dict(left.pairs); b=dict(right.pairs)
+    return AbstractFacts(tuple(sorted((key,value) for key,value in a.items()
+                                      if key in b and b[key]==value)))
+
 class Unresolved(Exception):
     """Explicit uncertainty, never silently admitted as qualified code."""
     def __init__(self,reason:str):

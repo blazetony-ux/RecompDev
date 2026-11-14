@@ -7,11 +7,11 @@
       "version": "0.3.10"
     },
     "controller": {
-      "description": "Compiled platform-neutral controller with native lifecycle, standalone export and new uniform offline ROM-analysis dispatch through independently registered format/CPU/machine providers.",
+      "description": "Compiled hardware-neutral controller with native job/export lifecycle and generic offline analyze and source-attested analyze-native probe routing; CPU/console logic lives in replaceable providers.",
       "kind": "controller",
       "scope": "production-entrypoint",
       "target": "RecompDev",
-      "version": "0.4.27"
+      "version": "0.4.28"
     },
     "controller_diagnostics": {
       "description": "Authenticated localhost v1 watch_summary whitelist and separate intentional live display instruction sampling vs actual broker/display drops and on-disk capture truncation.",
@@ -68,10 +68,10 @@
       "version": "0.2.1"
     },
     "offline_analysis": {
-      "description": "Hardware-neutral bounded offline abstract execution with independent CPU constant-fact plugins and mapper providers, call/return and indirect-target inference, delay-slot ordering, source hashes, explicit speculative candidates, and unqualified-code honesty across Z80, M68000, and MIPS.",
+      "description": "Universal offline source-hashed abstract analysis with precise CPU-described memory effects and mapper-neutral control-flow joins, versioned regression comparisons and optional guarded two-CPU C++ control-flow probe handoff; no gameplay or full CPU correctness claimed.",
       "kind": "tooling",
       "scope": "production-workflow",
-      "version": "0.2.0"
+      "version": "0.3.0"
     },
     "parity_validation": {
       "description": "Independent CPU/machine-neutral native C++ comparator for source/input-bound video frame fingerprints and optional audio/state SHA-256. Never asserts gameplay parity or reference independence; candidate fingerprints are generated from native preview with missing input/audio/state explicitly unqualified.",
@@ -269,5 +269,5 @@
     }
   },
   "schema": "recompdev-components-v1",
-  "workspace_release": "v0.4.9.36"
+  "workspace_release": "v0.4.9.37"
 }

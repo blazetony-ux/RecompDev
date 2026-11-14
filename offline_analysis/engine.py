@@ -19,7 +19,7 @@ from typing import Any
 # Direct execution via the compiled controller starts from this file's path.
 if __package__ in (None, ''):
     sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from offline_analysis.model import ANALYSIS_ABI,Image,Instruction,Unresolved
+from offline_analysis.model import ANALYSIS_ABI,Image,Instruction,Unresolved,join_facts
 
 ROOT=Path(__file__).resolve().parents[1]
 REGISTRY=Path(__file__).with_name('profiles.json')
@@ -90,7 +90,7 @@ def _one_pass(data,image,cpu,machine,budget):
     # pc, machine state, CPU abstract facts, return stack, seed, speculative
     todo=collections.deque((s.pc,machine.initial(image),cpu.initial(image),(),s.reason,False)
                            for s in image.entries)
-    seen=set();visits=collections.Counter()
+    seen=set();visits=collections.Counter();speculative_joins={};joined_contexts=0
     records={};gaps=[];gap_seen=set();edges=0
     resolved_returns=set();resolved_indirect=set();delay_slots=set()
     def record(pc,physical,ins,raw,seed,speculative):
@@ -123,6 +123,19 @@ def _one_pass(data,image,cpu,machine,budget):
         todo.append((pc,ms,regs,returns,seed,speculative));edges+=1
     while todo and len(seen)<budget:
         pc,ms,regs,returns,seed,speculative=todo.popleft()
+        if speculative:
+            # The fallback caller continuation is expressly unverified. Join
+            # facts on that frontier using the intersection lattice, never
+            # across different physical bank mappings or call stacks.
+            group=(pc,machine.key(ms),returns)
+            previous=speculative_joins.get(group)
+            if previous is not None:
+                merged=join_facts(previous,regs)
+                if merged!=previous or merged!=regs:joined_contexts+=1
+                speculative_joins[group]=merged
+                regs=merged
+            else:
+                speculative_joins[group]=regs
         key=(pc,machine.key(ms),cpu.key(regs),returns,speculative)
         if key in seen:continue
         seen.add(key)
@@ -139,7 +152,7 @@ def _one_pass(data,image,cpu,machine,budget):
             next_ms,warnings=machine.transition(image,ins,ms,regs)
             next_regs=cpu.advance(ins,regs)
             other_ms=other_regs=None
-            if ins.conditional and ins.flow in ('call','return'):
+            if ins.conditional and ins.flow in ('call','return','branch'):
                 # Untaken conditional CALL/RET must not change the emulated
                 # stack or link register. Never borrow its taken-path facts.
                 neutral={k:v for k,v in ins.effects.items()
@@ -175,7 +188,9 @@ def _one_pass(data,image,cpu,machine,budget):
             continue
         if ins.flow=='stop':continue
         if ins.flow in ('next','branch'):
-            add(after,next_ms,next_regs,returns,'static-fallthrough',speculative)
+            add(after,other_ms if ins.flow=='branch' and other_ms is not None else next_ms,
+                other_regs if ins.flow=='branch' and other_regs is not None else next_regs,
+                returns,'static-fallthrough',speculative)
         if ins.flow in ('jump','branch','call','indirect'):
             target=ins.target if ins.target is not None else indirect_target
             if target is None:
@@ -202,6 +217,9 @@ def _one_pass(data,image,cpu,machine,budget):
                 add(after,next_ms,cpu.initial(image),returns,
                     'unverified-callee-continuation',True)
         if ins.flow=='return':
+            if ins.effects.get('interrupt_return'):
+                _record_gap(gaps,gap_seen,pc,'INTERRUPT_RETURN_REQUIRES_INTERRUPT_CONTEXT')
+                continue
             if ins.conditional:
                 add(after,other_ms,other_regs,returns,'conditional-return-not-taken',speculative)
             if returns:
@@ -226,7 +244,8 @@ def _one_pass(data,image,cpu,machine,budget):
               'speculative_instruction_candidates':sum(x['classification'].startswith('SPECULATIVE') for x in results),
               'abstract_contexts_visited':len(seen),
               'max_call_depth':MAX_RETURN_DEPTH,
-              'provider_abstract_state_abi':ANALYSIS_ABI}
+              'provider_abstract_state_abi':ANALYSIS_ABI,
+              'speculative_fact_join_events':joined_contexts}
     return results,gaps,edges,evidence
 
 def _candidates(data,image,cpu,machine,max_probes=512):
@@ -244,7 +263,7 @@ def _candidates(data,image,cpu,machine,max_probes=512):
             out.append({'candidate':label,'pc':pc,'status':'UNRESOLVED','reason':e.reason})
     return out
 
-def interrogate(source:Path,output:Path,*,budget:int=40000,profile:str|None=None)->dict:
+def interrogate(source:Path,output:Path,*,budget:int=40000,profile:str|None=None,compare_to:Path|list[Path]|None=None)->dict:
     source=Path(source).absolute();output=Path(output).absolute()
     if source.is_symlink() or not source.is_file():raise AnalysisFailure('REGULAR_SOURCE_FILE_REQUIRED')
     size=source.stat().st_size
@@ -303,6 +322,25 @@ def interrogate(source:Path,output:Path,*,budget:int=40000,profile:str|None=None
                       possible_orphan_entries=len(hypotheses),instruction_budget=budget,
                       abstract_execution=abstract_evidence,
                       status_note='Bounded abstract CFG with speculation explicitly classified; no reachability, semantics or gameplay qualification.')
+    comparisons=[]
+    if compare_to is not None:
+        from offline_analysis.comparison import compare
+        refs=compare_to if isinstance(compare_to,list) else [compare_to]
+        if len(refs)>8 or not refs:raise AnalysisFailure('COMPARISON_BASELINE_COUNT_INVALID')
+        for ref in refs:
+            comparisons.append(compare(ref,original,instructions,gaps))
+        if len(comparisons)==1:
+            c=comparisons[0]
+            report['regression_comparison']={
+                'baseline_release':c['baseline_release'],'retained':c['retained'],
+                'new_candidates':c['new_candidates'],'missing_candidates':c['missing_candidates'],
+                'reclassified':c['reclassified'],'semantic_coverage_increase_proven':False}
+        else:
+            report['regression_comparisons']=[{
+               'baseline_release':c['baseline_release'],'retained':c['retained'],
+               'new_candidates':c['new_candidates'],'missing_candidates':c['missing_candidates'],
+               'reclassified':c['reclassified'],'semantic_coverage_increase_proven':False}
+               for c in comparisons]
     # Re-read before publishing any report. Never write to the input file.
     if _hash(source.read_bytes())!=original:raise AnalysisFailure('SOURCE_CHANGED_DURING_OFFLINE_ANALYSIS')
     output.parent.mkdir(parents=True,exist_ok=True)
@@ -319,6 +357,9 @@ def interrogate(source:Path,output:Path,*,budget:int=40000,profile:str|None=None
         for name,value in (('instructions.json',instructions),('unresolved.json',gaps),
                            ('bank-inventory.json',inventory),('orphan-hypotheses.json',hypotheses)):
             members[name]=save(name,value)
+        if comparisons:
+            if len(comparisons)==1:members['regression-comparison.json']=save('regression-comparison.json',comparisons[0])
+            else:members['regression-comparisons.json']=save('regression-comparisons.json',comparisons)
         report['artifacts']=members
         save('analysis.json',report)
         temp.rename(output)

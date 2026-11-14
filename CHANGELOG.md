@@ -1,5 +1,13 @@
 # RecompDev workspace changelog
 
+## [workspace/v0.4.9.37] - 2026-11-14 — PRECISE UNIVERSAL OFFLINE FLOW AND SOURCE-HASHED NATIVE HANDOFF (SOURCE-ONLY)
+
+- **Implemented:** CPU-described precise stack, indexed and bounded copy write ranges; platform-mapper handling isolated to machine providers; abstract-state fact joins restricted to speculative contexts; corrected MIPS link-branch and M68000 exception/stack handling.
+- **Proof path:** Source+plugin+instruction SHA-pinned `analyze-native` command emits an independently compiled C++ control-flow probe using narrowly supported Z80 or 68000 CPU plugin lifters. It rejects speculative, unrecognized, altered or unsupported instructions; it is **not** a playable-game exporter or semantic CPU translator.
+- **Reporting/governance:** Repeatable cross-release `--compare-to` attests prior evidence and explains missing/retained/reclassified candidates. Origin publishing remains opt-in/atomic, with added remote-ancestor preflight and verified hash receipt; generated source Git history stays private and distinct.
+- **Windows gate:** 108 named CTests, including four new cross-platform tests, plus documentation, native MSVC, full 642-source preservation and Git backup. Linux results do not authorize runtime activation. [Release details](docs/releases/v0.4.9.37.md).
+
+
 ## [workspace/v0.4.9.36] - 2026-11-14 — UNIVERSAL BOUNDED ABSTRACT FLOW (SOURCE-ONLY)
 
 - **Implemented:** ISA-neutral bounded abstract control-flow interpreter with separate CPU fact providers, machine address mapping and source format plugins. Resolves known Z80 register jumps, M68000 LEA/An jumps, MIPS register jumps and call/return paths across all three fixtures; MIPS delay-slot target/side-effect ordering is enforced.

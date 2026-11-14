@@ -1,5 +1,13 @@
 # offline_analysis — component changelog
 
+## [0.3.0] - 2026-11-14
+
+- **Changed:** Tighten CPU/machine memory-write precision for safe known Z80 stack/register-indexed and counted-copy ranges while preserving explicitly unknown mapper/control aliases. Add conservative intersection joins for speculative call continuations, M68000 SP/exception-return handling and MIPS conditional link distinction; format/ISA/machine separation unchanged.
+- **Capability:** Source-hash-audited v35/v36/v37 candidate comparisons, repeatable old evidence baselines, and a new optional CPU-provider-owned minimal native-control-flow probe from independently attested static instructions. The proof compiles and runs C++ for authored Z80 and 68000 loops; it is not a game-runtime translator and cannot lift unsupported instruction semantics.
+- **Validation:** 13 precise-memory/comparison cases, five native-handoff safety/compilation cases, local-Git divergence checks and compiled-controller generic dispatch; owner Windows full 108-CTest suite and 642-file preservation still required. No real-game extra candidate count, hardware parity or standalone game output claimed.
+- **Compatibility:** `ANALYSIS_ABI=2` stays unchanged with optional `lift_probe`; native DLL and active game/runtime ABI are untouched. `-PublishOrigin` is still opt-in and never pushes game-derived source.
+
+
 ## [0.2.0] - 2026-11-14
 
 - **Changed:** Introduces immutable CPU abstract-register facts, CPU-plugin `initial/key/advance/indirect` hooks and machine-only mapping state with an explicit version-2 analysis provider ABI. The universal traversal owns bounded call/return contexts; machine plugins alone interpret ROM banking and memory-mapped write addresses.
